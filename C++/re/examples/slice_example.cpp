@@ -114,14 +114,15 @@ int main()
 	gettimeofday(&tracker2,NULL);   // update time structure with the current timeofday
 	int end_sec = (tracker2.tv_usec); // now you have the a rand num up to 6 digits
 	//int start_mil = (tracker.tv_sec); // now you have the a rand num up to 6 digits
-
+    double bench_iter_count = 9999999;
 	std::string strx;
-	for(int i = 0; i < 9999999; i ++){
+	for(int i = 0; i < bench_iter_count; i ++){
 		    strx = (re::slice(str, -12, -14,  -2)); // 4^cba*3
 	}
 
-	cout << "start sec = " << start_sec << endl;
-	cout << "end sec   = " << end_sec << endl;
+	cout << "start of benchmark sec = " << start_sec << endl;
+	cout << "end   of benchmark sec   = " << end_sec << endl;
+    cout << "Looped benchmark Count: " << bench_iter_count << "\n\n";
   	cout << "Elapsed Time in Seconds\n" << (end_sec - start_sec) * 0.001	 << endl;
   	cout << '\n';
   	// cout << "Elapsed Time in Milliseconds\n" << start_mil << endl;
@@ -129,3 +130,4 @@ int main()
 }
 
  
+// g++ -g $file.cpp -o $file -std=c++17 -Wfatal-errors

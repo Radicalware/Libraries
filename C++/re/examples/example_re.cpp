@@ -4,6 +4,7 @@
 
 #include "./re.h" // Found on "https://github.com/Radicalware"
 
+// // g++ -g $file.cpp -o $file -std=c++17 -Wfatal-errors
 
 using std::cout;
 using std::endl;
@@ -200,4 +201,6 @@ int main(){
     cout << '\n';
     return 0;
 }
+
+// g++ -g $file.cpp -o $file -std=c++17 -Wfatal-errors
  
