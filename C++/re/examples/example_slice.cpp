@@ -5,8 +5,7 @@
 #include "./re.h" // Found on "https://github.com/Radicalware"
 
 #include <ctime>
-#include <sys/time.h>
-#include <cstdlib>
+
 
 using std::cout;
 using std::endl;
@@ -16,14 +15,10 @@ using std::vector;
 
 // g++ -g $file.cpp -o $file -std=c++17 -Wfatal-errors
 
+void benchmark(std::string& str);
 
 int main()
 {
-	time_t timer;time(&timer);  
-	struct timeval tracker;        // create time structure
-	gettimeofday(&tracker,NULL);   // update time structure with the current timeofday
-	int start_sec = (tracker.tv_usec); // now you have the a rand num up to 6 digits
-	//int start_mil = (tracker.tv_sec); // now you have the a rand num up to 6 digits
 
 
     cout << "\n===(SLICE)======================================================\n";
@@ -51,9 +46,16 @@ int main()
     cout << "from arr[1] to arry[4 - 1]\n\n";
     cout << str << "   1,   4,   0 = " << re::slice(str,   1,   4,   0) << '\n'; // 123
     cout << str << "   5,  12,   0 = " << re::slice(str,   5,  12,   0) << '\n'; // abc^456
-    cout << "\nstart from str[0] and go to str[str.length()]\n";
-    cout << str << "   0,  str.length(),   0 = " << re::slice(str,   0,  str.length(),   0) << '\n'; // 
-    cout << str << "   0,  str.length(),   4 = " << re::slice(str,   0,  str.length(),   4) << '\n'; // 
+    cout << str << "   3,  str.length(),   4 = " << re::slice(str,   0,  str.length(),   4) << '\n'; // 
+
+    cout << "\nstart from str[3] and go to str[str.length()]\n";
+    cout << str << "   3,  str.length(),   0 = " << re::slice(str,   0,  str.length(),   4) << '\n'; // 
+    
+    cout << "\nSame as the last slice. '0' will subsitute for the end of the string\n";
+    cout << "\nIf 'z' is positive, '0' = str.length(); else z = '0'\n";
+    cout << str << "   3,   0,   0 = " << re::slice(str,   0,  str.length(),   0) << '\n'; // 
+    cout << str << "   0,  -4,  -1 = " << re::slice(str,   0,  str.length(),   0) << '\n'; // 
+
 
     cout << underline;
 
@@ -110,24 +112,28 @@ int main()
     cout << underline;
     // --------------------------------------------------------------------------------
 
-	struct timeval tracker2;          // create time structure
-	gettimeofday(&tracker2,NULL);     // update time structure with the current timeofday
-	int end_sec = (tracker2.tv_usec); // now you have the a rand num up to 6 digits
+    benchmark(str);
 
-    double bench_iter_count = 9999999;
-	std::string strx;
-	for(int i = 0; i < bench_iter_count; i ++){
-		    strx = (re::slice(str, 3, 15));  // str[3] >> str[14]
-            // strx = str.substr(3,12);      // str[3] >> str[12+3]
-            // learn how the re::slice is faster and more powerful than substr
-	}
-
-	cout << "start of benchmark sec = " << start_sec << endl;
-	cout << "end   of benchmark sec = " << end_sec << endl;
-    cout << "Looped benchmark Count: " << bench_iter_count << "\n\n";
-  	cout << "Elapsed Time in Seconds\n" << (end_sec - start_sec) * 0.001	 << endl;
-  	cout << '\n';
 }
 
+
+
+void benchmark(std::string& str){
+
+    std::clock_t    start;
+    start = std::clock();
+
+    double bench_iter_count = 9999999;
+    std::string strx;
+    for(int i = 0; i < bench_iter_count; i ++){
+        strx = (re::slice(str, 3, 15));  // str[3] >> str[14]
+    }
+
+    double result = (std::clock() - start) / (double)(CLOCKS_PER_SEC);
+
+    cout << "Looped benchmark Count: " << bench_iter_count << "\n\n";
+    cout << "Elapsed Time in Seconds\n" << result << endl;
+    cout << '\n';
+}  
  
 // g++ -g $file.cpp -o $file -std=c++17 -Wfatal-errors
