@@ -199,20 +199,24 @@ namespace re
 
         if (y == 0 && z >= 0){
             y = content.length();
+        }else if(x == 0 && z < 0){
+            x = content.length();
         }
 
-        if (x < 0){
+        if (y < 0){y += content.length();}
+        if (x < 0){x += content.length();}
+
+        bool to_end = false;
+        if (z < 0 && x < 0){
             x = content.length() + x;
-        }
-
-        if (y < 0){
+        }else if(z > 0 && y < 0){
             y = content.length() + y;
         }
 
         if(z == 0){
             z = 1;
         }
-
+        // -----------------------------------------
         double sliced_size;
         double abs_z;
         if (z < 0){
@@ -222,13 +226,16 @@ namespace re
             sliced_size = (((x - y) / abs_z) + 2);
         }
         sliced.resize(sliced_size);
+        // -----------------------------------------
+
         double idx = x;
+
         if (z >= 0){
             do{
                 if(idx >= y){
                     break;
                 }
-                sliced[idx] = content[idx];
+                sliced += content[idx];
                 idx += z;
             }while(true);
         }else{
@@ -236,11 +243,10 @@ namespace re
                 if(idx <= y){
                     break;
                 }
-                sliced[idx] = content[idx];
+                sliced += content[idx];
                 idx += z;
             }while(true);
         }
-
         return sliced;
         
     }
