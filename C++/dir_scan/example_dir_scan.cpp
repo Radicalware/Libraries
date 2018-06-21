@@ -5,7 +5,7 @@
 
 #include "dir_scan.h"
 // Programed by Scourge
-// GNU GPLv3
+// Apache License v2.0
 
 using std::cout;
 using std::cin;
