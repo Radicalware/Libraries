@@ -15,7 +15,7 @@ using std::vector;
 
 // g++ -g $file.cpp -o $file -std=c++17 -Wfatal-errors
 
-void benchmark(std::string& str);
+void benchmark_slice_string(std::string& str);
 
 int main()
 {
@@ -112,13 +112,13 @@ int main()
     cout << underline;
     // --------------------------------------------------------------------------------
 
-    benchmark(str);
+    benchmark_slice_string(str);
 
 }
 
 
 
-void benchmark(std::string& str){
+void benchmark_slice_string(std::string& str){
 
     std::clock_t    start;
     start = std::clock();
@@ -126,14 +126,18 @@ void benchmark(std::string& str){
     double bench_iter_count = 9999999;
     std::string strx;
     for(int i = 0; i < bench_iter_count; i ++){
-        strx = (re::slice(str, 3, 15));  // str[3] >> str[14]
+        strx = re::slice(str, 5, -4, -1);
+        // trim off the last 4 chars and print in reverse order
     }
 
     double result = (std::clock() - start) / (double)(CLOCKS_PER_SEC);
 
-    cout << "Looped benchmark Count: " << bench_iter_count << "\n\n";
+    cout << "_____________________________________________________\n";
+    cout << "Slice Benchmark";
+    cout << "\nLooped benchmark Count: " << bench_iter_count << "\n\n";
     cout << "Elapsed Time in Seconds\n" << result << endl;
     cout << '\n';
 }  
  
+
 // g++ -g $file.cpp -o $file -std=c++17 -Wfatal-errors
