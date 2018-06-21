@@ -670,3 +670,4 @@ sVector  Hexr::hex_vector() { sVector retv(m_hex_array, m_hex_array + m_byte_cou
 string   Hexr::hex_string() { return m_hex_string.erase(m_byte_count * 2, m_hex_string.length()); }
 // --------------------------------------------------------------------------------------------------------	
  
+ 
