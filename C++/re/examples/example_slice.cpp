@@ -110,14 +110,16 @@ int main()
     cout << underline;
     // --------------------------------------------------------------------------------
 
-	struct timeval tracker2;        // create time structure
-	gettimeofday(&tracker2,NULL);   // update time structure with the current timeofday
+	struct timeval tracker2;          // create time structure
+	gettimeofday(&tracker2,NULL);     // update time structure with the current timeofday
 	int end_sec = (tracker2.tv_usec); // now you have the a rand num up to 6 digits
-	//int start_mil = (tracker.tv_sec); // now you have the a rand num up to 6 digits
+
     double bench_iter_count = 9999999;
 	std::string strx;
 	for(int i = 0; i < bench_iter_count; i ++){
-		    strx = (re::slice(str, -12, -14,  -2)); // 4^cba*3
+		    strx = (re::slice(str, 3, 15));  // str[3] >> str[14]
+            // strx = str.substr(3,12);      // str[3] >> str[12+3]
+            // learn how the re::slice is faster and more powerful than substr
 	}
 
 	cout << "start of benchmark sec = " << start_sec << endl;
@@ -125,8 +127,6 @@ int main()
     cout << "Looped benchmark Count: " << bench_iter_count << "\n\n";
   	cout << "Elapsed Time in Seconds\n" << (end_sec - start_sec) * 0.001	 << endl;
   	cout << '\n';
-  	// cout << "Elapsed Time in Milliseconds\n" << start_mil << endl;
-  	// cout << '\n';
 }
 
  
