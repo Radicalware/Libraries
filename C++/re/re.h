@@ -48,7 +48,7 @@ namespace re
     }
     // ======================================================================================
     // re::search & re::findall use grouper/iterator, don't use them via the namespace directly
-    std::vector<std::string>grouper(std::vector<std::string> ret_vector, std::string& content, const std::string& in_pattern)
+    std::vector<std::string>grouper(const std::string& content, std::vector<std::string>& ret_vector, const std::string& in_pattern)
     {
         // note: passing ret_vector by reference caused memory corruption (hence I passed by value)
         std::smatch match_array;
@@ -69,7 +69,7 @@ namespace re
     }
 
 
-    std::vector<std::string>iterator(std::string& content, std::vector<std::string> ret_vector, const std::string in_pattern){
+    std::vector<std::string>iterator(const std::string& content, std::vector<std::string>& ret_vector, const std::string& in_pattern){
         std::smatch match_array;
         std::regex pattern(in_pattern);
         for(std::sregex_iterator iter_index = std::sregex_iterator(content.begin(), content.end(), pattern);
@@ -88,7 +88,7 @@ namespace re
     }
 
     // --------------------------------------------------------------------------------------
-    std::vector<std::string> findall(const std::string& in_pattern, std::string content, char group = false)
+    std::vector<std::string> findall(const std::string& in_pattern, const std::string& content, const char group = false)
     {
         std::vector<std::string> ret_vector;
         std::vector<std::string> split_string;
@@ -131,7 +131,7 @@ namespace re
             for (int i = 0; i < new_line_count; i++ )
             {
                 // made a copy of the target line
-                ret_vector = grouper(ret_vector, split_string[i], in_pattern);
+                ret_vector = grouper(split_string[i], ret_vector, in_pattern);
             }
         }
 
@@ -139,14 +139,14 @@ namespace re
     }
     // ======================================================================================
 
-    std::vector<std::string> search(const std::string& in_pattern, std::string content, char group = false)
+    std::vector<std::string> search(const std::string& in_pattern, const std::string& content, const char group = false)
     {
         std::smatch array;
         std::vector<std::string> ret_vector;
         if (group == false){
             ret_vector = iterator(content, ret_vector, in_pattern);
         }else{
-            ret_vector = grouper(ret_vector, content, in_pattern);
+            ret_vector = grouper(content, ret_vector, in_pattern);
         }
         return ret_vector;
     }
@@ -168,28 +168,28 @@ namespace re
     // ======================================================================================
 
 
-    bool match(const std::string& in_pattern, std::string content)
+    bool match(const std::string& in_pattern, const std::string& content)
     {
         std::regex pattern(in_pattern);
         return bool(std::regex_match(content, pattern));
     }
     // ======================================================================================
 
-    std::string sub(const std::string& in_pattern, const std::string& replacement, std::string content)
+    std::string sub(const std::string& in_pattern, const std::string& replacement, const std::string& content)
     {
         std::regex pattern(in_pattern);
         return std::regex_replace(content, pattern, replacement);
     }
     // ======================================================================================
 
-    std::string slice(std::string& content, double x = 0, double y = 0, double z = 0)
+    std::string slice(const std::string& content, double x = 0, double y = 0, double z = 0)
     {
         // python based trimming method >> string[num:num:num]
 
         // Currently this only works with strings
         // I will add the functionality for it to handle arrays/vectors later
         double len = content.length();
-        
+
 
         std::string sliced;
 
@@ -228,7 +228,7 @@ namespace re
                 if(idx >= y){
                     break;
                 }
-                sliced += content[idx];
+                sliced[idx] = content[idx];
                 idx += z;
             }while(true);
         }else{
@@ -236,7 +236,7 @@ namespace re
                 if(idx <= y){
                     break;
                 }
-                sliced += content[idx];
+                sliced[idx] = content[idx];
                 idx += z;
             }while(true);
         }
