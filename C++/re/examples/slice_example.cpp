@@ -121,7 +121,7 @@ int main()
 	}
 
 	cout << "start of benchmark sec = " << start_sec << endl;
-	cout << "end   of benchmark sec   = " << end_sec << endl;
+	cout << "end   of benchmark sec = " << end_sec << endl;
     cout << "Looped benchmark Count: " << bench_iter_count << "\n\n";
   	cout << "Elapsed Time in Seconds\n" << (end_sec - start_sec) * 0.001	 << endl;
   	cout << '\n';
