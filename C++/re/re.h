@@ -193,20 +193,20 @@ namespace re
 
         std::string sliced;
 
-        if(x == 0 and y == 0 and z == 0){ return content; }
+        if(x == 0 and y == 0 and z == 0){
+            return content;
+        }
 
-
-        if     (y == 0 && z >= 0){  y = content.length(); }
-        else if(x == 0 && z <  0){  x = content.length(); }
-
+        if     (y == 0 && z >= 0){ y = content.length(); }
+        else if(x == 0 && z <  0){ x = content.length(); }
 
         if (y < 0){y += content.length();}
         if (x < 0){x += content.length();}
 
+        if     (z < 0 && x < 0){  x += content.length(); }
+        else if(z > 0 && y < 0){  y += content.length(); }
 
-        if(z == 0){
-            z = 1;
-        }
+        if(z == 0){ z = 1; }
         // -----------------------------------------
         double sliced_size;
         int abs_z;
