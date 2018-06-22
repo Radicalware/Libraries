@@ -182,43 +182,34 @@ namespace re
     }
     // ======================================================================================
 
-    std::string slice(const std::string& content, double x = 0, double y = 0, double z = 0)
+    std::string slice(const std::string& content, int x = 0, int y = 0, int z = 0)
     {
         // python based trimming method >> string[num:num:num]
 
         // Currently this only works with strings
         // I will add the functionality for it to handle arrays/vectors later
-        double len = content.length();
+        int len = content.length();
 
 
         std::string sliced;
 
-        if(x == 0 and y == 0 and z == 0){
-            return content;
-        }
+        if(x == 0 and y == 0 and z == 0){ return content; }
 
-        if (y == 0 && z >= 0){
-            y = content.length();
-        }else if(x == 0 && z < 0){
-            x = content.length();
-        }
+
+        if     (y == 0 && z >= 0){  y = content.length(); }
+        else if(x == 0 && z <  0){  x = content.length(); }
+
 
         if (y < 0){y += content.length();}
         if (x < 0){x += content.length();}
 
-        bool to_end = false;
-        if (z < 0 && x < 0){
-            x = content.length() + x;
-        }else if(z > 0 && y < 0){
-            y = content.length() + y;
-        }
 
         if(z == 0){
             z = 1;
         }
         // -----------------------------------------
         double sliced_size;
-        double abs_z;
+        int abs_z;
         if (z < 0){
             abs_z = z * -1;
         }
@@ -228,7 +219,7 @@ namespace re
         sliced.resize(sliced_size);
         // -----------------------------------------
 
-        double idx = x;
+        int idx = x;
 
         if (z >= 0){
             do{
