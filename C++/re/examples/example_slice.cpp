@@ -131,7 +131,7 @@ void benchmark_slice_string(std::string& str){
 
     std::string strx;
     for(int i = 0; i < used_size; i ++){
-        strx = re::slice(str, 4, 14, 0);
+        strx = re::slice(str, 4, -5, -2);
         // trim off the last 4 chars and print in reverse order
     }
 

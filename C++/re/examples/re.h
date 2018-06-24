@@ -190,7 +190,6 @@ namespace re
         // I will add the functionality for it to handle arrays/vectors later
         int len = content.length();
 
-
         std::string sliced;
 
         if(x == 0 and y == 0 and z == 0){
@@ -210,33 +209,31 @@ namespace re
         // -----------------------------------------
         double sliced_size;
         int abs_z;
-        if (z < 0){
-            abs_z = z * -1;
+
+
+        bool z_pos_bool;
+        if (z < 0){ 
+            abs_z = z * -1; 
+            z_pos_bool = false;
+        }else{
+            z_pos_bool = true;
         }
+
         if(x > y){
             sliced_size = (((x - y) / abs_z) + 2);
+        }else{
+            sliced_size = (((y - x) / abs_z) + 2);
         }
         sliced.resize(sliced_size);
         // -----------------------------------------
 
-        int idx = x;
+        if (z_pos_bool) {
+            for(int idx = x; idx < y; idx += z)
+                sliced += content[idx];
 
-        if (z >= 0){
-            do{
-                if(idx >= y){
-                    break;
-                }
-                sliced += content[idx];
-                idx += z;
-            }while(true);
         }else{
-            do{
-                if(idx <= y){
-                    break;
-                }
+            for(int idx = x; idx > y; idx += z)
                 sliced += content[idx];
-                idx += z;
-            }while(true);
         }
         return sliced;
         

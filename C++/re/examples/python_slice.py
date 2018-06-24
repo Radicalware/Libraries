@@ -52,7 +52,7 @@ def benchmark(s):
 	ilong  = 9999999
 	x = []
 	for i in range(1,ilong):
-		x += (s[12:-14:-2])
+		x += (s[4:-5:-2])
 
 	print("\nSeconds for Benchmark\n----------------------\n")
 	print(time.time() - start) 
