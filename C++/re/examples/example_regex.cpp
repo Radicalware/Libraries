@@ -85,14 +85,17 @@ VVVVsentencePPPPP
 
     // Search is the same thing as Findall but it looks at the whole string at
     // one time intead of each line individually. It only returns the first 
-    // true occurance of what you are searching for (unlike findall)
+    // with bool true specified occurance of what you are searching for 
+    // (unlike findall). Also, note, you will need to target the item in the array
+    // if you use bool 'true'
 
     vector<string> findall_array = re::search("^.*V+(.+?)P",string_to_search,true);
     // note: the "t" for groups = true 
     for(string& i: findall_array)
         cout << "Search1  = " << i << endl;
-        //       OUTPUT
-        //       Search1  = sentence
+              // OUTPUT
+              // Search1  = VVVVsentenceP
+              // Search1  = sentence
 
     // Notice in capture one how I only got one "sentence" back with a "^" 
     // at the start. That is because I am using re::search and not re::findall
