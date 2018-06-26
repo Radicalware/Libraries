@@ -182,7 +182,8 @@ namespace re
     }
     // ======================================================================================
 
-    std::string slice(const std::string& content, int x = 0, int y = 0, int z = 0)
+    template <typename X, typename Y, typename Z>
+    std::string slice(const std::string& content, X x = 0, Y y = 0, Z z = 0)
     {
         // python based trimming method >> string[num:num:num]
 
@@ -230,7 +231,6 @@ namespace re
         if (z_pos_bool) {
             for(int idx = x; idx < y; idx += z)
                 sliced += content[idx];
-
         }else{
             for(int idx = x; idx > y; idx += z)
                 sliced += content[idx];
