@@ -1,3 +1,6 @@
+#ifndef _OS_H_
+#define _OS_H_
+
 #include<iostream>
 #include<vector>
 #include<string>
@@ -52,12 +55,16 @@ private:
 	std::unordered_map<std::string, std::vector<std::string> > m_args; // {base_arg, sub_args}
 
 	std::vector<std::string> m_all_args; 
-	std::string m_args_str;
+	std::string m_all_args_str;
 
 	std::vector<std::string> m_bargs; // base args
 	std::string m_bargs_str;
 	std::vector< std::vector<std::string> > m_sub_args; // sub args
 	std::string m_sub_args_str;
+
+	std::string blank {""};
+
+	std::vector<std::string> blank_vec;
 
 public:
 
@@ -66,10 +73,15 @@ public:
 	{(this)->set_args(m_argc, m_argv);};
 
 
-	OS(){};
+	OS(){
+		std::string tmp = "xnone";
+		blank_vec.push_back(tmp);
+	};
 	~OS(){};
 	// ------------------------------------------
 	OS open(std::string new_file){
+		std::string tmp = "xnone";
+		blank_vec.push_back(tmp);
 		m_file_name = new_file;
 		return *this;
 	}
@@ -149,46 +161,67 @@ public:
 		return result;
 	}
 
+	std::string operator[](int value){
+		if (m_all_args.size() <= value){
+			return blank;
+		}else{
+			return m_all_args[value];
+		}
+	}
+
 	OS set_args(int argc, char** argv){
 		m_all_args.resize(argc);
 		bool sub_arg = false;
 		bool first_header = false;
 		int first_sub = 0;
 		std::vector<std::string> prep_sub_arg;
-		for(int i = 0; i < argc; i++){
-			
-			m_all_args[i] = argv[i];
-			m_args_str += m_all_args[i] + ' ';
-			if (m_all_args[i][0] == '-' or m_all_args[i][0] == '/'){
-				m_bargs.push_back(m_all_args[i]);
-				m_bargs_str += m_all_args[i] + ' ';
-				first_header = true;
-				sub_arg = false;
-				first_sub += 1;
-			}else{
-				sub_arg = true;
-				if(first_header){first_sub += 1;}
-			}
+		std::string current_base;
 
-			if(first_header && sub_arg and (i != argc-1)){
-				prep_sub_arg.push_back(m_all_args[i]);
-				m_sub_args_str += m_all_args[i] + " ";
-			}else if(first_header && first_sub >= 2 && (sub_arg == false || (i == argc-1))) {
-				if(i == argc-1){
-					prep_sub_arg.push_back(m_all_args[i]);
-					m_sub_args_str += m_all_args[i];
+
+		for(int arg = 0; arg <= argc; arg++){ // loop through argv
+			if(arg != argc)
+				m_all_args[arg] = argv[arg];
+			if(first_header){
+				if(arg == argc && prep_sub_arg.size() > 0){
+					// last call to append prep_sub_arg to KVP
+					if(m_args.count(current_base)){
+						for(std::string str: prep_sub_arg)
+							m_args.at(current_base).push_back(str);
+					}else{
+						m_args.insert(std::make_pair(current_base, prep_sub_arg));
+					}
+					for(std::string str: prep_sub_arg)m_sub_args_str += str + ' ';
+				}else if(arg < argc){
+					if(argv[arg][0] == '-' || argv[arg][0] == '/'){
+						if (prep_sub_arg.size() > 0){
+							m_sub_args.push_back(prep_sub_arg);
+							if(m_args.count(current_base)){
+								for(std::string str: prep_sub_arg)
+									m_args.at(current_base).push_back(str);
+							}else{
+								m_args.insert(std::make_pair(current_base, prep_sub_arg));
+							}
+							for(std::string str: prep_sub_arg)m_sub_args_str += str + ' ';
+							prep_sub_arg.clear();
+							current_base = m_all_args[arg];
+							m_bargs.push_back(current_base);
+						}else if(!if_key(m_all_args[arg])){ // if the key doesn't already exist
+							m_args.insert(std::make_pair(m_all_args[arg], blank_vec));
+						}
+					}else{
+						prep_sub_arg.push_back(m_all_args[arg]);
+					}
 				}
-				m_sub_args.push_back(prep_sub_arg);
-				prep_sub_arg.clear();
-				m_sub_args_str += '\n';
+			}else if(argv[arg][0] == '-' or argv[arg][0] == '/'){
+				first_header = true;
+				m_bargs.push_back(m_all_args[arg]);
+				current_base = m_all_args[arg];
 			}
 		}
 
-		if(first_header){
-			for(int i = 0; i < m_bargs.size(); i++){
-				m_args.insert(std::make_pair(m_bargs[i],m_sub_args[i]));
-			}
-		} 
+		for(std::string& str: m_all_args) m_all_args_str += str + ' ';
+		for(std::string& str: m_bargs) m_bargs_str += str + ' ';
+
 		return *this;	
 	}
 
@@ -200,7 +233,15 @@ public:
 	std::string command()  {return m_command;}
 	// -------------------------------------------------------------------------------
 	std::vector<std::string> arg_vec(){return m_all_args;}
-	std::string args_str(){return m_args_str;}
+	std::string args_str(){return m_all_args_str;}
+	bool if_arg(std::string find_arg){
+		for(auto&arg : m_all_args){
+			if (arg == find_arg)
+				return true;
+		return false;
+		}
+	}
+	int arg_count(){return m_all_args.size();}
 
 	std::vector<std::string> base_args(){return m_bargs;}
 	std::string base_args_str(){return m_bargs_str;}
@@ -208,18 +249,19 @@ public:
 	std::vector< std::vector<std::string> > sub_args(){return m_sub_args;}
 	std::string sub_args_str(){return m_sub_args_str;}
 	// -------------------------------------------------------------------------------
-	std::unordered_map<std::string, std::vector<std::string> > dict(){return m_args;}
+	std::unordered_map<std::string, std::vector<std::string> > args(){return m_args;}
 	
 	std::vector<std::string> key(std::string key){return m_args.at(key);}
-	std::string value(std::string key, int i){return m_args.at(key)[i];}
 	
-	bool if_key(std::string key){
-		for(size_t i = 0; i < m_bargs.size(); i++){
-			if(key == m_bargs[i]){
-				return true;
-			}
-		}return false;
-	};
+	std::string value(std::string key, int i){return m_args.at(key)[i];}
+
+	std::vector<std::string> values(std::string key){
+		std::vector<std::string> values = m_args.at(key);
+		return values;
+	}
+
+
+	bool if_key(std::string key){bool(m_args.count(key));};
 	bool if_value(std::string key, std::string value){
 		for(size_t i = 0; i < m_args.at(key).size(); i++){
 			if (m_args.at(key)[i] == value){
@@ -227,5 +269,11 @@ public:
 			}
 		}return false;
 	}
+
+	template<class T = std::string>
+	void p(T str){cout << endl << "------\n" << str << endl;}
+	void d(int i = 0){cout << endl << "---{dbg: " << i << "}---" << endl;}
 	// -------------------------------------------------------------------------------
 };
+
+#endif

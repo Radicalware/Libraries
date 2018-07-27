@@ -3,7 +3,7 @@
 #include<string>
 #include<ctime>
 
-#include "./os.h" // Found on "https://github.com/Radicalware"
+#include "./OS.h" // Found on "https://github.com/Radicalware"
 
 using std::cout;
 using std::endl;
