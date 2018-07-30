@@ -1,7 +1,0 @@
-#!/bin/bash
-
-rm ./ex_os
-gg ex_os.cpp
-
-# ./ex_os -first argF1 argF2 -second argS1 argS2 argS3
-./ex_os -first argF1 argF2 -second argS1 argS2 argS3 -third argt1 argt2 argt3 argt4
