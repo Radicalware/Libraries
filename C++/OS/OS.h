@@ -346,12 +346,6 @@ public:
 
     OS rmdir(std::string folder){
         this->assert_folder_syntax(folder);
-        
-        // for file in files
-        // map each one to an int (for num of / )
-        // delete each one (one won't delete becuse it is the folder itself so run twice)
-        // remove each file as you go along
-        // try printing each one as you would delete it
 
         std::vector<std::string> filesystem = dir(folder,"files","folders","recurse","star");
         std::vector<std::string>::iterator iter;
@@ -386,19 +380,19 @@ public:
         };
 
 
-        get_max_path();
+        get_max_path(); 
         rm_slash_count();
         while(max_slash > 1){  
             max_slash = 0;  
             get_max_path();
             rm_slash_count();       
         }
+        ::rmdir(&folder[0]);
        
         return *this;
     }
 
     void assert_folder_syntax(std::string folder1, std::string folder2 = ""){
-        // TODO: use lambda
         assert(re::match("^[\\./\\\a-zA-Z0-9_]*$",folder1));
         assert(!re::contains("[^\\\\]\\s",folder1));
         if(folder2.size()){
