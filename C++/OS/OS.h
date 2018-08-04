@@ -1,21 +1,6 @@
 #ifndef _OS_H_
 #define _OS_H_
 
-#include<iostream>
-#include<vector>
-#include<string>
-#include<stdexcept>
-
-#include<fstream>    // dir
-
-#include<dirent.h>   // read/write
-#include<string>
-
-#include<stdio.h>    // popen
-
-#include<unordered_map>
-
-
 /*
 * Copyright[2018][Joel Leagues aka Scourge]
 * Scourge /at\ protonmail /dot\ com
@@ -34,6 +19,42 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
+
+
+// -------------------------------------------------------------------------------
+// ALERT iterator will majorly slow down your performance if you don't
+// optimize your compiler settings "-O2", else it will increase speed when
+// not on windows (windows will give you even speeds with optimization else lag)
+// -------------------------------------------------------------------------------
+
+#include "re.h" // From github.com/Radicalware
+                // re.h has no non-std required libs
+                // This is the only non-std lib required for OS.h
+
+
+#include<iostream>
+#include<vector>
+#include<string>
+#include<stdexcept>
+
+#include<fstream>      // file-handling
+
+#include<dirent.h>     // read/write
+
+#include<stdio.h>      // popen
+#include<sys/stat.h>   // mkdir 
+#include<unordered_map>
+
+#include<assert.h>
+
+#ifndef MSWINDOWS
+    extern const std::string PLATFORM {"nix"};
+    #include <unistd.h>
+#else
+    extern const std::string PLATFORM {"winbase"};
+    #include <winbase.h>
+#endif
 
 using std::cout;
 using std::endl;
@@ -91,7 +112,7 @@ public:
             case 'a' :  m_write_method = 'a';
                         break;
             case 'w' :  m_write_method = 'w';
-                        this -> clear(m_file_name);
+                        this -> clear_file(m_file_name);
         }   
         m_last_read = 'f';
         return *this;
@@ -135,7 +156,7 @@ public:
             
             case 'w' :  m_write_method = 'w';
                         m_file_data = content;
-                        this -> clear(m_file_name);
+                        this -> clear_file(m_file_name);
         }   
 
         const char* content_ptr = &m_file_data[0];
@@ -149,27 +170,9 @@ public:
         return *this;
     }
 
-    OS clear(std::string content = ""){
-        std::string file_to_wipe = (content == "") ? m_file_name : content;
-        std::ofstream ofs;
-        ofs.open(file_to_wipe, std::ofstream::out | std::ofstream::trunc);
-        ofs.close();
-        return *this;
-    }
-
-    OS remove(std::string content = ""){
-        std::string file_to_delete = (content == "") ? m_file_name : content;
-        ::remove( &file_to_delete[0] );
-        return *this;
-    }
-
     // ------------------------------------------
 
-    vector<string> dir(string scan_start, vector<string> &vec_track, char mod1 = 'n', char mod2 = 'n'){
-        
-        // new_var = (condition) ? (value_if_true) : (value_if_false);
-        char scope = (mod1 == 'r' || mod2 == 'r') ? scope = 'r' : scope = 'n';
-        char include_folders = (mod1 == 'f' || mod2 == 'f') ? include_folders = 'f' : include_folders = 'n';
+    void dir_continued(string scan_start, vector<string>& vec_track, bool folders, bool files, bool recursive, bool star){
 
         DIR *current_dir = opendir (scan_start.c_str()); // starting dir given as a string
         // "dir_item" can be anything in the "current_dir" such as a new folder, file, binary, etc.
@@ -177,26 +180,72 @@ public:
             string dir_item =  (dir_item_ptr->d_name); // structure points to the getter to retrive the dir_item's name.
             if (dir_item != "." and dir_item != "./" and dir_item != ".."){
                 if (dir_item_ptr->d_type == DT_DIR){
-                    if(scope == 'r' ){
-                        if(include_folders == 'f'){
-                            vec_track.push_back(scan_start + "/" + dir_item);
-                        }
-                        this->dir(scan_start + "/"+ dir_item, vec_track, scope, include_folders); // recursive function
+                    if(folders){
+                        std::string prep = (star) ? "*": "";
+                        vec_track.push_back(prep + scan_start + "/" + dir_item);
+                    }
+                    if(recursive){
+                        this->dir_continued(scan_start + "/" + dir_item, vec_track, folders, files, recursive, star); 
+                        // recursive function
                     }
                 }else if(dir_item == "read"){
                     break; // full dir already read, leave the loop
-                }else{
-                    vec_track.push_back(scan_start + "/"+ dir_item);
+                }else if(files){
+                    vec_track.push_back(scan_start + "/" + dir_item);
                 }
             }
         }
-        return vec_track;
         closedir (current_dir); 
     }
 
-    bool file_exist(std::string file){
-        return bool(std::ifstream(file));
+
+    vector<string> dir(string folder_start, string mod1 = "n", string mod2 = "n", string mod3 = "n", string mod4 = "n"){
+        // dir(folder_to_start_search_from, &files_to_return,'r','f');
+        // recursive = search foldres recursivly
+        // folders   = return folders in search
+        // files     = return files in search
+        // star      = place a '*' in front of folders
+
+        this->assert_folder_syntax(folder_start);
+
+        vector<string> options = {mod1, mod2, mod3, mod4};
+        bool folders = 0;
+        bool files = 0;
+        bool recursive = 0;
+        bool star = 0;
+        std::vector<string>::iterator iter;
+        for (iter = options.begin(); iter != options.end(); ++iter){
+            if (*iter == "folders"){
+                folders = true;
+            }else if(*iter == "files"){
+                files = true;
+            }else if(*iter == "recursive" || *iter == "recurse"){
+                recursive = true;
+            }else if(*iter == "star")
+                star = true;
+        }
+        if (files == 0 && folders == 0){
+            return vector<string>({""});
+        }
+        vector<string> vec_track;
+        dir_continued(folder_start, vec_track, folders, files, recursive, star);
+        return vec_track;
     }
+
+
+
+    #ifndef MSWINDOWS
+        std::string pwd(){
+            char result[ FILENAME_MAX ];
+            ssize_t count = readlink( "/proc/self/exe", result, FILENAME_MAX );
+            return std::string( result, (count > 0) ? count : 0 );
+        }
+    #else
+        std::string pwd(){
+            char result[ FILENAME_MAX ];
+            return std::string( result, GetModuleFileName( NULL, result, FILENAME_MAX ) );
+        }
+    #endif
 
     // Replace popen and pclose with _popen and _pclose for Windows.
     OS popen(const std::string command){
@@ -221,6 +270,145 @@ public:
         m_last_read = 'c';
         return *this;
     }
+
+    // ============================================================================================
+
+    bool file_exist(std::string file){
+        assert_folder_syntax(file);
+        std::ifstream infile(&file[0]);
+        return infile.good();
+    }
+
+
+
+    OS move_file(std::string old_location, std::string new_location = "" ){
+        if (!new_location.size()){
+            new_location = old_location;
+            old_location = m_file_name;
+        }
+        this->assert_folder_syntax(old_location, new_location);
+
+        std::ifstream  in(old_location,  std::ios::in | std::ios::binary);
+        std::ofstream out(new_location, std::ios::out | std::ios::binary);
+        out << in.rdbuf();
+        ::remove(&old_location[0]);
+        return *this;
+    }
+
+    OS copy_file(std::string old_location, std::string new_location = "" ){
+        if (!new_location.size()){
+            new_location = old_location;
+            old_location = m_file_name;
+        }
+        this->assert_folder_syntax(old_location, new_location);
+        std::ifstream  in(old_location,  std::ios::in | std::ios::binary);
+        std::ofstream out(new_location, std::ios::out | std::ios::binary);
+        out << in.rdbuf();
+        return *this;
+    }
+
+    OS clear_file(std::string content = ""){
+        std::string file_to_wipe = (content == "") ? m_file_name : content;
+        this->assert_folder_syntax(file_to_wipe);
+        std::ofstream ofs;
+        ofs.open(file_to_wipe, std::ofstream::out | std::ofstream::trunc);
+        ofs.close();
+        return *this;
+    }
+
+
+    OS remove_file(std::string content = ""){
+        std::string file_to_delete = (content == "") ? m_file_name : content;
+        this->assert_folder_syntax(file_to_delete);
+        ::remove( &file_to_delete[0] );
+        return *this;
+    }
+
+    OS mkdir(std::string folder){
+        this->assert_folder_syntax(folder);
+        char seperator = (PLATFORM == "nix") ? '/' : '\\';
+        std::string folder_path = re::sub("[a-zA-Z0-9_].*$","",folder);
+        std::vector<std::string> folders = re::split("[\\\\|/](?=[^\\s])", re::sub("^[\\.\\|/]*|[\\|/]*$","",folder));
+        std::vector<std::string>::iterator iter;
+        for (iter = folders.begin(); iter != folders.end(); ++iter){
+            if (re::match("[a-zA-Z0-9_]*",*iter)){
+                folder_path += seperator + *iter;
+                if(this->file_exist(folder_path) == false){
+                    ::mkdir(&folder_path[0], S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+                }
+            }
+        }
+        return *this;
+    }
+
+    // copy and move file need a function that will identify if the move_to
+    // is a folder and if it is a folder, add the same name of the file to the end of that folder
+
+    OS rmdir(std::string folder){
+        this->assert_folder_syntax(folder);
+        
+        // for file in files
+        // map each one to an int (for num of / )
+        // delete each one (one won't delete becuse it is the folder itself so run twice)
+        // remove each file as you go along
+        // try printing each one as you would delete it
+
+        std::vector<std::string> filesystem = dir(folder,"files","folders","recurse","star");
+        std::vector<std::string>::iterator iter;
+
+        int max_slash = -1;
+        auto get_max_path = [&filesystem, &max_slash]() -> int {
+            std::for_each(filesystem.begin(), filesystem.end(), 
+                [&max_slash](std::string item) -> int {
+                    int current_count = re::count("[^\\\\|/][\\\\|//]", item);
+                    if (max_slash < current_count){
+                        max_slash = current_count;
+                    };
+                }
+            );
+        };
+
+        auto rm_slash_count = [&filesystem, &max_slash]() {
+            int count = 0;
+            std::for_each(filesystem.begin(), filesystem.end(),
+                [&](std::string item) {
+                    if(re::count("[^\\\\|/][\\\\|//]", item) == max_slash && item.size()){
+                        if(item[0] == '*'){
+                            ::rmdir(&(item.substr(1,item.size()-1))[0]);
+                        }else{
+                            ::remove( &item[0]);
+                        }
+                        filesystem[count] = "";
+                    };
+                    count += 1;
+                }
+            );
+        };
+
+
+        get_max_path();
+        rm_slash_count();
+        while(max_slash > 1){  
+            max_slash = 0;  
+            get_max_path();
+            rm_slash_count();       
+        }
+       
+        return *this;
+    }
+
+    void assert_folder_syntax(std::string folder1, std::string folder2 = ""){
+        // TODO: use lambda
+        assert(re::match("^[\\./\\\a-zA-Z0-9_]*$",folder1));
+        assert(!re::contains("[^\\\\]\\s",folder1));
+        if(folder2.size()){
+            assert(re::match("^[\\./\\\a-zA-Z0-9_]*$",folder2));
+            assert(!re::contains("[^\\\\]\\s",folder2));
+        }
+    }
+    // <<<< file managment
+    // ============================================================================================
+    // >>>> args
 
     std::string operator[](int value){
         if (m_all_args.size() <= value){
@@ -286,7 +474,6 @@ public:
 
         return *this;   
     }
-
 
     // -------------------------------------------------------------------------------
     std::string file_data(){return m_file_data;}
