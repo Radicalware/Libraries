@@ -5,22 +5,11 @@
 #include<unordered_map>
 
 #include "./ord.h"
+
 using std::cout;
 using std::endl;
 using std::vector;
 using std::string;
-
-
-
-// template<typename T = std::string>
-// std::string vecTstr(std::vector<T> vec, std::string seperator, bool tail){
-// 	std::string ret_str;
-// 	for(T& i : vec)
-// 		ret_str += i + seperator;
-// 	if(tail == false)
-// 		return ret_str.substr(0,ret_str.size()-seperator.size());
-// 	return ret_str;
-// }
 
 
 int main(){
