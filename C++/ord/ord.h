@@ -40,7 +40,7 @@ namespace ord
     //    bool                      findKey(std::map<X, Y>& d_map, string key){
     //    std::vector<A>            keys(const std::map<A,B>& xmap){
     //    std::vector<B>            keyValues(const std::map<A,B>& xmap){
-    //    void                      relational_copy(std::map<X,Y>& map1, std::map<X,Y>& map2, std::string key1, std::string new_keyname){
+    //    void                      relational_copy(std::map<X,Y>& map1, const std::map<X,Y>& map2, const std::string key1, const std::string new_keyname){
 
 
     //    bool                      findItem(const T& item, const std::vector<T>& vec){
@@ -62,7 +62,7 @@ namespace ord
     // =======================================================================================================
     // join vector items to a string
     template<typename T>
-    std::string xjoin(std::vector<T>& vec, std::string seperator = " ", bool tail = false){
+    std::string xjoin(const std::vector<T>& vec, const std::string seperator = " ", bool tail = false){
         std::ostringstream ostr;      
         for(T i : vec)
             ostr << i << seperator;
@@ -71,11 +71,11 @@ namespace ord
         return ostr.str();
     }
     template<typename T>
-    std::string join(std::vector<T>& vec, std::string seperator = " ", bool tail = false){
+    std::string join(const std::vector<T>& vec, const std::string seperator = " ", bool tail = false){
         return xjoin<T>(vec, seperator, tail);
     }
     template<typename T>
-    std::string Rjoin(std::vector<T> vec, std::string seperator = " ", bool tail = false){
+    std::string Rjoin(const std::vector<T> vec, const std::string seperator = " ", bool tail = false){
         // r values can't be passed by reference
         return xjoin<T>(vec, seperator, tail);
     }
@@ -88,25 +88,25 @@ namespace ord
     // map1, map2, key1, new_keyname
 
     template<typename X, typename Y>
-    void relational_copy(std::map<X,Y>& map1, std::map<X,Y>& map2, std::string key1, std::string new_keyname){
+    void relational_copy(std::map<X,Y>& map1, const std::map<X,Y>& map2, const std::string key1, const std::string new_keyname){
         if (findItem(map1.at(key1), keys(map2))){
             map1.insert({{new_keyname, map2.at(map1.at(key1))}});
         }
     }
     template<typename X, typename Y>
-    void relational_copy(std::unordered_map<X,Y>& map1, std::unordered_map<X,Y>& map2, std::string key1, std::string new_keyname){
+    void relational_copy(std::unordered_map<X,Y>& map1, const std::unordered_map<X,Y>& map2, const std::string key1, const std::string new_keyname){
         if (findItem(map1.at(key1), keys(map2))){
             map1.insert({{new_keyname, map2.at(map1.at(key1))}});
         }
     }
     template<typename X, typename Y>
-    void relational_copy(std::map<X,Y>& map1, std::unordered_map<X,Y>& map2, std::string key1, std::string new_keyname){
+    void relational_copy(std::map<X,Y>& map1, const std::unordered_map<X,Y>& map2, const std::string key1, const std::string new_keyname){
         if (findItem(map1.at(key1), keys(map2))){
             map1.insert({{new_keyname, map2.at(map1.at(key1))}});
         }
     }
     template<typename X, typename Y>
-    void relational_copy(std::unordered_map<X,Y>& map1, std::map<X,Y>& map2, std::string key1, std::string new_keyname){
+    void relational_copy(std::unordered_map<X,Y>& map1, const std::map<X,Y>& map2, const std::string key1, const std::string new_keyname){
         if (findItem(map1.at(key1), keys(map2))){
             map1.insert({{new_keyname, map2.at(map1.at(key1))}});
         }
@@ -114,19 +114,19 @@ namespace ord
     // =======================================================================================================
     // find Key > does it exist?
     template<typename X, typename Y>
-    bool findKey(std::string key, std::unordered_map<X, Y>& d_map){
+    bool findKey(const std::string key, const std::unordered_map<X, Y>& d_map){
         return bool((d_map.find(key) != d_map.end()));
     }
     template<typename X, typename Y>
-    bool RFindKey(std::string key, std::unordered_map<X, Y> d_map){
+    bool RFindKey(const std::string key, const std::unordered_map<X, Y> d_map){
         return bool((d_map.find(key) != d_map.end()));
     }
     template<typename X, typename Y>
-    bool findKey(std::string key, std::map<X, Y>& d_map){
+    bool findKey(const std::string key, const std::map<X, Y>& d_map){
         return bool((d_map.find(key) != d_map.end()));
     }
     template<typename X, typename Y>
-    bool RFindKey(std::string key, std::map<X, Y> d_map){
+    bool RFindKey(const std::string key, const std::map<X, Y> d_map){
         return bool((d_map.find(key) != d_map.end()));
     }
     // =======================================================================================================
