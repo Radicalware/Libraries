@@ -54,7 +54,7 @@ int main(){
     // this one matches the first email start to finish so it replies true
 
 
-    cout << "true email  = " << ord::findSeg("[\\w\\d_]*@[\\w\\d_]*", emails) << endl;
+    cout << "true email  = " << ord::findImpression("[\\w\\d_]*@[\\w\\d_]*", emails) << endl;
     // this time the partial email returns true because the regex matches at least a portion
     // of one of the elements in the array.
 
@@ -63,7 +63,7 @@ int main(){
     emails[0] = "new.appended@email.com";
     cout << found_email << endl; // passing of data gives you a deep copy from the *iterator
 
-    cout << ord::retSegs("[\\w\\d_]*@[\\w\\d_]*", emails)[2] << endl;
+    cout << ord::retImpressions("[\\w\\d_]*@[\\w\\d_]*", emails)[2] << endl;
 
 
     cout << "========================================\n";
@@ -75,7 +75,8 @@ int main(){
 
     std::unordered_map<std::string,std::string> umap1 ={{ "hash1", "AAAA"},
                                                         { "hash2", "BBBB"},
-                                                        { "hash3", "CCCC"}
+                                                        { "hash3", "CCCC"},
+                                                        { "hash4", ""}
                                                        };
 
     std::unordered_map<std::string,std::string> umap2 = {{ "AAAA", "1111"},
@@ -83,23 +84,32 @@ int main(){
                                                          { "CCCC", "3333"}
                                                         };
 
+
+    cout << ord::join(ord::keys(umap1)) << endl;
+    // notice that the key hash4 is present becaused it list all of them
+    // however hash4 really doesn't exist becaues it has no data so
+
+    cout << "True  = " << ord::findKey("hash2",umap1) << endl;
+    cout << "False = " << ord::findKey("hash4",umap1) << endl; // ret false sense hash4 contains nothing
+    cout << "False = " << ord::findKey("no key",umap1) << endl;
+
     cout << "True  = " << ord::findItem("1-two", omap.at("first")) << endl;
     cout << "False = " << ord::findItem("2-two", omap.at("first")) << endl;
     
         
 
-    cout << ord::Rjoin(ord::keys<std::string, std::vector<std::string>>(omap)," <> ") << endl;
-    cout << ord::Rjoin(ord::keys(omap)," <> ") << endl;
+    cout << ord::join(ord::keys<std::string, std::vector<std::string>>(omap)," <> ") << endl;
+    cout << ord::join(ord::keys(omap)," <> ") << endl;
 
-    cout << ord::Rjoin(ord::keyValues<std::string, std::string>(umap1)," <> ") << endl;
+    cout << ord::join(ord::keyValues<std::string, std::string>(umap1)," <> ", true) << endl;
 
-    cout << "True  = " << ord::findSeg("(con)", ord::keys(omap)) << endl;
+    cout << "True  = " << ord::findImpression("(con)", ord::keys(omap)) << endl;
 
     ord::relational_copy(umap1, umap2,"hash3", "C-EXT" ); 
     // find umap1 key's value as a key in umap 2 and make it a value for a new key "C-EXT" 
 
-    cout << ord::Rjoin(ord::keys(umap1)) << endl;
-    // Note: Rjoin was made because we are passing it an r-value (not an l-value)
+    cout << ord::join(ord::keys(umap1)) << endl;
+
     cout << umap1.at("C-EXT") << endl;
 
     return 0;

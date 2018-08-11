@@ -40,7 +40,7 @@ bool ord::xfindMatch(const std::string& in_pattern, const std::vector<std::strin
 }
 
 
-bool ord::xfindSeg(const std::string& in_pattern, const std::vector<std::string>& vec){
+bool ord::xfindImpression(const std::string& in_pattern, const std::vector<std::string>& vec){
     std::regex pattern(in_pattern);
     std::vector<std::string>::const_iterator iter;
     for (iter = vec.begin(); iter != vec.end(); ++iter)
@@ -63,7 +63,7 @@ std::vector<std::string> ord::xretMatches(const std::string& in_pattern, const s
     return ret_patterns;
 }
 
-std::vector<std::string> ord::xretSegs(const std::string& in_pattern, const std::vector<std::string>& vec){
+std::vector<std::string> ord::xretImpressions(const std::string& in_pattern, const std::vector<std::string>& vec){
     std::regex pattern(in_pattern);
     std::vector<std::string> ret_patterns;
     std::vector<std::string>::const_iterator iter;
@@ -72,5 +72,10 @@ std::vector<std::string> ord::xretSegs(const std::string& in_pattern, const std:
         if (std::regex_search(*iter, pattern)) // ret whole item so re.h for findall not needed
             ret_patterns.push_back(*iter);
     }
-    return ret_patterns;
+    if (ret_patterns.size()){
+    	return ret_patterns;
+    }else{
+    	ret_patterns.resize(1);
+    	return ret_patterns;
+    }
 }
