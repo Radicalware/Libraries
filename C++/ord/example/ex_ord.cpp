@@ -99,6 +99,7 @@ int main(){
 	// find umap1 key's value as a key in umap 2 and make it a value for a new key "C-EXT" 
 
 	cout << ord::Rjoin(ord::keys(umap1)) << endl;
+	// Note: Rjoin was made because we are passing it an r-value (not an l-value)
 	cout << umap1.at("C-EXT") << endl;
 
 	return 0;
