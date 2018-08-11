@@ -205,16 +205,7 @@ namespace ord
     };
     // ============================================================================================================
     // regex match version of std::find()
-    bool xfindMatch(const std::string& in_pattern, const std::vector<std::string>& vec){
-        std::regex pattern(in_pattern);
-        std::vector<std::string>::const_iterator iter;
-        for (iter = vec.begin(); iter != vec.end(); ++iter)
-        {
-            if (std::regex_match(*iter, pattern))
-                return true;
-        }
-        return false;
-    }
+    bool xfindMatch(const std::string& in_pattern, const std::vector<std::string>& vec);
 
     bool findMatch(const std::string& in_pattern, const std::vector<std::string>& vec){
         return xfindMatch(in_pattern, vec);
@@ -224,17 +215,8 @@ namespace ord
     }
     // ============================================================================================================
     // ret true if regex_search finds a match
-    bool xfindSeg(const std::string& in_pattern, const std::vector<std::string>& vec){
-        std::regex pattern(in_pattern);
-        std::vector<std::string>::const_iterator iter;
-        for (iter = vec.begin(); iter != vec.end(); ++iter)
-        {
-            if (std::regex_search(*iter, pattern)) // ret whole item so re.h for findall not needed
-                return true;
-        }
-        return false;
-    }
 
+    bool xfindSeg(const std::string& in_pattern, const std::vector<std::string>& vec);
 
     bool findSeg(const std::string& in_pattern, const std::vector<std::string>& vec){
         return xfindSeg(in_pattern, vec);
@@ -244,17 +226,8 @@ namespace ord
     }
     // ============================================================================================================
     // return Matches found
-    std::vector<std::string> xretMatches(const std::string& in_pattern, const std::vector<std::string>& vec){
-        std::regex pattern(in_pattern);
-        std::vector<std::string> ret_patterns;
-        std::vector<std::string>::const_iterator iter;
-        for (iter = vec.begin(); iter != vec.end(); ++iter)
-        {
-            if (std::regex_match(*iter, pattern))
-                ret_patterns.push_back(*iter);
-        }
-        return ret_patterns;
-    }
+    std::vector<std::string> xretMatches(const std::string& in_pattern, const std::vector<std::string>& vec);
+
     std::vector<std::string> retMatches(const std::string& in_pattern, const std::vector<std::string>& vec){
         return xretMatches(in_pattern, vec);
     }
@@ -263,17 +236,9 @@ namespace ord
     }
     // ============================================================================================================
     // return item from vector if a regex segment is found
-    std::vector<std::string> xretSegs(const std::string& in_pattern, const std::vector<std::string>& vec){
-        std::regex pattern(in_pattern);
-        std::vector<std::string> ret_patterns;
-        std::vector<std::string>::const_iterator iter;
-        for (iter = vec.begin(); iter != vec.end(); ++iter)
-        {
-            if (std::regex_search(*iter, pattern)) // ret whole item so re.h for findall not needed
-                ret_patterns.push_back(*iter);
-        }
-        return ret_patterns;
-    }
+
+    std::vector<std::string> xretSegs(const std::string& in_pattern, const std::vector<std::string>& vec);
+
     std::vector<std::string> retSegs(const std::string& in_pattern, const std::vector<std::string>& vec){
         return xretSegs(in_pattern, vec);
     }
