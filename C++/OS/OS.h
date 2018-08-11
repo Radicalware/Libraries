@@ -26,6 +26,7 @@
 // ALERT iterator will majorly slow down your performance if you don't
 // optimize your compiler settings "-O2", else it will increase speed when
 // not on windows (windows will give you even speeds with optimization else lag)
+// also, on windows, be sure to remove the debugging for the iterator. 
 // -------------------------------------------------------------------------------
 
 #include "re.h" // From github.com/Radicalware
@@ -37,6 +38,7 @@
 #include<vector>
 #include<string>
 #include<stdexcept>
+#include<stdio.h>      // defines FILENAME_MAX or PATH_MAX
 
 #include<fstream>      // file-handling
 
@@ -47,6 +49,8 @@
 #include<unordered_map>
 
 #include<assert.h>
+#include <stdio.h>
+
 
 #ifndef MSWINDOWS
     extern const std::string PLATFORM {"nix"};
@@ -172,7 +176,7 @@ public:
 
     // ------------------------------------------
 
-    void dir_continued(string scan_start, vector<string>& vec_track, bool folders, bool files, bool recursive, bool star){
+private: void dir_continued(string scan_start, vector<string>& vec_track, bool folders, bool files, bool recursive, bool star){
 
         DIR *current_dir = opendir (scan_start.c_str()); // starting dir given as a string
         // "dir_item" can be anything in the "current_dir" such as a new folder, file, binary, etc.
@@ -198,7 +202,7 @@ public:
         closedir (current_dir); 
     }
 
-
+public:
     vector<string> dir(string folder_start, string mod1 = "n", string mod2 = "n", string mod3 = "n", string mod4 = "n"){
         // dir(folder_to_start_search_from, &files_to_return,'r','f');
         // recursive = search foldres recursivly
@@ -238,48 +242,57 @@ public:
         std::string pwd(){
             char result[ FILENAME_MAX ];
             ssize_t count = readlink( "/proc/self/exe", result, FILENAME_MAX );
-            return std::string( result, (count > 0) ? count : 0 );
+            return re::sub("/[^/]*$","",std::string( result, (count > 0) ? count : 0 ));
         }
     #else
         std::string pwd(){
             char result[ FILENAME_MAX ];
-            return std::string( result, GetModuleFileName( NULL, result, FILENAME_MAX ) );
+            return std::string( result, GetModuleFileName( NULL, result, FILENAME_MAX ));
         }
     #endif
 
     // Replace popen and pclose with _popen and _pclose for Windows.
-    OS popen(const std::string command){
+    OS popen(const std::string command, char leave = 'p'){
+        // leave styles
+        // p = pass (nothing happens = defult)
+        // t = throw exception if command fails
+        // e = exit if command fails
         const char* commmand_ptr = &command[0];
         m_command.clear();
         int buf_size = 512;
         char buffer[buf_size];
         FILE* file = ::popen(commmand_ptr, "r");
-        if (file){
-            while (!feof(file)) {
-                if (fgets(buffer, buf_size, file) != NULL)
-                    m_command += buffer;
-            }
-        }else{
-            cout << "Console Command Failed\n";
-            cout << "-----------------------\n";
-            cout << m_command << endl;
-        }
+        while (!feof(file)) {
+            if (fgets(buffer, buf_size, file) != NULL)
+                m_command += buffer;  
+        }     
         int returnCode = pclose(file);
-        if(returnCode){ cout << "Shell Command Error Code: " << returnCode << endl; }
-
+        if(returnCode){
+            cout << "\nConsole Command Failed:\n" << command << endl;
+            
+            switch(leave){
+                case 't': throw;
+                case 'e': exit(1);
+                // no need for break
+            }
+        }
         m_last_read = 'c';
         return *this;
     }
 
     // ============================================================================================
 
-    bool file_exist(std::string file){
+    bool findFile(std::string file){ // no '_' based on ord namespace syntax with keyword 'find'
+        // TODO: get this to work with hidden files
         assert_folder_syntax(file);
-        std::ifstream infile(&file[0]);
-        return infile.good();
+        std::ifstream os_file(&file[0]);
+        bool file_exists = false;
+        if (os_file.is_open()){
+            file_exists = true;
+            os_file.close();
+        }
+        return file_exists;
     }
-
-
 
     OS move_file(std::string old_location, std::string new_location = "" ){
         if (!new_location.size()){
@@ -317,7 +330,7 @@ public:
     }
 
 
-    OS remove_file(std::string content = ""){
+    OS delete_file(std::string content = ""){
         std::string file_to_delete = (content == "") ? m_file_name : content;
         this->assert_folder_syntax(file_to_delete);
         ::remove( &file_to_delete[0] );
@@ -333,7 +346,7 @@ public:
         for (iter = folders.begin(); iter != folders.end(); ++iter){
             if (re::match("[a-zA-Z0-9_]*",*iter)){
                 folder_path += seperator + *iter;
-                if(this->file_exist(folder_path) == false){
+                if(this->findFile(folder_path) == false){
                     ::mkdir(&folder_path[0], S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
                 }
             }
@@ -341,14 +354,10 @@ public:
         return *this;
     }
 
-    // copy and move file need a function that will identify if the move_to
-    // is a folder and if it is a folder, add the same name of the file to the end of that folder
-
     OS rmdir(std::string folder){
         this->assert_folder_syntax(folder);
 
         std::vector<std::string> filesystem = dir(folder,"files","folders","recurse","star");
-        std::vector<std::string>::iterator iter;
 
         int max_slash = -1;
         auto get_max_path = [&filesystem, &max_slash]() -> int {
@@ -378,7 +387,6 @@ public:
                 }
             );
         };
-
 
         get_max_path(); 
         rm_slash_count();
@@ -449,7 +457,7 @@ public:
                             prep_sub_arg.clear();
                             current_base = m_all_args[arg];
                             m_bargs.push_back(current_base);
-                        }else if(!key_exist(m_all_args[arg])){ // if the key doesn't already exist
+                        }else if(!findKey(m_all_args[arg])){ // if the key doesn't already exist
                             m_args.insert(std::make_pair(m_all_args[arg], blank_vec));
                         }
                     }else{
@@ -496,9 +504,9 @@ public:
     // -------------------------------------------------------------------------------
     std::unordered_map<std::string, std::vector<std::string> > args(){return m_args;}
     
-    std::vector<std::string> key(std::string key){return m_args.at(key);}
+    std::vector<std::string> keyValues(std::string key){return m_args.at(key);}
     
-    std::string value(std::string key, int i){return m_args.at(key)[i];}
+    std::string keyValue(std::string key, int i){return m_args.at(key)[i];}
 
     std::vector<std::string> values(std::string key){
         std::vector<std::string> values = m_args.at(key);
@@ -506,8 +514,11 @@ public:
     }
 
 
-    bool key_exist(std::string key){bool((m_args.find(key) != m_args.end()));};
-    bool value_exist(std::string key, std::string value){
+    bool findKey(std::string key){
+        return( (m_args.find(key) != m_args.end()) \
+            ||  (m_args.find('-' + key) != m_args.end()));
+    };
+    bool findValue(std::string key, std::string value){
         for(size_t i = 0; i < m_args.at(key).size(); i++){
             if (m_args.at(key)[i] == value){
                 return true;
@@ -515,6 +526,7 @@ public:
         }return false;
     }
 
+    // -------------------------------------------------------------------------------
     template<class T = std::string>
     void p(T str){cout << endl << "------\n" << str << endl;}
     void d(int i = 0){cout << endl << "---{dbg: " << i << "}---" << endl;}
@@ -527,3 +539,11 @@ extern OS os; // Header
 OS os;        // cpp
 
 #endif
+
+
+// TODO: 
+// change function names
+// values() > keyValues()
+// value() > keyValue()
+// findFile() > fileExist()
+// findKey() > keyExist()
