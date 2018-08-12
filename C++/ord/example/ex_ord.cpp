@@ -32,11 +32,11 @@ int main(){
     cout << ord::join(vec_int) << endl;
 
     std::string three = "three";
-    cout << "true  = " << ord::findItem(three, vec_str) << endl;
-    cout << "true  = " << ord::findItem("two", vec_str) << endl;
+    cout << "true  => " << ord::findItem(three, vec_str) << endl;
+    cout << "true  => " << ord::findItem("two", vec_str) << endl;
     cout << "false = " << ord::findItem("twenty", vec_str) << endl;
 
-    cout << "true  = " << ord::findItem(5, vec_int) << endl;
+    cout << "true  => " << ord::findItem(5, vec_int) << endl;
     cout << "false = " << ord::findItem(7, vec_int) << endl;
 
     // ----------------------------------------------------------------
@@ -48,22 +48,22 @@ int main(){
         "trap@attack.hack.info"
     };
 
-    cout << "false email = " << ord::findMatch("[\\w\\d_]*@[\\w\\d_]*", emails) << endl;
+    cout << "false email = " << ord::matchOne("[\\w\\d_]*@[\\w\\d_]*", emails) << endl;
     // that failed because it does not match any one email start to finish
-    cout << "true  email = " << ord::findMatch("^([\\w\\d_]*(\\.?)){1,2}@([\\w\\d_]*\\.){1,2}[\\w\\d_]*$", emails) << endl;;
+    cout << "true  email = " << ord::matchOne("^([\\w\\d_]*(\\.?)){1,2}@([\\w\\d_]*\\.){1,2}[\\w\\d_]*$", emails) << endl;;
     // this one matches the first email start to finish so it replies true
 
 
-    cout << "true email  = " << ord::findImpression("[\\w\\d_]*@[\\w\\d_]*", emails) << endl;
+    cout << "true email  = " << ord::scanOne("[\\w\\d_]*@[\\w\\d_]*", emails) << endl;
     // this time the partial email returns true because the regex matches at least a portion
     // of one of the elements in the array.
 
-    std::string found_email =  ord::retMatches("^([\\w\\d_]*(\\.?)){1,2}@([\\w\\d_]*\\.){1,2}[\\w\\d_]*$", emails)[0];
+    std::string found_email =  ord::retScans("^([\\w\\d_]*(\\.?)){1,2}@([\\w\\d_]*\\.){1,2}[\\w\\d_]*$", emails)[0];
     cout << found_email << endl;
     emails[0] = "new.appended@email.com";
     cout << found_email << endl; // passing of data gives you a deep copy from the *iterator
 
-    cout << ord::retImpressions("[\\w\\d_]*@[\\w\\d_]*", emails)[2] << endl;
+    cout << ord::retScans("[\\w\\d_]*@[\\w\\d_]*", emails)[2] << endl;
 
 
     cout << "========================================\n";
@@ -89,11 +89,11 @@ int main(){
     // notice that the key hash4 is present becaused it list all of them
     // however hash4 really doesn't exist becaues it has no data so
 
-    cout << "True  = " << ord::findKey("hash2",umap1) << endl;
+    cout << "true  => " << ord::findKey("hash2",umap1) << endl;
     cout << "False = " << ord::findKey("hash4",umap1) << endl; // ret false sense hash4 contains nothing
     cout << "False = " << ord::findKey("no key",umap1) << endl;
 
-    cout << "True  = " << ord::findItem("1-two", omap.at("first")) << endl;
+    cout << "true  => " << ord::findItem("1-two", omap.at("first")) << endl;
     cout << "False = " << ord::findItem("2-two", omap.at("first")) << endl;
     
         
@@ -103,7 +103,7 @@ int main(){
 
     cout << ord::join(ord::keyValues<std::string, std::string>(umap1)," <> ", true) << endl;
 
-    cout << "True  = " << ord::findImpression("(con)", ord::keys(omap)) << endl;
+    cout << "true  => " << ord::scanOne("(con)", ord::keys(omap)) << endl;
 
     ord::relational_copy(umap1, umap2,"hash3", "C-EXT" ); 
     // find umap1 key's value as a key in umap 2 and make it a value for a new key "C-EXT" 
@@ -111,6 +111,14 @@ int main(){
     cout << ord::join(ord::keys(umap1)) << endl;
 
     cout << umap1.at("C-EXT") << endl;
+
+    cout << "========================================\n";
+    cout << "generators\n";
+
+    cout << ord::join(ord::range(0,10), " - ") << endl;
+
+    cout << "12345" << ord::ditto("0",5) << endl;
+
 
     return 0;
 }   

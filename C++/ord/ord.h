@@ -42,13 +42,20 @@ namespace ord
     //    std::vector<B>            keyValues(const std::map<A,B>& xmap){
     //    void                      relational_copy(std::map<X,Y>& map1, const std::map<X,Y>& map2, const std::string key1, const std::string new_keyname){
 
-
     //    bool                      findItem(const T& item, const std::vector<T>& vec){
-    //    bool                      findMatch(const std::string& in_pattern, const std::vector<std::string>& vec){
-    //    bool                      findImpression(const std::string& in_pattern, const std::vector<std::string>& vec){
+    
+    //    bool                      matchOne(const std::string& in_pattern, const std::vector<std::string>& vec){
+    //    bool                      matchAll(const std::string& in_pattern, const std::vector<std::string>& vec){
+    
+    //    bool                      scanOne(const std::string& in_pattern, const std::vector<std::string>& vec){
+    //    bool                      scanAll(const std::string& in_pattern, const std::vector<std::string>& vec){
 
     //    std::vector<std::string>  retMatches(const std::string& in_pattern, const std::vector<std::string>& vec){
-    //    std::vector<std::string>  retImpressions(const std::string& in_pattern, const std::vector<std::string>& vec){
+    //    std::vector<std::string>  retScans(const std::string& in_pattern, const std::vector<std::string>& vec){
+
+    //    std::vector<T>            range(const T low, const T high){
+    //    std::string               ditto(const T item, const size_t repeate_count, const std::string seperator = "", bool tail = false){
+
 
     // =======================================================================================================
 
@@ -141,7 +148,7 @@ namespace ord
         return xfindKey(key, d_map);
     }
     template<typename X, typename Y>
-    bool FindKey(const std::string key, const std::unordered_map<X, Y>&& d_map){
+    bool findKey(const std::string key, const std::unordered_map<X, Y>&& d_map){
         return xfindKey(key, d_map);
     }
     template<typename X, typename Y>
@@ -149,7 +156,7 @@ namespace ord
         return xfindKey(key, d_map);
     }
     template<typename X, typename Y>
-    bool RFindKey(const std::string key, const std::map<X, Y>&& d_map){
+    bool findKey(const std::string key, const std::map<X, Y>&& d_map){
         return xfindKey(key, d_map);
     }
     // =======================================================================================================
@@ -162,7 +169,7 @@ namespace ord
         return vec;
     }    
     template<typename A, typename B>
-    std::vector<A> Rkeys(const std::map<A,B>&& xmap){
+    std::vector<A> keys(const std::map<A,B>&& xmap){
         std::vector<A> vec;
         for(typename std::map<A,B>::const_iterator iter = xmap.begin(); iter != xmap.end(); ++iter)
             vec.push_back(iter->first);
@@ -228,27 +235,41 @@ namespace ord
     };
     // ============================================================================================================
     // regex match version of std::find()
-    bool xfindMatch(const std::string& in_pattern, const std::vector<std::string>& vec);
+    bool xmatchOne(const std::string& in_pattern, const std::vector<std::string>& vec);
 
-    bool findMatch(const std::string& in_pattern, const std::vector<std::string>& vec){
-        return xfindMatch(in_pattern, vec);
+    bool matchOne(const std::string& in_pattern, const std::vector<std::string>& vec){
+        return xmatchOne(in_pattern, vec);
     }
-    bool findMatch(const std::string in_pattern, const std::vector<std::string>&& vec){
-        return xfindMatch(in_pattern, vec);
+    bool matchOne(const std::string in_pattern, const std::vector<std::string>&& vec){
+        return xmatchOne(in_pattern, vec);
     }
-    // ============================================================================================================
+    bool xmatchAll(const std::string& in_pattern, const std::vector<std::string>& vec);
+
+    bool matchAll(const std::string& in_pattern, const std::vector<std::string>& vec){
+        return xmatchAll(in_pattern, vec);
+    }
+    bool matchAll(const std::string in_pattern, const std::vector<std::string>&& vec){
+        return xmatchAll(in_pattern, vec);
+    }    // ============================================================================================================
     // ret true if regex_search finds a match
 
-    bool xfindImpression(const std::string& in_pattern, const std::vector<std::string>& vec);
+    bool xscanOne(const std::string& in_pattern, const std::vector<std::string>& vec);
 
-    bool findImpression(const std::string& in_pattern, const std::vector<std::string>& vec){
-        return xfindImpression(in_pattern, vec);
+    bool scanOne(const std::string& in_pattern, const std::vector<std::string>& vec){
+        return xscanOne(in_pattern, vec);
     }
-    bool findImpression(const std::string& in_pattern, const std::vector<std::string>&& vec){
-        return xfindImpression(in_pattern, vec);
+    bool scanOne(const std::string& in_pattern, const std::vector<std::string>&& vec){
+        return xscanOne(in_pattern, vec);
+    }
+    bool xscanAll(const std::string& in_pattern, const std::vector<std::string>& vec);
+
+    bool scanAll(const std::string& in_pattern, const std::vector<std::string>& vec){
+        return xscanAll(in_pattern, vec);
+    }
+    bool scanAll(const std::string& in_pattern, const std::vector<std::string>&& vec){
+        return xscanAll(in_pattern, vec);
     }
     // ============================================================================================================
-    // return Matches found
     std::vector<std::string> xretMatches(const std::string& in_pattern, const std::vector<std::string>& vec);
 
     std::vector<std::string> retMatches(const std::string& in_pattern, const std::vector<std::string>& vec){
@@ -260,16 +281,35 @@ namespace ord
     // ============================================================================================================
     // return item from vector if a regex segment is found
 
-    std::vector<std::string> xretImpressions(const std::string& in_pattern, const std::vector<std::string>& vec);
+    std::vector<std::string> xretScans(const std::string& in_pattern, const std::vector<std::string>& vec);
 
-    std::vector<std::string> retImpressions(const std::string& in_pattern, const std::vector<std::string>& vec){
-        return xretImpressions(in_pattern, vec);
+    std::vector<std::string> retScans(const std::string& in_pattern, const std::vector<std::string>& vec){
+        return xretScans(in_pattern, vec);
     }
-    std::vector<std::string> retImpressions(const std::string& in_pattern, const std::vector<std::string>&& vec){
-        return xretImpressions(in_pattern, vec);
+    std::vector<std::string> retScans(const std::string& in_pattern, const std::vector<std::string>&& vec){
+        return xretScans(in_pattern, vec);
+    }
+    template<typename T = int>
+    std::vector<T> range(const T low, const T high){
+        std::vector<T> vec(high);
+        for(T loc = 0; loc < high; loc ++){
+            vec[loc] = loc;
+        }
+        return vec;
     }
     // ============================================================================================================
 
+    template<typename T = std::string>
+    std::string ditto(const T item, const size_t repeate_count, const std::string seperator = "", bool tail = false){
+        std::string ret_str;
+        for(size_t count = 0; count < repeate_count; count++){
+            ret_str += item + seperator;
+        }
+        if (tail == false and seperator.size()){
+            ret_str = ret_str.substr(0,ret_str.size() - seperator.size());
+        }
+        return ret_str;
+    }
 
 }
 

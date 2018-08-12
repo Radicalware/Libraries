@@ -28,28 +28,53 @@
 * limitations under the License.
 */
 
-bool ord::xfindMatch(const std::string& in_pattern, const std::vector<std::string>& vec){
+
+// ---------------------------------------------------------------------------------------------------------------
+// ===============================================================================================================
+// ---------------------------------------------------------------------------------------------------------------
+
+bool ord::xmatchOne(const std::string& in_pattern, const std::vector<std::string>& content){
     std::regex pattern(in_pattern);
-    std::vector<std::string>::const_iterator iter;
-    for (iter = vec.begin(); iter != vec.end(); ++iter)
-    {
-        if (std::regex_match(*iter, pattern))
-            return true;
-    }
-    return false;
+	for(std::vector<std::string>::const_iterator iter = content.begin(); iter != content.end(); iter++){
+		if(std::regex_match(*iter, pattern)){
+			return true;
+		}
+	}
+	return false;
+}
+bool ord::xmatchAll(const std::string& in_pattern, const std::vector<std::string>& content){
+    std::regex pattern(in_pattern);
+	for(std::vector<std::string>::const_iterator iter = content.begin(); iter != content.end(); iter++){
+		if(!std::regex_match(*iter, pattern)){
+			return false;
+		}
+	}
+	return true;
 }
 
+// ---------------------------------------------------------------------------------------------------------------
 
-bool ord::xfindImpression(const std::string& in_pattern, const std::vector<std::string>& vec){
+bool ord::xscanOne(const std::string& in_pattern, const std::vector<std::string>& content){
     std::regex pattern(in_pattern);
-    std::vector<std::string>::const_iterator iter;
-    for (iter = vec.begin(); iter != vec.end(); ++iter)
-    {
-        if (std::regex_search(*iter, pattern)) // ret whole item so re.h for findall not needed
-            return true;
-    }
-    return false;
+	for(std::vector<std::string>::const_iterator iter = content.begin(); iter != content.end(); iter++){
+		if(std::regex_search(*iter, pattern)){
+			return true;
+		}
+	}
+	return false;
 }
+bool ord::xscanAll(const std::string& in_pattern, const std::vector<std::string>& content){
+    std::regex pattern(in_pattern);
+	for(std::vector<std::string>::const_iterator iter = content.begin(); iter != content.end(); iter++){
+		if(!std::regex_search(*iter, pattern)){
+			return false;
+		}
+	}
+	return true;
+}
+// ---------------------------------------------------------------------------------------------------------------
+// ===============================================================================================================
+// ---------------------------------------------------------------------------------------------------------------
 
 std::vector<std::string> ord::xretMatches(const std::string& in_pattern, const std::vector<std::string>& vec){
     std::regex pattern(in_pattern);
@@ -63,7 +88,7 @@ std::vector<std::string> ord::xretMatches(const std::string& in_pattern, const s
     return ret_patterns;
 }
 
-std::vector<std::string> ord::xretImpressions(const std::string& in_pattern, const std::vector<std::string>& vec){
+std::vector<std::string> ord::xretScans(const std::string& in_pattern, const std::vector<std::string>& vec){
     std::regex pattern(in_pattern);
     std::vector<std::string> ret_patterns;
     std::vector<std::string>::const_iterator iter;
@@ -79,3 +104,7 @@ std::vector<std::string> ord::xretImpressions(const std::string& in_pattern, con
     	return ret_patterns;
     }
 }
+
+
+
+//
