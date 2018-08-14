@@ -1,5 +1,6 @@
 #!/bin/bash
 
+rm -f ./os_io
 
 x86_64-linux-gnu-g++ -O2 os_io.cpp -o os_io -std=c++17 -Wfatal-errors -lOS -lord -lre
 

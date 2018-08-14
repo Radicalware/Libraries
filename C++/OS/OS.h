@@ -89,10 +89,6 @@ private:
     std::vector< std::vector<std::string> > m_sub_args; // sub args
     std::string m_sub_args_str;
 
-    std::string blank {""};
-
-    std::vector<std::string> blank_vec;
-    
     void dir_continued(string scan_start, vector<string>& vec_track, bool folders, bool files, bool recursive, bool star);
     
     void assert_folder_syntax(std::string folder1, std::string folder2 = "");
@@ -180,7 +176,8 @@ public:
     std::string keyValue(std::string key, int i);
 
     std::vector<std::string> keyValues(std::string key);
-    
+    std::vector<std::string> operator[](std::string key);
+
     bool findKey(std::string key);
         // this is different than the ord::findKey
         // the ord::findKey will return false if the key has no value
@@ -189,7 +186,10 @@ public:
         // Also find will only return true if the key has data in the value
         // hence why I must iterate the base args vector
 
-    bool findKeyValue(std::string key, std::string value);
+    bool findKeyValue(const std::string& key,const std::string& value);
+
+    //bool operator()(char const* key_char, char const* value_char);
+    bool operator()(const std::string& key, const std::string& value);
 
     // -------------------------------------------------------------------------------
     template<class T = std::string>

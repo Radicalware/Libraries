@@ -67,5 +67,15 @@ int main(int argc, char** argv){
 		cout << "value sub-B-3 does NOT exist in -key-B\n";
 	}
 
+	cout << endl;
+
+	// here is the shorthand for
+	// 1. returning  key-values
+	// 2. validating key-values
+	cout << "Shorthand for returning and validating KVPs\n";
+	cout << R"(os["-key-A"] = )" << ord::join(os["-key-A"], " ") << endl;
+	cout << R"(os("-key-A", "sub-A-1") =  )" << os("-key-A", "sub-A-1") << endl;
+	cout << R"(os("-key-A", "sub-A-5") =  )" << os("-key-A", "sub-A-5") << endl;
+
 	return 0;
 }

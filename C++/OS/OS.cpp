@@ -64,7 +64,6 @@ OS::OS(int c_argc, char** c_argv):
 
 OS::OS(){
     std::string tmp = "xnone";
-    blank_vec.push_back(tmp);
 };
 OS::~OS(){};
 // ------------------------------------------
@@ -411,7 +410,7 @@ OS OS::set_args(int argc, char** argv){
                         current_base = m_all_args[arg];
                         m_bargs.push_back(current_base);
                     }else if(!findKey(m_all_args[arg])){ // if the key doesn't already exist
-                        m_args.insert(std::make_pair(m_all_args[arg], blank_vec));
+                        m_args.insert(std::make_pair(m_all_args[arg], std::vector<std::string>{""}));
                     }
                 }else{
                     prep_sub_arg.push_back(m_all_args[arg]);
@@ -460,8 +459,7 @@ bool OS::findArg(std::string find_arg){
     for(auto&arg : m_all_args){
         if (arg == find_arg)
             return true;
-    return false;
-    }
+    }return false;
 }
 
 
@@ -479,9 +477,13 @@ std::string OS::keyValues_str(){return m_sub_args_str;}
 //     "findKeyValue()" for control flow of the program
 
 
+
+
 std::string OS::keyValue(std::string key, int i){return m_args.at(key)[i];}
 
 std::vector<std::string> OS::keyValues(std::string key){return m_args.at(key);}
+
+std::vector<std::string> OS::operator[](std::string key){return m_args.at(key);}
 
 bool OS::findKey(std::string key){
     std::vector<string>::iterator iter;
@@ -489,16 +491,24 @@ bool OS::findKey(std::string key){
         if(*iter == key){
             return true;
         }
-    }
-    return false;
+    }return false;
 };
-bool OS::findKeyValue(std::string key, std::string value){
-    for(size_t i = 0; i < m_args.at(key).size(); i++){
-        if (m_args.at(key)[i] == value){
+bool OS::findKeyValue(const std::string& key,const std::string& value){
+    for(std::vector<std::string>::const_iterator iter = m_args.at(key).begin(); \
+            iter != m_args.at(key).end(); iter++){
+        if (*iter == value){
             return true;
         }
-    }
-    return false;
+    }return false;
+}
+
+bool OS::operator()(const std::string& key, const std::string& value){
+    for(std::vector<std::string>::const_iterator iter = m_args.at(key).begin(); \
+            iter != m_args.at(key).end(); iter++){
+        if (*iter == value){
+            return true;
+        }
+    }return false;
 }
 
 // -------------------------------------------------------------------------------
