@@ -32,12 +32,12 @@ int main(){
     cout << ord::join(vec_int) << endl;
 
     std::string three = "three";
-    cout << "true  => " << ord::has(three, vec_str) << endl;
-    cout << "true  => " << ord::has("two", vec_str) << endl;
-    cout << "false = " << ord::has("twenty", vec_str) << endl;
+    cout << "true  => " << ord::findItem(three, vec_str) << endl;
+    cout << "true  => " << ord::findItem("two", vec_str) << endl;
+    cout << "false = " << ord::findItem("twenty", vec_str) << endl;
 
-    cout << "true  => " << ord::has(5, vec_int) << endl;
-    cout << "false = " << ord::has(7, vec_int) << endl;
+    cout << "true  => " << ord::findItem(5, vec_int) << endl;
+    cout << "false = " << ord::findItem(7, vec_int) << endl;
 
     // ----------------------------------------------------------------
     cout << "========================================\n";
@@ -89,12 +89,12 @@ int main(){
     // notice that the key hash4 is present becaused it list all of them
     // however hash4 really doesn't exist becaues it has no data so
 
-    cout << "true  => " << ord::hasKey("hash2",umap1) << endl;
-    cout << "False = " << ord::hasKey("hash4",umap1) << endl; // ret false sense hash4 contains nothing
-    cout << "False = " << ord::hasKey("no key",umap1) << endl;
+    cout << "true  => " << ord::findKey("hash2",umap1) << endl;
+    cout << "False = " << ord::findKey("hash4",umap1) << endl; // ret false sense hash4 contains nothing
+    cout << "False = " << ord::findKey("no key",umap1) << endl;
 
-    cout << "true  => " << ord::has("1-two", omap.at("first")) << endl;
-    cout << "False = " << ord::has("2-two", omap.at("first")) << endl;
+    cout << "true  => " << ord::findItem("1-two", omap.at("first")) << endl;
+    cout << "False = " << ord::findItem("2-two", omap.at("first")) << endl;
     
         
 
