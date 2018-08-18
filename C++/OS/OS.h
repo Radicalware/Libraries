@@ -1,5 +1,6 @@
 #ifndef _OS_H_
 #define _OS_H_
+#define _ITERATOR_DEBUG_LEVEL 0  
 
 /*
 * Copyright[2018][Joel Leagues aka Scourge]
@@ -89,9 +90,10 @@ private:
     std::vector< std::vector<std::string> > m_sub_args; // sub args
     std::string m_sub_args_str;
 
-    void dir_continued(string scan_start, vector<string>& vec_track, bool folders, bool files, bool recursive, bool star);
+    void dir_continued(const string& scan_start, vector<string>& vec_track, \
+        const bool folders, const bool files, const bool recursive, const bool star);
     
-    void assert_folder_syntax(std::string folder1, std::string folder2 = "");
+    void assert_folder_syntax(const std::string& folder1, const std::string& folder2 = "");
 
 public:
 
@@ -101,20 +103,21 @@ public:
 
     ~OS();
     // ------------------------------------------
-    OS open(std::string new_file_name, char write_method = 'a');
+    OS open(const std::string& new_file_name, const char write_method = 'a');
         // a = append     (append then writes like in python)
         // w = write mode (clears then writes like in python)
 
-    std::string read(char content = 'n');
+    std::string read(const char content = 'n');
 
     std::string read_file();
 
-    OS write(std::string content = "", char write_method = 'n');
+    OS write(const std::string& content = "", const char write_method = 'n');
 
     // ------------------------------------------
 
 public:
-    vector<string> dir(string folder_start, string mod1 = "n", string mod2 = "n", string mod3 = "n", string mod4 = "n");
+    vector<string> dir(const string& folder_start, const string& mod1 = "n", \
+        const string& mod2 = "n", const string& mod3 = "n", const string& mod4 = "n");
         // dir(folder_to_start_search_from, &files_to_return,'r','f');
         // recursive = search foldres recursivly
         // folders   = return folders in search
@@ -129,21 +132,22 @@ public:
     #endif
 
     // Replace popen and pclose with _popen and _pclose for Windows.
-    OS popen(const std::string command, char leave = 'p');
+    OS popen(const std::string& command, char leave = 'p');
     // os.open(file_name).read()
     // os.popen(command).read()
 
     // ============================================================================================
 
-    bool findFile(std::string file); // find based on ord:: syntax (no underscore)
+    bool findFile(const std::string& file);  // find based on ord:: syntax (no underscore)
+    bool find_file(const std::string& file); // OS.h file syntax
 
     OS move_file(std::string old_location, std::string new_location = "" );
     OS copy_file(std::string old_location, std::string new_location = "" );
-    OS clear_file(std::string content = "");
-    OS delete_file(std::string content = "");
+    OS clear_file(const std::string& content = "");
+    OS delete_file(const std::string& content = "");
 
-    OS mkdir(std::string folder);
-    OS rmdir(std::string folder);
+    OS mkdir(const std::string& folder);
+    OS rmdir(const std::string& folder);
     // -------------------------------------------------------------------------------
     std::string file_data();
     std::string file_name();
@@ -158,13 +162,13 @@ public:
     std::vector<std::string> argv();
     int argc();
 
-    std::string operator[](int value); 
+    std::string operator[](const int value); 
     std::unordered_map<std::string, std::vector<std::string> > args();
     
     // -------------------------------------------------------------------------------
 
     std::string argv_str();
-    bool findArg(std::string find_arg);
+    bool findArg(const std::string& find_arg);
 
     std::vector<std::string> keys();
     std::string keys_str();
@@ -173,12 +177,12 @@ public:
     std::string keyValues_str();
     // -------------------------------------------------------------------------------
     
-    std::string keyValue(std::string key, int i);
+    std::string keyValue(const std::string& key, int i);
 
-    std::vector<std::string> keyValues(std::string key);
-    std::vector<std::string> operator[](std::string key);
+    std::vector<std::string> keyValues(const std::string& key);
+    std::vector<std::string> operator[](const std::string& key);
 
-    bool findKey(std::string key);
+    bool findKey(const std::string& key);
         // this is different than the ord::findKey
         // the ord::findKey will return false if the key has no value
         // os.findKey will return true as long as it exist so you can

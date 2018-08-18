@@ -67,7 +67,7 @@ OS::OS(){
 };
 OS::~OS(){};
 // ------------------------------------------
-OS OS::open(std::string new_file_name, char write_method){
+OS OS::open(const std::string& new_file_name, const char write_method){
     // a = append     (append then writes like in python)
     // w = write mode (clears then writes like in python)
 
@@ -110,7 +110,7 @@ std::string OS::read_file(){
     return m_file_data;
 }
 
-OS OS::write(std::string content, char write_method){
+OS OS::write(const std::string& content, char write_method){
 
     m_write_method = (write_method == 'n') ? m_write_method : write_method;
 
@@ -137,12 +137,16 @@ OS OS::write(std::string content, char write_method){
 
 // ------------------------------------------
 
-void OS::dir_continued(string scan_start, vector<string>& vec_track, bool folders, bool files, bool recursive, bool star){
+void OS::dir_continued(const string& scan_start, vector<string>& vec_track, \
+    const bool folders, const bool files, const bool recursive, const bool star){
 
-    DIR *current_dir = opendir (scan_start.c_str()); // starting dir given as a string
-    // "dir_item" can be anything in the "current_dir" such as a new folder, file, binary, etc.
+    DIR *current_dir = opendir (scan_start.c_str()); 
+    // starting dir given as a string
+    // "dir_item" can be anything in the "current_dir" 
+    // such as a new folder, file, binary, etc.
     while (struct dirent *dir_item_ptr = readdir(current_dir)){
-        string dir_item =  (dir_item_ptr->d_name); // structure points to the getter to retrive the dir_item's name.
+        string dir_item =  (dir_item_ptr->d_name); 
+        // structure points to the getter to retrive the dir_item's name.
         if (dir_item != "." and dir_item != "./" and dir_item != ".."){
             if (dir_item_ptr->d_type == DT_DIR){
                 if(folders){
@@ -150,7 +154,8 @@ void OS::dir_continued(string scan_start, vector<string>& vec_track, bool folder
                     vec_track.push_back(prep + scan_start + "/" + dir_item);
                 }
                 if(recursive){
-                    this->dir_continued(scan_start + "/" + dir_item, vec_track, folders, files, recursive, star); 
+                    this->dir_continued(scan_start + "/" + dir_item, \
+                        vec_track, folders, files, recursive, star); 
                     // recursive function
                 }
             }else if(dir_item == "read"){
@@ -163,7 +168,8 @@ void OS::dir_continued(string scan_start, vector<string>& vec_track, bool folder
     closedir (current_dir); 
 }
 
-vector<string> OS::dir(string folder_start, string mod1, string mod2, string mod3, string mod4){
+vector<string> OS::dir(const string& folder_start, const string& mod1, 
+        const string& mod2, const string& mod3, const string& mod4){
     // dir(folder_to_start_search_from, &files_to_return,'r','f');
     // recursive = search foldres recursivly
     // folders   = return folders in search
@@ -173,10 +179,10 @@ vector<string> OS::dir(string folder_start, string mod1, string mod2, string mod
     this->assert_folder_syntax(folder_start);
 
     vector<string> options = {mod1, mod2, mod3, mod4};
-    bool folders = 0;
-    bool files = 0;
-    bool recursive = 0;
-    bool star = 0;
+    bool folders = false;
+    bool files = false;
+    bool recursive = false;
+    bool star = false;
     std::vector<string>::iterator iter;
     for (iter = options.begin(); iter != options.end(); ++iter){
         if (*iter == "folders"){
@@ -212,7 +218,7 @@ vector<string> OS::dir(string folder_start, string mod1, string mod2, string mod
 #endif
 
 // Replace popen and pclose with _popen and _pclose for Windows.
-OS OS::popen(const std::string command, char leave){
+OS OS::popen(const std::string& command, char leave){
     // leave styles
     // p = pass (nothing happens = defult)
     // t = throw exception if command fails
@@ -242,7 +248,7 @@ OS OS::popen(const std::string command, char leave){
 
 // ============================================================================================
 
-bool OS::findFile(std::string file){ // no '_' based on ord namespace syntax with keyword 'find'
+bool OS::findFile(const std::string& file){ // no '_' based on ord namespace syntax with keyword 'find'
 
     assert_folder_syntax(file);
     std::ifstream os_file(&file[0]);
@@ -253,6 +259,8 @@ bool OS::findFile(std::string file){ // no '_' based on ord namespace syntax wit
     }
     return file_exists;
 }
+
+bool OS::find_file(const std::string& file){ return this->findFile(file);}
 
 OS OS::move_file(std::string old_location, std::string new_location){
     if (!new_location.size()){
@@ -280,7 +288,7 @@ OS OS::copy_file(std::string old_location, std::string new_location){
     return *this;
 }
 
-OS OS::clear_file(std::string content){
+OS OS::clear_file(const std::string& content){
     std::string file_to_wipe = (content == "") ? m_file_name : content;
     this->assert_folder_syntax(file_to_wipe);
     std::ofstream ofs;
@@ -290,14 +298,14 @@ OS OS::clear_file(std::string content){
 }
 
 
-OS OS::delete_file(std::string content){
+OS OS::delete_file(const std::string& content){
     std::string file_to_delete = (content == "") ? m_file_name : content;
     this->assert_folder_syntax(file_to_delete);
     ::remove( &file_to_delete[0] );
     return *this;
 }
 
-OS OS::mkdir(std::string folder){
+OS OS::mkdir(const std::string& folder){
     this->assert_folder_syntax(folder);
     char seperator = (PLATFORM == "nix") ? '/' : '\\';
     std::string folder_path = re::sub("[a-zA-Z0-9_].*$","",folder);
@@ -314,7 +322,7 @@ OS OS::mkdir(std::string folder){
     return *this;
 }
 
-OS OS::rmdir(std::string folder){
+OS OS::rmdir(const std::string& folder){
     this->assert_folder_syntax(folder);
 
     std::vector<std::string> filesystem = dir(folder,"files","folders","recurse","star");
@@ -360,7 +368,7 @@ OS OS::rmdir(std::string folder){
     return *this;
 }
 
-void OS::assert_folder_syntax(std::string folder1, std::string folder2){
+void OS::assert_folder_syntax(const std::string& folder1, const std::string& folder2){
     assert(re::match("^[\\./\\\a-zA-Z0-9_]*$",folder1));
     assert(!re::scan("[^\\\\]\\s",folder1));
     if(folder2.size()){
@@ -455,7 +463,7 @@ std::unordered_map<std::string, std::vector<std::string> > OS::args(){return m_a
 
 std::string OS::argv_str(){return m_all_args_str;}
 
-bool OS::findArg(std::string find_arg){
+bool OS::findArg(const std::string& find_arg){
     for(auto&arg : m_all_args){
         if (arg == find_arg)
             return true;
@@ -476,16 +484,13 @@ std::string OS::keyValues_str(){return m_sub_args_str;}
 //     or you will get the bool for the existence of its value
 //     "findKeyValue()" for control flow of the program
 
+std::string OS::keyValue(const std::string& key, int i){return m_args.at(key)[i];}
 
+std::vector<std::string> OS::keyValues(const std::string& key){return m_args.at(key);}
 
+std::vector<std::string> OS::operator[](const std::string& key){return m_args.at(key);}
 
-std::string OS::keyValue(std::string key, int i){return m_args.at(key)[i];}
-
-std::vector<std::string> OS::keyValues(std::string key){return m_args.at(key);}
-
-std::vector<std::string> OS::operator[](std::string key){return m_args.at(key);}
-
-bool OS::findKey(std::string key){
+bool OS::findKey(const std::string& key){
     std::vector<string>::iterator iter;
     for (iter = m_bargs.begin(); iter != m_bargs.end(); ++iter){
         if(*iter == key){
