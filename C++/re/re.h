@@ -6,6 +6,9 @@
 #include<regex>
 #include<algorithm>
 
+#define _ITERATOR_DEBUG_LEVEL 0  
+
+
 /*
 * Copyright[2018][Joel Leagues aka Scourge]
 * Scourge /at\ protonmail /dot\ com
