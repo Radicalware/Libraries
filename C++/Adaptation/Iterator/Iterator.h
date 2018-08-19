@@ -24,7 +24,7 @@
     // The iterator is an adaptation from the following
 
     // cs.helsinki.fi/u/tpkarkka/alglib/k06/lectures/iterators.html
-    // used by perfectly insane's structure that I then modified.
+    // and perfectly insane's content
 
 
 using size_t = unsigned long int;
@@ -35,7 +35,7 @@ class Iterator
 // ============================================================================================================
 
 private:
-    T**     m_array;      // the first pointer just de-references.
+    T**     m_array;      
     size_t* m_size  = 0; 
 public:
 
@@ -44,7 +44,10 @@ public:
             T* m_ptr;
         public:
             iterator(T* ptr) : m_ptr(ptr) { }
-            iterator operator++() { iterator i = *this; m_ptr++; return i; }
+            iterator operator+=(size_t num) { m_ptr += num; return *this; }
+            iterator operator-=(size_t num) { m_ptr -= num; return *this; }
+            iterator operator++() { m_ptr++; return *this; }
+            iterator operator--() { m_ptr--; return *this; }
             bool     operator==(const iterator& other) { return m_ptr == other.m_ptr; }
             bool     operator!=(const iterator& other) { return m_ptr != other.m_ptr; }
             T&       operator*()  { return *m_ptr; }
@@ -56,7 +59,10 @@ public:
             T* m_ptr;
         public:
             const_iterator(T* ptr) : m_ptr(ptr) { }
-            const_iterator operator++() { const_iterator i = *this; m_ptr++; return i; }
+            const_iterator operator+=(size_t num) { m_ptr += num; return *this; }
+            const_iterator operator-=(size_t num) { m_ptr -= num; return *this; }
+            const_iterator operator++() { m_ptr++; return *this; }
+            const_iterator operator--() { m_ptr--; return *this; }
             bool           operator==(const const_iterator& other) { return m_ptr == other.m_ptr; }
             bool           operator!=(const const_iterator& other) { return m_ptr != other.m_ptr; }
             const T&       operator*()  { return *m_ptr; }
@@ -68,7 +74,10 @@ public:
             T* m_ptr;
         public:
             reverse_iterator(T* ptr) : m_ptr(ptr) { }
-            reverse_iterator operator++() { reverse_iterator i = *this; m_ptr--; return i; }
+            reverse_iterator operator+=(size_t num) { m_ptr -= num; return *this; }
+            reverse_iterator operator-=(size_t num) { m_ptr += num; return *this; }
+            reverse_iterator operator++() { *this; m_ptr--; return *this; }
+            reverse_iterator operator--() { *this; m_ptr++; return *this; }
             bool           operator==(const reverse_iterator& other) { return m_ptr == other.m_ptr; }
             bool           operator!=(const reverse_iterator& other) { return m_ptr != other.m_ptr; }
             const T&       operator*()  { return *m_ptr; }
@@ -80,76 +89,60 @@ public:
             T* m_ptr;
         public:
             const_reverse_iterator(T* ptr) : m_ptr(ptr) { }
-            const_reverse_iterator operator++() { const_reverse_iterator i = *this; m_ptr--; return i; }
+            const_reverse_iterator operator+=(size_t num) { m_ptr -= num; return *this; }
+            const_reverse_iterator operator-=(size_t num) { m_ptr += num; return *this; }
+            const_reverse_iterator operator++() { m_ptr--; return *this; }
+            const_reverse_iterator operator--() { m_ptr++; return *this; }
             bool           operator==(const const_reverse_iterator& other) { return m_ptr == other.m_ptr; }
             bool           operator!=(const const_reverse_iterator& other) { return m_ptr != other.m_ptr; }
             const T&       operator*()  { return *m_ptr; }
             const T*       operator->() { return  m_ptr; }
     };
 
-    // ---------------------------------------------
-    iterator begin();
-    iterator end();
-    const_iterator cbegin() const;
-    const_iterator cend() const;
-    const_iterator begin() const;
-    const_iterator end() const;
-    // ---------------------------------------------
-    reverse_iterator rbegin();
-    reverse_iterator rend();
-    const_reverse_iterator crbegin() const;
-    const_reverse_iterator crend() const;
-    const_reverse_iterator rbegin() const;
-    const_reverse_iterator rend() const;
-    // ---------------------------------------------
-
+    // -----------------------------------------------------------------
+    iterator begin(){
+        return iterator(*m_array);
+    }
+    iterator end(){
+        return iterator(*m_array + *m_size);
+    }
+    const_iterator cbegin() const{
+        return const_iterator(*m_array);
+    }
+    const_iterator cend() const{
+        return const_iterator(*m_array + *m_size);
+    }
+    const_iterator begin() const{
+        return const_iterator(*m_array);
+    }
+    const_iterator end() const{
+        return const_iterator(*m_array + *m_size);
+    }
+    // -----------------------------------------------------------------
+    reverse_iterator rbegin(){
+        return reverse_iterator(*m_array + *m_size-1);
+    }
+    reverse_iterator rend(){
+        return reverse_iterator(*m_array-1);
+    }
+    const_reverse_iterator crbegin() const{
+        return const_reverse_iterator(*m_array + *m_size-1);
+    }
+    const_reverse_iterator crend() const{
+        return const_reverse_iterator(*m_array-1);
+    }
+    const_reverse_iterator rbegin() const{
+        return const_reverse_iterator(*m_array + *m_size-1);
+    }
+    const_reverse_iterator rend() const{
+        return const_reverse_iterator(*m_array-1);
+    }
+    // -----------------------------------------------------------------
     void set_array(T** array){m_array = array;}
     void set_size(size_t* size){m_size = size;}
 
 // ============================================================================================================
 };
-
-
-#include<string>
-#include<vector>
-
-#include<map>
-#include<unordered_map>
-
-#include<set>
-#include<unordered_set>
-
-#include<stack>
-#include<queue>
-#include<deque>
-
-
-template class Iterator<char>;
-template class Iterator<char*>;
-
-template class Iterator<int>;
-template class Iterator<short>;
-template class Iterator<unsigned short>;
-template class Iterator<long>;
-template class Iterator<unsigned long int>;
-template class Iterator<signed long long>;
-template class Iterator<unsigned>;
-template class Iterator<unsigned long long>;
-
-template class Iterator<std::string>;
-template class Iterator<std::vector<std::string>>;
-
-
-template class Iterator<std::map<std::string,std::string>>;
-template class Iterator<std::unordered_map<std::string,std::string>>;
-
-template class Iterator<std::set<std::string>>;
-template class Iterator<std::unordered_set<std::string>>;
-
-template class Iterator<std::stack<std::string>>;
-template class Iterator<std::queue<std::string>>;
-template class Iterator<std::deque<std::string>>;
-
 
 #endif
 
