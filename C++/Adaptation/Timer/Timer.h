@@ -1,8 +1,9 @@
 #include<iostream>
 #include<chrono>
-using namespace std;
 
-// Lib by learncpp
+// This code was developed on learncpp.com
+// I took the code, and made it easy to
+// use with shared object.
 
 class Timer 
 {

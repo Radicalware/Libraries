@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo
-echo "Timer for benchmarking built by learn-cpp.com"
+echo "Timer for benchmarking built by learncpp.com"
 echo
 echo "enjoy!"
 echo
