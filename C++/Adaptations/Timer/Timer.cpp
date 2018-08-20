@@ -3,7 +3,7 @@
 using namespace std;
 
 #include "./Timer.h"
-// Lib by learncpp
+// Lib by learncpp.com
 
 Timer::Timer() : m_beg(clock_t::now())
 {   }

@@ -5,6 +5,9 @@
 // I took the code, and made it easy to
 // use with shared object.
 
+// On a side note: I give big thanks for all the
+// hard work that was put into learncpp.com!!
+
 class Timer 
 {
 private:

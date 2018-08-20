@@ -17,3 +17,4 @@ sudo cp ./Timer.h     /usr/local/include
 sudo cp ./Timer.cpp   /usr/local/include
 
 sudo ldconfig
+
