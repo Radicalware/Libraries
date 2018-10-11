@@ -66,7 +66,6 @@ using std::endl;
 using std::string;
 using std::vector;
 
-
 class OS
 {
 private:
@@ -138,8 +137,7 @@ public:
 
     // ============================================================================================
 
-    bool findFile(const std::string& file);  // find based on ord:: syntax (no underscore)
-    bool find_file(const std::string& file); // OS.h file syntax
+    bool has_file(const std::string& file);
 
     OS move_file(std::string old_location, std::string new_location = "" );
     OS copy_file(std::string old_location, std::string new_location = "" );
@@ -168,21 +166,23 @@ public:
     // -------------------------------------------------------------------------------
 
     std::string argv_str();
-    bool findArg(const std::string& find_arg);
+    bool has_arg(const std::string& find_arg);
 
     std::vector<std::string> keys();
     std::string keys_str();
 
-    std::vector< std::vector<std::string> > keyValues();
-    std::string keyValues_str();
+    std::vector< std::vector<std::string> > key_values();
+    std::string key_values_str();
     // -------------------------------------------------------------------------------
     
-    std::string keyValue(const std::string& key, int i);
+    std::string key_value(const std::string& key, int i);
 
-    std::vector<std::string> keyValues(const std::string& key);
+    std::vector<std::string> key_values(const std::string& key);
+    std::vector<std::string> key(const std::string& key); // key_values alias
+
     std::vector<std::string> operator[](const std::string& key);
 
-    bool findKey(const std::string& key);
+    bool has_key(const std::string& key);
         // this is different than the ord::findKey
         // the ord::findKey will return false if the key has no value
         // os.findKey will return true as long as it exist so you can
@@ -190,7 +190,10 @@ public:
         // Also find will only return true if the key has data in the value
         // hence why I must iterate the base args vector
 
-    bool findKeyValue(const std::string& key,const std::string& value);
+
+    bool has_key_value(const std::string& key,const std::string& value);
+    bool key_value(const std::string& key,const std::string& value); 
+    // note; key_value() could get confusing, one references by value, the other by location
 
     //bool operator()(char const* key_char, char const* value_char);
     bool operator()(const std::string& key, const std::string& value);

@@ -248,7 +248,7 @@ OS OS::popen(const std::string& command, char leave){
 
 // ============================================================================================
 
-bool OS::findFile(const std::string& file){ // no '_' based on ord namespace syntax with keyword 'find'
+bool OS::has_file(const std::string& file){ // no '_' based on ord namespace syntax with keyword 'find'
 
     assert_folder_syntax(file);
     std::ifstream os_file(&file[0]);
@@ -260,7 +260,6 @@ bool OS::findFile(const std::string& file){ // no '_' based on ord namespace syn
     return file_exists;
 }
 
-bool OS::find_file(const std::string& file){ return this->findFile(file);}
 
 OS OS::move_file(std::string old_location, std::string new_location){
     if (!new_location.size()){
@@ -314,7 +313,7 @@ OS OS::mkdir(const std::string& folder){
     for (iter = folders.begin(); iter != folders.end(); ++iter){
         if (re::match("[a-zA-Z0-9_]*",*iter)){
             folder_path += seperator + *iter;
-            if(this->findFile(folder_path) == false){
+            if(this->has_file(folder_path) == false){
                 ::mkdir(&folder_path[0], S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
             }
         }
@@ -381,6 +380,10 @@ void OS::assert_folder_syntax(const std::string& folder1, const std::string& fol
 // >>>> args
 
 OS OS::set_args(int argc, char** argv){
+    if(argc == 1){ return *this; }
+
+    bool key_start = (argv[1][0] == '-' or argv[1][0] == '/');
+
     m_all_args.resize(argc);
     bool sub_arg = false;
     bool first_header = false;
@@ -388,51 +391,58 @@ OS OS::set_args(int argc, char** argv){
     std::vector<std::string> prep_sub_arg;
     std::string current_base;
 
-
-    for(int arg = 0; arg <= argc; arg++){ // loop through argv
-        if(arg != argc)
-            m_all_args[arg] = argv[arg];
-        if(first_header){
-            if(arg == argc && prep_sub_arg.size() > 0){
-                // last call to append prep_sub_arg to KVP
-                if(m_args.count(current_base)){
-                    for(std::string str: prep_sub_arg)
-                        m_args.at(current_base).push_back(str);
-                }else{
-                    // std::unordered_map<std::string, std::vector<std::string> > m_args; // {base_arg, [sub_args]}
-                    m_args.insert(std::make_pair(current_base, prep_sub_arg));
-                }
-                for(std::string str: prep_sub_arg)m_sub_args_str += str + ' ';
-            }else if(arg < argc){
-                if(argv[arg][0] == '-' || argv[arg][0] == '/'){
-                    if (prep_sub_arg.size() > 0){
-                        m_sub_args.push_back(prep_sub_arg);
-                        if(m_args.count(current_base)){
-                            for(std::string str: prep_sub_arg)
-                                m_args.at(current_base).push_back(str);
-                        }else{
-                            m_args.insert(std::make_pair(current_base, prep_sub_arg));
-                        }
-                        for(std::string str: prep_sub_arg)m_sub_args_str += str + ' ';
-                        prep_sub_arg.clear();
-                        current_base = m_all_args[arg];
-                        m_bargs.push_back(current_base);
-                    }else if(!findKey(m_all_args[arg])){ // if the key doesn't already exist
-                        m_args.insert(std::make_pair(m_all_args[arg], std::vector<std::string>{""}));
-                    }
-                }else{
-                    prep_sub_arg.push_back(m_all_args[arg]);
-                }
-            }
-        }else if(argv[arg][0] == '-' or argv[arg][0] == '/'){
-            first_header = true;
-            m_bargs.push_back(m_all_args[arg]);
-            current_base = m_all_args[arg];
+    bool keys_present = false;
+    for (int i = 0; i < argc; i++){
+        if (argv[i][0] == '-' or argv[i][0] == '/'){
+            keys_present = true; break;
         }
     }
+    if (keys_present){
+        for(int arg = 0; arg <= argc; arg++){ // loop through argv
+            if(arg != argc)
+                m_all_args[arg] = argv[arg];
+            if(first_header){
+                if(arg == argc && prep_sub_arg.size() > 0){
+                    // last call to append prep_sub_arg to KVP
+                    if(m_args.count(current_base)){
+                        for(std::string str: prep_sub_arg)
+                            m_args.at(current_base).push_back(str);
+                    }else{
+                        // std::unordered_map<std::string, std::vector<std::string> > m_args; // {base_arg, [sub_args]}
+                        m_args.insert(std::make_pair(current_base, prep_sub_arg));
+                    }
+                    for(std::string str: prep_sub_arg)m_sub_args_str += str + ' ';
+                }else if(arg < argc){
+                    if(argv[arg][0] == '-' || argv[arg][0] == '/'){
+                        if (prep_sub_arg.size() > 0){
+                            m_sub_args.push_back(prep_sub_arg);
+                            if(m_args.count(current_base)){
+                                for(std::string str: prep_sub_arg)
+                                    m_args.at(current_base).push_back(str);
+                            }else{
+                                m_args.insert(std::make_pair(current_base, prep_sub_arg));
+                            }
+                            for(std::string str: prep_sub_arg)m_sub_args_str += str + ' ';
+                            prep_sub_arg.clear();
+                            current_base = m_all_args[arg];
+                            m_bargs.push_back(current_base);
+                        }else if(!has_key(m_all_args[arg])){ // if the key doesn't already exist
+                            m_args.insert(std::make_pair(m_all_args[arg], std::vector<std::string>{""}));
+                        }
+                    }else{
+                        prep_sub_arg.push_back(m_all_args[arg]);
+                    }
+                }
+            }else if(argv[arg][0] == '-' or argv[arg][0] == '/'){
+                first_header = true;
+                m_bargs.push_back(m_all_args[arg]);
+                current_base = m_all_args[arg];
+            }
+        }
 
-    for(std::string& str: m_all_args) m_all_args_str += str + ' ';
-    for(std::string& str: m_bargs) m_bargs_str += str + ' ';
+        for(std::string& str: m_all_args) m_all_args_str += str + ' ';
+        for(std::string& str: m_bargs) m_bargs_str += str + ' ';
+    }
 
     return *this;   
 }
@@ -463,7 +473,7 @@ std::unordered_map<std::string, std::vector<std::string> > OS::args(){return m_a
 
 std::string OS::argv_str(){return m_all_args_str;}
 
-bool OS::findArg(const std::string& find_arg){
+bool OS::has_arg(const std::string& find_arg){
     for(auto&arg : m_all_args){
         if (arg == find_arg)
             return true;
@@ -474,23 +484,24 @@ bool OS::findArg(const std::string& find_arg){
 std::vector<std::string> OS::keys(){return m_bargs;}
 std::string OS::keys_str(){return m_bargs_str;}
 
-std::vector< std::vector<std::string> > OS::keyValues(){return m_sub_args;}
-std::string OS::keyValues_str(){return m_sub_args_str;}
+std::vector< std::vector<std::string> > OS::key_values(){return m_sub_args;}
+std::string OS::key_values_str(){return m_sub_args_str;}
 
 // -------------------------------------------------------------------------------
 // These are the arg functions you will mostly use
-// 1st you will identify if the key exist with "findKey()"
-// 2nd you will either return it's values with "keyValues()"
+// 1st you will identify if the key exist with "has_key()"
+// 2nd you will either return it's values with "key_values()"
 //     or you will get the bool for the existence of its value
-//     "findKeyValue()" for control flow of the program
+//     "has_key_value()" for control flow of the program
 
-std::string OS::keyValue(const std::string& key, int i){return m_args.at(key)[i];}
+std::string OS::key_value(const std::string& key, int i){return m_args.at(key)[i];}
 
-std::vector<std::string> OS::keyValues(const std::string& key){return m_args.at(key);}
+std::vector<std::string> OS::key(const std::string& key){return m_args.at(key);}
+std::vector<std::string> OS::key_values(const std::string& key){return this->key(key);}
 
 std::vector<std::string> OS::operator[](const std::string& key){return m_args.at(key);}
 
-bool OS::findKey(const std::string& key){
+bool OS::has_key(const std::string& key){
     std::vector<string>::iterator iter;
     for (iter = m_bargs.begin(); iter != m_bargs.end(); ++iter){
         if(*iter == key){
@@ -498,7 +509,7 @@ bool OS::findKey(const std::string& key){
         }
     }return false;
 };
-bool OS::findKeyValue(const std::string& key,const std::string& value){
+bool OS::key_value(const std::string& key,const std::string& value){
     for(std::vector<std::string>::const_iterator iter = m_args.at(key).begin(); \
             iter != m_args.at(key).end(); iter++){
         if (*iter == value){
@@ -506,6 +517,10 @@ bool OS::findKeyValue(const std::string& key,const std::string& value){
         }
     }return false;
 }
+bool OS::has_key_value(const std::string& key,const std::string& value){ 
+    return this->key_value(key, value);
+}
+
 
 bool OS::operator()(const std::string& key, const std::string& value){
     for(std::vector<std::string>::const_iterator iter = m_args.at(key).begin(); \
