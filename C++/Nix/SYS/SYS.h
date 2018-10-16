@@ -43,7 +43,6 @@
 class SYS
 {
 private:
-	
 	std::string m_command;
 	std::string m_file_name;
 	std::string m_file_data = "  ";
@@ -109,6 +108,7 @@ public:
 	// note; key_value() could get confusing, one references by value, the other by location
 
 	bool operator()(const std::string& key, const std::string& value = "");
+
 	// -------------------------------------------------------------------------------------------
 	template<class T = std::string>
 	void p(T str);
