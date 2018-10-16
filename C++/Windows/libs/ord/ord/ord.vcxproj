@@ -20,10 +20,10 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{7627C6C1-8D9F-45D4-B23A-89A4D688A15D}</ProjectGuid>
+    <ProjectGuid>{45424BD8-2730-4F74-A404-B8319F56C0C2}</ProjectGuid>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <Keyword>ManagedCProj</Keyword>
-    <RootNamespace>os</RootNamespace>
+    <RootNamespace>ord</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -132,12 +132,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="headers\os.h" />
+    <ClInclude Include="headers\ord.h" />
     <ClInclude Include="resource\Resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="resource\AssemblyInfo.cpp" />
-    <ClCompile Include="src\os.cpp" />
+    <ClCompile Include="src\ord.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource\app.rc" />
@@ -149,11 +149,6 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\re\re\re.vcxproj">
-      <Project>{4752b273-49a9-4c3b-b445-ff883d72427b}</Project>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

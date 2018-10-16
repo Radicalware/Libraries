@@ -1,7 +1,9 @@
 
 #include<map>
 #include<unordered_map>
+
 #include<vector>
+
 #include<string>
 #include<algorithm>
 #include<regex>
@@ -33,19 +35,19 @@
 // ===============================================================================================================
 // ---------------------------------------------------------------------------------------------------------------
 
-bool ord::xmatchOne(const std::string& in_pattern, const std::vector<std::string>& content){
-    std::regex pattern(in_pattern);
-	for(std::vector<std::string>::const_iterator iter = content.begin(); iter != content.end(); iter++){
-		if(std::regex_match(*iter, pattern)){
+bool ord::xmatch_one(const std::string& in_pattern, const std::vector<std::string>& content) {
+	std::regex pattern(in_pattern);
+	for (std::vector<std::string>::const_iterator iter = content.begin(); iter != content.end(); iter++) {
+		if (std::regex_match(*iter, pattern)) {
 			return true;
 		}
 	}
 	return false;
 }
-bool ord::xmatchAll(const std::string& in_pattern, const std::vector<std::string>& content){
-    std::regex pattern(in_pattern);
-	for(std::vector<std::string>::const_iterator iter = content.begin(); iter != content.end(); iter++){
-		if(!std::regex_match(*iter, pattern)){
+bool ord::xmatch_all(const std::string& in_pattern, const std::vector<std::string>& content) {
+	std::regex pattern(in_pattern);
+	for (std::vector<std::string>::const_iterator iter = content.begin(); iter != content.end(); iter++) {
+		if (!std::regex_match(*iter, pattern)) {
 			return false;
 		}
 	}
@@ -54,19 +56,19 @@ bool ord::xmatchAll(const std::string& in_pattern, const std::vector<std::string
 
 // ---------------------------------------------------------------------------------------------------------------
 
-bool ord::xscanOne(const std::string& in_pattern, const std::vector<std::string>& content){
-    std::regex pattern(in_pattern);
-	for(std::vector<std::string>::const_iterator iter = content.begin(); iter != content.end(); iter++){
-		if(std::regex_search(*iter, pattern)){
+bool ord::xscan_one(const std::string& in_pattern, const std::vector<std::string>& content) {
+	std::regex pattern(in_pattern);
+	for (std::vector<std::string>::const_iterator iter = content.begin(); iter != content.end(); iter++) {
+		if (std::regex_search(*iter, pattern)) {
 			return true;
 		}
 	}
 	return false;
 }
-bool ord::xscanAll(const std::string& in_pattern, const std::vector<std::string>& content){
-    std::regex pattern(in_pattern);
-	for(std::vector<std::string>::const_iterator iter = content.begin(); iter != content.end(); iter++){
-		if(!std::regex_search(*iter, pattern)){
+bool ord::xscan_all(const std::string& in_pattern, const std::vector<std::string>& content) {
+	std::regex pattern(in_pattern);
+	for (std::vector<std::string>::const_iterator iter = content.begin(); iter != content.end(); iter++) {
+		if (!std::regex_search(*iter, pattern)) {
 			return false;
 		}
 	}
@@ -76,33 +78,34 @@ bool ord::xscanAll(const std::string& in_pattern, const std::vector<std::string>
 // ===============================================================================================================
 // ---------------------------------------------------------------------------------------------------------------
 
-std::vector<std::string> ord::xretMatches(const std::string& in_pattern, const std::vector<std::string>& vec){
-    std::regex pattern(in_pattern);
-    std::vector<std::string> ret_patterns;
-    std::vector<std::string>::const_iterator iter;
-    for (iter = vec.begin(); iter != vec.end(); ++iter)
-    {
-        if (std::regex_match(*iter, pattern))
-            ret_patterns.push_back(*iter);
-    }
-    return ret_patterns;
+std::vector<std::string> ord::xret_matches(const std::string& in_pattern, const std::vector<std::string>& vec) {
+	std::regex pattern(in_pattern);
+	std::vector<std::string> ret_patterns;
+	std::vector<std::string>::const_iterator iter;
+	for (iter = vec.begin(); iter != vec.end(); ++iter)
+	{
+		if (std::regex_match(*iter, pattern))
+			ret_patterns.push_back(*iter);
+	}
+	return ret_patterns;
 }
 
-std::vector<std::string> ord::xretScans(const std::string& in_pattern, const std::vector<std::string>& vec){
-    std::regex pattern(in_pattern);
-    std::vector<std::string> ret_patterns;
-    std::vector<std::string>::const_iterator iter;
-    for (iter = vec.begin(); iter != vec.end(); ++iter)
-    {
-        if (std::regex_search(*iter, pattern)) // ret whole item so re.h for findall not needed
-            ret_patterns.push_back(*iter);
-    }
-    if (ret_patterns.size()){
-    	return ret_patterns;
-    }else{
-    	ret_patterns.resize(1);
-    	return ret_patterns;
-    }
+std::vector<std::string> ord::xret_scans(const std::string& in_pattern, const std::vector<std::string>& vec) {
+	std::regex pattern(in_pattern);
+	std::vector<std::string> ret_patterns;
+	std::vector<std::string>::const_iterator iter;
+	for (iter = vec.begin(); iter != vec.end(); ++iter)
+	{
+		if (std::regex_search(*iter, pattern)) // ret whole item so re.h for findall not needed
+			ret_patterns.push_back(*iter);
+	}
+	if (ret_patterns.size()) {
+		return ret_patterns;
+	}
+	else {
+		ret_patterns.resize(1);
+		return ret_patterns;
+	}
 }
 
 
