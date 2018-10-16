@@ -1,0 +1,8 @@
+﻿  re.cpp
+c:\source\include\re\re\src\re.cpp(162): warning C4244: 'initializing': conversion from '__int64' to 'int', possible loss of data
+c:\source\include\re\re\src\re.cpp(172): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+c:\source\include\re\re\src\re.cpp(219): warning C4244: 'initializing': conversion from '__int64' to 'unsigned long', possible loss of data
+c:\source\include\re\re\src\re.cpp(225): warning C4267: 'initializing': conversion from 'size_t' to 'unsigned long', possible loss of data
+.NETFramework,Version=v4.6.1.AssemblyAttributes.obj : warning LNK4221: This object file does not define any previously undefined public symbols, so it will not be used by any link operation that consumes this library
+AssemblyInfo.obj : warning LNK4221: This object file does not define any previously undefined public symbols, so it will not be used by any link operation that consumes this library
+  re.vcxproj -> C:\source\examples\ex_re\x64\Debug\re.lib

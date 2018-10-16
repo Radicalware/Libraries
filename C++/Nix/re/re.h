@@ -1,13 +1,9 @@
-#ifndef _H_re_regex_
-#define _H_re_regex_
+#pragma once
 
 #include<vector>
 #include<string>
 #include<regex>
 #include<algorithm>
-
-#define _ITERATOR_DEBUG_LEVEL 0  
-
 
 /*
 * Copyright[2018][Joel Leagues aka Scourge]
@@ -30,51 +26,45 @@
 
 
 
-namespace re
+namespace re // Regular Expression
 {
-    // re:: does NOT take any vector inputs as a namespace. 
-    // To parse vectors/maps use ord:: which is short for order. 
-    // Note, grouper/iter are not to be called directly.
+	// re:: does NOT take any vector inputs as a namespace. 
+	// To parse vectors/maps use ord:: which is short for order. 
+	// Note, grouper/iter are not to be called directly.
 
-    // ======================================================================================
-    bool match(const std::string& in_pattern, const std::string& content);
-    bool matchLine(const std::string& in_pattern, const std::string& content);
-    bool matchLines(const std::string& in_pattern, const std::string& content);
+	// =================================================================================================================================
+	bool match(const std::string& in_pattern, const std::string& content);
+	bool match_line(const std::string& in_pattern, const std::string& content);
+	bool match_lines(const std::string& in_pattern, const std::string& content);
 
-    bool scan(const std::string& in_pattern, const std::string& content);
-    bool scanLine(const std::string& in_pattern, const std::string& content);
-    bool scanLines(const std::string& in_pattern, const std::string& content);
-    // ======================================================================================
+	bool scan(const std::string& in_pattern, const std::string& content);
+	bool scan_line(const std::string& in_pattern, const std::string& content);
+	bool scan_lines(const std::string& in_pattern, const std::string& content);
+	// =================================================================================================================================
 
-    std::vector<std::string> xsplit(const std::string& in_pattern, const std::string& content);
+	std::vector<std::string> xsplit(const std::string& in_pattern, const std::string& content);
 
-    std::vector<std::string> split(const std::string& in_pattern, const std::string& content);
-    std::vector<std::string> split(const std::string& in_pattern, const std::string&& content);
+	std::vector<std::string> split(const std::string& in_pattern, const std::string& content);
+	std::vector<std::string> split(const std::string& in_pattern, const std::string&& content);
 
-    // ======================================================================================
+	// =================================================================================================================================
 
-    bool ASCII_check(const std::string& str);
+	bool ASCII_check(const std::string& str);
+	// --------------------------------------------------------------------------------------------------------------------------------
+	// re::search & re::findall use grouper/iterator, don't use them via the namespace directly
+	std::vector<std::string> grouper(const std::string& content, std::vector<std::string>& ret_vector, const std::string& in_pattern);
+	std::vector<std::string> iterator(const std::string& content, std::vector<std::string>& ret_vector, const std::string& in_pattern);
+	// --------------------------------------------------------------------------------------------------------------------------------
+	std::vector<std::string> findall(const std::string& in_pattern, const std::string& content, const bool group = false);
 
-    // re::search & re::findall use grouper/iterator, don't use them via the namespace directly
-    std::vector<std::string> grouper(const std::string& content, std::vector<std::string>& ret_vector, const std::string& in_pattern);
+	// =================================================================================================================================
 
-    std::vector<std::string> iterator(const std::string& content, std::vector<std::string>& ret_vector, const std::string& in_pattern);
+	unsigned long char_count(const char var_char, const std::string& input_str);
+	unsigned long count(const std::string& in_pattern, const std::string& str);
 
-    // --------------------------------------------------------------------------------------
-    std::vector<std::string> findall(const std::string& in_pattern, const std::string& content, const bool group = false);
+	// =================================================================================================================================
 
-    // ======================================================================================
+	std::string sub(const std::string& in_pattern, const std::string& replacement, const std::string& content);
 
-    unsigned long char_count(const char var_char, const std::string& input_str);
-
-
-    unsigned long count(const std::string& in_pattern, const std::string& str);
-
-    // ======================================================================================
-
-    std::string sub(const std::string& in_pattern, const std::string& replacement, const std::string& content);
-
-    // ======================================================================================
-
+	// =================================================================================================================================
 }
-#endif
