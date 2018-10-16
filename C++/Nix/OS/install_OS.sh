@@ -1,4 +1,4 @@
-#!/bin/bash
+!/bin/bash
 echo
 echo "This lib is used similar to python's SYS/OS libs"
 echo
