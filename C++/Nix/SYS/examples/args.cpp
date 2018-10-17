@@ -1,3 +1,4 @@
+
 #include<iostream>
 #include<vector>
 #include<string>
@@ -13,7 +14,7 @@ using std::vector;
 
 
 
-int main(int argc, char** argv){
+int main(int argc, char** argv) {
 
 	sys.set_args(argc, argv);
 
@@ -36,6 +37,7 @@ int main(int argc, char** argv){
 
 	// and see the count via
 	cout << "argv count = " << sys.argc() << endl;
+	cout << "true argc  = " << argc << endl;
 	cout << "program start the count at 1, then add 1 for every arg.\n";
 
 	// if we are using a small script use the [] operator
@@ -52,41 +54,50 @@ int main(int argc, char** argv){
 	cout << "os values for key '-key-B' = " << ord::join(sys.key_values("-key-B")) << endl;
 
 	int count = 0; // This is used to make sure we hit all the correct targets and cmp at the end
-	int Target = 6;
+	int Target = 0;
 
-	if (sys.has_key("-key-B") && sys.has("-key-B")) {
+	// ----------------------------------------------------------------
+	if (sys.has_key("-key-B") && sys.has("-key-B") && sys("-key-B")) {
 		cout << "-key-B exists\n"; ++count;
-	}else {
+	}
+	else {
 		cout << "-key-B does NOT exists\n";
 	}
-
-	if (sys.has_key("-key-C") || sys.has("-key-C")) {
+	++Target;
+	// ----------------------------------------------------------------
+	if (sys.has_key("-key-C") || sys("-key-C")) {
 		cout << "-key-C exists\n";
-	}else {
+	}
+	else {
 		cout << "-key-C does NOT exist\n";  ++count;
 	}
-
-	if (sys.has_key_value("-key-A", "sub-B-2") || sys.key_value("-key-A", "sub-B-2") || sys("-key-A", "sub-B-2")) {
+	++Target;
+	// ----------------------------------------------------------------
+	if (sys.has_key_value("-key-A", "sub-B-2") || sys("-key-A", "sub-B-2")) {
 		cout << "value sub-B-2 exist in -key-A\n";
-	}else {
+	}
+	else {
 		cout << "value sub-B-2 does NOT exist in -key-A\n"; ++count;
 	}
-
-
-	if (sys.has_key_value("-key-B", "sub-B-2") && sys.key_value("-key-B", "sub-B-2") && sys("-key-B", "sub-B-2")) {
+	++Target;
+	// ----------------------------------------------------------------
+	if (sys.has_key_value("-key-B", "sub-B-2") && sys("-key-B", "sub-B-2")) {
 		cout << "value sub-B-2 exist in -key-B\n"; ++count;
-	}else {
+	}
+	else {
 		cout << "value sub-B-2 does NOT exist in -key-B\n";
 	}
-	 
-	if (sys.has_key_value("-key-B", "sub-B-3") || sys.key_value("-key-B", "sub-B-3") || sys("-key-B", "sub-B-3")) {
+	++Target;
+	// ----------------------------------------------------------------
+	if (sys.has_key_value("-key-B", "sub-B-3") || sys("-key-B", "sub-B-3")) {
 		cout << "value sub-B-3 exist in -key-B\n";
-	}else {
+	}
+	else {
 		cout << "value sub-B-3 does NOT exist in -key-B\n"; ++count;
 	}
-
-
-	if (sys.key_value("-key-A", 2) == "sub-A-2" && sys["-key-A"][2] == "sub-A-2") {
+	++Target;
+	// ----------------------------------------------------------------
+	if (sys.key_value("-key-A", 1) == "sub-A-2" && sys["-key-A"][1] == "sub-A-2") {
 		cout << "-key-A's 2nd element is sub-A-2\n";
 		// note: the [0] would be the key but returns nothing sense you already have the key
 		// [1] is the first value, [2] is the second value and so on.
@@ -95,6 +106,8 @@ int main(int argc, char** argv){
 	else {
 		cout << "-key-A's 2nd element is NOT sub-A-2\n";
 	}
+	++Target;
+	// ----------------------------------------------------------------
 
 
 	cout << endl;
@@ -109,6 +122,13 @@ int main(int argc, char** argv){
 	cout << R"(sys("-key-A", "sub-A-1") =  )" << sys("-key-A", "sub-A-1") << endl;
 	cout << R"(sys("-key-A", "sub-A-5") =  )" << sys("-key-A", "sub-A-5") << endl;
 
+	cout << "\n\n";
 
+	cout << R"(sys["-key-A"][0] == )" << sys["-key-A"][0] << endl;
+	cout << R"(sys["-key-A"][1] == )" << sys["-key-A"][1] << endl;
+	cout << R"(sys["-key-A"][2] == )" << sys["-key-A"][2] << "\n\n";
+
+	cout << R"(sys["-key-B"][0] == )" << sys["-key-B"][0] << endl;
+	cout << R"(sys["-key-B"][1] == )" << sys["-key-B"][1] << endl;
 	return 0;
 }

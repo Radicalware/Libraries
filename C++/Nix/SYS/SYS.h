@@ -1,5 +1,7 @@
 #pragma once
 
+// SYS.h version 1.1.0
+
 /*
 * Copyright[2018][Joel Leagues aka Scourge]
 * Scourge /at\ protonmail /dot\ com
@@ -52,6 +54,7 @@ private:
 
 	int    m_argc;
 	char** m_argv;
+	bool m_args_set = false;
 
 	std::unordered_map<std::string, std::vector<std::string> > m_args; // {base_arg, [sub_args]}
 
@@ -64,56 +67,48 @@ private:
 	std::string m_sub_args_str;
 
 
-	// ============================================================================================
+	// ======================================================================================================================
 public:
 
 	SYS(int c_argc, char** c_argv);
 	SYS();
 	~SYS();
 
-	// -------------------------------------------------------------------------------------------
+	// -------------------------------------------------------------------------------------------------------------------
 	// >>>> args
-
 	SYS set_args(int argc, char** argv);
+	// -------------------------------------------------------------------------------------------------------------------
 	std::vector<std::string> argv();
 	int argc();
-
-	std::string operator[](const int value);
 	std::unordered_map<std::string, std::vector<std::string> > args();
-
-	// -------------------------------------------------------------------------------------------
-
+	// -------------------------------------------------------------------------------------------------------------------
 	std::string argv_str();
-	bool has_arg(const std::string& find_arg);
-
-	std::vector<std::string> keys();
 	std::string keys_str();
-
-	std::vector< std::vector<std::string> > key_values();
 	std::string key_values_str();
-	// -------------------------------------------------------------------------------------------
-
-	std::string key_value(const std::string& key, int i);
-
-	std::vector<std::string> key_values(const std::string& key);
-	std::vector<std::string> key(const std::string& key); // key_values alias
-
-	std::vector<std::string> operator[](const std::string& key);
-
-	bool has_key(const std::string& key) { return this->has(key); }
+	// -------------------------------------------------------------------------------------------------------------------
+	// no input means return all keys or all key_values;
+	std::vector<std::string> keys();
+	std::vector<std::vector<std::string>> key_values();
+	// -------------------------------------------------------------------------------------------------------------------
 	bool has(const std::string& key);
-
+	bool has_key(const std::string& key);
+	bool has_arg(const std::string& find_arg);
 	bool has_key_value(const std::string& key, const std::string& value);
-	bool key_value(const std::string& key, const std::string& value);
-	// note; key_value() could get confusing, one references by value, the other by location
+	// -------------------------------------------------------------------------------------------------------------------
+	std::string key_value(const std::string& key, int i); 
+	std::vector<std::string> key_values(const std::string& key); // -----------|
+	std::vector<std::string> key(const std::string& key); // key_values alias--|
+	// -------------------------------------------------------------------------------------------------------------------
 
-	bool operator()(const std::string& key, const std::string& value = "");
+	std::vector<std::string> operator[](const std::string& key);              // return key values
+	std::string operator[](const int value);                                  // return value by arg location in argv
+	bool operator()(const std::string& key, const std::string& value = "");   // test boolean for key or KVP
 
-	// -------------------------------------------------------------------------------------------
+	// -------------------------------------------------------------------------------------------------------------------
 	template<class T = std::string>
 	void p(T str);
 	void d(int i = 0);
-	// ============================================================================================
+	// ======================================================================================================================
 };
 
 extern SYS sys;
