@@ -107,15 +107,13 @@ bool re::ASCII_check(const std::string& str) {
 }
 
 // re::search & re::findall use grouper/iterator, don't use them via the namespace directly
-std::vector<std::string> re::grouper(const std::string& content, std::vector<std::string>& ret_vector, const std::string& in_pattern)
-{
+std::vector<std::string> re::grouper(const std::string& content, std::vector<std::string>& ret_vector, const std::string& in_pattern) {
 	// note: passing ret_vector by reference caused memory corruption (hence I passed by value)
 	std::smatch match_array;
 	std::regex pattern(in_pattern);
 	std::string::const_iterator searchStart(content.cbegin());
 	std::string::const_iterator prev(content.cbegin());
-	while (regex_search(searchStart, content.cend(), match_array, pattern))
-	{
+	while (regex_search(searchStart, content.cend(), match_array, pattern)) {
 		for (int i = 0; i < match_array.size(); i++) {
 			ret_vector.push_back(match_array[i]);
 		}
@@ -133,26 +131,23 @@ std::vector<std::string> re::grouper(const std::string& content, std::vector<std
 std::vector<std::string> re::iterator(const std::string& content, std::vector<std::string>& ret_vector, const std::string& in_pattern) {
 	std::smatch match_array;
 	std::regex pattern(in_pattern);
-	int start_iter = 0;
-	if (match("^.*\\?\\:.*$", in_pattern) == true) {
-		start_iter = 1;
+	int start_iter = 1;
+	if (match(R"(^(.+?)(\(\?\:)(.+?)$)", in_pattern) == true) {
+		start_iter = 2;
 	}
-	for (std::sregex_iterator iter_index = std::sregex_iterator(content.begin(), content.end(), pattern);
-		iter_index != std::sregex_iterator(); ++iter_index)
-	{
+	std::sregex_iterator iter_index = std::sregex_iterator(content.begin(), content.end(), pattern);
+	for (iter_index; iter_index != std::sregex_iterator(); ++iter_index) {
 		match_array = *iter_index;
-		for (auto index = start_iter; index < match_array.size(); ++index) {
+		for (int index = start_iter; index < match_array.size(); ++index) {
 			if (!match_array[index].str().empty()) {
-				// regex found for a line/element in the arrays
-				// cout << "** " << match_array[index] << '\n';
 				ret_vector.push_back(match_array[index]);
-
 			}
 		}
 	}
 	return ret_vector;
 }
-
+#include<iostream>
+using namespace std;
 // --------------------------------------------------------------------------------------
 std::vector<std::string> re::findall(const std::string& in_pattern, const std::string& content, const bool group /*=false*/)
 {
@@ -160,53 +155,40 @@ std::vector<std::string> re::findall(const std::string& in_pattern, const std::s
 	std::vector<std::string> split_string;
 
 	int new_line_count = std::count(content.begin(), content.end(), '\n');
-
 	int split_loc;
 	std::string tmp_content = content;
 	// if/else: set each line to an element of the split_string vector
-	if ((new_line_count > 0 && new_line_count < content.length()) && new_line_count != 0)
-	{
-		split_string.resize(new_line_count + 1);
+	if (new_line_count) {
 
 		for (int i = 0; i < new_line_count; i++) {
 			split_loc = tmp_content.find('\n');
-			split_string[i] = tmp_content.substr(0, split_loc);
+			split_string.push_back(tmp_content.substr(0, split_loc));
 			tmp_content = tmp_content.substr(split_loc + 1, tmp_content.length() - split_loc - 1);
 		}
 	}
-	else
-	{
+	else {
 		new_line_count = 1;
 		split_string.push_back(content);
 	}
 
-	std::string line;
 	std::smatch match_array;
 	std::regex pattern(in_pattern);
 	// now iterate through each line (now each element of the array)
 	if (group == false) { // grouping is set to false by default
-		for (int index = 0; index < new_line_count; index++)
-		{
-			line = split_string[index].substr(0, split_string[index].length());
-			// Make a copy of
-			iterator(line, ret_vector, in_pattern);
+		for (int index = 0; index < new_line_count; index++) {
+			iterator(split_string[index], ret_vector, in_pattern);
 		}
 	}
-	else // If you chose grouping, you have more controle but more work. (C++ not Python style)
-	{
-		for (int i = 0; i < new_line_count; i++)
-		{
-			// made a copy of the target line
+	else { // If you chose grouping, you have more controle but more work. (C++ not Python style)
+		for (int i = 0; i < new_line_count; i++) {
 			grouper(split_string[i], ret_vector, in_pattern);
 		}
 	}
 
 	std::vector<std::string> filtered;
 	for (int i = 0; i < ret_vector.size(); i++) {
-		// ASCII_check(ret_vector[i]) && 
-		if (ret_vector[i].size() > 1 && match("^.*[^\\s].*$", ret_vector[i])) {
+		if (!(ret_vector[i].size() == 1 && ret_vector[i].c_str()[0] == ' '))
 			filtered.push_back(ret_vector[i]);
-		}
 	}
 
 	return filtered;
@@ -214,13 +196,12 @@ std::vector<std::string> re::findall(const std::string& in_pattern, const std::s
 
 // ======================================================================================
 
-unsigned long re::char_count(const char var_char, const std::string& input_str)
-{
+unsigned long re::char_count(const char var_char, const std::string& input_str) {
 	unsigned long n = std::count(input_str.begin(), input_str.end(), var_char);
 	return n;
 }
 
-unsigned long re::count(const std::string& in_pattern, const std::string& str){
+unsigned long re::count(const std::string& in_pattern, const std::string& str) {
 	std::vector<std::string> matches = findall(in_pattern, str);
 	unsigned long n = matches.size();
 	return n;
@@ -229,7 +210,7 @@ unsigned long re::count(const std::string& in_pattern, const std::string& str){
 
 // ======================================================================================
 
-std::string re::sub(const std::string& in_pattern, const std::string& replacement, const std::string& content){
+std::string re::sub(const std::string& in_pattern, const std::string& replacement, const std::string& content) {
 	std::regex pattern(in_pattern);
 	return std::regex_replace(content, pattern, replacement);
 }

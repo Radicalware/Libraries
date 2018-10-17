@@ -1,9 +1,6 @@
 #pragma once
 
-#include<vector>
-#include<string>
-#include<regex>
-#include<algorithm>
+// re:: version 1.1.0
 
 /*
 * Copyright[2018][Joel Leagues aka Scourge]
@@ -24,6 +21,11 @@
 * limitations under the License.
 */
 
+
+#include<vector>
+#include<string>
+#include<regex>
+#include<algorithm>
 
 
 namespace re // Regular Expression
