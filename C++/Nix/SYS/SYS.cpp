@@ -27,10 +27,6 @@
 // -------------------------------------------------------------------------------
 
 #include "SYS.h"
-#include "re.h" // From github.com/Radicalware
-				// re.h has no non-std required libs
-				// This is the only non-std lib required for SYS.h
-
 
 #include<iostream>
 #include<vector>
@@ -38,6 +34,7 @@
 #include<unordered_map>
 #include<stdio.h>
 #include<algorithm>
+#include<regex>
 
 SYS sys;
 
@@ -51,10 +48,23 @@ SYS::SYS() {};
 
 SYS::~SYS() {};
 
+
+bool SYS::rex_scan(std::string rex, std::vector<std::string> content){
+
+	std::regex pattern(rex);
+	for (std::vector<std::string>::const_iterator iter = content.begin(); iter != content.end(); iter++) {
+		if (std::regex_search(*iter, pattern)) {
+			return true;
+		}
+	}
+	return false;
+}
+
 // ======================================================================================================================
 // >>>> args
 
 SYS SYS::set_args(int argc, char** argv) {
+	m_argc = argc;
 	if (argc == 1 || m_args_set) { return *this; }
 
 	bool key_start = (argv[1][0] == '-' || argv[1][0] == '/');
@@ -114,7 +124,6 @@ SYS SYS::set_args(int argc, char** argv) {
 	return *this;
 }
 // -------------------------------------------------------------------------------------------------------------------
-
 std::vector<std::string> SYS::argv() { return m_all_args; }
 int SYS::argc() { return m_argc; }
 std::unordered_map<std::string, std::vector<std::string> > SYS::args() { return m_args; }
@@ -126,6 +135,18 @@ std::string SYS::key_values_str() { return m_sub_args_str; }
 std::vector<std::string> SYS::keys() { return m_bargs; }
 std::vector< std::vector<std::string> > SYS::key_values() { return m_sub_args; }
 // -------------------------------------------------------------------------------------------------------------------
+std::string SYS::first(const std::string& key) {
+	return m_args.at(key)[0]; 
+}
+std::string SYS::second(const std::string& key) {
+	return m_args.at(key)[1]; 
+};                          
+
+bool SYS::kvp(const std::string& key){
+	return m_args.at(key).size();
+}
+
+
 bool SYS::has(const std::string& key) {
 	if (std::find(m_bargs.begin(), m_bargs.end(), key) != m_bargs.end()){
 		return true;
@@ -164,25 +185,27 @@ std::string SYS::operator[](int value) {
 }
 
 bool SYS::operator()(const std::string& key, const std::string& value) {
-	if (std::find(m_bargs.begin(), m_bargs.end(), key) != m_bargs.end()) {
+
+
+	if (this->rex_scan(key, m_bargs)) {
 		if (value.size()) {
-			if (std::find(m_args.at(key).begin(), m_args.at(key).end(), value) != m_args.at(key).end()) {
+			if (this->rex_scan(value, m_args.at(key))) {
 				return true;
-			}
-			else {
+			}else {
 				return false;
 			}
-		}
-		else {
+		}else {
 			return true;
 		}
-	}
-	else {
+	}else {
 		return false;
 	}
 }
 
 // -------------------------------------------------------------------------------------------------------------------
+bool SYS::help(){
+	return (this->rex_scan(R"(^(-?){1,2}[hH]((elp)?)$)",m_bargs));
+}
 template<class T>
 void SYS::p(T input) { std::cout << std::endl << "------\n" << input << std::endl; }
 void SYS::d(int input) { std::cout << std::endl << "---{dbg: " << input << "}---" << std::endl; }

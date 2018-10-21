@@ -1,6 +1,6 @@
 #pragma once
 
-// SYS.h version 1.1.0
+// SYS.h version 1.2.0
 
 /*
 * Copyright[2018][Joel Leagues aka Scourge]
@@ -30,16 +30,11 @@
 // also, on windows, be sure to remove the debugging for the iterator. 
 // -------------------------------------------------------------------------------
 
-#include "re.h" // From github.com/Radicalware
-				// re.h has no non-std required libs
-				// This is the only non-std lib required for SYS.h
-
-
 #include<iostream>
 #include<vector>
 #include<stdexcept>
 #include<unordered_map>
-#include <stdio.h>
+#include<stdio.h>
 
 
 class SYS
@@ -66,6 +61,7 @@ private:
 	std::vector< std::vector<std::string> > m_sub_args; // sub args
 	std::string m_sub_args_str;
 
+	bool rex_scan(std::string rex, std::vector<std::string> content);
 
 	// ======================================================================================================================
 public:
@@ -90,6 +86,9 @@ public:
 	std::vector<std::string> keys();
 	std::vector<std::vector<std::string>> key_values();
 	// -------------------------------------------------------------------------------------------------------------------
+	std::string first(const std::string& key);  // = sys["key"][0]
+	std::string second(const std::string& key); // = sys["key"][1]
+	bool kvp(const std::string& key);   // = sys["key"][0].size()
 	bool has(const std::string& key);
 	bool has_key(const std::string& key);
 	bool has_arg(const std::string& find_arg);
@@ -99,12 +98,11 @@ public:
 	std::vector<std::string> key_values(const std::string& key); // -----------|
 	std::vector<std::string> key(const std::string& key); // key_values alias--|
 	// -------------------------------------------------------------------------------------------------------------------
-
 	std::vector<std::string> operator[](const std::string& key);              // return key values
 	std::string operator[](const int value);                                  // return value by arg location in argv
 	bool operator()(const std::string& key, const std::string& value = "");   // test boolean for key or KVP
-
 	// -------------------------------------------------------------------------------------------------------------------
+	bool help();
 	template<class T = std::string>
 	void p(T str);
 	void d(int i = 0);

@@ -2,8 +2,6 @@
 echo
 echo "This lib is used similar to python's SYS/SYS libs"
 echo
-echo "This lib requires re.h"
-echo "re.h has no pre-requisites"
 echo "I use the ord.h lib in one of the SYS.h examples"
 echo 
 echo "re.h, ord.h & SYS.h can be found at: https://github.com/Radicalware"

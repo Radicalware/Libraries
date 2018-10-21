@@ -21,6 +21,9 @@
     <ClInclude Include="headers\SYS.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\SYS.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="resource\AssemblyInfo.cpp">
