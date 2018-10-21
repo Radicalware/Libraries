@@ -108,6 +108,3 @@ std::vector<std::string> ord::xret_scans(const std::string& in_pattern, const st
 	}
 }
 
-
-
-//

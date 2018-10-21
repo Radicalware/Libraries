@@ -1,13 +1,6 @@
 #pragma once
 
-#include<map>
-#include<unordered_map>
-#include<vector>
-#include<string>
-#include<algorithm>
-#include<regex>
-#include<sstream>
-
+// ord:: version v1.1.0
 
 /*
 * Copyright[2018][Joel Leagues aka Scourge]
@@ -29,9 +22,17 @@
 */
 
 
+#include<map>
+#include<unordered_map>
+#include<vector>
+#include<string>
+#include<algorithm>
+#include<regex>
+#include<sstream>
+
 namespace ord // ORDer
 {
-	
+
 	// =================================================================================================================================
 
 	template<typename A, typename B>
@@ -333,12 +334,15 @@ namespace ord // ORDer
 		return ret_str;
 	}
 
-	template<typename T>
-	T slice(T i_arr, double x = 0, double y = 0, double z = 0) {
 
+	// vice was not intended to be used directly
+	// for clarity, and usability, it is suggested to use slice/dice which call vice
+	// slice is like python's slice and dice is the same but removes what slice skips with 'z'
+	template<typename T>
+	T vice(T i_arr, double x,  double y, double z, char removal_method) {
 		size_t m_size = i_arr.size();
 		T n_arr;
-		n_arr.reserve(m_size);
+		n_arr.reserve(m_size+4);
 
 		double n_arr_size = static_cast<double>(m_size - 1);
 
@@ -359,7 +363,7 @@ namespace ord // ORDer
 				for (iter += x; iter != stop; ++iter)
 					n_arr.push_back(*iter);
 			}
-			else { // forward direction with skipping
+			else if (removal_method == 's'){ // forward direction with skipping
 				double iter_insert = 0;
 				--z;
 				for (iter += x; iter != stop; ++iter) {
@@ -368,6 +372,18 @@ namespace ord // ORDer
 						iter_insert = z;
 					}
 					else {
+						--iter_insert;
+					}
+				}
+			}else {
+				double iter_insert = 0;
+				--z;
+				for (iter += x; iter != stop; ++iter) {
+					if (!iter_insert) {
+						iter_insert = z;
+					}
+					else {
+						n_arr.push_back(*iter);
 						--iter_insert;
 					}
 				}
@@ -397,7 +413,7 @@ namespace ord // ORDer
 						n_arr.push_back(*iter);
 				}
 			}
-			else {
+			else if(removal_method == 's') {
 				for (; iter != stop; ++iter) {
 					if (!iter_insert) {
 						n_arr.push_back(*iter);
@@ -408,7 +424,28 @@ namespace ord // ORDer
 					}
 				}
 			}
+			else {
+				for (; iter != stop; ++iter) {
+					if (!iter_insert) {
+						iter_insert = z;
+					}
+					else {
+						n_arr.push_back(*iter);
+						--iter_insert;
+					}
+				}
+			}
 		}
 		return n_arr;
+	}
+
+	template<typename T>
+	T slice(T i_arr, double x = 0, double y = 0, double z = 0) {
+		return vice(i_arr, x, y, z, 's');
+	}
+
+	template<typename T>
+	T dice(T i_arr, double x = 0, double y = 0, double z = 0) {
+		return vice(i_arr, x, y, z, 'd');
 	}
 }
