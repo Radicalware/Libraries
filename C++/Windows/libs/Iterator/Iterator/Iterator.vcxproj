@@ -138,6 +138,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="headers\Iterator.h" />
+    <ClInclude Include="include\Iterator.h" />
     <ClInclude Include="resouce\Resource.h" />
   </ItemGroup>
   <ItemGroup>
