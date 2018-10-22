@@ -24,9 +24,9 @@ int main(){
 	//  open()/read()
 
 	// rmdir()
-	
+
 	cout << "pwd = " << os.pwd() << endl;
-	
+
 	cout << os.popen("echo testing popen").read() << endl;
 
 	cout << os("echo testing popen SHORTHAND") << endl;
@@ -34,7 +34,11 @@ int main(){
 	os.mkdir("./fm_open");
 
 	replenish();
+#if defined(NIX_BASE)
 	cout << "1st time write >> " << os.popen("cat ./fm_open/tmp.txt").read() << endl;
+#elif defined(WIN_BASE)
+	cout << "1st time write >> " << os.popen("TYPE .\\fm_open\\tmp.txt").read() << endl;
+#endif
 
 	os.clear_file("./fm_open/tmp.txt");
 	cout << "clear_file() >> " << os.open("./fm_open/tmp.txt").read() << endl;
@@ -48,11 +52,11 @@ int main(){
 
 
 	os.delete_file("./fm_open/tmp2.txt");
-	cout << "delete_file() >> " << os.open("cat ./fm_open/tmp2.txt").read() << endl;
-	os.delete_file("./fm_open/tmp2.txt"); 
+	cout << "delete_file() >> " << os.open("./fm_open/tmp2.txt").read() << endl;
+	os.delete_file("./fm_open/tmp2.txt");
 
 	replenish();
-	os.copy_file("./fm_open/tmp.txt", "./fm_open/tmp2.txt"); 
+	os.copy_file("./fm_open/tmp.txt", "./fm_open/tmp2.txt");
 	cout << "copy_file() print from >> " << os.open("./fm_open/tmp.txt").read();
 	cout << "copy_file() print to   >> " << os.open("./fm_open/tmp2.txt").read() << endl;
 
@@ -69,9 +73,7 @@ int main(){
 	cout << os("tree ./test") << endl;
 
 	os.rmdir("./test");
-	
 	cout << '\n';
-
 
 	return 0;
 }

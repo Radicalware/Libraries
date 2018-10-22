@@ -1,5 +1,8 @@
 #pragma once
 
+// Lib: OS.h
+// Version 1.1.0
+
 /*
 * Copyright[2018][Joel Leagues aka Scourge]
 * Scourge /at\ protonmail /dot\ com
