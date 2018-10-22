@@ -8,12 +8,14 @@ using std::endl;
 using std::string;
 using std::vector;
 
+extern OS os;
 
-void replenish(){
-	os.open("./fm_open/tmp.txt",'w').write("hello world\n");
+
+void replenish() {
+	os.open("./fm_open/tmp.txt", 'w').write("hello world\n");
 }
 
-int main(){
+int main() {
 
 	// clear_file()
 	// delete_file()
@@ -70,10 +72,23 @@ int main(){
 	cout << "-------------\n";
 
 	os.move_dir("./fm_open", "./test");
-	cout << os("tree ./test") << endl;
 
+	// note to be more cross platform you could have used "os.dir()"
+	// I did the following for demonstrative purposes
+	
+#if defined (NIX_BASE)
+	cout << os("tree ./test") << endl;
 	os.rmdir("./test");
-	cout << '\n';
+	cout << "\n\n";
+	cout << os("tree ./test") << endl;
+#elif defined (WIN_BASE)
+	cout << os("tree /F .\\test") << endl;
+	os.rmdir("./test");
+	cout << "\n\n";
+	cout << os("tree /F .\\test") << endl;
+#endif
+
+	cout << "\n\n";
 
 	return 0;
 }
