@@ -201,12 +201,11 @@ unsigned long re::char_count(const char var_char, const std::string& input_str) 
 	return n;
 }
 
+
 unsigned long re::count(const std::string& in_pattern, const std::string& str) {
-	std::vector<std::string> matches = findall(in_pattern, str);
-	unsigned long n = matches.size();
+	unsigned long n = split(in_pattern, str).size();
 	return n;
 }
-
 
 // ======================================================================================
 

@@ -1,6 +1,7 @@
 #pragma once
 
-// re:: version 1.1.0
+// lib: re
+// version 1.2.0
 
 /*
 * Copyright[2018][Joel Leagues aka Scourge]
