@@ -1,5 +1,3 @@
-#pragma once
-
 #include "OS.h"
 
 #include<iostream>
@@ -11,8 +9,6 @@ using std::string;
 extern OS os;
 
 int main() {
-#if defined(NIX_BASE)
-
 	// clear_file()
 	// remove_file()
 	// move_file()
@@ -28,8 +24,7 @@ int main() {
 
 	// popen()/read()
 	//  open()/read()
-
-	os.mkdir("./test_folder1/test_folder2/test_folder3");
+	os.mkdir("./test_folder1/test_folder2/test_folder3"); 
 	os.mkdir("./test_folder1/test_folder2a/");
 	os.mkdir("./test_folder1/test_folder2b/");
 
@@ -49,46 +44,25 @@ int main() {
 	os.open("./test_folder1///file2", 'w').write("test data");
 	os.open("./test_folder1///file3", 'w').write("test data");
 
-	cout << "\n------------------ current dirs -----------------------\n";
-	for (auto&i : os.dir("./test_folder1", "files", "folders", "recursive")) cout << "item = " << i << endl;
+	cout << "\n------------------ Current Dirs ---------------------\n";
+	for (auto&i : os.dir("./test_folder1", "files", "folders", "recursive"))
+		cout << "item = " << i << endl;
 
-	os.rmdir("./test_folder1");
+	os.move_dir("./test_folder1", "./test_folder2");
 
-	cout << "\n------------------ dirs gone --------------------------\n";
-	for (auto&i : os.dir("./test_folder1", "files", "folders", "recursive")) cout << "item = " << i << endl;
+	cout << "\n------------------ Moved Dirs -----------------------\n";
+	for (auto&i : os.dir("./test_folder2", "files", "folders", "recursive"))
+		cout << "item = " << i << endl;
 
+	os.rmdir("./test_folder2");
 
-#elif defined(WIN_BASE)
+	cout << "\n------------------ Removed Dirs 1 ---------------------\n";
+	for (auto&i : os.dir("./test_folder1", "files", "folders", "recursive")) 
+		cout << "item = " << i << endl;
 
-	os.mkdir(".\\test_folder1\\test_folder2\\test_folder3");
-	os.mkdir(".\\test_folder1\\test_folder2a\\");
-	os.mkdir(".\\test_folder1\\test_folder2b\\");
-
-	os.open(".\\test_folder1\\test_folder2\\test_folder3\\file1", 'w').write("test data");
-	os.open(".\\test_folder1\\test_folder2\\test_folder3\\file2", 'w').write("test data");
-	os.open(".\\test_folder1\\test_folder2\\test_folder3\\file3", 'w').write("test data");
-
-	os.open(".\\test_folder1\\test_folder2a\\file1", 'w').write("test data");
-	os.open(".\\test_folder1\\test_folder2a\\file2", 'w').write("test data");
-	os.open(".\\test_folder1\\test_folder2a\\file3", 'w').write("test data");
-
-	os.open(".\\test_folder1\\test_folder2b\\file1", 'w').write("test data");
-	os.open(".\\test_folder1\\test_folder2b\\file2", 'w').write("test data");
-	os.open(".\\test_folder1\\test_folder2b\\file3", 'w').write("test data");
-
-	os.open(".\\test_folder1\\file1", 'w').write("test data");
-	os.open(".\\test_folder1\\file2", 'w').write("test data");
-	os.open(".\\test_folder1\\file3", 'w').write("test data"); 
-
-	cout << "\n------------------ current dirs -----------------------\n";
-	for (auto&i : os.dir(".\\test_folder1", "files", "folders", "recursive")) cout << "item = " << i << endl;
-
-	os.rmdir(".\\test_folder1");
-
-	cout << "\n------------------ dirs gone --------------------------\n";
-	for (auto&i : os.dir(".\\test_folder1", "files", "folders", "recursive")) cout << "item = " << i << endl;
-
-#endif	
+	cout << "\n------------------ Deleted Dirs 2 ---------------------\n";
+	for (auto&i : os.dir("./test_folder2", "files", "folders", "recursive")) 
+		cout << "item = " << i << endl;
 	cout << '\n';
 }
 

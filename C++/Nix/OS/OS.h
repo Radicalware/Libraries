@@ -30,7 +30,6 @@
 				// re.h has no non-std required libs
 				// This is the only non-std lib required for OS.h
 
-
 #if (defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64))
 #define WIN_BASE
 #include <windows.h>
@@ -44,22 +43,9 @@
 #include<dirent.h>     // read/write
 #endif
 
-
 #include<iostream>
 #include<vector>
-#include<stdexcept>
-#include<stdio.h>      // defines FILENAME_MAX or PATH_MAX
-
-#include<fstream>      // file-handling
-
-
-#include<stdio.h>      // popen
-#include<sys/stat.h>   // mkdir 
-#include<unordered_map>
-
 #include<assert.h>
-#include<stdio.h>
-#include<cstdio>		//rename
 
 
 class OS
@@ -74,17 +60,33 @@ private:
 
 	std::wstring m_wstr;
 
-	struct Old_New
+	struct File_Names
 	{
-		std::string old_location;
-		std::string new_location;
-	};
+		std::string old;
+		std::string target;
 
-	void dir_continued(const std::string& scan_start, std::vector<std::string>& vec_track, \
-		const bool folders, const bool files, const bool recursive);
+		std::string fix_slash(std::string& item) {
+#if defined(WIN_BASE)
+			return re::sub("/", "\\\\", item);
+#elif defined(NIX_BASE)
+			return re::sub("\\\\", "/", item);
+#endif		
+		}
+
+		void set_old(std::string item) {
+			old = fix_slash(item);
+		}
+		void set_target(std::string item) {
+			target = fix_slash(item);
+		}
+	};
+	File_Names file_names;
 
 	void assert_folder_syntax(const std::string& folder1, const std::string& folder2 = "");
-	Old_New id_old_new(std::string old_location, std::string new_location);
+	File_Names id_files(std::string old_location, std::string new_location = "");
+
+	void dir_continued(const std::string scan_start, std::vector<std::string>& vec_track, \
+		const bool folders, const bool files, const bool recursive);
 
 public:
 
@@ -102,7 +104,7 @@ public:
 
 	// ---------------------------------------------------------------------------------------------
 
-	std::vector<std::string> dir(const std::string& folder_start, const std::string& mod1 = "n", \
+	std::vector<std::string> dir(const std::string folder_start, const std::string& mod1 = "n", \
 		const std::string& mod2 = "n", const std::string& mod3 = "n");
 	// dir(folder_to_start_search_from, mod can match for any of the following 3;
 	// recursive = search foldres recursivly
@@ -114,22 +116,22 @@ public:
 	// os.open(file_name).read()
 	// os.popen(command).read()
 
-	std::string operator()(const std::string& command); 
+	std::string operator()(const std::string& command);
 	// shorthand for os.popen(command).read()
 
 //	// ============================================================================================
 
-	bool has_file(const std::string& file);
+	bool has_dir_item(const std::string& file);
 
-	OS move_file(const std::string& old_location, const std::string& new_location = "");
-	OS copy_file(const std::string& old_location, const std::string& new_location = "");
+	OS move_file(const std::string& old_location, const std::string& new_location);
+	OS copy_file(const std::string& old_location, const std::string& new_location);
 	OS clear_file(const std::string& content = "");
 	OS delete_file(const std::string& content = "");
 
-	OS move_dir(const std::string& old_location, const std::string& new_location = "");
-	OS copy_dir(const std::string& old_location, const std::string& new_location = "");
+	OS move_dir(const std::string& old_location, const std::string& new_location);
+	OS copy_dir(const std::string& old_location, const std::string& new_location);
 	OS mkdir(const std::string& folder = "");
-	OS rmdir(const std::string& folder);
+	OS rmdir(const std::string& folder = "");
 	// -------------------------------------------------------------------------------
 	std::string file_data();
 	std::string file_name();
@@ -140,4 +142,4 @@ public:
 	// ============================================================================================
 };
 
-extern OS os; 
+extern OS os;

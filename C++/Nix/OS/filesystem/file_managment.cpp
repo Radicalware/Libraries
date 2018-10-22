@@ -69,6 +69,7 @@ int main(){
 	cout << os("tree ./test") << endl;
 
 	os.rmdir("./test");
+	
 	cout << '\n';
 
 

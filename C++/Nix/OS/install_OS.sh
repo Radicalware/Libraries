@@ -8,9 +8,6 @@ echo "I use the ord.h lib in one of the OS.h examples"
 echo 
 echo "re.h, ord.h & OS.h can be found at: https://github.com/Radicalware"
 echo
-echo -e "\e[33mALERT!!! THIS ONLY HAS LINUX SUPPORT AS OF RIGHT NOW"
-echo -e "All of my future libs will start on Windows"
-echo
 echo -e "\e[39menjoy!"
 echo
 
