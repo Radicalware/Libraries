@@ -1,7 +1,7 @@
 #pragma once
 
 // Lib: OS.h
-// Version 1.1.0
+// Version 1.2.1
 
 /*
 * Copyright[2018][Joel Leagues aka Scourge]
@@ -46,9 +46,17 @@
 #include<dirent.h>     // read/write
 #endif
 
+
 #include<iostream>
 #include<vector>
 #include<assert.h>
+
+#if defined(NIX_BASE)
+	#include "./support_os/File_Names.h"
+#elif defined(WIN_BASE)
+	#include ".\support_os\File_Names.h"
+#endif
+
 
 
 class OS
@@ -63,29 +71,14 @@ private:
 
 	std::wstring m_wstr;
 
-	struct File_Names
+	enum dir_type
 	{
-		std::string old;
-		std::string target;
-
-		std::string fix_slash(std::string& item) {
-#if defined(WIN_BASE)
-			return re::sub("/", "\\\\", item);
-#elif defined(NIX_BASE)
-			return re::sub("\\\\", "/", item);
-#endif		
-		}
-
-		void set_old(std::string item) {
-			old = fix_slash(item);
-		}
-		void set_target(std::string item) {
-			target = fix_slash(item);
-		}
+		dir_none,
+		dir_file,
+		dir_folder
 	};
-	File_Names file_names;
 
-	void assert_folder_syntax(const std::string& folder1, const std::string& folder2 = "");
+
 	File_Names id_files(std::string old_location, std::string new_location = "");
 
 	void dir_continued(const std::string scan_start, std::vector<std::string>& vec_track, \
@@ -96,7 +89,19 @@ public:
 	OS();
 	~OS();
 
-	// ------------------------------------------
+	// ---------------------------------------------------------------------------------------------
+	// Bash Style OS Commands
+
+	OS touch(const std::string& new_file = "");
+	OS mkdir(const std::string& folder = "");
+
+	OS cp(const std::string& old_location, const std::string& new_location = "");
+	OS mv(const std::string& old_location, const std::string& new_location = "");
+	OS rm(const std::string& new_file);
+
+	// ---------------------------------------------------------------------------------------------
+	// Open & Read/Write Files
+
 	OS open(const std::string& new_file_name, const char write_method = 'a');
 	// a = append     (append then writes like in python)
 	// w = write mode (clears then writes like in python)
@@ -106,7 +111,9 @@ public:
 	OS write(const std::string& content = "", const char write_method = 'n');
 
 	// ---------------------------------------------------------------------------------------------
+	// Dir Parsing
 
+	std::string pwd();
 	std::vector<std::string> dir(const std::string folder_start, const std::string& mod1 = "n", \
 		const std::string& mod2 = "n", const std::string& mod3 = "n");
 	// dir(folder_to_start_search_from, mod can match for any of the following 3;
@@ -114,28 +121,37 @@ public:
 	// folders   = return folders in search
 	// files     = return files in search
 
-	std::string pwd();
-	OS popen(const std::string& command, char leave = 'p');
-	// os.open(file_name).read()
-	// os.popen(command).read()
+	// ---------------------------------------------------------------------------------------------
+	// Console Command and Return
 
+	OS popen(const std::string& command, char leave = 'p');
 	std::string operator()(const std::string& command);
 	// shorthand for os.popen(command).read()
 
-//	// ============================================================================================
+	// ============================================================================================
+	// Bools for identifying data
 
-	bool has_dir_item(const std::string& file);
+	dir_type has(const std::string& file);
+	bool has_file(const std::string& file);
+	bool has_folder(const std::string& folder);
 
+	// ============================================================================================
+	// Filesystem Managment (use "Bash style OS commands" above for shorthand)
+	
 	OS move_file(const std::string& old_location, const std::string& new_location);
-	OS copy_file(const std::string& old_location, const std::string& new_location);
-	OS clear_file(const std::string& content = "");
-	OS delete_file(const std::string& content = "");
-
 	OS move_dir(const std::string& old_location, const std::string& new_location);
+
+	OS copy_file(const std::string& old_location, const std::string& new_location);
 	OS copy_dir(const std::string& old_location, const std::string& new_location);
-	OS mkdir(const std::string& folder = "");
-	OS rmdir(const std::string& folder = "");
+
+	OS delete_file(const std::string& content = "");
+	OS delete_dir(const std::string& folder = "");
+
+	OS clear_file(const std::string& content = "");
+
 	// -------------------------------------------------------------------------------
+	// Getters
+
 	std::string file_data();
 	std::string file_name();
 

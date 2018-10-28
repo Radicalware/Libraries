@@ -52,13 +52,13 @@ void ex_open_n_delete() {
 	cout << "zilch  = " << os.has("./asdfasdf/") << endl;
 	cout << "******************************************************" << endl;
 
-	cout << "\n------------------ Current Dirs ---------------------\n";
+	cout << "\n------------------ Current Dirs -----------------------\n";
 	for (auto&i : os.dir("./test_folder1", "files", "folders", "recursive"))
 		cout << "item = " << i << endl;
 
 	os.move_dir("./test_folder1", "./test_folder2");
 
-	cout << "\n------------------ Moved Dirs -----------------------\n";
+	cout << "\n------------------ Moved Dirs -------------------------\n";
 	for (auto&i : os.dir("./test_folder2", "files", "folders", "recursive"))
 		cout << "item = " << i << endl;
 

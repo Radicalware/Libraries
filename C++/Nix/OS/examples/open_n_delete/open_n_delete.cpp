@@ -44,17 +44,17 @@ int main() {
 	os.open("./test_folder1///file2", 'w').write("test data");
 	os.open("./test_folder1///file3", 'w').write("test data");
 
-	cout << "\n------------------ Current Dirs ---------------------\n";
+	cout << "\n------------------ Current Dirs -----------------------\n";
 	for (auto&i : os.dir("./test_folder1", "files", "folders", "recursive"))
 		cout << "item = " << i << endl;
 
 	os.move_dir("./test_folder1", "./test_folder2");
 
-	cout << "\n------------------ Moved Dirs -----------------------\n";
+	cout << "\n------------------ Moved Dirs -------------------------\n";
 	for (auto&i : os.dir("./test_folder2", "files", "folders", "recursive"))
 		cout << "item = " << i << endl;
 
-	os.rmdir("./test_folder2");
+	os.delete_dir("./test_folder2");
 
 	cout << "\n------------------ Removed Dirs 1 ---------------------\n";
 	for (auto&i : os.dir("./test_folder1", "files", "folders", "recursive")) 

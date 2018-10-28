@@ -78,15 +78,16 @@ int main() {
 	
 #if defined (NIX_BASE)
 	cout << os("tree ./test") << endl;
-	os.rmdir("./test");
+	os.delete_dir("./test");
 	cout << "\n\n";
 	cout << os("tree ./test") << endl;
 #elif defined (WIN_BASE)
 	cout << os("tree /F .\\test") << endl;
-	os.rmdir("./test");
-	cout << "\n\n";
+	os.delete_dir("./test");
+	cout << "\n\n"; 
 	cout << os("tree /F .\\test") << endl;
 #endif
+
 
 	cout << "\n\n";
 
