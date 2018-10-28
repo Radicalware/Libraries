@@ -132,6 +132,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="include\ex_bash_style.h" />
     <ClInclude Include="include\ex_file_managment.h" />
     <ClInclude Include="include\ex_open_n_delete.h" />
     <ClInclude Include="resouce\Resource.h" />

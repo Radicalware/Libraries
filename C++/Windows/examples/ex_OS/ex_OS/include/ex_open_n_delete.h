@@ -45,6 +45,12 @@ void ex_open_n_delete() {
 	os.open("./test_folder1///file1", 'w').write("test data");
 	os.open("./test_folder1///file2", 'w').write("test data");
 	os.open("./test_folder1///file3", 'w').write("test data");
+	
+	cout << "******************************************************" << endl;
+	cout << "file   = " << os.has("./test_folder1///file3") << endl;
+	cout << "folder = " << os.has("./test_folder1/test_folder2b/") << endl;
+	cout << "zilch  = " << os.has("./asdfasdf/") << endl;
+	cout << "******************************************************" << endl;
 
 	cout << "\n------------------ Current Dirs ---------------------\n";
 	for (auto&i : os.dir("./test_folder1", "files", "folders", "recursive"))
@@ -56,7 +62,7 @@ void ex_open_n_delete() {
 	for (auto&i : os.dir("./test_folder2", "files", "folders", "recursive"))
 		cout << "item = " << i << endl;
 
-	os.rmdir("./test_folder2");
+	os.delete_dir("./test_folder2");
 
 	cout << "\n------------------ Removed Dirs 1 ---------------------\n";
 	for (auto&i : os.dir("./test_folder1", "files", "folders", "recursive")) 

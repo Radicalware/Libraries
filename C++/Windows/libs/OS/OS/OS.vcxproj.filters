@@ -24,12 +24,21 @@
     <ClInclude Include="include\OS.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\support_os\File_Names.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FILE_NAMES.H">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\OS.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="resource\AssemblyInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\support_os\File_Names.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

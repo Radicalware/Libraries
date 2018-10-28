@@ -24,6 +24,9 @@
     <ClInclude Include="include\ex_file_managment.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\ex_bash_style.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ex_OS.cpp">

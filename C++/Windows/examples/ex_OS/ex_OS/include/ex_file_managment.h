@@ -26,7 +26,7 @@ int ex_file_managment() {
 	// popen()/read()
 	//  open()/read()
 
-	// rmdir()
+	// delete_dir()
 
 	cout << "pwd = " << os.pwd() << endl;
 
@@ -79,17 +79,18 @@ int ex_file_managment() {
 	// I did the following for demonstrative purposes
 #if defined (NIX_BASE)
 	cout << os("tree ./test") << endl;
-	os.rmdir("./test");
+	os.delete_dir("./test");
 	cout << "\n\n";
 	cout << os("tree ./test") << endl;
 #elif defined (WIN_BASE)
 	cout << os("tree /F .\\test") << endl;
-	os.rmdir("./test");
-	cout << "\n\n";
+	os.delete_dir("./test");
+	cout << "\n\n"; 
 	cout << os("tree /F .\\test") << endl;
 #endif
 
 	cout << "\n\n";
+
 
 	return 0;
 }
