@@ -1,6 +1,6 @@
 #pragma once
 
-// SYS.h version 1.2.0
+// SYS.h version 1.3.0
 
 /*
 * Copyright[2018][Joel Leagues aka Scourge]
@@ -40,16 +40,16 @@
 class SYS
 {
 private:
-	std::string m_command;
-	std::string m_file_name;
-	std::string m_file_data = "  ";
-
-	char m_last_read = 'n';
-	char m_write_method = 'a';
-
 	int    m_argc;
 	char** m_argv;
 	bool m_args_set = false;
+	bool m_chain_char_arg = false;
+	
+	std::string m_full_path = "";
+	std::string m_path = "";
+	std::string m_file = "";
+
+	std::string  m_ccaa; // C Char Arg Array
 
 	std::unordered_map<std::string, std::vector<std::string> > m_args; // {base_arg, [sub_args]}
 
@@ -62,6 +62,7 @@ private:
 	std::string m_sub_args_str;
 
 	bool rex_scan(std::string rex, std::vector<std::string> content);
+	bool c_arg_chain(char ch);
 
 	// ======================================================================================================================
 public:
@@ -69,43 +70,55 @@ public:
 	SYS(int c_argc, char** c_argv);
 	SYS();
 	~SYS();
-
 	// -------------------------------------------------------------------------------------------------------------------
 	// >>>> args
-	SYS set_args(int argc, char** argv);
+	SYS set_args(int argc, char** argv, bool chain_char_arg = false);
 	// -------------------------------------------------------------------------------------------------------------------
 	std::vector<std::string> argv();
 	int argc();
 	std::unordered_map<std::string, std::vector<std::string> > args();
 	// -------------------------------------------------------------------------------------------------------------------
+	std::string full_path();
+	std::string path();
+	std::string file();
+	// -------------------------------------------------------------------------------------------------------------------
+	// Strings
 	std::string argv_str();
 	std::string keys_str();
 	std::string key_values_str();
 	// -------------------------------------------------------------------------------------------------------------------
-	// no input means return all keys or all key_values;
+	// Return all keys or all values (for each barg)
 	std::vector<std::string> keys();
 	std::vector<std::vector<std::string>> key_values();
 	// -------------------------------------------------------------------------------------------------------------------
-	std::string first(const std::string& key);  // = sys["key"][0]
-	std::string second(const std::string& key); // = sys["key"][1]
-	bool kvp(const std::string& key);   // = sys["key"][0].size()
-	bool has(const std::string& key);
-	bool has_key(const std::string& key);
+	// Identify if a barg and/or Value exists
+	bool kvp(const std::string& barg);      // does the barg have values
+	bool bool_arg(const std::string& barg); // does the barg NOT have values
+
+	bool has_key(const std::string& barg); // --alias--|
+	bool has(const std::string& barg); // -------------|
+
 	bool has_arg(const std::string& find_arg);
-	bool has_key_value(const std::string& key, const std::string& value);
+	bool has_key_value(const std::string& barg, const std::string& value);
+	// -------------------------------------------------------------------------------------------------------------------	
+	// Return KVP Data
+	std::string first(const std::string& barg);  // = sys["barg"][0]
+	std::string second(const std::string& barg); // = sys["barg"][1]
+	std::string first(const char barg);  // = sys['k'][0]
+	std::string second(const char barg); // = sys['k'][1]
+
+	std::vector<std::string> key_values(const std::string& barg); // ---key_values alias--|
+	std::vector<std::string> key(const std::string& barg); // ----------------------------|
+	std::string key_value(const std::string& barg, int i);
 	// -------------------------------------------------------------------------------------------------------------------
-	std::string key_value(const std::string& key, int i); 
-	std::vector<std::string> key_values(const std::string& key); // -----------|
-	std::vector<std::string> key(const std::string& key); // key_values alias--|
-	// -------------------------------------------------------------------------------------------------------------------
-	std::vector<std::string> operator[](const std::string& key);              // return key values
-	std::string operator[](const int value);                                  // return value by arg location in argv
-	bool operator()(const std::string& key, const std::string& value = "");   // test boolean for key or KVP
+	// Almost everything above can be handled using the operator overloading below and is the prefered method
+	std::vector<std::string> operator[](const std::string& barg);              // return barg values
+	std::vector<std::string> operator[](const char barg);                      // return barg values
+	std::string operator[](const int value);                                   // return value by arg location in argv
+	bool operator()(const std::string& barg, const std::string& value = "");   // test boolean for barg or KVP
+	bool operator()(const char barg, const std::string& value = "");           // test boolean for barg or KVP
 	// -------------------------------------------------------------------------------------------------------------------
 	bool help();
-	template<class T = std::string>
-	void p(T str);
-	void d(int i = 0);
 	// ======================================================================================================================
 };
 
