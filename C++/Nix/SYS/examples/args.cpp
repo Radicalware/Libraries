@@ -15,7 +15,10 @@ using std::vector;
 
 int main(int argc, char** argv) {
 
-	sys.set_args(argc, argv, true); // true means C-style (default is basic style)
+	sys.set_args(argc, argv, true);
+	sys.alias("--port", 'p');
+	// 3rd arg "true", means C-style (default is basic style)
+	// link should be used when C-style is specified
 
 	// C-Style example1:      netstat -antp 8080
 	// C-Style example2:      aircrack-ng --bssid AA:AA:AA:AA:AA:AA
@@ -49,11 +52,11 @@ int main(int argc, char** argv) {
 	// -g
 
 	cout << ord::join(sys.argv(), " ") << endl;
-
+	
 	// and see the count via
 	cout << "argv count = " << sys.argc() << endl;
 	cout << "true argc  = " << argc << endl;
-	cout << "program start the count at 1, then add 1 for every arg.\n";
+	cout << "program start the count at 1, then add 1 for every arg.\n\n\n";
 
 	// if we are using a small script use the [] operator
 	cout << "sys[5] = " << sys[5] << endl;
@@ -66,7 +69,7 @@ int main(int argc, char** argv) {
 
 	cout << "full path  = " << sys.full_path() << endl;
 	cout << "path       = " << sys.path() << endl;
-	cout << "file       = " << sys.file() << endl;
+	cout << "file       = " << sys.file() << "\n\n\n";
 
 	// ----------------------------------------------------------------
 	if (sys.has_key("--key-B") && sys.has("--key-B") && sys("--key-B")) {
@@ -90,13 +93,14 @@ int main(int argc, char** argv) {
 	}
 	// ----------------------------------------------------------------
 	bool pass = false;
-	if (sys("-p")) {
-		if (sys['p'][0] == "8080") { 
-			cout << "port designated by -p is on" << ord::join(sys['p']) << endl;
+	if (sys('p') && sys("--port")){
+		if (sys['p'][0] == "8080" && sys["--port"][0] == "8080") { 
+			cout << "port designated by -p is on " << ord::join(sys['p'], " ") << endl;
 			pass = true;
 		}
 	}
 	if(!pass){
+		cout << ord::join(sys.keys(), " ") << endl;
 		cout << "error: -p is not set" << endl; exit(1);
 	}
 	// ----------------------------------------------------------------

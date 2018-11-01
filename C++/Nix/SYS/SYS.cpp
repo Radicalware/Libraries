@@ -26,6 +26,8 @@
 // also, on windows, be sure to remove the debugging for the iterator. 
 // -------------------------------------------------------------------------------
 
+
+
 #include "SYS.h"
 
 #include<iostream>
@@ -35,7 +37,7 @@
 #include<stdio.h>
 #include<algorithm>
 #include<regex>
-#include <cstddef>
+#include<cstddef>
 
 SYS sys;
 
@@ -95,8 +97,7 @@ SYS SYS::set_args(int argc, char** argv, bool chain_char_arg) {
 	m_all_args.insert(m_all_args.begin(), &argv[0], &argv[argc]);
 
 	auto add_chain_char_arg = [&]()->void {
-		if ((current_base[0] == '-' || current_base[0] == '/') &&
-			(current_base[1] != '-' && current_base[1] != '/')) {
+		if (current_base[0] == '-' && current_base[1] != '-' ) {
 
 			std::string barg = { current_base[0], current_base[current_base.size() - 1] };
 			m_args.insert(std::make_pair(barg, prep_sub_arg));
@@ -112,7 +113,7 @@ SYS SYS::set_args(int argc, char** argv, bool chain_char_arg) {
 				for (std::string str : prep_sub_arg)
 					m_args.at(current_base).push_back(str);
 			} else {
-				if (chain_char_arg && current_base[1] != '-' && current_base[1] != '/') {
+				if (chain_char_arg && current_base[1] != '-') {
 					add_chain_char_arg();
 				} else {
 					m_args.insert(std::make_pair(current_base, prep_sub_arg));
@@ -120,14 +121,14 @@ SYS SYS::set_args(int argc, char** argv, bool chain_char_arg) {
 			}
 			for (std::string str : prep_sub_arg)m_sub_args_str += str + ' ';
 		} else if (arg < argc) { // executes at a new barg
-			if (argv[arg][0] == '-' || argv[arg][0] == '/') {
+			if (argv[arg][0] == '-') {
 				if (prep_sub_arg.size() > 0) { // append sub args to the last barg
 					m_sub_args.push_back(prep_sub_arg);
 					if (m_args.count(current_base)) { // if the barg was already specified
 						for (std::string str : prep_sub_arg)
 							m_args.at(current_base).push_back(str);
 					} else {
-						if (chain_char_arg && current_base[1] != '-' && current_base[1] != '/') {
+						if (chain_char_arg && current_base[1] != '-') {
 							add_chain_char_arg();
 						} else {
 							m_args.insert(std::make_pair(current_base, prep_sub_arg));
@@ -135,7 +136,7 @@ SYS SYS::set_args(int argc, char** argv, bool chain_char_arg) {
 					}
 					for (std::string str : prep_sub_arg)m_sub_args_str += str + ' ';
 					prep_sub_arg.clear();
-				} else { // barg does not have any sub-args
+				} else if (!chain_char_arg) { // barg does not have any sub-args
 					m_args.insert(std::make_pair(m_all_args[arg-1], std::vector<std::string>{""}));
 				}
 				current_base = m_all_args[arg];
@@ -150,19 +151,41 @@ SYS SYS::set_args(int argc, char** argv, bool chain_char_arg) {
 	for (std::string& str : m_bargs) m_bargs_str += str + ' ';
 	
 	// C Char Arg Array only occurs when kvp() == false
+	std::vector<std::string> new_bargs;
 	if (m_chain_char_arg) {
 		for (std::string& barg : m_bargs) {
-			if (barg.size() > 1 && (barg[0] == '-' || barg[0] == '/') \
-				&& (barg[1] != '-' && barg[1] != '/')) {
+			if (barg.size() > 1 && (barg[0] == '-' && barg[1] != '-')) {
 				m_ccaa += barg.substr(1, barg.size() - 1);
+			} else {
+				new_bargs.push_back(barg);
 			}
 		}
-	}
 
+		for (char barg : m_ccaa)
+			new_bargs.push_back(std::string({ '-',barg }));
+
+		m_bargs = new_bargs;
+	}
+	
 	m_args_set = true;
 
 	return *this;
 }
+
+
+void SYS::alias(const std::string& s_arg, const char c_arg) {
+
+	if (this->has(s_arg)) {
+		m_args.insert(std::make_pair(std::string({ '-',c_arg }), this->key(s_arg)));
+		m_bargs.push_back(std::string({ '-',c_arg }));
+		m_ccaa += c_arg;
+
+	}else if(this->has(c_arg)){
+		m_args.insert(std::make_pair(s_arg, this->key(c_arg)));
+		m_bargs.push_back(s_arg);
+	}
+}
+
 
 // -------------------------------------------------------------------------------------------------------------------
 std::vector<std::string> SYS::argv() { return m_all_args; }
@@ -200,6 +223,10 @@ bool SYS::has(const std::string& barg) {
 	}return this->c_arg_chain(barg[1]);
 };
 
+bool SYS::has(const char barg) {
+	return (std::find(m_ccaa.begin(), m_ccaa.end(), barg) != m_ccaa.end());
+};
+
 bool SYS::has_key(const std::string& barg) { return this->has(barg); }
 
 bool SYS::has_arg(const std::string& find_arg) {
@@ -234,7 +261,8 @@ std::string SYS::second(const char i_key) {
 };
 
 std::vector<std::string> SYS::key_values(const std::string& barg) { return this->key(barg); } // --alias of barg--|
-std::vector<std::string> SYS::key(const std::string& barg) { return m_args.at(barg); } //  ----------------------|
+std::vector<std::string> SYS::key(const std::string& barg) { return m_args.at(barg); }  //  ----------------------|
+std::vector<std::string> SYS::key(const char barg) { return m_args.at(std::string({ '-',barg })); };
 std::string SYS::key_value(const std::string& barg, int i) { return m_args.at(barg)[i]; }
 
 // -------------------------------------------------------------------------------------------------------------------

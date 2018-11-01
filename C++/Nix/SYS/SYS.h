@@ -1,6 +1,6 @@
 #pragma once
 
-// SYS.h version 1.3.0
+// SYS.h version 1.4.0
 
 /*
 * Copyright[2018][Joel Leagues aka Scourge]
@@ -44,7 +44,7 @@ private:
 	char** m_argv;
 	bool m_args_set = false;
 	bool m_chain_char_arg = false;
-	
+
 	std::string m_full_path = "";
 	std::string m_path = "";
 	std::string m_file = "";
@@ -73,6 +73,7 @@ public:
 	// -------------------------------------------------------------------------------------------------------------------
 	// >>>> args
 	SYS set_args(int argc, char** argv, bool chain_char_arg = false);
+	void alias(const std::string& s_arg, const char c_arg);
 	// -------------------------------------------------------------------------------------------------------------------
 	std::vector<std::string> argv();
 	int argc();
@@ -97,6 +98,7 @@ public:
 
 	bool has_key(const std::string& barg); // --alias--|
 	bool has(const std::string& barg); // -------------|
+	bool has(const char barg);
 
 	bool has_arg(const std::string& find_arg);
 	bool has_key_value(const std::string& barg, const std::string& value);
@@ -109,6 +111,7 @@ public:
 
 	std::vector<std::string> key_values(const std::string& barg); // ---key_values alias--|
 	std::vector<std::string> key(const std::string& barg); // ----------------------------|
+	std::vector<std::string> key(const char barg);
 	std::string key_value(const std::string& barg, int i);
 	// -------------------------------------------------------------------------------------------------------------------
 	// Almost everything above can be handled using the operator overloading below and is the prefered method
