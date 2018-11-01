@@ -51,13 +51,13 @@
 #include<sys/stat.h>   // mkdir 
 #include<stdio.h>      // popen
 
-#if defined(WIN_BASE)
-#include<Windows.h>
-#include<msclr/marshal.h>
-#include<tchar.h> 
-#include<stdio.h>
-#include<strsafe.h>
-#include<winnt.h>
+#ifdef WIN_BASE
+	#include<Windows.h>
+	#include<msclr/marshal.h>
+	#include<tchar.h> 
+	#include<stdio.h>
+	#include<strsafe.h>
+	#include<winnt.h>
 #endif
 
 
@@ -427,11 +427,11 @@ OS::dir_type OS::has(const std::string& file) { // no '_' based on ord namespace
 #endif
 }
 
-bool OS::has_file(const std::string& file) {
+bool OS::file(const std::string& file) {
 	return (this->has(file) == dir_file);
 }
 
-bool OS::has_folder(const std::string& folder) {
+bool OS::folder(const std::string& folder) {
 	return (this->has(folder) == dir_folder);
 }
 

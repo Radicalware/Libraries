@@ -1,14 +1,13 @@
 
 
 #if (defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64))
-#include "..\include\support_os\File_Names.h"
+	#include "..\include\support_os\File_Names.h"
 #else
-#include "../../include/support_os/File_Names.h"
+	#include "../../include/support_os/File_Names.h"
 #endif
 
-#include "re.h"
-
 #include<string>
+#include "re.h"
 
 File_Names::File_Names(std::string i_old, std::string i_target) :
 	m_old(i_old), m_target(i_target) {
@@ -28,8 +27,8 @@ void File_Names::check_dir_start(std::string& item) {
 		(item[0] == '.' && item[1] == '/') || \
 		(item[0] == '.' && item[1] == '\\') || \
 
-		(item[0] == '.' && item[1] == '.' && item[1] == '/') || \
-		(item[0] == '.' && item[1] == '.' && item[1] == '\\')
+		(item[0] == '.' && item[1] == '.' && item[2] == '/') || \
+		(item[0] == '.' && item[1] == '.' && item[2] == '\\')
 		))
 	{
 		item = "./" + item;
@@ -50,9 +49,9 @@ void File_Names::assert_folder_syntax(const std::string& folder1, const std::str
 
 	auto asserts = [](const std::string& folder) -> void {
 
-		if (!re::match(std::string(R"(^([\./\\]+?)[\w\.\\/]+$)"), folder)) {
+		if (!re::match(std::string(R"(^([\./\\]+?)[\-\d\w\.\\/]+$)"), folder)) {
 			throw std::runtime_error("Failed Dir Syntax = "
-				R"(^([\./\\]+?)[\w\.\\/]+$)"
+				R"(^([\./\\]+?)[\-\d\w\.\\/]+$)"
 				"\n  what():  Dir Item: " + folder + "\n");
 		}
 

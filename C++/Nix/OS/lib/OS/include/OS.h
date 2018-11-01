@@ -1,7 +1,7 @@
 #pragma once
 
 // Lib: OS.h
-// Version 1.2.1
+// Version 1.2.2
 
 /*
 * Copyright[2018][Joel Leagues aka Scourge]
@@ -34,16 +34,13 @@
 				// This is the only non-std lib required for OS.h
 
 #if (defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64))
-#define WIN_BASE
-#include <windows.h>
-#include <msclr/marshal.h>
-//using namespace System;
-//using namespace System::Configuration;
-
+	#define WIN_BASE
+	#include <windows.h>
+	#include <msclr/marshal.h>
 #else
-#define NIX_BASE
-#include <unistd.h>
-#include<dirent.h>     // read/write
+	#define NIX_BASE
+	#include<unistd.h>
+	#include<dirent.h>     // read/write
 #endif
 
 
@@ -132,8 +129,8 @@ public:
 	// Bools for identifying data
 
 	dir_type has(const std::string& file);
-	bool has_file(const std::string& file);
-	bool has_folder(const std::string& folder);
+	bool file(const std::string& file);
+	bool folder(const std::string& folder);
 
 	// ============================================================================================
 	// Filesystem Managment (use "Bash style OS commands" above for shorthand)
