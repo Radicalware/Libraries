@@ -1,7 +1,7 @@
 #pragma once
 
 // Lib: OS.h
-// Version 1.2.2
+// Version 1.2.3
 
 /*
 * Copyright[2018][Joel Leagues aka Scourge]
@@ -65,6 +65,7 @@ private:
 
 	char m_last_read = 'n';
 	char m_write_method = 'a';
+	bool m_rexit = false;
 
 	std::wstring m_wstr;
 
@@ -85,6 +86,12 @@ public:
 
 	OS();
 	~OS();
+
+	void set_file_regex(bool rexit); // asserting file-regex consumes a lot of time
+	                                 // only turn on when you are parsing user input
+	bool file_regex_status();
+	bool file_syntax(const std::string& file);
+	bool file_list_syntax(const std::vector<std::string>& files);
 
 	// ---------------------------------------------------------------------------------------------
 	// Bash Style OS Commands

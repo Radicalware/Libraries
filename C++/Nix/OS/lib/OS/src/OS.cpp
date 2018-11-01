@@ -64,6 +64,31 @@
 OS::OS() {};
 OS::~OS() {};
 
+void OS::set_file_regex(bool rexit){
+	m_rexit = rexit;
+}
+
+bool OS::file_regex_status(){ return m_rexit; }
+
+bool OS::file_syntax(const std::string& i_file){
+	if (!re::match(std::string(R"(^([\./\\]+?)[\-\d\w\.\\/]+$)"), i_file)) {
+		return false;
+	}
+
+	if (re::scan(R"([^\\]\s)", i_file)) {
+		return false;
+	}
+	return true;
+}
+
+bool OS::file_list_syntax(const std::vector<std::string>& i_files){
+	for(const std::string& i_file: i_files){
+		if(!(file_syntax(i_file))){
+			return false;
+		}
+	}return true;
+}
+
 // ---------------------------------------------------------------------------------------------
 
 OS OS::touch(const std::string& new_file) {
@@ -120,7 +145,7 @@ OS OS::open(const std::string& new_file_name, const char write_method) {
 	// a = append     (append then writes like in python)
 	// w = write mode (clears then writes like in python)
 
-	File_Names fls(new_file_name);
+	File_Names fls(m_rexit, new_file_name);
 
 	m_write_method = write_method;
 	m_file_name = fls.target();
@@ -397,7 +422,7 @@ std::string OS::operator()(const std::string& command) {
 
 OS::dir_type OS::has(const std::string& file) { // no '_' based on ord namespace syntax with keyword 'find'
 
-	File_Names fls(file);
+	File_Names fls(m_rexit, file);
 
 #if defined(NIX_BASE)
 
@@ -544,7 +569,7 @@ OS OS::move_dir(const std::string& old_location, const std::string& new_location
 
 OS OS::delete_dir(const std::string& folder) {
 
-	File_Names fls(folder);
+	File_Names fls(m_rexit, folder);
 
 	std::vector<std::string> recursive_files = dir(fls.target(), "files", "folders", "recurse");
 
@@ -610,7 +635,7 @@ OS OS::delete_dir(const std::string& folder) {
 
 File_Names OS::id_files(std::string first_location, std::string second_location) {
 
-	File_Names fls;
+	File_Names fls(m_rexit);
 
 	if (second_location.size()) {
 		fls.set_old(first_location);

@@ -9,13 +9,16 @@
 #include<string>
 #include "re.h"
 
-File_Names::File_Names(std::string i_old, std::string i_target) :
-	m_old(i_old), m_target(i_target) {
+File_Names::File_Names(bool rexit): m_rexit(rexit){}
+
+File_Names::File_Names(bool rexit, std::string i_old, std::string i_target) :
+	m_rexit(rexit), m_old(i_old), m_target(i_target) {
 	this->set_old(m_old);
 	this->set_target(m_target);
 }
 
-File_Names::File_Names(std::string i_target) :m_target(i_target) {
+File_Names::File_Names(bool rexit, std::string i_target) :
+	m_rexit(rexit), m_target(i_target) {
 	this->set_target(m_target);
 }
 
@@ -60,7 +63,6 @@ void File_Names::assert_folder_syntax(const std::string& folder1, const std::str
 				"  what():  without an escape char\n");
 		}
 	};
-
 	asserts(folder1);
 	if (folder2.size()) {
 		asserts(folder2);
@@ -69,12 +71,14 @@ void File_Names::assert_folder_syntax(const std::string& folder1, const std::str
 
 void File_Names::set_old(std::string item) {
 	m_old = this->fix_slash(item);
-	this->assert_folder_syntax(m_old);
+	if(m_rexit)
+		this->assert_folder_syntax(m_old);
 }
 
 void File_Names::set_target(std::string item) {
 	m_target = this->fix_slash(item);
-	this->assert_folder_syntax(m_target);
+	if (m_rexit)
+		this->assert_folder_syntax(m_target);
 }
 
 
