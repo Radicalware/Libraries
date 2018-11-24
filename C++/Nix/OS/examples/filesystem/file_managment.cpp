@@ -27,7 +27,10 @@ int main() {
 
 	// rmdir()
 
-	cout << "pwd = " << os.pwd() << endl;
+	cout << "users pwd      = " << os.pwd() << endl;
+	cout << "users home dir = " << os.home() << endl;
+	cout << "binary's pwd   = " << os.bpwd() << endl;
+
 
 	cout << os.popen("echo testing popen").read() << endl;
 

@@ -1,13 +1,14 @@
 
 
 #if (defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64))
-#include "..\include\support_os\File_Names.h"
+#include "..\..\include\support_os\File_Names.h"
+#include "re.h"
 #else
 #include "../../include/support_os/File_Names.h"
+#include "re.h"
 #endif
 
 #include<string>
-#include "re.h"
 
 File_Names::File_Names(bool rexit) : m_rexit(rexit) {}
 

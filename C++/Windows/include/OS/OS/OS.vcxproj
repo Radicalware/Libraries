@@ -91,6 +91,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\source\include\re\re;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalDependencies />
@@ -102,6 +103,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\source\include\re\re;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalDependencies />
@@ -112,6 +114,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\source\include\re\re;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalDependencies />
@@ -122,28 +125,20 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\source\include\re\re;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalDependencies />
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="FILE_NAMES.H" />
     <ClInclude Include="include\support_os\File_Names.h" />
     <ClInclude Include="headers\OS.h" />
     <ClInclude Include="include\OS.h" />
-    <ClInclude Include="resource\Resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\support_os\File_Names.cpp" />
-    <ClCompile Include="resource\AssemblyInfo.cpp" />
     <ClCompile Include="src\OS.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="resource\app.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="resource\app.ico" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

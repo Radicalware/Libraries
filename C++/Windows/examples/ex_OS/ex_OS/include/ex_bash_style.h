@@ -4,7 +4,6 @@
 #include<vector>
 #include<string>
 
-#include "ord.h"
 #include "OS.h"
 extern OS os;
 
@@ -16,9 +15,10 @@ using std::vector;
 
 void ex_bash_style() {
 
-	os.open("./test_file.txt", 'w').touch(); // 'a' would append; 'w' overWrites
+	os.open("../test_file.txt", 'w').touch(); // 'a' would append; 'w' overWrites
+	os.open("./test_file.txt", 'w').touch();  // 'a' would append; 'w' overWrites
 
-	if (os.has_file("./test_file.txt") && os.has("./test_file.txt")) {
+	if (os.file("./test_file.txt") && os.has("./test_file.txt")) {
 		cout << "test_data.txt was created\n" << endl;
 	} else {
 		cout << "error: test_data.txt should have been created" << endl; exit(1);
@@ -37,13 +37,13 @@ void ex_bash_style() {
 	os.mv("./test_file.txt", "./tmp_dir/test_file2.txt");
 
 
-	if (os.has_file("./test_file.txt")) {
+	if (os.file("./test_file.txt")) {
 		cout << "error: data was not removed\n"; exit(1);
 	} else {
 		cout << "./test_file.txt was removed\n";
 	}
 
-	if (os.has_file("./tmp_dir/test_file1.txt") && os.has_file("./tmp_dir/test_file2.txt")) {
+	if (os.file("./tmp_dir/test_file1.txt") && os.file("./tmp_dir/test_file2.txt")) {
 		cout << "data was copied & moved correctly" << endl;
 	} else {
 		cout << "error: data was not coppied or moved\n"; exit(1);
@@ -61,7 +61,7 @@ void ex_bash_style() {
 
 	if (os.has("./tmp_dir")) {
 		// note: has will return true for either 
-		// "has_file()" or  "has_folder()"
+		// "file()" or  "folder()"
 		cout << "error: tmp_dir was not delted\n"; exit(1);
 	} else {
 		cout << "tmp_dir was deleted\n";

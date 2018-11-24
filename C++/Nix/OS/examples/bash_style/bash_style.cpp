@@ -2,7 +2,6 @@
 #include<vector>
 #include<string>
 
-#include "ord.h"
 #include "OS.h"
 extern OS os;
 

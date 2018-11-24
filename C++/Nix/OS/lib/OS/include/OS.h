@@ -29,18 +29,19 @@
 // you donw but you won't get a speed boost either, so alway suse -O2!!
 // -------------------------------------------------------------------------------
 
-#include "re.h" // From github.com/Radicalware
-				// re.h has no non-std required libs
-				// This is the only non-std lib required for OS.h
+// re.h is from github.com/Radicalware
+// This is the only non-std lib required for OS.h
 
 #if (defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64))
-	#define WIN_BASE
-	#include <windows.h>
-	#include <msclr/marshal.h>
+#define WIN_BASE
+#include "re.h"
+#include <windows.h>
+#include <msclr/marshal.h>
 #else
-	#define NIX_BASE
-	#include<unistd.h>
-	#include<dirent.h>     // read/write
+#define NIX_BASE
+#include "re.h"
+#include<unistd.h>
+#include<dirent.h>     // read/write
 #endif
 
 
@@ -49,9 +50,9 @@
 #include<assert.h>
 
 #if defined(NIX_BASE)
-	#include "./support_os/File_Names.h"
+#include "./support_os/File_Names.h"
 #elif defined(WIN_BASE)
-	#include ".\support_os\File_Names.h"
+#include ".\support_os\File_Names.h"
 #endif
 
 
@@ -88,7 +89,7 @@ public:
 	~OS();
 
 	void set_file_regex(bool rexit); // asserting file-regex consumes a lot of time
-	                                 // only turn on when you are parsing user input
+									 // only turn on when you are parsing user input
 	bool file_regex_status();
 	bool file_syntax(const std::string& file);
 	bool file_list_syntax(const std::vector<std::string>& files);
@@ -117,7 +118,10 @@ public:
 	// ---------------------------------------------------------------------------------------------
 	// Dir Parsing
 
-	std::string pwd();
+	std::string bpwd(); // binary pwd
+	std::string pwd();  // user pwd
+	std::string home(); // home dir
+
 	std::vector<std::string> dir(const std::string folder_start, const std::string& mod1 = "n", \
 		const std::string& mod2 = "n", const std::string& mod3 = "n");
 	// dir(folder_to_start_search_from, mod can match for any of the following 3;
@@ -141,7 +145,7 @@ public:
 
 	// ============================================================================================
 	// Filesystem Managment (use "Bash style OS commands" above for shorthand)
-	
+
 	OS move_file(const std::string& old_location, const std::string& new_location);
 	OS move_dir(const std::string& old_location, const std::string& new_location);
 
