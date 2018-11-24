@@ -3,9 +3,7 @@
 echo
 echo "This lib is used similar to python's re lib for regex"
 echo
-echo "re.h  is for string input"
-echo "ord.h is for map/vector input"
-echo
+echo "re.h  is for string input manipulation"
 echo "This lib has no pre-requisites"
 echo
 echo "enjoy!"

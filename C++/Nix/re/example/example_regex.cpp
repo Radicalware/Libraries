@@ -89,7 +89,7 @@ Hacker.Havoc.ctr@street.district.city
 vice.crusade.ctr@us.underground.nil
 )";
 	// if you need to feed in a vector split at regex spot you can either
-	// feed in an re::split or use ord::match_one // ord::match_all
+	// feed in an re::split or use ac::match_one // ac::match_all
 
 	cout << "match lines 'all' = " << re::match_lines("^.*(?:\\@)(gmail)\\.(com)$", emails) << endl;
 	// all returns falls sense all the lines don't contain gmail
@@ -126,7 +126,7 @@ VVVVsentencePPPPP
 )string_to_search";
 
 	cout << "\n===(CHAR COUNT)=================================================\n";
-	cout << "The string has \"" << re::char_count('\n', string_to_search) << "\" char matches\n";
+	cout << "The string has \"" << re::count('\n', string_to_search) << "\" char matches\n";
 }
 
 void str_count()

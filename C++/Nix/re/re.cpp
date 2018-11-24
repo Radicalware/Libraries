@@ -1,11 +1,4 @@
 
-#include<vector>
-#include<string>
-#include<regex>
-#include<algorithm>
-
-#include "re.h"
-
 /*
 * Copyright[2018][Joel Leagues aka Scourge]
 * Scourge /at\ protonmail /dot\ com
@@ -25,10 +18,16 @@
 * limitations under the License.
 */
 
+#include<vector>
+#include<string>
+#include<regex>
+#include<algorithm>
+
+#include "re.h"
 
 // ======================================================================================
 
-std::vector<std::string> re::xsplit(const std::string& in_pattern, const std::string& content) {
+std::vector<std::string> re::cont_split(const std::string& in_pattern, const std::string& content) {
 	std::vector<std::string> split_content;
 	std::regex pattern(in_pattern);
 	copy(std::sregex_token_iterator(content.begin(), content.end(), pattern, -1),
@@ -37,10 +36,10 @@ std::vector<std::string> re::xsplit(const std::string& in_pattern, const std::st
 }
 
 std::vector<std::string> re::split(const std::string& in_pattern, const std::string& content) {
-	return re::xsplit(in_pattern, content);
+	return re::cont_split(in_pattern, content);
 }
 std::vector<std::string> re::split(const std::string& in_pattern, const std::string&& content) {
-	return re::xsplit(in_pattern, content);
+	return re::cont_split(in_pattern, content);
 }
 
 // ======================================================================================
@@ -97,13 +96,23 @@ bool re::scan_lines(const std::string& in_pattern, const std::string& content) {
 
 
 // ======================================================================================
-bool re::ASCII_check(const std::string& str) {
+bool re::has_non_ascii(const std::string& str) {
 	for (auto& c : str) {
 		if (static_cast<unsigned char>(c) > 127) {
-			return false;
+			return true;
 		}
 	}
-	return true;
+	return false;
+}
+
+std::string re::remove_non_ascii(const std::string& data) {
+    std::string clean_data;
+    clean_data.reserve(data.size());
+    for (std::string::const_iterator it = data.begin(); it < data.end(); it++) {
+        if (int(*it) > 0 && int(*it) < 127)
+            clean_data += *it;
+    }
+    return clean_data;
 }
 
 // re::search & re::findall use grouper/iterator, don't use them via the namespace directly
@@ -196,11 +205,10 @@ std::vector<std::string> re::findall(const std::string& in_pattern, const std::s
 
 // ======================================================================================
 
-unsigned long re::char_count(const char var_char, const std::string& input_str) {
+unsigned long re::count(const char var_char, const std::string& input_str) {
 	unsigned long n = std::count(input_str.begin(), input_str.end(), var_char);
 	return n;
 }
-
 
 unsigned long re::count(const std::string& in_pattern, const std::string& str) {
 	unsigned long n = split(in_pattern, str).size();
