@@ -2,14 +2,14 @@
 echo
 echo "This lib is used similar to python's SYS/SYS libs"
 echo
-echo "I use the ord.h lib in one of the SYS.h examples"
+echo "This lib has no pre-requsites!!"
 echo 
-echo "re.h, ord.h & SYS.h can be found at: https://github.com/Radicalware"
+echo "Source updates can be found at: https://github.com/Radicalware"
 echo
 echo -e "\e[39menjoy!"
 echo
 
-x86_64-linux-gnu-g++ -shared -fPIC -O2 SYS.h SYS.cpp -o libSYS.so -std=c++17 -Wfatal-errors -lre
+x86_64-linux-gnu-g++ -shared -fPIC -O2 SYS.h SYS.cpp -o libSYS.so -std=c++17 -Wfatal-errors 
 
 nm -gC libSYS.so  > /dev/null 2>&1
 

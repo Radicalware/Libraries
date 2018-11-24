@@ -137,7 +137,7 @@ SYS SYS::set_args(int argc, char** argv, bool chain_char_arg) {
 					for (std::string str : prep_sub_arg)m_sub_args_str += str + ' ';
 					prep_sub_arg.clear();
 				} else if (!chain_char_arg) { // barg does not have any sub-args
-					m_args.insert(std::make_pair(m_all_args[arg-1], std::vector<std::string>{""}));
+					m_args.insert(std::make_pair(m_all_args[arg-1], std::vector<std::string>(1)));
 				}
 				current_base = m_all_args[arg];
 				m_bargs.push_back(current_base);
@@ -161,8 +161,10 @@ SYS SYS::set_args(int argc, char** argv, bool chain_char_arg) {
 			}
 		}
 
-		for (char barg : m_ccaa)
-			new_bargs.push_back(std::string({ '-',barg }));
+        for (char barg : m_ccaa) {
+            new_bargs.push_back(std::string({ '-',barg }));
+            m_args.insert(std::make_pair(*(new_bargs.end() - 1), std::vector<std::string>(1)));
+        }
 
 		m_bargs = new_bargs;
 	}
@@ -197,11 +199,11 @@ std::string SYS::path() { return m_path; }
 std::string SYS::file() { return m_file; }
 // -------------------------------------------------------------------------------------------------------------------
 std::string SYS::argv_str() { return m_all_args_str; }
-std::string SYS::keys_str() { return m_bargs_str; }
-std::string SYS::key_values_str() { return m_sub_args_str; }
+std::string SYS::all_keys_str() { return m_bargs_str; }
+std::string SYS::all_values_str() { return m_sub_args_str; }
 // -------------------------------------------------------------------------------------------------------------------
-std::vector<std::string> SYS::keys() { return m_bargs; }
-std::vector< std::vector<std::string> > SYS::key_values() { return m_sub_args; }
+std::vector<std::string> SYS::all_keys() { return m_bargs; }
+std::vector< std::vector<std::string> > SYS::all_values() { return m_sub_args; }
 // -------------------------------------------------------------------------------------------------------------------
 
 
@@ -211,10 +213,22 @@ bool SYS::kvp(const std::string& barg) {
 	}return false;
 }
 
+bool SYS::kvp(const char c_barg) {
+    if (std::find(m_ccaa.begin(), m_ccaa.end(), c_barg) != m_ccaa.end()) {
+        return (m_args.at(std::string({ '-', c_barg }))[0].size());
+    } return false;
+}
+
 bool SYS::bool_arg(const std::string& barg) {
 	if (this->has(barg)) {
 		return (!m_args.at(barg)[0].size());
 	}return true;
+}
+
+bool SYS::bool_arg(const char c_barg) {
+    if (std::find(m_ccaa.begin(), m_ccaa.end(), c_barg) != m_ccaa.end()) {
+        return (!m_args.at(std::string({ '-', c_barg }))[0].size());
+    } return false;
 }
 
 bool SYS::has(const std::string& barg) {
@@ -313,4 +327,5 @@ bool SYS::help() {
 	return (this->rex_scan(R"(^[-]{1,2}[hH]((elp)?)$)", m_bargs));
 }
 // ======================================================================================================================
+
 

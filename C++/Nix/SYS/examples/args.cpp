@@ -4,7 +4,7 @@
 #include<ctime>
 
 #include "SYS.h"   // Found on "https://github.com/Radicalware"
-#include "ord.h"   // Found on "https://github.com/Radicalware"
+#include "ac.h"   // Found on "https://github.com/Radicalware"
 
 using std::cout;
 using std::endl;
@@ -34,10 +34,10 @@ int main(int argc, char** argv) {
 	// there are no char arrays so -antp would need to be -a -n -t -p
 
 	// return all the args via
-	cout << ord::join(sys.argv(), " ") << endl;
+	cout << ac::join(sys.argv(), " ") << endl;
 
 	// based on the folowing arguments you pass
-	//  --key-A sub-A-1 sub-A-2 sub-A-3 --key-B sub-B-1 sub-B-2 -a -bcd -ef -g
+	//  --key-A sub-A-1 sub-A-2 sub-A-3 --key-B sub-B-1 sub-B-2 -a -bcdp 8080  9090 -ef -g 
 
 	//  --key-A 
 	//		sub-A-1 
@@ -47,11 +47,11 @@ int main(int argc, char** argv) {
 	//		sub-B-1 
 	//		sub-B-2 
 	// -a
-	// -bcdp 8080
+	// -bcdp 8080 9090
 	// -ef
 	// -g
 
-	cout << ord::join(sys.argv(), " ") << endl;
+	cout << ac::join(sys.argv(), " ") << endl;
 	
 	// and see the count via
 	cout << "argv count = " << sys.argc() << endl;
@@ -63,9 +63,9 @@ int main(int argc, char** argv) {
 
 	
 
-	cout << "keys   = " << ord::join(sys.keys(), " ") << endl;
+	cout << "keys   = " << ac::join(sys.all_keys(), " ") << endl;
 
-	cout << "os values for key '--key-B' = " << ord::join(sys.key_values("--key-B")) << endl;
+	cout << "os values for key '--key-B' = " << ac::join(sys.key_values("--key-B"), " ") << endl;
 
 	cout << "full path  = " << sys.full_path() << endl;
 	cout << "path       = " << sys.path() << endl;
@@ -95,19 +95,19 @@ int main(int argc, char** argv) {
 	bool pass = false;
 	if (sys('p') && sys("--port")){
 		if (sys['p'][0] == "8080" && sys["--port"][0] == "8080") { 
-			cout << "port designated by -p is on " << ord::join(sys['p'], " ") << endl;
+			cout << "port designated by -p is on " << ac::join(sys['p'], " ") << endl;
 			pass = true;
 		}
 	}
 	if(!pass){
-		cout << ord::join(sys.keys(), " ") << endl;
+		cout << ac::join(sys.all_keys(), " ") << endl;
 		cout << "error: -p is not set" << endl; exit(1);
 	}
 	// ----------------------------------------------------------------
-	if (sys.bool_arg("-h") && !sys.kvp("-h")) { // bool_arg and kvp are opposites 
-		cout << "-h is used as a boolean arg so it does not have values\n"; 
+	if (sys.bool_arg('a') && !sys.kvp('a')) { // bool_arg and kvp are opposites 
+		cout << "-a is used as a boolean arg so it does not have values\n"; 
 	} else {exit(1);
-		cout << "error: -h is KVP type and so -h has values\n"; exit(1);
+		cout << "error: -a is KVP type and so -h has values\n"; exit(1);
 	}
 	// ----------------------------------------------------------------
 	if (sys.kvp("--key-A") && !sys.bool_arg("--key-A")) {
@@ -150,7 +150,7 @@ int main(int argc, char** argv) {
 	// 1. returning  key-values
 	// 2. validating key-values
 	cout << "Shorthand for returning and validating KVPs\n";
-	cout << R"(sys["--key-A"] = )" << ord::join(sys["--key-A"], " ") << endl;
+	cout << R"(sys["--key-A"] = )" << ac::join(sys["--key-A"], " ") << endl;
 	cout << R"(sys("--key-A", "sub-A-1") =  )" << sys("--key-A", "sub-A-1") << endl;
 	cout << R"(sys("--key-A", "sub-A-5") =  )" << sys("--key-A", "sub-A-5") << endl;
 

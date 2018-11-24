@@ -85,16 +85,18 @@ public:
 	// -------------------------------------------------------------------------------------------------------------------
 	// Strings
 	std::string argv_str();
-	std::string keys_str();
-	std::string key_values_str();
+	std::string all_keys_str();
+	std::string all_values_str();
 	// -------------------------------------------------------------------------------------------------------------------
 	// Return all keys or all values (for each barg)
-	std::vector<std::string> keys();
-	std::vector<std::vector<std::string>> key_values();
+	std::vector<std::string> all_keys();
+	std::vector<std::vector<std::string>> all_values();
 	// -------------------------------------------------------------------------------------------------------------------
 	// Identify if a barg and/or Value exists
-	bool kvp(const std::string& barg);      // does the barg have values
-	bool bool_arg(const std::string& barg); // does the barg NOT have values
+    bool kvp(const std::string& barg);      // does the barg have values
+    bool kvp(const char barg);              // does the barg have values
+    bool bool_arg(const std::string& barg); // does the barg NOT have values
+    bool bool_arg(const char barg); // does the barg NOT have values
 
 	bool has_key(const std::string& barg); // --alias--|
 	bool has(const std::string& barg); // -------------|
@@ -126,3 +128,4 @@ public:
 };
 
 extern SYS sys;
+
