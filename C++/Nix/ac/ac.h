@@ -1,6 +1,6 @@
 #pragma once
 
-// ac:: version v1.0.0
+// ac:: version v1.0.1
 
 /*
 * Copyright[2018][Joel Leagues aka Scourge]
@@ -30,7 +30,7 @@
 
 namespace ac // Array Type Controller for (vector, deque, set, etc.)
 {
-	
+
 	// =================================================================================================================================
 	// join vector items to a string
 	template<typename T>
@@ -332,3 +332,4 @@ namespace ac // Array Type Controller for (vector, deque, set, etc.)
 		return ac_vice(i_arr, x, y, z, 'd');
 	}
 }
+
