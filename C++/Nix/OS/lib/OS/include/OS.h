@@ -1,7 +1,7 @@
 #pragma once
 
 // Lib: OS.h
-// Version 1.2.3
+// Version 1.3.0
 
 /*
 * Copyright[2018][Joel Leagues aka Scourge]
@@ -33,13 +33,9 @@
 // This is the only non-std lib required for OS.h
 
 #if (defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64))
-#define WIN_BASE
-#include "re.h"
 #include <windows.h>
 #include <msclr/marshal.h>
 #else
-#define NIX_BASE
-#include "re.h"
 #include<unistd.h>
 #include<dirent.h>     // read/write
 #endif
@@ -49,124 +45,120 @@
 #include<vector>
 #include<assert.h>
 
-#if defined(NIX_BASE)
-#include "./support_os/File_Names.h"
-#elif defined(WIN_BASE)
-#include ".\support_os\File_Names.h"
-#endif
+#include "re.h"
+#include "support_os/Dir_Type.h"
+#include "support_os/File_Names.h"
 
 
-
-class OS
+class OS : public Dir_Type
 {
 private:
-	std::string m_command;
-	std::string m_file_name;
-	std::string m_file_data;
+    std::string m_command;
+    std::string m_std_out;
+    std::string m_std_err;
+    std::string m_err_message;
 
-	char m_last_read = 'n';
-	char m_write_method = 'a';
-	bool m_rexit = false;
+    std::string m_file_name;
+    std::string m_file_data;
 
-	std::wstring m_wstr;
+    char m_last_read = 'n';
+    char m_write_method = 'a';
+    bool m_rexit = false;
 
-	enum dir_type
-	{
-		dir_none,
-		dir_file,
-		dir_folder
-	};
+    std::wstring m_wstr;
 
+    File_Names id_files(std::string old_location, std::string new_location = "");
 
-	File_Names id_files(std::string old_location, std::string new_location = "");
+    void dir_continued(const std::string scan_start, std::vector<std::string>& vec_track, \
+        const bool folders, const bool files, const bool recursive);
 
-	void dir_continued(const std::string scan_start, std::vector<std::string>& vec_track, \
-		const bool folders, const bool files, const bool recursive);
+    void coppier(const std::vector<std::string>& folders, const std::vector<std::string>& files, 
+        const std::vector<std::string>& dir_items, File_Names& fls);
 
 public:
 
-	OS();
-	~OS();
+    OS();
+    ~OS();
 
-	void set_file_regex(bool rexit); // asserting file-regex consumes a lot of time
-									 // only turn on when you are parsing user input
-	bool file_regex_status();
-	bool file_syntax(const std::string& file);
-	bool file_list_syntax(const std::vector<std::string>& files);
+    void set_file_regex(bool rexit); // asserting file-regex consumes a lot of time
+                                     // only turn on when you are parsing user input
+    bool file_regex_status();
+    bool file_syntax(const std::string& file);
+    bool file_list_syntax(const std::vector<std::string>& files);
 
-	// ---------------------------------------------------------------------------------------------
-	// Bash Style OS Commands
+    // ---------------------------------------------------------------------------------------------
+    // Bash Style OS Commands
 
-	OS touch(const std::string& new_file = "");
-	OS mkdir(const std::string& folder = "");
+    OS touch(const std::string& new_file = "");
+    OS mkdir(const std::string& folder = "");
 
-	OS cp(const std::string& old_location, const std::string& new_location = "");
-	OS mv(const std::string& old_location, const std::string& new_location = "");
-	OS rm(const std::string& new_file);
+    OS cp(const std::string& old_location, const std::string& new_location = "");
+    OS mv(const std::string& old_location, const std::string& new_location = "");
+    OS rm(const std::string& new_file);
 
-	// ---------------------------------------------------------------------------------------------
-	// Open & Read/Write Files
+    // ---------------------------------------------------------------------------------------------
+    // Open & Read/Write Files
 
-	OS open(const std::string& new_file_name, const char write_method = 'a');
-	// a = append     (append then writes like in python)
-	// w = write mode (clears then writes like in python)
+    OS open(const std::string& new_file_name, const char write_method = 'a');
+    // a = append     (append then writes like in python)
+    // w = write mode (clears then writes like in python)
 
-	std::string read(const char content = 'n');
-	std::string read_file();
-	OS write(const std::string& content = "", const char write_method = 'n');
+    std::string read(const char content = 'n');
+    std::string read_file();
+    OS write(const std::string& content = "", const char write_method = 'n');
 
-	// ---------------------------------------------------------------------------------------------
-	// Dir Parsing
+    // ---------------------------------------------------------------------------------------------
+    // Dir Parsing
 
-	std::string bpwd(); // binary pwd
-	std::string pwd();  // user pwd
-	std::string home(); // home dir
+    std::string bpwd(); // binary pwd
+    std::string pwd();  // user pwd
+    std::string home(); // home dir
 
-	std::vector<std::string> dir(const std::string folder_start, const std::string& mod1 = "n", \
-		const std::string& mod2 = "n", const std::string& mod3 = "n");
-	// dir(folder_to_start_search_from, mod can match for any of the following 3;
-	// recursive = search foldres recursivly
-	// folders   = return folders in search
-	// files     = return files in search
+    std::vector<std::string> dir(const std::string folder_start, \
+        const char mod1 = 'n', const char mod2 = 'n', const char mod3 = 'n');
+    // dir(folder_to_start_search_from, mod can match for any of the following 3);
+    // r = recursive = search dirs recursivly
+    // f = files     = return files in search
+    // d = directory = return dirs in search
 
-	// ---------------------------------------------------------------------------------------------
-	// Console Command and Return
+    // ---------------------------------------------------------------------------------------------
+    // Console Command and Return
+    OS popen(const std::string& command, char leave = 'p');
+    std::string operator()(const std::string& command);
+    template<typename T>
+    void p(const T& input);
+    template<typename T, typename X>
+    void p(const T& input1, const X& input2);
+    // shorthand for os.popen(command).read()
 
-	OS popen(const std::string& command, char leave = 'p');
-	std::string operator()(const std::string& command);
-	// shorthand for os.popen(command).read()
+    // ============================================================================================
+    // Filesystem Managment (use "Bash style OS commands" above for shorthand)
 
-	// ============================================================================================
-	// Bools for identifying data
+    OS move_file(const std::string& old_location, const std::string& new_location);
+    OS move_dir(const std::string& old_location, const std::string& new_location);
 
-	dir_type has(const std::string& file);
-	bool file(const std::string& file);
-	bool folder(const std::string& folder);
+    OS copy_file(const std::string& old_location, const std::string& new_location);
+    OS copy_dir(const std::string& old_location, const std::string& new_location);
 
-	// ============================================================================================
-	// Filesystem Managment (use "Bash style OS commands" above for shorthand)
+    OS delete_file(const std::string& content = "");
+    OS delete_dir(const std::string& folder = "");
 
-	OS move_file(const std::string& old_location, const std::string& new_location);
-	OS move_dir(const std::string& old_location, const std::string& new_location);
+    OS clear_file(const std::string& content = "");
 
-	OS copy_file(const std::string& old_location, const std::string& new_location);
-	OS copy_dir(const std::string& old_location, const std::string& new_location);
+    // -------------------------------------------------------------------------------
+    // Getters
 
-	OS delete_file(const std::string& content = "");
-	OS delete_dir(const std::string& folder = "");
+    std::string file_data();
+    std::string file_name();
 
-	OS clear_file(const std::string& content = "");
-
-	// -------------------------------------------------------------------------------
-	// Getters
-
-	std::string file_data();
-	std::string file_name();
-
-	std::string command();
-	std::string read_command();
-	std::string cmd();
-	// ============================================================================================
+    std::string cli_command();
+    std::string std_in();
+    std::string std_out();
+    std::string std_err();
+    std::string err_message();
+    // ============================================================================================
 };
 
 extern OS os;
+
+

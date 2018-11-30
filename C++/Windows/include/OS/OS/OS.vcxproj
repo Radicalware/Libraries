@@ -89,7 +89,6 @@
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <Optimization>MaxSpeed</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>C:\source\include\re\re;</AdditionalIncludeDirectories>
     </ClCompile>
@@ -101,7 +100,6 @@
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <Optimization>MaxSpeed</Optimization>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>C:\source\include\re\re;</AdditionalIncludeDirectories>
     </ClCompile>
@@ -132,11 +130,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="include\support_os\Dir_Type.h" />
     <ClInclude Include="include\support_os\File_Names.h" />
     <ClInclude Include="headers\OS.h" />
     <ClInclude Include="include\OS.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\support_os\Dir_Type.cpp" />
     <ClCompile Include="src\support_os\File_Names.cpp" />
     <ClCompile Include="src\OS.cpp" />
   </ItemGroup>

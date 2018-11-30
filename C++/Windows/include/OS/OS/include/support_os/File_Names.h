@@ -1,8 +1,9 @@
 #pragma once
 
+#include "Dir_Type.h"
 #include<string>
 
-class File_Names
+class File_Names : public Dir_Type
 {
 private:
 	std::string m_old;

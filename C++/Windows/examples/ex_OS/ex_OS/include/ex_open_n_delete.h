@@ -53,23 +53,23 @@ void ex_open_n_delete() {
 	cout << "******************************************************" << endl;
 
 	cout << "\n------------------ Current Dirs -----------------------\n";
-	for (auto&i : os.dir("./test_folder1", "files", "folders", "recursive"))
+	for (auto&i : os.dir("./test_folder1", 'r', 'd', 'f'))
 		cout << "item = " << i << endl;
 
 	os.move_dir("./test_folder1", "./test_folder2");
 
 	cout << "\n------------------ Moved Dirs -------------------------\n";
-	for (auto&i : os.dir("./test_folder2", "files", "folders", "recursive"))
+	for (auto&i : os.dir("./test_folder2", 'r', 'd', 'f'))
 		cout << "item = " << i << endl;
 
 	os.delete_dir("./test_folder2");
 
 	cout << "\n------------------ Removed Dirs 1 ---------------------\n";
-	for (auto&i : os.dir("./test_folder1", "files", "folders", "recursive")) 
+	for (auto&i : os.dir("./test_folder1", 'r', 'd', 'f'))
 		cout << "item = " << i << endl;
 
 	cout << "\n------------------ Deleted Dirs 2 ---------------------\n";
-	for (auto&i : os.dir("./test_folder2", "files", "folders", "recursive")) 
+	for (auto&i : os.dir("./test_folder2", 'r', 'd', 'f'))
 		cout << "item = " << i << endl;
 
 	cout << "\n\n\n";

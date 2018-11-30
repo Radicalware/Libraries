@@ -67,8 +67,8 @@ int ex_file_managment() {
 	cout << "copy_file() print to   >> " << os.open("./fm_open/tmp2.txt").read() << endl;
 
 	os.mkdir("./fm_open/fm_open2/fm_open3");
-	vector<string> paths = os.dir("./fm_open", "recursive", "files", "folders");
-	// Tthe order of the followinig does not matter >> "recursive", "files", "folders"
+	vector<string> paths = os.dir("./fm_open", 'r', 'd', 'f');
+	// Tthe order of the followinig does not matter >> "recursive", "files", "directories"
 
 	cout << "-------------\n";
 	for (string& i : paths)

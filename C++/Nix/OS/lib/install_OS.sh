@@ -13,6 +13,9 @@ echo
 
 x86_64-linux-gnu-g++ -shared -fPIC -O2 \
 	\
+	./OS/include/support_os/Dir_Type.h \
+	./OS/src/support_os/Dir_Type.cpp \
+	\
 	./OS/include/support_os/File_Names.h \
 	./OS/src/support_os/File_Names.cpp \
 	\
