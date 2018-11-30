@@ -1,7 +1,7 @@
 #pragma once
 
 // Lib: OS.h
-// Version 1.3.0
+// Version 1.4.0
 
 /*
 * Copyright[2018][Joel Leagues aka Scourge]
