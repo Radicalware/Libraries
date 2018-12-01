@@ -548,8 +548,9 @@ OS OS::mkdir(const std::string& folder) {
         printf("\r"); // yes, this is required
         status = 1;
         folder_path += *iter + '/';
-        while ((status == -1) || (!this->directory(folder_path)))
+        while ((status == 0) || (!this->directory(folder_path))){
             status = ::mkdir(folder_path.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+        }
 
 #elif defined(WIN_BASE)
         status = 1;
@@ -566,7 +567,6 @@ OS OS::mkdir(const std::string& folder) {
 OS OS::copy_dir(const std::string& old_location, const std::string& new_location) {
     
     File_Names fls = this->id_files(old_location, new_location);
-
     if (!this->directory(fls.old()))
         throw std::runtime_error("\nThis is not a folder\n" + fls.old() + '\n');
     
@@ -578,6 +578,7 @@ OS OS::copy_dir(const std::string& old_location, const std::string& new_location
     std::vector<std::string> old_folders = this->dir(fls.old(), 'r', 'd');
     std::vector<std::string> old_files = this->dir(fls.old(), 'r', 'f');
 
+    this->mkdir(fls.target());
     for(std::vector<std::string>::const_iterator it = old_folders.begin(); it < old_folders.end(); it++){
         this->mkdir(fls.target() + re::sub('^' + fls.old(), "", *it));
     }
