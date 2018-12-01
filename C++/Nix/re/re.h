@@ -1,7 +1,7 @@
 #pragma once
 
 // lib: re
-// version 1.3.0
+// version 1.4.0
 
 /*
 * Copyright[2018][Joel Leagues aka Scourge]
@@ -46,10 +46,15 @@ namespace re // Regular Expression
 
 	// =================================================================================================================================
 
-	std::vector<std::string> cont_split(const std::string& in_pattern, const std::string& content);
+    std::vector<std::string> cont_split(const std::string& in_pattern, const std::string& content);
 
-	std::vector<std::string> split(const std::string& in_pattern, const std::string& content);
-	std::vector<std::string> split(const std::string& in_pattern, const std::string&& content);
+    std::vector<std::string> split(const std::string& in_pattern, const std::string& content);
+    std::vector<std::string> split(const std::string& in_pattern, const std::string&& content);
+
+    std::vector<std::string> cont_split(const char splitter, const std::string& content);
+
+    std::vector<std::string> split(const char splitter, const std::string& content);
+    std::vector<std::string> split(const char splitter, const std::string&& content);
 
 	// =================================================================================================================================
 	
@@ -72,6 +77,8 @@ namespace re // Regular Expression
 	// =================================================================================================================================
 
 	std::string sub(const std::string& in_pattern, const std::string& replacement, const std::string& content);
+
+    std::string strip(const std::string& content);
 
 	// =================================================================================================================================
 }

@@ -4,6 +4,7 @@
 #include<string>
 
 #include "re.h"
+#include "ac.h"
 
 
 using std::cout;
@@ -15,10 +16,19 @@ using std::vector;
 
 void split() {
 	cout << "\n===(SPLIT)======================================================\n";
-	string tester = "This is our test string!";
-	vector<string> ar_tester = re::split("\\s", tester);
-	for (string& i : ar_tester)
-		cout << i << " |<>| ";
+	string tester = "This is our test string!\nline one\nline two\nline three   \n\n\n  ";
+
+    cout << re::strip(tester);
+    cout << "\n*****" << endl;
+
+	vector<string> ar_tester = re::split("\\s", re::strip(tester));
+    cout << ac::join(ar_tester, "--");
+
+    cout << "\n*****" << endl;
+    ar_tester = re::split('\n', re::strip(tester));
+    cout << ac::join(ar_tester, "\n >> ");
+
+
 	// OUTPUT
 	// This |<>| is |<>| our |<>| test |<>| string! |<>| 
 

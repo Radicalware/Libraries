@@ -27,6 +27,7 @@
 
 // ======================================================================================
 
+
 std::vector<std::string> re::cont_split(const std::string& in_pattern, const std::string& content) {
 	std::vector<std::string> split_content;
 	std::regex pattern(in_pattern);
@@ -41,6 +42,33 @@ std::vector<std::string> re::split(const std::string& in_pattern, const std::str
 std::vector<std::string> re::split(const std::string& in_pattern, const std::string&& content) {
 	return re::cont_split(in_pattern, content);
 }
+#include<iostream> // todo remove
+std::vector<std::string> re::cont_split(const char splitter, const std::string& content) {
+    std::vector<std::string> all_sections;
+    std::string current_section;
+    for (std::string::const_iterator it = content.begin(); it < content.end(); it++) {
+        if (*it == splitter) {
+            if (current_section.size()) {
+                all_sections.push_back(current_section);
+                current_section.clear();
+            }
+        }else{
+            current_section += *it;
+        }
+    }
+    if (current_section.size())
+        all_sections.push_back(current_section);
+    return all_sections;
+}
+
+std::vector<std::string> re::split(const char splitter, const std::string& content) {
+    return re::cont_split(splitter, content);
+};
+std::vector<std::string> re::split(const char splitter, const std::string&& content) {
+    return re::cont_split(splitter, content);
+};
+
+
 
 // ======================================================================================
 
@@ -49,7 +77,7 @@ bool re::match(const std::string& in_pattern, const std::string& content) {
 	return bool(std::regex_match(content, pattern));
 }
 bool re::match_line(const std::string& in_pattern, const std::string& content) {
-	std::vector<std::string> lines = re::split("\n", content);
+	std::vector<std::string> lines = re::split('\n', content);
 	std::regex pattern(in_pattern);
 	for (std::vector<std::string>::iterator iter = lines.begin(); iter != lines.end(); iter++) {
 		if (std::regex_match(*iter, pattern)) {
@@ -59,7 +87,7 @@ bool re::match_line(const std::string& in_pattern, const std::string& content) {
 	return false;
 }
 bool re::match_lines(const std::string& in_pattern, const std::string& content) {
-	std::vector<std::string> lines = re::split("\n", content);
+	std::vector<std::string> lines = re::split('\n', content);
 	std::regex pattern(in_pattern);
 	for (std::vector<std::string>::iterator iter = lines.begin(); iter != lines.end(); iter++) {
 		if (!std::regex_match(*iter, pattern)) {
@@ -74,7 +102,7 @@ bool re::scan(const std::string& in_pattern, const std::string& content) {
 	return bool(std::regex_search(content, pattern));
 }
 bool re::scan_line(const std::string& in_pattern, const std::string& content) {
-	std::vector<std::string> lines = re::split("\n", content);
+	std::vector<std::string> lines = re::split('\n', content);
 	std::regex pattern(in_pattern);
 	for (std::vector<std::string>::iterator iter = lines.begin(); iter != lines.end(); iter++) {
 		if (std::regex_search(*iter, pattern)) {
@@ -84,7 +112,7 @@ bool re::scan_line(const std::string& in_pattern, const std::string& content) {
 	return false;
 }
 bool re::scan_lines(const std::string& in_pattern, const std::string& content) {
-	std::vector<std::string> lines = re::split("\n", content);
+	std::vector<std::string> lines = re::split('\n', content);
 	std::regex pattern(in_pattern);
 	for (std::vector<std::string>::iterator iter = lines.begin(); iter != lines.end(); iter++) {
 		if (!std::regex_search(*iter, pattern)) {
@@ -97,8 +125,8 @@ bool re::scan_lines(const std::string& in_pattern, const std::string& content) {
 
 // ======================================================================================
 bool re::has_non_ascii(const std::string& str) {
-	for (auto& c : str) {
-		if (static_cast<unsigned char>(c) > 127) {
+	for (char c : str) {
+		if (!((static_cast<unsigned char>(c) > 0) || (static_cast<unsigned char>(c) < 128))) {
 			return true;
 		}
 	}
@@ -109,7 +137,7 @@ std::string re::remove_non_ascii(const std::string& data) {
     std::string clean_data;
     clean_data.reserve(data.size());
     for (std::string::const_iterator it = data.begin(); it < data.end(); it++) {
-        if (int(*it) > 0 && int(*it) < 127)
+        if (int(*it) > 0 && int(*it) < 128)
             clean_data += *it;
     }
     return clean_data;
@@ -222,3 +250,6 @@ std::string re::sub(const std::string& in_pattern, const std::string& replacemen
 	return std::regex_replace(content, pattern, replacement);
 }
 
+std::string re::strip(const std::string& content) {
+    return re::sub(R"(^\s+|\s+$)", "", content);
+}

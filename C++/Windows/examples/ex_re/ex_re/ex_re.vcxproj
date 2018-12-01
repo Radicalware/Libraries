@@ -144,6 +144,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\include\ac\ac\ac.vcxproj">
+      <Project>{600d4c2a-ea98-402e-a06a-d96baa0e50ac}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\include\re\re\re.vcxproj">
       <Project>{4752b273-49a9-4c3b-b445-ff883d72427b}</Project>
     </ProjectReference>
