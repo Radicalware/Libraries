@@ -22,7 +22,7 @@ x86_64-linux-gnu-g++ -shared -fPIC -O2 \
 	./OS/include/OS.h  \
 	./OS/src/OS.cpp  \
 	\
-	-o libOS.so -std=c++17 -lre -Wfatal-errors
+	-o libOS.so -std=c++17 -lre  -Wfatal-errors
 
 nm -gC libOS.so  > /dev/null 2>&1
 

@@ -22,11 +22,11 @@ Dir_Type::dir_type Dir_Type::has(const std::string& input) {
     char dt = 'n';
 
     stat(file.c_str(), &path_st);
-    if(S_ISREG(path_st.st_mode)){
+    if(S_ISREG(path_st.st_mode) && !(S_ISDIR(path_st.st_mode) && (path_st.st_mode & S_IFDIR != 0))) {
         dt = 'f' ;
     }
 
-    if(S_ISDIR(path_st.st_mode) && (path_st.st_mode & S_IFDIR != 0)){
+    if(S_ISDIR(path_st.st_mode) && (path_st.st_mode & S_IFDIR != 0) && !S_ISREG(path_st.st_mode)){
         dt = 'd';
     }
 
@@ -65,42 +65,13 @@ bool Dir_Type::directory(const std::string& folder) {
 
 std::string Dir_Type::dir_item_type(const std::string& input) {
 
-#if defined(NIX_BASE)
-    std::string file = re::sub("\\\\", "/", input);
-
-    struct stat path_st;
-    char dt = 'n';
-    
-    stat(file.c_str(), &path_st);
-    if(S_ISREG(path_st.st_mode)){
-        dt = 'f' ;
-    }
-
-    if(S_ISDIR(path_st.st_mode) && (path_st.st_mode & S_IFDIR != 0)){
-        dt = 'd';
-    }
+    dir_type dt = os_none;
+    dt = this->has(input);
 
     switch(dt){
-        case 'f': return "file";break;
-        case 'd': return "directory";break;
-        case 'n': return "none";
+        case os_file:      return "file";break;
+        case os_directory: return "directory";break;
+        case os_none:      return "none";
+        default:           return "none";
     }
-
-
-#elif defined(WIN_BASE)
-    std::string file = re::sub("/", "\\\\", input);
-
-    struct stat st;
-    if (stat(file.c_str(), &st) == 0) {
-        if (st.st_mode & S_IFDIR) {
-            return "os_directory";
-        } else if (st.st_mode & S_IFREG) {
-            return "os_file";
-        } else {
-            return "os_none";
-        }
-    } else {
-        return "os_none";
-    }
-#endif
 }

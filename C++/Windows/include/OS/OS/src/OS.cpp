@@ -538,33 +538,26 @@ OS OS::mkdir(const std::string& folder) {
     File_Names fls = this->id_files(folder);
     // next: capture the path traversal
     std::string folder_path = re::sub(R"([\w\d_\s].*$)", "", fls.target());
-    std::vector<std::string> folders_n_junk = re::split(R"([\\/](?=[^\\s]))", fls.target());
-    std::vector<std::string> folders;
+    std::vector<std::string> folder_names = re::split(R"([\\/](?=[^\s]))", \
+        fls.target().substr(folder_path.size(), fls.target().size() - folder_path.size()));
+    
+    int status = -1;
+    for (std::vector<std::string>::iterator iter = folder_names.begin(); iter < folder_names.end(); ++iter) {
 
-    for(std::vector<std::string>::iterator it = folders_n_junk.begin(); it < folders_n_junk.end(); it++){
-        if(re::scan("[\\w\\d_]",*it))
-            folders.push_back(*it);
-    }
-
-    for (std::vector<std::string>::iterator iter = folders.begin(); iter < folders.end(); ++iter) {
 #if defined(NIX_BASE)
-        printf("\r");
+        printf("\r"); // yes, this is required
+        status = 1;
         folder_path += *iter + '/';
-        if (!this->directory(folder_path))
-            ::mkdir(folder_path.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+        while ((status == -1) || (!this->directory(folder_path)))
+            status = ::mkdir(folder_path.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 
 #elif defined(WIN_BASE)
+        status = 1;
         folder_path += *iter + '\\';
-        if (!this->directory(folder_path)) 
-            CreateDirectoryA(folder_path.c_str(), NULL);
+        while ((status == -1) || (!this->directory(folder_path)))
+            status = CreateDirectoryA(folder_path.c_str(), NULL);
 #endif
-        
-    }    
-#if defined(NIX_BASE)
-    ::mkdir(fls.target().c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-#elif defined(WIN_BASE)
-    CreateDirectoryA(fls.target().c_str(), NULL);
-#endif
+    }
     return *this;
 }
 
@@ -584,22 +577,6 @@ OS OS::copy_dir(const std::string& old_location, const std::string& new_location
 
     std::vector<std::string> old_folders = this->dir(fls.old(), 'r', 'd');
     std::vector<std::string> old_files = this->dir(fls.old(), 'r', 'f');
-
-    std::vector<std::string> dir_items;
-    for(std::vector<std::string>::iterator it = old_folders.begin(); it < old_folders.end(); it++){
-        dir_items.push_back(fls.target() + re::sub('^' + fls.old(), "", *it));
-    }
-
-    for(std::vector<std::string>::iterator it = old_files.begin(); it < old_files.end(); it++){
-        dir_items.push_back(fls.target() + re::sub('^' + fls.old(), "", *it));
-    }
-
-
-    this->mkdir(fls.target());
-
-    while(!this->directory(fls.target())){
-        this->mkdir(fls.target());
-    }
 
     for(std::vector<std::string>::const_iterator it = old_folders.begin(); it < old_folders.end(); it++){
         this->mkdir(fls.target() + re::sub('^' + fls.old(), "", *it));
