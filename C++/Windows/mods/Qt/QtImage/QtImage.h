@@ -1,6 +1,6 @@
 #pragma once
 
-// QtImage v1.0.0
+// QtImage v1.1.0
 
 /*
 * Copyright[2019][Joel Leagues aka Scourge]
@@ -23,68 +23,134 @@
 
 #include <string>
 #include <QString>
+#include <QPoint>
 #include <QPixmap>
 #include <QImage>
 #include <QIcon>
 #include <QSizePolicy>
+#include <QRect>
 
 class Base_QtImage
 {
-protected:
+public:
+    struct Trim
+    {
+        enum Layout {
+            full_pic,
+            full_box
+        };
 
-    int m_width;
-    int m_height;
+        enum Side {
+            none,
+            width,
+            height
+        };
+
+        int crop_pixils = 0;
+        Layout layout = full_pic;
+        QSize max_qsize;
+        const QSize const_max_size = QSize(16777215, 16777215);
+
+        // y-from-top, x-from-left, total-width, total-height
+
+        template<typename ImgT>
+        ImgT  crop(const ImgT& icon, const QSize& out_size, int orig_width, int orig_height) {
+
+            float icon_ratio = (float)orig_width / (float)orig_height;
+            float out_ratio = (float)out_size.width() / (float)out_size.height();
+
+            if (icon_ratio > out_ratio) {
+                int i_width = icon.width();
+                int i_height = icon.height();
+                int calc_width = i_height * out_size.width() / out_size.height();
+                crop_pixils = i_width - calc_width;
+                return icon.copy(QRect(crop_pixils, 0, icon.width() - crop_pixils, icon.height()));
+            }
+            else if (icon_ratio < out_ratio) {
+                int i_width = icon.width();
+                int i_height = icon.height();
+
+                int calc_height = i_width * out_size.height() / out_size.width();
+                crop_pixils = i_height - calc_height;
+                return icon.copy(QRect(0, crop_pixils, icon.width(), icon.height() - crop_pixils));
+            }
+
+            return icon.copy(QRect(0, 0, icon.width(), icon.height()));
+        }
+        void operator=(const Trim& other) {
+            layout = other.layout;
+            max_qsize = other.max_qsize;
+        }
+    };
+
+protected:
+    int m_original_width;
+    int m_original_height;
 
     int m_new_width;
     int m_new_height;
 
-    inline void calc_ratio(int box_width, int box_height);
+    QSize m_last_size;
+
+    Trim trim;
+
+    inline void set_layout(Trim::Layout new_layout);
+
+public:
+    inline QSize last_size() const;
+    inline int original_width() const;
+    inline int original_height() const;
 };
 
-void Base_QtImage::calc_ratio(int box_width, int box_height) {
-
-    m_new_width = m_width;
-    m_new_height = m_height;
-
-    if (box_width < m_new_width || box_height < m_new_height) {
-        if (box_width <= m_new_width) {
-            m_new_width = box_width;
-            // ?? / width = m_hight / m_width; >> [(width * m_height) / m_width]
-            m_new_height = (m_new_width * m_new_height) / m_new_width;
-        }
-        if (box_height <= m_new_height) {
-            m_new_height = box_height;
-            m_new_width = (m_new_height * m_new_width) / m_new_height;
-        }
-    }
+inline QSize Base_QtImage::last_size() const{
+    return m_last_size;
 }
 
+int Base_QtImage::original_width () const {
+    return m_original_width;
+}
+
+int Base_QtImage::original_height() const {
+    return m_original_height;
+}
+
+void Base_QtImage::set_layout(Trim::Layout new_layout){
+    trim.layout = new_layout;
+}
+
+
+// **********************************************************************************************************************************
+// **********************************************************************************************************************************
+
 template<typename T>
-class QtImage : public Base_QtImage // Actual Qt Libs start with 'Q' not 'Qt'
+class QtImage : public Base_QtImage // Standard Qt Libs start with 'Q' not 'Qt'
 {
     std::string m_image_str;
     QString m_image_qs;
     QPixmap m_pix;
 
-    T* m_image;
+    T* m_handler;
     T* m_original_label;
 
+    QSize* m_handler_size;
+
+    QSizePolicy* m_expanding;
 
 public:
-
     QtImage();
+    ~QtImage();
+private:
     void init();
-    QtImage(const std::string& image, T* label);
-    QtImage(const QString& image, T* label);
+public:
+    QtImage(const std::string& image, T* label, Trim::Layout layout = Trim::full_pic);
+    QtImage(const QString& image, T* label, Trim::Layout layout = Trim::full_pic);
 
-    void operator=(const std::string& image);
-    void operator=(const QString& image);
     void operator=(const QtImage& image);
 
     std::string str() const;
     QString qstr() const;
     QPixmap pix() const;
-    T* label() const;
+    T* handler() const;
 
     inline void update_pixel_count();
 
@@ -96,52 +162,64 @@ public:
 template<typename T>
 QtImage<T>::QtImage() { }
 
+template<typename T>
+inline QtImage<T>::~QtImage(){
+    //delete m_expanding;
+}
 
 template<typename T>
 void QtImage<T>::init() {
-    m_original_label = m_image;
+
+
+    m_expanding = new QSizePolicy();
+    m_expanding->setHorizontalStretch(1);
+    m_expanding->setVerticalStretch(1);
 
     m_pix = QPixmap(m_image_qs);
-    m_width = m_pix.width();
-    m_height = m_pix.height();
-    m_image->setMinimumSize(1, 1);
-    m_pix.scaled(m_width, m_height, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    m_last_size = m_pix.size();
+    m_original_width = m_pix.width();
+    m_original_height = m_pix.height();
+    m_handler->setMinimumSize(1, 1);
+    m_pix.scaled(m_original_width, m_original_height);
 }
 
+
 template<typename T>
-QtImage<T>::QtImage(const std::string& image, T* label) :
-    m_image_str(image), m_image(label) {
+QtImage<T>::QtImage(const std::string& image, T* label, Trim::Layout layout) :
+    m_image_str(image), m_handler(label)
+{
+    trim.layout = layout;
     m_image_qs = QString(m_image_str.c_str());
     this->init();
 }
 
 template<typename T>
-QtImage<T>::QtImage(const QString& image, T* label) :
-    m_image_qs(image), m_image(label) {
+QtImage<T>::QtImage(const QString& image, T* label, Trim::Layout layout) :
+    m_image_qs(image), m_handler(label)
+{
+    trim.layout = layout;
     m_image_str = m_image_qs.toStdString();
     this->init();
 }
 
 template<typename T>
-void QtImage<T>::operator=(const std::string& image) {
-    m_image_str = image;
-    m_image_qs = QString(m_image_str.c_str());
-    this->init();
-}
+void QtImage<T>::operator=(const QtImage& other) {
+    m_expanding = new QSizePolicy();
+    m_expanding->setHorizontalStretch(100);
+    m_expanding->setVerticalStretch(100);
 
-template<typename T>
-void QtImage<T>::operator=(const QString& image) {
-    m_image_qs = image;
-    m_image_str = m_image_qs.toStdString();
-    this->init();
-}
+    m_last_size = other.last_size();
+    m_original_width = other.original_width();
+    m_original_height = other.original_height();
+    trim = other.trim;
 
-template<typename T>
-void QtImage<T>::operator=(const QtImage& image) {
-    m_image_str = image.str();
-    m_image_qs = image.qstr();
-    m_image = image.label();
-    this->init();
+    m_image_qs = other.qstr();
+    m_image_str = other.str();
+    m_pix = QPixmap(other.qstr());
+
+    m_handler = other.handler();
+    m_handler->setMinimumSize(1, 1);
+    m_pix.scaled(m_original_width, m_original_height);
 }
 
 template<typename T>
@@ -160,35 +238,40 @@ QPixmap QtImage<T>::pix() const {
 }
 
 template<typename T>
-T* QtImage<T>::label() const {
-    return m_image;
+T* QtImage<T>::handler() const {
+    return m_handler;
 }
 
 template<typename T>
 void QtImage<T>::update_pixel_count() {
 
-    this->Base_QtImage::calc_ratio(m_original_label->width(), m_original_label->height());
+    //this->Base_QtImage::calc_ratio(m_handler->width(), m_handler->height());
 
-    m_image->setPixmap(m_pix.scaled(m_new_width, m_new_height, Qt::KeepAspectRatio));
+    m_handler->setPixmap(m_pix.scaled(m_handler->width()*0.97, m_handler->height()*0.97, Qt::KeepAspectRatio));
 }
 
 template<>
 void QtImage<QPushButton>::update_pixel_count() {
 
-    this->Base_QtImage::calc_ratio(m_original_label->width(), m_original_label->height());
+    QSize out_size = QSize(m_handler->width()*0.97, m_handler->height()*0.97);
 
-    m_image->setText("");
-    m_image->setIcon(QIcon(m_pix));
-    m_image->setIconSize(QSize(m_new_width, m_new_height));
+    m_handler->setText("");
+    if (trim.layout == Trim::full_box) {
+        m_handler->setIcon(QIcon(trim.crop(m_pix, out_size, m_original_width, m_original_height)));
+    }
+    else if (trim.layout == Trim::full_pic) {
+        m_handler->setIcon(QIcon(m_pix));
+    }
+
+    m_handler->setIconSize(out_size);
 }
 
 template<typename T>
 int QtImage<T>::height() const {
-    return m_height;
+    return m_handler->height();
 }
 
 template<typename T>
 int QtImage<T>::width() const {
-    return m_height;
+    return m_handler->width();
 }
-
