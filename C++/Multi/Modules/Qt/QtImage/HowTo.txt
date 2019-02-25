@@ -1,3 +1,8 @@
+this is still in beta
+1. I have not tested with labels yet (only buttons)
+2. The on/off images are in reverse
+
+
 >>>>>>>> The purpose of this lib is to correctly display images in Qt.
 
 
