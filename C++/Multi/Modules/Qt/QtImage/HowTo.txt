@@ -1,0 +1,8 @@
+>>>>>>>> The purpose of this lib is to correctly display images in Qt.
+
+
+QtImage var = new QtImage(this, ui->button, on_image_path, off_image_path, Trim::<full_pic/full_box>)
+
+>>>>>>> In the resize function 
+
+var->update_pixel_count();
