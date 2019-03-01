@@ -38,10 +38,10 @@ public:
 private:
 	void init();
 public:
-	inline QtImage_T2(QObject* parent, T* label, const std::string& on_image,
+    inline QtImage_T2(T* label, const std::string& on_image,
 		const std::string& off_image = "", Trim::Layout layout = Trim::full_pic);
 
-	inline QtImage_T2(QObject* parent, T* label, const QString& on_image,
+    inline QtImage_T2(T* label, const QString& on_image,
 		const QString& off_image = "", Trim::Layout layout = Trim::full_pic);
 
 	inline void operator=(const QtImage_T2& image);
@@ -50,9 +50,10 @@ public:
 	inline T* handler() const;
 
 	inline void update_pixel_count(QEvent::Type ev = QEvent::Type::Leave);
-
+	
 	inline int height() const;
 	inline int width() const;
+	inline void set_aspect_size(Trim input);
 };
 
 
@@ -79,7 +80,7 @@ void QtImage_T2<T>::init() {
 
 
 template<typename T>
-QtImage_T2<T>::QtImage_T2(QObject* parent, T* label, const std::string& on_image,
+QtImage_T2<T>::QtImage_T2(T* label, const std::string& on_image,
 	const std::string& off_image, Trim::Layout layout) : m_handler(label)
 {
 	img = IMG(on_image, off_image);
@@ -88,7 +89,7 @@ QtImage_T2<T>::QtImage_T2(QObject* parent, T* label, const std::string& on_image
 }
 
 template<typename T>
-QtImage_T2<T>::QtImage_T2(QObject* parent, T* label, const QString& on_image,
+QtImage_T2<T>::QtImage_T2(T* label, const QString& on_image,
 	const QString& off_image, Trim::Layout layout) : m_handler(label)
 {
 	img = IMG(on_image, off_image);
@@ -124,8 +125,8 @@ T* QtImage_T2<T>::handler() const {
 	return m_handler;
 }
 
-template<typename T>
-void QtImage_T2<T>::update_pixel_count(QEvent::Type ev) {
+template<>
+void QtImage_T2<QLabel>::update_pixel_count(QEvent::Type ev) {
 
 	//this->QtImage_T1::calc_ratio(m_handler->width(), m_handler->height());
     if (ev == QEvent::Leave) {
@@ -166,4 +167,9 @@ int QtImage_T2<T>::height() const {
 template<typename T>
 int QtImage_T2<T>::width() const {
 	return m_handler->width();
+}
+
+template<typename T>
+inline void QtImage_T2<T>::set_aspect_size(Trim input){
+	layout = input;
 }

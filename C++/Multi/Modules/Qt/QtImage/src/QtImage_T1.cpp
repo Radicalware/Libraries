@@ -1,5 +1,5 @@
 
-#include "QtImage_T1.h"
+#include "../headers/QtImage_T1.h"
 
 // This is a templated class and therefore 
 // is fully contained in the header file.

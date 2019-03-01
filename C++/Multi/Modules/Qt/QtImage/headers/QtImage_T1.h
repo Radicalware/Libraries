@@ -1,7 +1,5 @@
 #pragma once
 
-// QtImage v1.1.0
-
 /*
 * Copyright[2019][Joel Leagues aka Scourge]
 * Scourge /at\ protonmail /dot\ com

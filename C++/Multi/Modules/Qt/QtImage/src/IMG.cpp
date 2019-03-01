@@ -1,4 +1,4 @@
-#include "IMG.h"
+#include "../headers/IMG.h"
 
 #include <string>
 

@@ -23,6 +23,7 @@
 
 #include <QObject>
 #include <QPushButton>
+#include <QLabel>
 #include <QEvent>
 
 #include "QtImage_T2.h"
@@ -31,21 +32,31 @@
 
 #include <string>
 
-class QtImage : public QObject , public QtImage_T2<QPushButton>
+class QtImage : public QObject , public QtImage_T2<QPushButton>, public QtImage_T2<QLabel>
 {
-    Q_OBJECT;
+    Q_OBJECT; // Q_OBJECT can't be a Templated Class
+	bool is_label;
+	bool _hover_on = false;
 
 public:
 	QtImage();
-    explicit QtImage(QObject* parent, QPushButton* t_push_button, 
-		std::string image1, std::string image2 = "", Trim::Layout layout = Trim::full_pic);
+    explicit QtImage(QPushButton* t_push_button,
+		std::string on_image, std::string image2 = "", Trim::Layout layout = Trim::full_pic);
 
-	explicit QtImage(QObject* parent, QPushButton* t_push_button,
-		QString image1, QString image2 = "", Trim::Layout layout = Trim::full_pic);
+    explicit QtImage(QPushButton* t_push_button,
+		QString on_image, QString off_image = "", Trim::Layout layout = Trim::full_pic);
 
-	~QtImage();
+	explicit QtImage(QLabel* t_push_button,
+		std::string on_image, std::string off_image = "", Trim::Layout layout = Trim::full_pic);
+
+	explicit QtImage(QLabel* t_push_button,
+		QString on_image, QString off_image = "", Trim::Layout layout = Trim::full_pic);
+
+
+	void update();
+
+	bool update_label(QObject* watched, QEvent* event);
+	bool update_button(QObject* watched, QEvent* event);
+
     virtual bool eventFilter(QObject* watched, QEvent* event) Q_DECL_OVERRIDE;
 };
-
-
-

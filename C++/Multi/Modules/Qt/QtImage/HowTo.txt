@@ -1,13 +1,51 @@
-this is still in beta
-1. I have not tested with labels yet (only buttons)
-2. The on/off images are in reverse
+
+// QtImage v1.2.1
+
+This object will automatically downscale/upscale images
+keep their correct proportions and give you the option
+to have it fill the box or perserve the full image size
 
 
->>>>>>>> The purpose of this lib is to correctly display images in Qt.
+
+All you need to do is init your class with
 
 
-QtImage var = new QtImage(this, ui->button, on_image_path, off_image_path, Trim::<full_pic/full_box>)
 
->>>>>>> In the resize function 
+QtImage* _image = new QtImage(ui.push_button, "hover_off.png");
+or
+QtImage* _image = new QtImage(ui.push_button, "hover_off.png", "hover_on.png", Trim::full_box);
 
-var->update_pixel_count();
+then you need to update it in the 
+
+
+void MyClass::resizeEvent() {
+	_image->update();
+}
+
+
+finally delete it
+
+MyClass::~MyClass(){
+	delete _image;
+}
+
+
+
+/********************************************************************************/
+* Copyright[2019][Joel Leagues aka Scourge]
+* Scourge /at\ protonmail /dot\ com
+* www.Radicalware.com
+* https://www.youtube.com/channel/UCivwmYxoOdDT3GmDnD0CfQA/playlists
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http ://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+/********************************************************************************/
