@@ -5,6 +5,10 @@
 #include <QString>
 #include <QPixmap>
 #include <QIcon>
+#include <QImage>
+#include <QPainter>
+#include <QGraphicsScene>
+#include <QEvent>
 
 struct IMG
 {
@@ -20,15 +24,29 @@ struct IMG
     QIcon on_icon;
     QIcon off_icon;
 
+private:
+	int m_width;
+	int m_height;
+	float on_pic_ratio;
+	float off_pic_ratio;
+	QEvent::Type* m_hover_status_ptr;
+
+public:
 	IMG();
-	IMG(std::string on_img, std::string off_img = "");
-	IMG(QString on_img, QString off_img = "");
+	IMG(QEvent::Type* hover_status, std::string off_img, std::string on_img = "");
+	IMG(QEvent::Type* hover_status, QString off_img, QString on_img = "");
 
-    void on(const std::string& on);
-    void on(const QString& on);
+    void set_on(const std::string& on);
+    void set_on(const QString& on);
 
-    void off(const std::string& off);
-    void off(const QString& off);
-
+    void set_off(const std::string& off);
+    void set_off(const QString& off);
+	
     void operator=(const IMG& other);
+
+	const int width() const;
+	const int height() const;
+
+	const std::string* get_img_ptr();
+	const QEvent::Type* hover_status() const;
 };

@@ -1,5 +1,5 @@
 
-// QtImage v1.2.1
+// QtImage v2.0.0
 
 This object will automatically downscale/upscale images
 keep their correct proportions and give you the option
@@ -7,13 +7,15 @@ to have it fill the box or perserve the full image size
 
 
 
-All you need to do is init your class with
-
-
-
-QtImage* _image = new QtImage(ui.push_button, "hover_off.png");
+QtImage* _image = new QtImageT<QLabel>(ui.banner, "folder/banner.png"); 
+	1. creates an image that will downscale to fill a QLabel
+	2. blank borders may be shown on the sides that are proportunatly not as long as the other sides of the box
 or
-QtImage* _image = new QtImage(ui.push_button, "hover_off.png", "hover_on.png", Trim::full_box);
+QtImage* _image = new QtImageT<QPushButton>(ui.banner, "hover_off.png", "hover_on.png", Trim::full_box); 
+	1. creats an image that will downscale to fill a QPushButton
+	2. the image may be croped depending on the sides that are not as long as the box.
+	3. The image will change with on/off overing.
+
 
 then you need to update it in the 
 
@@ -22,14 +24,25 @@ void MyClass::resizeEvent() {
 	_image->update();
 }
 
-
 finally delete it
 
 MyClass::~MyClass(){
 	delete _image;
 }
 
+/********************************************************************************/
 
+Version 1.x.x 
+release and some minor hotfixes were created
+
+Version 2.0.0
+Went to virtual functions to make life easier on the inheritence issues that
+I was having due to the Q_OBJECT macro. It uses stylesheets instead of Pixmap.
+You now have the option to add text in front of your images on both the
+QLabel and QPushButton
+
+Version 3.x.x (not yet released)
+It will combine the best of both version 1/2 and will have even better ease of use
 
 /********************************************************************************/
 * Copyright[2019][Joel Leagues aka Scourge]

@@ -1,6 +1,6 @@
 #pragma once
 
-// QtImage v1.2.0
+// QtImage v2.0.0
 
 /*
 * Copyright[2019][Joel Leagues aka Scourge]
@@ -21,42 +21,52 @@
 * limitations under the License.
 */
 
-#include <QObject>
-#include <QPushButton>
-#include <QLabel>
-#include <QEvent>
+#include "IMG.h"
+#include "Style.h"
 
-#include "QtImage_T2.h"
-#include "QtImage_T1.h"
-#include "Trim.h"
 
 #include <string>
+#include <QEvent>
 
-class QtImage : public QObject , public QtImage_T2<QPushButton>, public QtImage_T2<QLabel>
+class QtImage : public QObject
 {
-    Q_OBJECT; // Q_OBJECT can't be a Templated Class
-	bool is_label;
-	bool _hover_on = false;
+protected:
+    Q_OBJECT // Q_OBJECT can't be a Templated Class, hence the need for virtualization
+	enum Interactor {
+        e_Label,
+		e_PushButton,
+		e_ToolButton
+	};
+	Interactor m_interactor;
+	QEvent::Type m_hover_status_tmp = QEvent::Type::Enter;
 
+	virtual bool eventFilter(QObject* watched, QEvent* event) Q_DECL_OVERRIDE final;
 public:
+	QEvent::Type m_hover_status = QEvent::Type::Enter;
+	// you can't access an addr function as const so just leave the var public
+
 	QtImage();
-    explicit QtImage(QPushButton* t_push_button,
-		std::string on_image, std::string image2 = "", Trim::Layout layout = Trim::full_pic);
+	virtual ~QtImage();
+	
+	inline virtual void* handler() const = 0; // can't return template virtual value directly
+	inline virtual QSize size() const = 0;
+	inline virtual void update_size() = 0;
+	inline virtual IMG* img() const = 0;
+	inline virtual Style* style() const = 0;
+	inline virtual Style::Trim* trim() const = 0;
+	inline virtual Style::Font* font() const = 0;
 
-    explicit QtImage(QPushButton* t_push_button,
-		QString on_image, QString off_image = "", Trim::Layout layout = Trim::full_pic);
-
-	explicit QtImage(QLabel* t_push_button,
-		std::string on_image, std::string off_image = "", Trim::Layout layout = Trim::full_pic);
-
-	explicit QtImage(QLabel* t_push_button,
-		QString on_image, QString off_image = "", Trim::Layout layout = Trim::full_pic);
-
-
-	void update();
-
-	bool update_label(QObject* watched, QEvent* event);
-	bool update_button(QObject* watched, QEvent* event);
-
-    virtual bool eventFilter(QObject* watched, QEvent* event) Q_DECL_OVERRIDE;
+	inline virtual void set_layout(Style::Trim::Layout layout) = 0;
+	inline virtual void set_text(std::string input) = 0;
+	inline virtual Style::Font* ret_font() = 0;
 };
+
+//// eventFilter >> triggered all the time
+//// this will update the image if the image changes
+//// of there is a change in moues-over, then reflect the changes
+//
+//// update_size >> triggered when the user changes the size of the objct
+//
+//
+//// 	QtImage* m_banner_img = new QtImageT<QLabel>(ui.lb_banner, image_dir + "banner.png");
+//// 	QtImage* m_banner_img = new QtImage_QLabel(ui.lb_banner, image_dir + "banner.png");
