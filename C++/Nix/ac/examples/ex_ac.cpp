@@ -1,6 +1,6 @@
-#include "./include/ex_basics.h"
-#include "./include/fuzz_slice.h"
-#include "./include/fuzz_dice.h"
+#include "ex_basics.h"
+#include "fuzz_slice.h"
+#include "fuzz_dice.h"
 
 int main(int argc, char** argv){
 
