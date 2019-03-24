@@ -1,6 +1,6 @@
 #pragma once
 
-// mc:: version v1.2.1
+// mc:: version v1.3.0
 
 /*
 * Copyright[2018][Joel Leagues aka Scourge]
