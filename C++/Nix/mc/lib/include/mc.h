@@ -1,6 +1,6 @@
 #pragma once
 
-// mc:: version v1.0.0
+// mc:: version v1.2.1
 
 /*
 * Copyright[2018][Joel Leagues aka Scourge]
@@ -34,9 +34,9 @@
 namespace mc // map controller
 {
 
-	// std::vector<K> all_keys      (const std::map<K, V>& cont_map)
-	// std::vector<V> all_values    (const std::map<K, V>& cont_map)
-	// V              key_data      (const K& key_i, const std::map<K, V>& cont_map)
+	// std::vector<K> all_keys      (const std::map<K, V>& i_map)
+	// std::vector<V> all_values    (const std::map<K, V>& i_map)
+	// V              key_data      (const K& key_i, const std::map<K, V>& i_map)
 
 	// bool           has_key       (const K& key, const M& d_map)
 	// bool           has_key_value (const K& key, const EV& value, const M& d_map)
@@ -44,10 +44,10 @@ namespace mc // map controller
 	// void           cont_copy         (M1& map1, const k new_keyname, const M2& map2, const v2 key1)
 
 	template<typename K, typename V>
-	std::vector<K> all_keys(const std::map<K, V>& cont_map);
+	std::vector<K> all_keys(const std::map<K, V>& i_map);
 
 	template<typename K, typename V>
-	std::vector<K> all_keys(const std::unordered_map<K, V>& cont_map);
+	std::vector<K> all_keys(const std::unordered_map<K, V>& i_map);
 
 	// =================================================================================================================================
 	// find Key > does it econt_ist?
@@ -121,61 +121,61 @@ namespace mc // map controller
 	// ret vector of all keys from map
 
 	template<typename K, typename V>
-	inline std::vector<K> all_keys(const std::map<K, V>& cont_map) {
+	inline std::vector<K> all_keys(const std::map<K, V>& i_map) {
 		std::vector<K> vec;
-		for (typename std::map<K, V>::const_iterator iter = cont_map.begin(); iter != cont_map.end(); ++iter)
-			vec.push_back(iter->first); 
+		for (typename std::map<K, V>::const_iterator iter = i_map.begin(); iter != i_map.end(); ++iter)
+			vec.push_back(iter->first);
 		return vec;
 	}
 	template<typename K, typename V>
-	inline std::vector<K> all_keys(const std::map<K, V>&& cont_map) {
+	inline std::vector<K> all_keys(const std::map<K, V>&& i_map) {
 		std::vector<K> vec;
-		for (typename std::map<K, V>::const_iterator iter = cont_map.begin(); iter != cont_map.end(); ++iter)
-			vec.push_back(iter->first); 
+		for (typename std::map<K, V>::const_iterator iter = i_map.begin(); iter != i_map.end(); ++iter)
+			vec.push_back(iter->first);
 		return vec;
 	}        // ret vector of all values from map
 	template<typename K, typename V>
-	inline std::vector<K> all_keys(const std::unordered_map<K, V>& cont_map) {
+	inline std::vector<K> all_keys(const std::unordered_map<K, V>& i_map) {
 		std::vector<K> vec;
-		for (typename std::unordered_map<K, V>::const_iterator iter = cont_map.begin(); iter != cont_map.end(); ++iter)
-			vec.push_back(iter->first); 
+		for (typename std::unordered_map<K, V>::const_iterator iter = i_map.begin(); iter != i_map.end(); ++iter)
+			vec.push_back(iter->first);
 		return vec;
 	}
 	template<typename K, typename V>
-	inline std::vector<K> all_keys(const std::unordered_map<K, V>&& cont_map) {
+	inline std::vector<K> all_keys(const std::unordered_map<K, V>&& i_map) {
 		std::vector<K> vec;
-		for (typename std::unordered_map<K, V>::const_iterator iter = cont_map.begin(); iter != cont_map.end(); ++iter)
-			vec.push_back(iter->first); 
+		for (typename std::unordered_map<K, V>::const_iterator iter = i_map.begin(); iter != i_map.end(); ++iter)
+			vec.push_back(iter->first);
 		return vec;
 	}
 	// =================================================================================================================================
 	// return all values for every key in a vector 
 
 	template<typename K, typename V>
-	inline std::vector<V> all_values(const std::map<K, V>& cont_map) {
+	inline std::vector<V> all_values(const std::map<K, V>& i_map) {
 		std::vector<V> vec;
-		for (typename std::unordered_map<K, V>::const_iterator iter = cont_map.begin(); iter != cont_map.end(); ++iter)
+		for (typename std::unordered_map<K, V>::const_iterator iter = i_map.begin(); iter != i_map.end(); ++iter)
 			vec.push_back(iter->second);
 		return vec;
 	}
 	template<typename K, typename V>
-	inline std::vector<V> all_values(const std::map<K, V>&& cont_map) {
+	inline std::vector<V> all_values(const std::map<K, V>&& i_map) {
 		std::vector<V> vec;
-		for (typename std::unordered_map<K, V>::const_iterator iter = cont_map.begin(); iter != cont_map.end(); ++iter)
+		for (typename std::unordered_map<K, V>::const_iterator iter = i_map.begin(); iter != i_map.end(); ++iter)
 			vec.push_back(iter->second);
 		return vec;
 	}
 	template<typename K, typename V>
-	inline std::vector<V> all_values(const std::unordered_map<K, V>& cont_map) {
+	inline std::vector<V> all_values(const std::unordered_map<K, V>& i_map) {
 		std::vector<V> vec;
-		for (typename std::unordered_map<K, V>::const_iterator iter = cont_map.begin(); iter != cont_map.end(); ++iter)
+		for (typename std::unordered_map<K, V>::const_iterator iter = i_map.begin(); iter != i_map.end(); ++iter)
 			vec.push_back(iter->second);
 		return vec;
 	}
 	template<typename K, typename V>
-	inline std::vector<V> all_values(const std::unordered_map<K, V>&& cont_map) {
+	inline std::vector<V> all_values(const std::unordered_map<K, V>&& i_map) {
 		std::vector<V> vec;
-		for (typename std::unordered_map<K, V>::const_iterator iter = cont_map.begin(); iter != cont_map.end(); ++iter)
+		for (typename std::unordered_map<K, V>::const_iterator iter = i_map.begin(); iter != i_map.end(); ++iter)
 			vec.push_back(iter->second);
 		return vec;
 	}
@@ -186,45 +186,35 @@ namespace mc // map controller
 	// if (yes) return the data; else return V()
 
 	template<typename S, typename K, typename V>
-	inline V key_data(char* const key_i, const std::map<K, V>& cont_map) {
+	inline V key_data(char* const key_i, const std::map<K, V>& i_map) {
 		std::string key = key_i;
-		if (mc::cont_has_key(key_i, cont_map)) {
-			return cont_map.at(key_i);
-		} else {
-			V();
-		}
+		if (mc::cont_has_key(key_i, i_map)) 
+			return i_map.at(key_i);
+		return V();
 	}
 	template<typename S, typename K, typename V>
-	inline V key_data(const S& key_i, const std::map<K, V>& cont_map) {
-		if (mc::cont_has_key(key_i, cont_map)) {
-			return cont_map.at(key_i);
-		} else {
-			V();
-		}
+	inline V key_data(const S& key_i, const std::map<K, V>& i_map) {
+		if (mc::cont_has_key(key_i, i_map))
+			return i_map.at(key_i);
+		return V();
 	}
 	template<typename S, typename K, typename V>
-	inline V key_data(const S& key_i, const std::unordered_map<K, V>& cont_map) {
-		if (mc::cont_has_key(key_i, cont_map)) {
-			return cont_map.at(key_i);
-		} else {
-			V();
-		}
+	inline V key_data(const S& key_i, const std::unordered_map<K, V>& i_map) {
+		if (mc::cont_has_key(key_i, i_map)) 
+			return i_map.at(key_i);
+		return V();
 	}
 	template<typename S, typename K, typename V>
-	inline V key_data(const S&& key_i, const std::map<K, V>& cont_map) {
-		if (mc::cont_has_key(key_i, cont_map)) {
-			return cont_map.at(key_i);
-		} else {
-			V();
-		}
+	inline V key_data(const S&& key_i, const std::map<K, V>& i_map) {
+		if (mc::cont_has_key(key_i, i_map)) 
+			return i_map.at(key_i);
+		return V();
 	}
 	template<typename S, typename K, typename V>
-	inline V key_data(const S&& key_i, const std::unordered_map<K, V>& cont_map) {
-		if (mc::cont_has_key(key_i, cont_map)) {
-			return cont_map.at(key_i);
-		} else {
-			V();
-		}
+	inline V key_data(const S&& key_i, const std::unordered_map<K, V>& i_map) {
+		if (mc::cont_has_key(key_i, i_map)) 
+			return i_map.at(key_i);
+		return V();
 	}
 	// =================================================================================================================================
 	// cross copy aka xcopy aka relational copy
