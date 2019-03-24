@@ -1,4 +1,3 @@
-
 #include<iostream>
 #include<vector>
 #include<string>
@@ -18,19 +17,17 @@ void split() {
 	cout << "\n===(SPLIT)======================================================\n";
 	string tester = "This is our test string!\nline one\nline two\nline three   \n\n\n  ";
 
-    cout << re::strip(tester);
-    cout << "\n*****" << endl;
-
+    cout << re::strip(tester) << endl;
 	vector<string> ar_tester = re::split("\\s", re::strip(tester));
     cout << ac::join(ar_tester, "--");
 
-    cout << "\n*****" << endl;
+    cout << "\n*****\n";
     ar_tester = re::split('\n', re::strip(tester));
     cout << ac::join(ar_tester, "\n >> ");
 
 
 	// OUTPUT
-	// This |<>| is |<>| our |<>| test |<>| string! |<>| 
+	// This |<>| is |<>| our |<>| test |<>| string! |<>|
 
 	cout << '\n';
 }

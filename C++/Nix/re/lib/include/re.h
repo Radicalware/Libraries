@@ -1,7 +1,7 @@
 #pragma once
 
 // lib: re
-// version 1.4.0
+// version 1.5.0
 
 /*
 * Copyright[2018][Joel Leagues aka Scourge]
@@ -31,20 +31,20 @@
 
 namespace re // Regular Expression
 {
-	// re:: does NOT take any vector inputs as an argugment
-	// for that use ac:: for your array controller
+    // re:: does NOT take any vector inputs as an argugment
+    // for that use ac:: for your array controller
 
-	// =================================================================================================================================
-	
+    // =================================================================================================================================
+
     bool match(const std::string& in_pattern, const std::string& content);
-	bool match_line(const std::string& in_pattern, const std::string& content);
-	bool match_lines(const std::string& in_pattern, const std::string& content);
+    bool match_line(const std::string& in_pattern, const std::string& content);
+    bool match_lines(const std::string& in_pattern, const std::string& content);
 
-	bool scan(const std::string& in_pattern, const std::string& content);
-	bool scan_line(const std::string& in_pattern, const std::string& content);
-	bool scan_lines(const std::string& in_pattern, const std::string& content);
+    bool scan(const std::string& in_pattern, const std::string& content);
+    bool scan_line(const std::string& in_pattern, const std::string& content);
+    bool scan_lines(const std::string& in_pattern, const std::string& content);
 
-	// =================================================================================================================================
+    // =================================================================================================================================
 
     std::vector<std::string> cont_split(const std::string& in_pattern, const std::string& content);
 
@@ -56,29 +56,29 @@ namespace re // Regular Expression
     std::vector<std::string> split(const char splitter, const std::string& content);
     std::vector<std::string> split(const char splitter, const std::string&& content);
 
-	// =================================================================================================================================
-	
+    // =================================================================================================================================
+
     bool has_non_ascii(const std::string& str);
     std::string remove_non_ascii(const std::string& str);
-    
+
     // =================================================================================================================================
-	
+
     // re::search & re::findall use grouper/iterator, don't use them via the namespace directly
-	std::vector<std::string> grouper(const std::string& content, std::vector<std::string>& ret_vector, const std::string& in_pattern);
-	std::vector<std::string> iterator(const std::string& content, std::vector<std::string>& ret_vector, const std::string& in_pattern);
-	// --------------------------------------------------------------------------------------------------------------------------------
-	std::vector<std::string> findall(const std::string& in_pattern, const std::string& content, const bool group = false);
-	
+    std::vector<std::string> grouper(const std::string& content, std::vector<std::string>& ret_vector, const std::string& in_pattern);
+    std::vector<std::string> iterator(const std::string& content, std::vector<std::string>& ret_vector, const std::string& in_pattern);
+    // --------------------------------------------------------------------------------------------------------------------------------
+    std::vector<std::string> findall(const std::string& in_pattern, const std::string& content, const bool group = false);
+
     // =================================================================================================================================
 
-	unsigned long count(const char var_char, const std::string& input_str);
-	unsigned long count(const std::string& in_pattern, const std::string& str);
+    unsigned long count(const char var_char, const std::string& input_str);
+    unsigned long count(const std::string& in_pattern, const std::string& str);
 
-	// =================================================================================================================================
+    // =================================================================================================================================
 
-	std::string sub(const std::string& in_pattern, const std::string& replacement, const std::string& content);
+    std::string sub(const std::string& in_pattern, const std::string& replacement, const std::string& content);
 
     std::string strip(const std::string& content);
 
-	// =================================================================================================================================
+    // =================================================================================================================================
 }
