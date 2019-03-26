@@ -39,14 +39,10 @@
 #   include <windows.h>
 #endif
 
-
 #include <iostream>
 #include <cstdio>
 
-
-
-
-// Forward declaration of the `_internal` namespace.
+// Forward declaration of the `cc::_internal` namespace.
 // All comments are below.
 
 // An index to be used to access a private storage of I/O streams. See
@@ -58,34 +54,34 @@ bool cc::_internal::is_colorized(std::ostream& stream);
 bool cc::_internal::is_atty(const std::ostream& stream);
 
 #if defined(TERMCOLOR_OS_WINDOWS)
-void cc::_internal::win_change_attributes(std::ostream& stream, int foreground, int background=-1);
+    void cc::_internal::win_change_attributes(std::ostream& stream, int foreground, int background);
 #endif
 
 
 
 std::ostream& cc::colorize(std::ostream& stream)
 {
-    stream.iword(_internal::colorize_index) = 1L;
+    stream.iword(cc::_internal::colorize_index) = 1L;
     return stream;
 }
 
 
 std::ostream& cc::nocolorize(std::ostream& stream)
 {
-    stream.iword(_internal::colorize_index) = 0L;
+    stream.iword(cc::_internal::colorize_index) = 0L;
     return stream;
 }
 
 
 std::ostream& cc::reset(std::ostream& stream)
 {
-    if (_internal::is_colorized(stream))
+    if (cc::_internal::is_colorized(stream))
     {
-    #if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
+#if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
         stream << "\033[00m" << "";
-    #elif defined(TERMCOLOR_OS_WINDOWS)
-        _internal::win_change_attributes(stream, -1, -1);
-    #endif
+#elif defined(TERMCOLOR_OS_WINDOWS)
+        cc::_internal::win_change_attributes(stream, -1, -1);
+#endif
     }
     return stream;
 }
@@ -94,12 +90,12 @@ std::ostream& cc::reset(std::ostream& stream)
 
 std::ostream& cc::bold(std::ostream& stream)
 {
-    if (_internal::is_colorized(stream))
+    if (cc::_internal::is_colorized(stream))
     {
-    #if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
+#if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
         stream << "\033[1m";
-    #elif defined(TERMCOLOR_OS_WINDOWS)
-    #endif
+#elif defined(TERMCOLOR_OS_WINDOWS)
+#endif
     }
     return stream;
 }
@@ -108,12 +104,12 @@ std::ostream& cc::bold(std::ostream& stream)
 
 std::ostream& cc::dark(std::ostream& stream)
 {
-    if (_internal::is_colorized(stream))
+    if (cc::_internal::is_colorized(stream))
     {
-    #if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
+#if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
         stream << "\033[2m";
-    #elif defined(TERMCOLOR_OS_WINDOWS)
-    #endif
+#elif defined(TERMCOLOR_OS_WINDOWS)
+#endif
     }
     return stream;
 }
@@ -122,12 +118,12 @@ std::ostream& cc::dark(std::ostream& stream)
 
 std::ostream& cc::underline(std::ostream& stream)
 {
-    if (_internal::is_colorized(stream))
+    if (cc::_internal::is_colorized(stream))
     {
-    #if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
+#if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
         stream << "\033[4m";
-    #elif defined(TERMCOLOR_OS_WINDOWS)
-    #endif
+#elif defined(TERMCOLOR_OS_WINDOWS)
+#endif
     }
     return stream;
 }
@@ -136,12 +132,12 @@ std::ostream& cc::underline(std::ostream& stream)
 
 std::ostream& cc::blink(std::ostream& stream)
 {
-    if (_internal::is_colorized(stream))
+    if (cc::_internal::is_colorized(stream))
     {
-    #if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
+#if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
         stream << "\033[5m";
-    #elif defined(TERMCOLOR_OS_WINDOWS)
-    #endif
+#elif defined(TERMCOLOR_OS_WINDOWS)
+#endif
     }
     return stream;
 }
@@ -150,12 +146,12 @@ std::ostream& cc::blink(std::ostream& stream)
 
 std::ostream& cc::reverse(std::ostream& stream)
 {
-    if (_internal::is_colorized(stream))
+    if (cc::_internal::is_colorized(stream))
     {
-    #if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
+#if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
         stream << "\033[7m";
-    #elif defined(TERMCOLOR_OS_WINDOWS)
-    #endif
+#elif defined(TERMCOLOR_OS_WINDOWS)
+#endif
     }
     return stream;
 }
@@ -164,12 +160,12 @@ std::ostream& cc::reverse(std::ostream& stream)
 
 std::ostream& cc::concealed(std::ostream& stream)
 {
-    if (_internal::is_colorized(stream))
+    if (cc::_internal::is_colorized(stream))
     {
-    #if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
+#if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
         stream << "\033[8m";
-    #elif defined(TERMCOLOR_OS_WINDOWS)
-    #endif
+#elif defined(TERMCOLOR_OS_WINDOWS)
+#endif
     }
     return stream;
 }
@@ -178,15 +174,15 @@ std::ostream& cc::concealed(std::ostream& stream)
 
 std::ostream& cc::black(std::ostream& stream)
 {
-    if (_internal::is_colorized(stream))
+    if (cc::_internal::is_colorized(stream))
     {
-    #if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
+#if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
         stream << "\033[30m";
-    #elif defined(TERMCOLOR_OS_WINDOWS)
-        _internal::win_change_attributes(stream,
-            0   
+#elif defined(TERMCOLOR_OS_WINDOWS)
+        cc::_internal::win_change_attributes(stream,
+            0
         );
-    #endif
+#endif
     }
     return stream;
 }
@@ -194,15 +190,15 @@ std::ostream& cc::black(std::ostream& stream)
 
 std::ostream& cc::red(std::ostream& stream)
 {
-    if (_internal::is_colorized(stream))
+    if (cc::_internal::is_colorized(stream))
     {
-    #if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
+#if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
         stream << "\033[31m";
-    #elif defined(TERMCOLOR_OS_WINDOWS)
-        _internal::win_change_attributes(stream,
+#elif defined(TERMCOLOR_OS_WINDOWS)
+        cc::_internal::win_change_attributes(stream,
             FOREGROUND_RED
         );
-    #endif
+#endif
     }
     return stream;
 }
@@ -210,15 +206,15 @@ std::ostream& cc::red(std::ostream& stream)
 
 std::ostream& cc::green(std::ostream& stream)
 {
-    if (_internal::is_colorized(stream))
+    if (cc::_internal::is_colorized(stream))
     {
-    #if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
+#if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
         stream << "\033[32m";
-    #elif defined(TERMCOLOR_OS_WINDOWS)
-        _internal::win_change_attributes(stream,
+#elif defined(TERMCOLOR_OS_WINDOWS)
+        cc::_internal::win_change_attributes(stream,
             FOREGROUND_GREEN
         );
-    #endif
+#endif
     }
     return stream;
 }
@@ -226,15 +222,15 @@ std::ostream& cc::green(std::ostream& stream)
 
 std::ostream& cc::yellow(std::ostream& stream)
 {
-    if (_internal::is_colorized(stream))
+    if (cc::_internal::is_colorized(stream))
     {
-    #if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
+#if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
         stream << "\033[33m";
-    #elif defined(TERMCOLOR_OS_WINDOWS)
-        _internal::win_change_attributes(stream,
+#elif defined(TERMCOLOR_OS_WINDOWS)
+        cc::_internal::win_change_attributes(stream,
             FOREGROUND_GREEN | FOREGROUND_RED
         );
-    #endif
+#endif
     }
     return stream;
 }
@@ -242,15 +238,15 @@ std::ostream& cc::yellow(std::ostream& stream)
 
 std::ostream& cc::blue(std::ostream& stream)
 {
-    if (_internal::is_colorized(stream))
+    if (cc::_internal::is_colorized(stream))
     {
-    #if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
+#if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
         stream << "\033[34m";
-    #elif defined(TERMCOLOR_OS_WINDOWS)
-        _internal::win_change_attributes(stream,
+#elif defined(TERMCOLOR_OS_WINDOWS)
+        cc::_internal::win_change_attributes(stream,
             FOREGROUND_BLUE
         );
-    #endif
+#endif
     }
     return stream;
 }
@@ -258,15 +254,15 @@ std::ostream& cc::blue(std::ostream& stream)
 
 std::ostream& cc::magenta(std::ostream& stream)
 {
-    if (_internal::is_colorized(stream))
+    if (cc::_internal::is_colorized(stream))
     {
-    #if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
+#if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
         stream << "\033[35m";
-    #elif defined(TERMCOLOR_OS_WINDOWS)
-        _internal::win_change_attributes(stream,
+#elif defined(TERMCOLOR_OS_WINDOWS)
+        cc::_internal::win_change_attributes(stream,
             FOREGROUND_BLUE | FOREGROUND_RED
         );
-    #endif
+#endif
     }
     return stream;
 }
@@ -274,15 +270,15 @@ std::ostream& cc::magenta(std::ostream& stream)
 
 std::ostream& cc::cyan(std::ostream& stream)
 {
-    if (_internal::is_colorized(stream))
+    if (cc::_internal::is_colorized(stream))
     {
-    #if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
+#if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
         stream << "\033[36m";
-    #elif defined(TERMCOLOR_OS_WINDOWS)
-        _internal::win_change_attributes(stream,
+#elif defined(TERMCOLOR_OS_WINDOWS)
+        cc::_internal::win_change_attributes(stream,
             FOREGROUND_BLUE | FOREGROUND_GREEN
         );
-    #endif
+#endif
     }
     return stream;
 }
@@ -290,15 +286,15 @@ std::ostream& cc::cyan(std::ostream& stream)
 
 std::ostream& cc::grey(std::ostream& stream)
 {
-    if (_internal::is_colorized(stream))
+    if (cc::_internal::is_colorized(stream))
     {
-    #if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
+#if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
         stream << "\033[37m";
-    #elif defined(TERMCOLOR_OS_WINDOWS)
-        _internal::win_change_attributes(stream,
+#elif defined(TERMCOLOR_OS_WINDOWS)
+        cc::_internal::win_change_attributes(stream,
             FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED
         );
-    #endif
+#endif
     }
     return stream;
 }
@@ -306,15 +302,15 @@ std::ostream& cc::grey(std::ostream& stream)
 
 std::ostream& cc::white(std::ostream& stream)
 {
-    if (_internal::is_colorized(stream))
+    if (cc::_internal::is_colorized(stream))
     {
-    #if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
+#if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
         stream << "\033[39m";
-    #elif defined(TERMCOLOR_OS_WINDOWS)
-        _internal::win_change_attributes(stream,
+#elif defined(TERMCOLOR_OS_WINDOWS)
+        cc::_internal::win_change_attributes(stream,
             FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED
         );
-    #endif
+#endif
     }
     return stream;
 }
@@ -323,15 +319,15 @@ std::ostream& cc::white(std::ostream& stream)
 
 std::ostream& cc::on_black(std::ostream& stream)
 {
-    if (_internal::is_colorized(stream))
+    if (cc::_internal::is_colorized(stream))
     {
-    #if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
+#if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
         stream << "\033[40m";
-    #elif defined(TERMCOLOR_OS_WINDOWS)
-        _internal::win_change_attributes(stream, -1,
-            0   
+#elif defined(TERMCOLOR_OS_WINDOWS)
+        cc::_internal::win_change_attributes(stream, -1,
+            0
         );
-    #endif
+#endif
     }
     return stream;
 }
@@ -339,15 +335,15 @@ std::ostream& cc::on_black(std::ostream& stream)
 
 std::ostream& cc::on_red(std::ostream& stream)
 {
-    if (_internal::is_colorized(stream))
+    if (cc::_internal::is_colorized(stream))
     {
-    #if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
+#if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
         stream << "\033[41m";
-    #elif defined(TERMCOLOR_OS_WINDOWS)
-        _internal::win_change_attributes(stream, -1,
+#elif defined(TERMCOLOR_OS_WINDOWS)
+        cc::_internal::win_change_attributes(stream, -1,
             BACKGROUND_RED
         );
-    #endif
+#endif
     }
     return stream;
 }
@@ -355,15 +351,15 @@ std::ostream& cc::on_red(std::ostream& stream)
 
 std::ostream& cc::on_green(std::ostream& stream)
 {
-    if (_internal::is_colorized(stream))
+    if (cc::_internal::is_colorized(stream))
     {
-    #if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
+#if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
         stream << "\033[42m";
-    #elif defined(TERMCOLOR_OS_WINDOWS)
-        _internal::win_change_attributes(stream, -1,
+#elif defined(TERMCOLOR_OS_WINDOWS)
+        cc::_internal::win_change_attributes(stream, -1,
             BACKGROUND_GREEN
         );
-    #endif
+#endif
     }
     return stream;
 }
@@ -371,15 +367,15 @@ std::ostream& cc::on_green(std::ostream& stream)
 
 std::ostream& cc::on_yellow(std::ostream& stream)
 {
-    if (_internal::is_colorized(stream))
+    if (cc::_internal::is_colorized(stream))
     {
-    #if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
+#if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
         stream << "\033[43m";
-    #elif defined(TERMCOLOR_OS_WINDOWS)
-        _internal::win_change_attributes(stream, -1,
+#elif defined(TERMCOLOR_OS_WINDOWS)
+        cc::_internal::win_change_attributes(stream, -1,
             BACKGROUND_GREEN | BACKGROUND_RED
         );
-    #endif
+#endif
     }
     return stream;
 }
@@ -387,15 +383,15 @@ std::ostream& cc::on_yellow(std::ostream& stream)
 
 std::ostream& cc::on_blue(std::ostream& stream)
 {
-    if (_internal::is_colorized(stream))
+    if (cc::_internal::is_colorized(stream))
     {
-    #if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
+#if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
         stream << "\033[44m";
-    #elif defined(TERMCOLOR_OS_WINDOWS)
-        _internal::win_change_attributes(stream, -1,
+#elif defined(TERMCOLOR_OS_WINDOWS)
+        cc::_internal::win_change_attributes(stream, -1,
             BACKGROUND_BLUE
         );
-    #endif
+#endif
     }
     return stream;
 }
@@ -403,15 +399,15 @@ std::ostream& cc::on_blue(std::ostream& stream)
 
 std::ostream& cc::on_magenta(std::ostream& stream)
 {
-    if (_internal::is_colorized(stream))
+    if (cc::_internal::is_colorized(stream))
     {
-    #if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
+#if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
         stream << "\033[45m";
-    #elif defined(TERMCOLOR_OS_WINDOWS)
-        _internal::win_change_attributes(stream, -1,
+#elif defined(TERMCOLOR_OS_WINDOWS)
+        cc::_internal::win_change_attributes(stream, -1,
             BACKGROUND_BLUE | BACKGROUND_RED
         );
-    #endif
+#endif
     }
     return stream;
 }
@@ -419,15 +415,15 @@ std::ostream& cc::on_magenta(std::ostream& stream)
 
 std::ostream& cc::on_cyan(std::ostream& stream)
 {
-    if (_internal::is_colorized(stream))
+    if (cc::_internal::is_colorized(stream))
     {
-    #if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
+#if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
         stream << "\033[46m";
-    #elif defined(TERMCOLOR_OS_WINDOWS)
-        _internal::win_change_attributes(stream, -1,
+#elif defined(TERMCOLOR_OS_WINDOWS)
+        cc::_internal::win_change_attributes(stream, -1,
             BACKGROUND_GREEN | BACKGROUND_BLUE
         );
-    #endif
+#endif
     }
     return stream;
 }
@@ -435,15 +431,15 @@ std::ostream& cc::on_cyan(std::ostream& stream)
 
 std::ostream& cc::on_grey(std::ostream& stream)
 {
-    if (_internal::is_colorized(stream))
+    if (cc::_internal::is_colorized(stream))
     {
-    #if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
+#if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
         stream << "\033[47m";
-    #elif defined(TERMCOLOR_OS_WINDOWS)
-        _internal::win_change_attributes(stream, -1,
+#elif defined(TERMCOLOR_OS_WINDOWS)
+        cc::_internal::win_change_attributes(stream, -1,
             BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_RED
         );
-    #endif
+#endif
     }
 
     return stream;
@@ -453,15 +449,15 @@ std::ostream& cc::on_grey(std::ostream& stream)
 
 std::ostream& cc::on_clear(std::ostream& stream)
 {
-    if (_internal::is_colorized(stream))
+    if (cc::_internal::is_colorized(stream))
     {
-    #if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
+#if defined(TERMCOLOR_OS_MACOS) || defined(TERMCOLOR_OS_LINUX)
         stream << "\033[49m";
-    #elif defined(TERMCOLOR_OS_WINDOWS)
-        _internal::win_change_attributes(stream, -1,
+#elif defined(TERMCOLOR_OS_WINDOWS)
+        cc::_internal::win_change_attributes(stream, -1,
             BACKGROUND_GREEN | BACKGROUND_BLUE | BACKGROUND_RED
         );
-    #endif
+#endif
     }
 
     return stream;
@@ -492,7 +488,7 @@ FILE* cc::_internal::get_standard_stream(const std::ostream& stream)
 
 bool cc::_internal::is_colorized(std::ostream& stream)
 {
-    return is_atty(stream) || static_cast<bool>(stream.iword(colorize_index));
+    return cc::_internal::is_atty(stream) || static_cast<bool>(stream.iword(colorize_index));
 }
 
 //! Test whether a given `std::ostream` object refers to
@@ -500,7 +496,7 @@ bool cc::_internal::is_colorized(std::ostream& stream)
 
 bool cc::_internal::is_atty(const std::ostream& stream)
 {
-    FILE* std_stream = get_standard_stream(stream);
+    FILE* std_stream = cc::_internal::get_standard_stream(stream);
 
     // Unfortunately, fileno() ends with segmentation fault
     // if invalid file descriptor is passed. So we need to
@@ -528,7 +524,8 @@ void cc::_internal::win_change_attributes(std::ostream& stream, int foreground, 
     // API to change Terminal output color. That means we can't
     // manipulate colors by means of "std::stringstream" and hence
     // should do nothing in this case.
-    if (!_internal::is_atty(stream))
+
+    if (!cc::_internal::is_atty(stream))
         return;
 
     // get terminal handle

@@ -1,5 +1,5 @@
-
-// v1.0.0 --(MOD)-- Console Colors
+#pragma once
+// v1.0.2 --(MOD)-- Console Colors
 // A mod on termcolor.h
 
 // Original was called termcolor.h by Ihor Kalnytskyi copyright: (c) 2013 with BSD LICENCE
@@ -39,9 +39,6 @@
 //    cc takes up less space and is quicker to type than termcolor.
 //    Bit ghanks to "Ihor Kalnytskyi" who did a greate job!!
 
-
-#pragma once
-
 #if defined(_WIN32) || defined(_WIN64)
 #   define TERMCOLOR_OS_WINDOWS
 #elif defined(__APPLE__)
@@ -61,6 +58,7 @@
 #endif
 
 #include <iostream>
+#include <ostream>
 #include <cstdio>
 
 namespace cc
@@ -73,9 +71,9 @@ namespace cc
         bool is_colorized(std::ostream& stream);
         bool is_atty(const std::ostream& stream);
 
-    #if defined(TERMCOLOR_OS_WINDOWS)
-        void win_change_attributes(std::ostream& stream, int foreground, int background=-1);
-    #endif
+#if defined(TERMCOLOR_OS_WINDOWS)
+        void win_change_attributes(std::ostream& stream, int foreground, int background = -1);
+#endif
     }
 
     // Specials
@@ -110,18 +108,6 @@ namespace cc
     std::ostream& on_cyan(std::ostream& stream);
     std::ostream& on_grey(std::ostream& stream);
     std::ostream& on_clear(std::ostream& stream);
-
-    namespace _internal
-    {
-        FILE* get_standard_stream(const std::ostream& stream);
-        bool is_colorized(std::ostream& stream);
-        bool is_atty(const std::ostream& stream);
-
-    #if defined(TERMCOLOR_OS_WINDOWS)
-        void win_change_attributes(std::ostream& stream, int foreground, int background);
-    #endif 
-
-    }
 }
 
 #undef TERMCOLOR_OS_WINDOWS
