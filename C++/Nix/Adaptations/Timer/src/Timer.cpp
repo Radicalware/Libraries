@@ -2,7 +2,7 @@
 #include<chrono>
 using namespace std;
 
-#include "./Timer.h"
+#include "Timer.h"
 // Lib by learncpp.com
 
 Timer::Timer() : m_beg(clock_t::now())
