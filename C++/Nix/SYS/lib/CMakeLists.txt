@@ -5,25 +5,15 @@ cmake_minimum_required(VERSION 3.10)
 
 project (SYS)
 
-
-execute_process (COMMAND bash -c "rm -f /usr/share/cmake/Modules/Findac.cmake")
-execute_process (
-    COMMAND bash -c "cp ../FindSYS.cmake /usr/share/cmake/Modules/"
-    OUTPUT_VARIABLE outVar
-)
-
-if(EXISTS "/usr/share/cmake/Modules/FindSYS.cmake")
-    message(">> Finder Coppied!!")
-else()    
-    message("\n\n!!!! FindSYS.cmake Failed to Copy !!!!\n\n")
+if(EXISTS "${PROJECT_SOURCE_DIR}/FindSYS.cmake")
+    message(">> Finder Ready for Copy!!")
+else()
+    message("\n\n!!!! FindSYS.cmake NOT FOUND !!!!\n\n")
     return()
 endif()
 
-add_definitions(
-    -Wfatal-errors
-    -std=c++17
-    -O2
-)
+set(CMAKE_FIND_PATH "/usr/share/cmake/Modules")
+file(REMOVE ${CMAKE_FIND_PATH}/FindSYS.cmake)
 
 add_library(${PROJECT_NAME} SHARED src/SYS.cpp)
 add_library(gen::SYS ALIAS ${PROJECT_NAME})
@@ -46,6 +36,7 @@ install (
     DIRECTORY       ${PROJECT_SOURCE_DIR}/include 
     DESTINATION     code/SYS
 )
+
 install (   
     DIRECTORY       ${PROJECT_SOURCE_DIR}/include
     DESTINATION     .
