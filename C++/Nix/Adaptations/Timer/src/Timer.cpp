@@ -1,6 +1,5 @@
 #include<iostream>
 #include<chrono>
-using namespace std;
 
 #include "Timer.h"
 // Lib by learncpp.com
