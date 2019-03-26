@@ -1,28 +1,19 @@
-# MakeFile for re.h
+
+# CMakeFile for re.h
 
 cmake_minimum_required(VERSION 3.10)
 
 project (re)
 
-
-execute_process (COMMAND bash -c "rm -f /usr/share/cmake/Modules/Findre.cmake")
-execute_process (
-    COMMAND bash -c "cp ../Findre.cmake /usr/share/cmake/Modules/"
-    OUTPUT_VARIABLE outVar
-)
-
-if(EXISTS "/usr/share/cmake/Modules/Findre.cmake")
-    message(">> Finder Coppied!!")
-else()    
-    message("\n\n!!!! Findre.cmake Failed to Copy !!!!\n\n")
+if(EXISTS "${PROJECT_SOURCE_DIR}/Findre.cmake")
+    message(">> Finder Ready for Copy!!")
+else()
+    message("\n\n!!!! Findre.cmake NOT FOUND !!!!\n\n")
     return()
 endif()
 
-add_definitions(
-    -Wfatal-errors
-    -std=c++17
-    -O2
-)
+set(CMAKE_FIND_PATH "/usr/share/cmake/Modules")
+file(REMOVE ${CMAKE_FIND_PATH}/Findre.cmake)
 
 add_library(${PROJECT_NAME} SHARED src/re.cpp)
 add_library(gen::re ALIAS ${PROJECT_NAME})
@@ -45,6 +36,7 @@ install (
     DIRECTORY       ${PROJECT_SOURCE_DIR}/include 
     DESTINATION     code/re
 )
+
 install (   
     DIRECTORY       ${PROJECT_SOURCE_DIR}/include
     DESTINATION     .
