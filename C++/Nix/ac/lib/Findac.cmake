@@ -36,5 +36,3 @@ target_include_directories(${PROJECT_NAME}
     PUBLIC
         ${AC_DIR}/include
 )
-
-
