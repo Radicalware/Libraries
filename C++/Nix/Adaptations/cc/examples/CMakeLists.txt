@@ -21,5 +21,5 @@ add_executable(ex_cc
 # link the new hello_library target with the hello_binary target
 target_link_libraries( ex_cc
     PRIVATE 
-		gen::cc
+		rad::cc
 )

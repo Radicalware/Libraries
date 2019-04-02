@@ -16,7 +16,7 @@ set(CMAKE_FIND_PATH "/usr/share/cmake/Modules")
 file(REMOVE ${CMAKE_FIND_PATH}/Findcc.cmake)
 
 add_library(${PROJECT_NAME} SHARED src/cc.cpp)
-add_library(gen::cc ALIAS ${PROJECT_NAME})
+add_library(rad::cc ALIAS ${PROJECT_NAME})
 
 target_include_directories(${PROJECT_NAME}
     PUBLIC
