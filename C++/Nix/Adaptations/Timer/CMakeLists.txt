@@ -16,7 +16,7 @@ set(CMAKE_FIND_PATH "/usr/share/cmake/Modules")
 file(REMOVE ${CMAKE_FIND_PATH}/FindTimer.cmake)
 
 add_library(${PROJECT_NAME} SHARED src/Timer.cpp)
-add_library(gen::Timer ALIAS ${PROJECT_NAME})
+add_library(rad::Timer ALIAS ${PROJECT_NAME})
 
 target_include_directories(${PROJECT_NAME}
     PUBLIC
