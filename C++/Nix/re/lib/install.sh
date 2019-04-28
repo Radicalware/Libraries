@@ -8,3 +8,5 @@ cd build
 sudo cmake .. -DCMAKE_INSTALL_PREFIX=/opt/Radicalware/Libraries/cpp
 sudo make install
 echo "Done!"
+
+chown `whoami`:`whoami` /opt/Radicalware -R

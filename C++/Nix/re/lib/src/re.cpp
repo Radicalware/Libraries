@@ -23,7 +23,7 @@
 #include<regex>
 #include<algorithm>
 
-#include "re.h"
+#include "../include/re.h"
 
 // ======================================================================================
 
@@ -172,7 +172,7 @@ std::vector<std::string> re::iterator(const std::string& content, std::vector<st
         start_iter = 2;
     }
     std::sregex_iterator iter_index = std::sregex_iterator(content.begin(), content.end(), pattern);
-    for (iter_index; iter_index != std::sregex_iterator(); ++iter_index) {
+    for (; iter_index != std::sregex_iterator(); ++iter_index) {
         match_array = *iter_index;
         for (int index = start_iter; index < match_array.size(); ++index) {
             if (!match_array[index].str().empty()) {
@@ -184,7 +184,7 @@ std::vector<std::string> re::iterator(const std::string& content, std::vector<st
 }
 
 // --------------------------------------------------------------------------------------
-std::vector<std::string> re::findall(const std::string& in_pattern, const std::string& content, const bool group /*=false*/)
+std::vector<std::string> re::findall(const std::string& in_pattern, const std::string& content, const bool group /*false*/)
 {
     std::vector<std::string> ret_vector;
     std::vector<std::string> split_string;
