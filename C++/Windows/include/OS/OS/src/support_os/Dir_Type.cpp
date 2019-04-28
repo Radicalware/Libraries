@@ -3,9 +3,14 @@
 #include<iostream>
 #include "re.h"
 
-#ifdef NIX_BASE
+#if defined(WIN_BASE)
+#include<Windows.h>
+#include<direct.h>  
+#elif defined(NIX_BASE)
 #include<dirent.h>
 #include<sys/stat.h>
+#include<unistd.h>
+#include<pwd.h>
 #endif
 
 
@@ -22,11 +27,11 @@ Dir_Type::dir_type Dir_Type::has(const std::string& input) {
     char dt = 'n';
 
     stat(file.c_str(), &path_st);
-    if(S_ISREG(path_st.st_mode) && !(S_ISDIR(path_st.st_mode) && (path_st.st_mode & S_IFDIR != 0))) {
+    if(S_ISREG(path_st.st_mode) ) {
         dt = 'f' ;
     }
 
-    if(S_ISDIR(path_st.st_mode) && (path_st.st_mode & S_IFDIR != 0) && !S_ISREG(path_st.st_mode)){
+    if(S_ISDIR(path_st.st_mode)){
         dt = 'd';
     }
 
@@ -48,10 +53,9 @@ Dir_Type::dir_type Dir_Type::has(const std::string& input) {
         } else {
             return os_none;
         }
-    } else {
-        return os_none;
     }
 #endif
+    return os_none;
 }
 
 bool Dir_Type::file(const std::string& file) {
@@ -63,7 +67,7 @@ bool Dir_Type::directory(const std::string& folder) {
 }
 
 
-std::string Dir_Type::dir_item_type(const std::string& input) {
+std::string Dir_Type::dir_item_str(const std::string& input) {
 
     dir_type dt = os_none;
     dt = this->has(input);
@@ -74,4 +78,52 @@ std::string Dir_Type::dir_item_type(const std::string& input) {
         case os_none:      return "none";
         default:           return "none";
     }
+}
+
+
+std::string Dir_Type::bpwd() {
+#if defined(NIX_BASE)
+    char result[FILENAME_MAX];
+    ssize_t count = readlink("/proc/self/exe", result, FILENAME_MAX);
+    return re::sub("/[^/]*$", "", std::string(result, (count > 0) ? count : 0));
+
+#elif defined(WIN_BASE)
+    char buf[256];
+    GetCurrentDirectoryA(256, buf);
+    return std::string(buf);
+#endif
+}
+
+std::string Dir_Type::pwd() {
+#if defined(NIX_BASE)
+    char c_pwd[256];
+    if (NULL == getcwd(c_pwd, sizeof(c_pwd))) {
+        perror("can't get current dir\n");
+        throw;
+    }
+    return std::string(c_pwd);
+
+#elif defined(WIN_BASE)
+    char* buffer; 
+    std::string pwd;
+    if ((buffer = _getcwd(NULL, 0)) == NULL) {
+        perror("can't get current dir\n"); throw;
+    } else{
+        pwd = buffer;
+        free(buffer);
+    }
+    return pwd;
+#endif
+}
+
+
+std::string Dir_Type::home() {
+#if defined(NIX_BASE)
+    struct passwd *pw = getpwuid(getuid());
+    const char *char_home_dir = pw->pw_dir;
+    return std::string(char_home_dir);
+
+#elif defined(WIN_BASE)
+    return std::string(getenv("USERPROFILE"));
+#endif
 }

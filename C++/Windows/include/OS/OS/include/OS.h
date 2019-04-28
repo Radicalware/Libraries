@@ -110,10 +110,6 @@ public:
     // ---------------------------------------------------------------------------------------------
     // Dir Parsing
 
-    std::string bpwd(); // binary pwd
-    std::string pwd();  // user pwd
-    std::string home(); // home dir
-
     std::vector<std::string> dir(const std::string folder_start, \
         const char mod1 = 'n', const char mod2 = 'n', const char mod3 = 'n');
     // dir(folder_to_start_search_from, mod can match for any of the following 3);
