@@ -25,7 +25,6 @@
 // -------------------------------------------------------------------------------
 
 
-
 // re.h is from github.com/Radicalware
 // This is the only non-std lib required for os.h
 
@@ -58,7 +57,7 @@
 
 
 
-#include "re.h"
+#include "/opt/Radicalware/Libraries/cpp/code/re/include/re.h"
 
 #include "../include/OS.h"
 #include "../include/support_os/Dir_Type.h"
@@ -192,7 +191,6 @@ std::string OS::read_file() {
         }
         os_file.close();
     }
-
     return m_file_data;
 }
 
@@ -347,66 +345,18 @@ std::vector<std::string> OS::dir(const std::string folder_start, const char mod1
     }
     std::vector<std::string> track_vec;
     dir_continued(fls.target(), track_vec, directories, files, recursive);
-#if defined(NIX_BASE)
-    for (size_t i = 0; i < track_vec.size(); i++) {
-        track_vec[i] = re::sub("/+", "/", track_vec[i]);
-    }
+// #if defined(NIX_BASE)
+//     for (size_t i = 0; i < track_vec.size(); i++) {
+//         track_vec[i] = re::sub("/+", "/", track_vec[i]);
+//     }
 
-#elif defined(WIN_BASE)
-    for (size_t i = 0; i < track_vec.size(); i++) {
-        track_vec[i] = re::sub("([\\\\]+|\\\\)", "\\", track_vec[i]);
-    }
-#endif
+// #elif defined(WIN_BASE)
+//     for (size_t i = 0; i < track_vec.size(); i++) {
+//         track_vec[i] = re::sub("([\\\\]+|\\\\)", "\\", track_vec[i]);
+//     }
+// #endif
 
     return track_vec;
-}
-
-std::string OS::bpwd() {
-#if defined(NIX_BASE)
-    char result[FILENAME_MAX];
-    ssize_t count = readlink("/proc/self/exe", result, FILENAME_MAX);
-    return re::sub("/[^/]*$", "", std::string(result, (count > 0) ? count : 0));
-
-#elif defined(WIN_BASE)
-    char buf[256];
-    GetCurrentDirectoryA(256, buf);
-    return std::string(buf);
-#endif
-}
-
-std::string OS::pwd() {
-#if defined(NIX_BASE)
-    char c_pwd[256];
-    if (NULL == getcwd(c_pwd, sizeof(c_pwd))) {
-        perror("can't get current dir\n");
-        throw;
-    }
-    return std::string(c_pwd);
-
-#elif defined(WIN_BASE)
-    char* buffer; 
-    std::string pwd;
-    if ((buffer = _getcwd(NULL, 0)) == NULL) {
-        perror("can't get current dir\n"); throw;
-    } else{
-        pwd = buffer;
-        free(buffer);
-    }
-    return pwd;
-#endif
-}
-
-
-std::string OS::home() {
-#if defined(NIX_BASE)
-    struct passwd *pw = getpwuid(getuid());
-    const char *char_home_dir = pw->pw_dir;
-    return std::string(char_home_dir);
-
-#elif defined(WIN_BASE)
-    //return std::string(getenv("HOMEDRIVE")) + std::string(getenv("HOMEPATH"));
-    return std::string(getenv("USERPROFILE"));
-#endif
 }
 
 
@@ -459,10 +409,9 @@ OS OS::popen(const std::string& command, char leave) {
         switch (leave) {
             case 't': throw std::runtime_error (m_std_err);
             case 'x': exit(1);
-            case 'h': true; // hide output below
-            case 'm': std::cout << m_err_message << std::endl;
-            case 'e': std::cout << m_std_err << std::endl;
-            default:  std::cout << m_err_message << std::endl;
+            case 'm': std::cout << m_err_message << std::endl; break;
+            case 'e': std::cout << m_std_err << std::endl; break;
+            default:  std::cout << m_err_message << std::endl; break;
         }
     } else {
         m_std_err.clear();
@@ -535,28 +484,25 @@ OS OS::delete_file(const std::string& item) {
 
 
 OS OS::mkdir(const std::string& folder) {
-    File_Names fls = this->id_files(folder);
-    // next: capture the path traversal
-    std::string folder_path = re::sub(R"([\w\d_\s].*$)", "", fls.target());
-    std::vector<std::string> folder_names = re::split(R"([\\/](?=[^\s]))", \
-        fls.target().substr(folder_path.size(), fls.target().size() - folder_path.size()));
     
-    int status = -1;
+    File_Names fls = this->id_files(folder);
+    fls.imaginary_path();
+    
+    std::string additional_dirs = fls.target().substr(this->pwd().size(), fls.target().size() - this->pwd().size());
+
+    std::vector<std::string> folder_names = re::split(R"([\\/](?=[^\s]))", additional_dirs);
+
+    std::string folder_path = this->pwd();
     for (std::vector<std::string>::iterator iter = folder_names.begin(); iter < folder_names.end(); ++iter) {
 
 #if defined(NIX_BASE)
-        printf("\r"); // yes, this is required
-        status = 1;
         folder_path += *iter + '/';
-        while ((status == 0) || (!this->directory(folder_path))){
-            status = ::mkdir(folder_path.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-        }
+        ::mkdir(folder_path.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 
 #elif defined(WIN_BASE)
-        status = 1;
         folder_path += *iter + '\\';
-        while ((status == -1) || (!this->directory(folder_path)))
-            status = CreateDirectoryA(folder_path.c_str(), NULL);
+        while (!this->directory(folder_path))
+            CreateDirectoryA(folder_path.c_str(), NULL);
 #endif
     }
     return *this;
@@ -574,16 +520,17 @@ OS OS::copy_dir(const std::string& old_location, const std::string& new_location
     if (this->file(fls.target()))
         throw std::runtime_error("\nA file exists there\n" + fls.target() + '\n');
 
-
     std::vector<std::string> old_folders = this->dir(fls.old(), 'r', 'd');
     std::vector<std::string> old_files = this->dir(fls.old(), 'r', 'f');
 
-    this->mkdir(fls.target());
+    std::string nested_dir_item;
     for(std::vector<std::string>::const_iterator it = old_folders.begin(); it < old_folders.end(); it++){
-        this->mkdir(fls.target() + re::sub('^' + fls.old(), "", *it));
+        nested_dir_item = (*it).substr(fls.old().size(), (*it).size() - fls.old().size());
+        this->mkdir(fls.target() + nested_dir_item);
     }
     for(std::vector<std::string>::const_iterator it = old_files.begin(); it < old_files.end(); it++){
-        this->copy_file(*it, fls.target() + re::sub('^' + fls.old(), "", *it));
+        nested_dir_item = (*it).substr(fls.old().size(), (*it).size() - fls.old().size());
+        this->copy_file(*it, fls.target() + nested_dir_item);
     }
 
     return *this;
@@ -600,8 +547,8 @@ OS OS::move_dir(const std::string& old_location, const std::string& new_location
 OS OS::delete_dir(const std::string& folder) {
     File_Names fls(m_rexit, folder);
 
-    std::vector<std::string> dir_items = dir(fls.target(), 'r','f','d');
-    dir_items.push_back(folder);
+    std::vector<std::string> dir_items = dir(fls.traverse_target(), 'r','f','d');
+    dir_items.push_back(fls.target());
     std::vector<int> file_sizes;
 
     for(size_t i = 0; i < dir_items.size(); i++){
@@ -612,6 +559,7 @@ OS OS::delete_dir(const std::string& folder) {
 
     std::vector<int>::iterator sz;
     std::vector<std::string>::iterator dir_item;
+
     auto delete_dir_item = [&dir_item, this]() -> void {
         #if defined(NIX_BASE)
             if(this->directory(*dir_item)){
@@ -631,11 +579,13 @@ OS OS::delete_dir(const std::string& folder) {
     for(sz = file_sizes.begin(); sz < file_sizes.end(); sz++){
 
         for(dir_item = dir_items.begin(); dir_item < dir_items.end(); dir_item++ ){
+
             if(*sz == re::count("([\\\\/][^\\\\/\\s])", *dir_item)){
                 delete_dir_item();
             }
         }
     }
+    
     return *this;
 }
 

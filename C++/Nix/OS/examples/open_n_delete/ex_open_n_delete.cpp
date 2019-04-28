@@ -33,7 +33,6 @@ int main() {
 	os.open("./test_folder1/test_folder2/test_folder3/file1", 'w').write("test data");
 	os.open("./test_folder1/test_folder2/test_folder3/file2", 'w').write("test data");
 	os.open("./test_folder1/test_folder2/test_folder3/file3", 'w').write("test data");
-
 	os.open("./test_folder1/test_folder2a//file1", 'w').write("test data");
 	os.open("./test_folder1/test_folder2a//file2", 'w').write("test data");
 	os.open("./test_folder1/test_folder2a//file3", 'w').write("test data");
@@ -57,7 +56,7 @@ int main() {
 		cout << "item = " << i << endl;
 
 	os.delete_dir("./test_folder2");
-
+	
 	cout << "\n------------------ Removed Dirs 1 ---------------------\n";
 	vector<string> items = os.dir("./test_folder1", 'r','d','f');
 	for (auto&i : items)

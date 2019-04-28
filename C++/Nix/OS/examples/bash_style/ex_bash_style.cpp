@@ -16,7 +16,7 @@ int main() {
 	os.open("./test_file.txt", 'w').touch(); // 'a' would append; 'w' overWrites
 
 	if (os.file("./test_file.txt") && os.has("./test_file.txt")) {
-		cout << "test_data.txt was created\n" << endl;
+		cout << "test_data.txt was created\n";
 	} else {
 		cout << "error: test_data.txt should have been created" << endl; exit(1);
 	}

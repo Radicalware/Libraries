@@ -31,6 +31,11 @@ public:
     dir_type has(const std::string& item);
     bool file(const std::string& file);
     bool directory(const std::string& folder);
-    std::string dir_item_type(const std::string& item);
+    std::string dir_item_str(const std::string& item);
+
+    
+    std::string bpwd(); // binary pwd
+    std::string pwd();  // user pwd
+    std::string home(); // home dir
 };
 
