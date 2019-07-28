@@ -2,7 +2,7 @@
 #pragma warning (disable : 26444) // allow anynomous objects
 
 /*
-* Copyright[2018][Joel Leagues aka Scourge]
+* Copyright[2019][Joel Leagues aka Scourge]
 * Scourge /at\ protonmail /dot\ com
 * www.Radicalware.com
 * https://www.youtube.com/channel/UCivwmYcont_oOdDT3GmDnD0CfQA/playlists
