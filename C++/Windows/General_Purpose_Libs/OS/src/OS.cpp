@@ -538,15 +538,15 @@ OS OS::delete_dir(const xstring& folder) {
 
     xvector<xstring> dir_items = dir(fls.traverse_target(), 'r','f','d');
     dir_items.push_back(fls.target());
-    xvector<int> file_sizes;
+    xvector<unsigned int> file_sizes;
 
     for(size_t i = 0; i < dir_items.size(); i++){
-        file_sizes.push_back(dir_items[i].count("([\\\\/][^\\\\/\\s])"));
+        file_sizes.push_back(static_cast<unsigned int>(dir_items[i].count("([\\\\/][^\\\\/\\s])")));
     }
     if(file_sizes.size())
         std::sort(file_sizes.rbegin(), file_sizes.rend());
 
-    xvector<int>::iterator sz;
+    xvector<unsigned int>::iterator sz;
     xvector<xstring>::iterator dir_item;
 
     auto delete_dir_item = [&dir_item, this]() -> void {
@@ -569,7 +569,7 @@ OS OS::delete_dir(const xstring& folder) {
 
         for(dir_item = dir_items.begin(); dir_item < dir_items.end(); dir_item++ ){
 
-            if(*sz == dir_item->count("([\\\\/][^\\\\/\\s])")){
+            if(*sz == static_cast<unsigned int>(dir_item->count("([\\\\/][^\\\\/\\s])"))){
                 delete_dir_item();
             }
         }

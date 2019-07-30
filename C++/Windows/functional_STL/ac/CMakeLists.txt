@@ -1,7 +1,7 @@
 
 cmake_minimum_required(VERSION 3.10)
 
-set(THIS OS)
+set(THIS ac)
 project (${THIS})
 
 if(EXISTS "${PROJECT_SOURCE_DIR}/Find${PROJECT_NAME}.cmake")
@@ -20,38 +20,33 @@ message("LIB_BIN_PATH:      ${LIB_BIN_PATH}")
 message("FIND_PATH:         ${FIND_PATH}")
 message("-----------------------------------------------------------------------------------------------------------")
 
+
+file(REMOVE ${FIND_PATH}/Find${THIS}.cmake)
+
 if("${BUILD_TYPE}" STREQUAL "Release")
 	message("Buidling with -O2 ${BUILD_TYPE}")
 	add_definitions( -O2 )
 endif()
 
-file(REMOVE ${FIND_PATH}/Find${THIS}.cmake)
-
 SET(CMAKE_CONFIGURATION_TYPES ${BUILD_TYPE} CACHE STRING "" FORCE)
 
 add_library(${THIS} 
-    SHARED
-        src/dir_support/Dir_Type.cpp 
-        src/dir_support/File_Names.cpp
-        src/${THIS}.cpp
+	STATIC
+		include/${THIS}.h
+		src/${THIS}.cpp
 )
 
 add_library(radical::${THIS} ALIAS ${THIS})
 
 target_include_directories(${THIS}
-    PUBLIC 
-		${INCLUDE_PATH}
+    PRIVATE
+        ${INCLUDE_PATH}
         ${PROJECT_SOURCE_DIR}/include
-        ${PROJECT_SOURCE_DIR}/include/dir_support
 )
 
 # Required Libs -------------------------------------------------------------
 
-target_link_libraries(${THIS} ${LIB_BIN_PATH}/xvector.lib)
-target_link_libraries(${THIS} ${LIB_BIN_PATH}/xstring.lib)
-
 # ---------------------------------------------------------------------------
-
 
 # Binary File
 install (  

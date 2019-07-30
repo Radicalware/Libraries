@@ -1,9 +1,8 @@
 
 cmake_minimum_required(VERSION 3.10)
 
-
-project (xstring)
-SET(THIS ${PROJECT_NAME})
+set(THIS xstring)
+project (${THIS})
 
 
 if(EXISTS "${PROJECT_SOURCE_DIR}/Find${PROJECT_NAME}.cmake")

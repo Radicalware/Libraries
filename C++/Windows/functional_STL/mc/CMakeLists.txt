@@ -1,7 +1,7 @@
 
 cmake_minimum_required(VERSION 3.10)
 
-set(THIS OS)
+set(THIS mc)
 project (${THIS})
 
 if(EXISTS "${PROJECT_SOURCE_DIR}/Find${PROJECT_NAME}.cmake")
@@ -29,29 +29,18 @@ file(REMOVE ${FIND_PATH}/Find${THIS}.cmake)
 
 SET(CMAKE_CONFIGURATION_TYPES ${BUILD_TYPE} CACHE STRING "" FORCE)
 
-add_library(${THIS} 
-    SHARED
-        src/dir_support/Dir_Type.cpp 
-        src/dir_support/File_Names.cpp
-        src/${THIS}.cpp
-)
-
+add_library(${THIS} STATIC src/${THIS}.cpp)
 add_library(radical::${THIS} ALIAS ${THIS})
 
 target_include_directories(${THIS}
-    PUBLIC 
-		${INCLUDE_PATH}
+    PRIVATE
         ${PROJECT_SOURCE_DIR}/include
-        ${PROJECT_SOURCE_DIR}/include/dir_support
+        ${INCLUDE_PATH}
 )
 
 # Required Libs -------------------------------------------------------------
 
-target_link_libraries(${THIS} ${LIB_BIN_PATH}/xvector.lib)
-target_link_libraries(${THIS} ${LIB_BIN_PATH}/xstring.lib)
-
 # ---------------------------------------------------------------------------
-
 
 # Binary File
 install (  

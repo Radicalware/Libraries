@@ -40,7 +40,7 @@ int main(int argc, char** argv) {
 	xstring three = "three";
 
 	xvector<xstring*> vec_str_ptrs = vec_str.ptrs();
-	cout << "\nprint ptrs: " << vec_str.join(' ') << '\n';
+	cout << "\nprint ptrs: " << vec_str_ptrs.join(' ') << '\n';
 
 	xvector<xstring> vec_str_vals = vec_str_ptrs.vals();
 	cout << "print vals: " << vec_str_vals.join(' ') << "\n\n";

@@ -6,7 +6,7 @@
 // https://raw.githubusercontent.com/ikalnytskyi/termcolor/master/include/termcolor/termcolor.hpp
 
 /*
-* Copyright[2019][Ihor Kalnytskyi & modded by Scourge]
+* Copyright[2018][Ihor Kalnytskyi & modded by Scourge]
 * Scourge /at\ protonmail /dot\ com
 * www.Radicalware.com
 * https://www.youtube.com/channel/UCivwmYxoOdDT3GmDnD0CfQA/playlists

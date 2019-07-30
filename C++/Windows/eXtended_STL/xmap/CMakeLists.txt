@@ -1,8 +1,8 @@
 
 cmake_minimum_required(VERSION 3.10)
 
-project (xmap)
-SET(THIS ${PROJECT_NAME})
+set(THIS xmap)
+project (${THIS})
 
 if(EXISTS "${PROJECT_SOURCE_DIR}/Find${PROJECT_NAME}.cmake")
     message(">> Finder Ready for Copy!!")

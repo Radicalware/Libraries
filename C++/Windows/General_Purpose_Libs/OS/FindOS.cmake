@@ -14,8 +14,13 @@ set(OS_DIR ${INSTALL_PREFIX}/code/${LIB})
 
 add_library(${LIB} 
     SHARED  
+        ${OS_DIR}/include/${LIB}.h
         ${OS_DIR}/src/${LIB}.cpp
+
+        ${OS_DIR}/include/dir_support/Dir_Type.h
         ${OS_DIR}/src/dir_support/Dir_Type.cpp
+
+        ${OS_DIR}/include/dir_support/File_Names.h
         ${OS_DIR}/src/dir_support/File_Names.cpp
 )
 

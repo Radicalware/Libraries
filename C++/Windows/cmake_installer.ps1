@@ -32,6 +32,7 @@ Class Build
     [string] $find_path;
     [string] $install_prefix;
     [string] $vcvars;
+    [string] $build_dir;
 
     Build([string[]] $cmake_init, [string] $vcvars){
 
@@ -40,22 +41,22 @@ Class Build
         $this.find_path         = $cmake_init[2];
         $this.install_prefix    = $cmake_init[3];
         $this.vcvars            = $vcvars;
+		$this.build_dir         = ".\Build\$($this.build_type)"
     }
 
     [void] Configure_Build_Folder(){
-        if(Test-Path $this.build_type){
+        if(Test-Path $this.build_dir){
             Write-Host -ForegroundColor Green "[+] Deleting Up Old Project Folder:"$this.build_type;
-            Remove-Item $this.build_type -Recurse -Force -Confirm:$false ;
+            Remove-Item $this.build_dir -Recurse -Force -Confirm:$false ;
         }
         Write-Host -ForegroundColor Green "[+] Creating "$($this.build_type)" Folder";
-        mkdir .\"$($this.build_type)" | Out-Null;
+        mkdir $this.build_dir | Out-Null;
     }
 
     [void] Execute_CMake_Build_Config(){
-        Set-Location $this.build_type
-        Write-Host -ForegroundColor Green "[+] Running CMake to a" $this.build_type "Type"
+        Set-Location $this.build_dir
+        Write-Host -ForegroundColor Green "[+] Running CMake to configure a" $this.build_type "Build"
         $(cmake.exe --config $this.build_type `
-            -DTHIS="$($this.name)" `
             -DBUILD_TYPE="$($this.build_type)" `
             -DFIND_PATH="$($this.find_path)" `
             -DCMAKE_INSTALL_PREFIX="$($this.install_prefix)" `
@@ -63,7 +64,7 @@ Class Build
             -DINCLUDE_PATH="$($this.install_prefix)/include" `
             -DLIB_BIN_PATH="$($this.install_prefix)/bin/$($this.build_type)" `
             -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE -DBUILD_SHARED_LIBS=TRUE `
-            ..)| Write-Host
+            ..\..\)| Write-Host
             # -DOPERATIONAL_DIR="$($(Get-Location).Path)" `
             # -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE -DBUILD_SHARED_LIBS=TRUE `
             
@@ -84,8 +85,8 @@ Class Build
             Write-Host -ForegroundColor Green "[+] CL.exe Is Already Configured for x86_64 Compiling"
         }
 
-        Write-Host -ForegroundColor Green "[+] CL.exe is Building Project"
-        devenv $($this.name + '.sln') /build "$($this.build_type)" | Write-Host
+        Write-Host -ForegroundColor Green "[+] CL.exe is the Building Project"
+        devenv $($this.name + '.sln') /build $this.build_type | Write-Host
     }
 
     [void] Install_Build_Files(){
@@ -95,7 +96,7 @@ Class Build
 
     [void] Return_Home(){
         Write-Host -ForegroundColor Green "[+] Returing Back to Home Folder"
-        Set-Location ..\        
+        Set-Location ..\..\      
     }
 };
 

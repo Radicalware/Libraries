@@ -1,7 +1,7 @@
 
 cmake_minimum_required(VERSION 3.10)
 
-set(THIS ex_xstring)
+SET(THIS ex_ac)
 project (${THIS})
 
 message("-----------------------------------------------------------------------------------------------------------")
@@ -22,23 +22,15 @@ SET(CMAKE_CONFIGURATION_TYPES ${BUILD_TYPE} CACHE STRING "" FORCE)
 
 set(CMAKE_MODULE_PATH C:/${FIND_PATH})
 
-find_package(xvector)
-find_package(xstring)
-find_package(xmap)
-
+find_package(re)
+find_package(ac)
 
 add_executable(${THIS}
     src/${THIS}.cpp
-
-    include/Full.h
-    src/Full.cpp
-    include/Option.h
-    src/Option.cpp
 )
 
 target_link_libraries( ${THIS}
-    PRIVATE 
-        radical::xvector
-        radical::xstring
-        radical::xmap
+    PRIVATE
+        radical::ac
+        radical::re
 )

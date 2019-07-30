@@ -1,8 +1,8 @@
 
 cmake_minimum_required(VERSION 3.10)
 
+set(THIS ex_xvector)
 project (${THIS})
-
 
 message("-----------------------------------------------------------------------------------------------------------")
 message("THIS:              ${THIS}")
