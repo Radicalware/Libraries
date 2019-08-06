@@ -7,11 +7,11 @@ to have it fill the box or perserve the full image size
 
 
 
-QtImage* _image = new QtImageT<QLabel>(ui.banner, "folder/banner.png"); 
+QtImage* _image << new QtImageT<QLabel>(ui.banner, "folder/banner.png"); 
 	1. creates an image that will downscale to fill a QLabel
 	2. blank borders may be shown on the sides that are proportunatly not as long as the other sides of the box
 or
-QtImage* _image = new QtImageT<QPushButton>(ui.banner, "hover_off.png", "hover_on.png", Trim::full_box); 
+QtImage* _image << new QtImageT<QPushButton>(ui.banner, "hover_off.png", "hover_on.png", Trim::full_box); 
 	1. creats an image that will downscale to fill a QPushButton
 	2. the image may be croped depending on the sides that are not as long as the box.
 	3. The image will change with on/off overing.
