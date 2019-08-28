@@ -13,18 +13,20 @@ will use PowerShell on Unix.
 
 Version <Lib Count>.<New Addition Push Count>.<Hotfix>
 
-Version = 9.X.X
+Version = 10.X.X
 
 eXtended_STL
-	1. xvector  - eXtended std::vector
-	2. xstring  - eXtended std::string
-	3. xmap     - eXtended std::map
+	1. xvector   - eXtended std::vector
+	2. xstring   - eXtended std::string
+	3. xmap      - eXtended std::map
 funcitonal_STL
-	4. ac - array controller
-	5. re - regex (string controller)
-	6. mc - map controller
+	4. ac        - array controller
+	5. re        - regex (string controller)
+	6. mc        - map controller
 General_Purpose_Libs
-	7. SYS - Key/Value Pair Argument Parsing
-	8. OS  - Operating System handling
+	7. SYS       - Key/Value Pair Argument Parsing
+	8. OS        - Operating System handling
 Mods
-	9. cc  - modded termcolor by Ihor Kalnytskyi
+	9. cc        - A modified version of termcolor by Ihor Kalnytskyi
+Modules	
+	10. QtImage  - A module that handles images on Qt Objects

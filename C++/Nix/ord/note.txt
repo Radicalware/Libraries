@@ -1,6 +1,0 @@
-
-NOTE: This lib is legacy and should not be used!!
-Use the following libs
-re for regex
-ac for array control
-mc for map control

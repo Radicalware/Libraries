@@ -1,6 +1,0 @@
-
-The "Adaptation" folder in the C++ Libraries are
-codes that I have modified for the use with my own code
-
-The libs found in this folder are Not made soley by me.
- 
