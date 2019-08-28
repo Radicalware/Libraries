@@ -1,17 +1,28 @@
-cmake_minimum_required(VERSION 3.10)
+﻿cmake_minimum_required(VERSION 3.10)
 
-# Set the project name
 set(LIB xstring)
 
-# -Wfatal-errors # only Clang
-# -std=c++17 # only clang
+# -------------------------- ARGUMENTS ----------------------------------------
+set(DBG_ARG "")
 if("${BUILD_TYPE}" STREQUAL "Release")
-	message("Buidling with -O2 ${BUILD_TYPE}")
-	add_definitions( -O2 )
+	add_definitions( "-O2" )
+else()
+	if(UNIX)
+		set(DBG_ARG "-g2")
+		set(CMAKE_C_FLAGS ${DBG_ARG})
+		set(CMAKE_BUILD_TYPE Debug)
+	endif()
 endif()
 
+if(UNIX)
+	set(LINUX_ARGS "-std=c++17 -finput-charset=UTF-8 -Wfatal-errors -fPIC ${DBG_ARG}")
+	set(CMAKE_CXX_FLAGS " ${CMAKE_CXX_FLAGS_INIT}  ${LINUX_ARGS}")
+endif()
+# -------------------------- ARGUMENTS ----------------------------------------
+# -------------------------- CONFIGURATION ------------------------------------
 set(XSTRING_DIR ${INSTALL_PREFIX}/code/${LIB})
-
+# -------------------------- CONFIGURATION ------------------------------------
+# -------------------------- BUILD --------------------------------------------
 add_library(${LIB} 
 	STATIC 
 		${XSTRING_DIR}/include/${LIB}.h
@@ -26,3 +37,5 @@ include_directories(${LIB}
 )
 
 target_link_libraries(${LIB} radical::xvector)
+# -------------------------- BUILD --------------------------------------------
+# -------------------------- END ----------------------------------------------

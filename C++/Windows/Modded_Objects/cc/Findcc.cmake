@@ -1,26 +1,38 @@
-cmake_minimum_required(VERSION 3.10)
+﻿cmake_minimum_required(VERSION 3.10)
 
-# Set the project name
 set(LIB cc)
 
-# -Wfatal-errors # only Clang
-# -std=c++17 # only clang
+# -------------------------- ARGUMENTS ----------------------------------------
+set(DBG_ARG "")
 if("${BUILD_TYPE}" STREQUAL "Release")
-	message("Buidling with -O2 ${BUILD_TYPE}")
-	add_definitions( -O2 )
+	add_definitions( "-O2" )
+else()
+	if(UNIX)
+		set(DBG_ARG "-g2")
+		set(CMAKE_C_FLAGS ${DBG_ARG})
+		set(CMAKE_BUILD_TYPE Debug)
+	endif()
 endif()
 
-set(Timer_DIR ${INSTALL_PREFIX}/code/${LIB})
-
+if(UNIX)
+	set(LINUX_ARGS "-std=c++17 -finput-charset=UTF-8 -Wfatal-errors -fPIC ${DBG_ARG}")
+	set(CMAKE_CXX_FLAGS " ${CMAKE_CXX_FLAGS_INIT}  ${LINUX_ARGS}")
+endif()
+# -------------------------- ARGUMENTS ----------------------------------------
+# -------------------------- CONFIGURATION ------------------------------------
+set(CC_DIR ${INSTALL_PREFIX}/code/${LIB})
+# -------------------------- CONFIGURATION ------------------------------------
+# -------------------------- BUILD --------------------------------------------
 add_library(${LIB} 
-    SHARED
-        ${Timer_DIR}/include/${LIB}.h
-        ${Timer_DIR}/src/${LIB}.cpp
+    SHARED 
+        ${CC_DIR}/src/${LIB}.cpp
+        ${CC_DIR}/include/${LIB}.h
 )
-
 add_library(radical::${LIB} ALIAS ${LIB})
 
 target_include_directories(${LIB}
     PUBLIC
-        ${Timer_DIR}/include
+        ${CC_DIR}/include
 )
+# -------------------------- BUILD --------------------------------------------
+# -------------------------- END ----------------------------------------------

@@ -1,23 +1,26 @@
+#!/usr/bin/env pwsh
 
 param (
-    [switch]$modify, # build_type (false = clean it / true = keep it)
-    [switch]$debug   # false = Release
+    [switch] $Debug,
+    [switch] $Clean, 
+    [switch] $Overwrite
 )
 
+# -----------------------------------
+$proj_name  = "xstring";
+$executable = $false;
+$shared_lib = $false;
+# -----------------------------------
+
+$module_path = ""
+if($($global:PSVersionTable.Platform -eq "Unix")){
+	$module_path = "~/.local/share/powershell/Modules"
+}else{
+	$module_path = "$HOME\Documents\WindowsPowerShell\Modules"
+}
+Import-Module "$module_path\Arg_Struct.ps1" -Force
+Import-Module "$module_path\Run_CMake.ps1" -Force
 Set-Location $(Split-Path -parent $PSCommandPath)
 
-$build_type = "Release"
-if($debug){
-    $build_type = "Debug"
-}
-$clean_build = ![switch]$modify;
-
-Write-Host Options
-Write-Host ==================================
-Write-Host "Debug Mode Build Type = " $debug
-Write-Host
-Write-Host "Clear All Files       = " $modify
-Write-Host ==================================
-
-
-..\..\cmake_installer.ps1 -project xstring -clean_build $clean_build -build_type $build_type
+$ArgStruct = [Arg_Struct]::new($proj_name, [bool[]]($executable, $Debug, $Clean, $Overwrite, $shared_lib))
+$([Run_CMake]::new($ArgStruct).Print_Config().Link_n_Compile()) | Out-Null
