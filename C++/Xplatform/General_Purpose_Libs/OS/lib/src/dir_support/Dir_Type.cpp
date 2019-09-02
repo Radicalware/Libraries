@@ -1,4 +1,4 @@
-﻿#include "dir_support/Dir_Type.h"
+#include "dir_support/Dir_Type.h"
 
 
 #include<iostream>

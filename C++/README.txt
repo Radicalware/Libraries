@@ -30,3 +30,4 @@ Mods
 	9. cc        - A modified version of termcolor by Ihor Kalnytskyi
 Modules	
 	10. QtImage  - A module that handles images on Qt Objects
+

@@ -16,9 +16,9 @@ int main(){
 	cout << cc::magenta << "Test magenta\n";
 	cout << cc::cyan << "Test cyan\n";
 	cout << cc::grey << "Test grey\n";
-	cout << cc::white << "Test white\n";
+	cout << cc::white << "Test white";
 
-	cout << cc::reset << "\nTest reset";
+	cout << cc::black << "Test black";
 	cout << cc::on_black << "\nTest on_black";
 	cout << cc::on_red << "\nTest on_red";
 	cout << cc::on_green << "\nTest on_green";
@@ -26,6 +26,7 @@ int main(){
 	cout << cc::on_blue << "\nTest on_blue";
 	cout << cc::on_magenta << "\nTest on_magenta";
 	cout << cc::on_cyan << "\nTest on_cyan";
+
 	cout << cc::on_grey << "\nTest on_grey";
 	cout << cc::on_clear << "\nTest on_clear\n";
 

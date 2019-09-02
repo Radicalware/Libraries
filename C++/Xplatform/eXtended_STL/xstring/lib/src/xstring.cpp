@@ -1,4 +1,4 @@
-﻿#pragma warning (disable : 26444) // allow anynomous objects
+#pragma warning (disable : 26444) // allow anynomous objects
 
 #include "xstring.h"
 
@@ -78,12 +78,17 @@ bool xstring::operator==(const char* str) const
 
 void xstring::print() const
 {
-	std::cout << *this << std::endl;
+	std::cout << *this << '\n';
 }
 
-void xstring::print(const xstring& end) const
+void xstring::print(int num) const
 {
-	std::cout << *this << end << '\n';
+	std::cout << *this;
+	char* new_lines = new char[static_cast<size_t>(num)+1];
+	for (int i = 0; i < num; i++)
+		new_lines[i] = '\n';
+	std::cout << new_lines;
+	delete[] new_lines;
 }
 
 void xstring::print(const xstring& front, const xstring& end) const
@@ -134,60 +139,6 @@ xstring xstring::operator*=(int total)
 	return *this;
 }
 
-// ---------------------------------------------------------------
-
-xstring xstring::operator+(const char other)
-{
-	xstring retter = *this;
-	retter.insert(retter.end(), other);
-	return retter;
-}
-
-xstring xstring::operator+(const char* other)
-{
-	xstring retter = *this;
-	xstring tmp(other);
-	retter.reserve(this->size() + tmp.size());
-	retter.insert(retter.end(), tmp.begin(), tmp.end());
-	return retter;
-}
-
-xstring xstring::operator+(const xstring& other)
-{
-	xstring retter = *this;
-	retter.insert(retter.end(), other.begin(), other.end());
-	return retter;
-}
-
-xstring xstring::operator+(xstring&& other)
-{
-	xstring retter = *this;
-	retter.insert(retter.end(), other.begin(), other.end());
-	return retter;
-}
-
-// ---------------------------------------------------------------
-
-void xstring::operator+=(const char other)
-{
-	this->insert(this->end(), other);
-}
-
-void xstring::operator+=(const char* other)
-{
-	xstring tmp(other);
-	this->insert(this->end(), tmp.begin(), tmp.end());
-}
-
-void xstring::operator+=(const xstring& other)
-{
-	this->insert(this->end(), other.begin(), other.end());
-}
-
-void xstring::operator+=(xstring&& other)
-{
-	this->insert(this->end(), other.begin(), other.end());
-}
 
 // ---------------------------------------------------------------
 

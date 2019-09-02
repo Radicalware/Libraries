@@ -57,10 +57,10 @@ class Run_CMake
         if($this.ArgStruct.debug -eq $false){
             
             if($this.ArgStruct.is_unix){
-                $exe_path = $PWD.ToString()+'/'+$this.ArgStruct.build_dir.ToString()+'/'+$this.ArgStruct.name.ToString()
+                $exe_path = $PWD.ToString()+'/'+$this.ArgStruct.build_dir.ToString() + '/' +$this.ArgStruct.build_type.ToString() + '/' + $this.ArgStruct.name.ToString()
                 Write-Host "$(/usr/bin/time -p $($exe_path) )";
             }else{
-                $exe_path = $PWD.ToString()+'/'+$this.ArgStruct.build_dir.ToString()+'/'+$this.ArgStruct.build_type.ToString()+'/'+$this.ArgStruct.name.ToString()
+                $exe_path = $PWD.ToString()+'/'+$this.ArgStruct.build_dir.ToString() +'/'+$this.ArgStruct.build_type.ToString() + '/bin/'+ $this.ArgStruct.name.ToString()
                 Write-Host "`nMilliseconds to Execute = " $(Measure-Command { &"$($exe_path).exe" | Write-Host }).Milliseconds;
             }
         }

@@ -28,7 +28,7 @@ add_library(${LIB}
         ${CC_DIR}/src/${LIB}.cpp
         ${CC_DIR}/include/${LIB}.h
 )
-add_library(radical::${LIB} ALIAS ${LIB})
+add_library(radical_mod::${LIB} ALIAS ${LIB})
 
 target_include_directories(${LIB}
     PUBLIC

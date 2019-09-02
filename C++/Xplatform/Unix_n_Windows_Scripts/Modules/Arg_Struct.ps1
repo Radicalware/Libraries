@@ -13,7 +13,7 @@ class Arg_Struct
 	[string] $build_dir;
 	[bool]   $is_unix;
 
-	Arg_Struct([string] $proj_name, $bool_args){
+	Arg_Struct([string] $proj_name, [bool[]]$bool_args){
 		if($proj_name -eq ""){
 			Write-Host "No project given";
 			exit(0);

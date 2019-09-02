@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // SYS.h version 1.5.0
 

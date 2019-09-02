@@ -3,12 +3,15 @@
 #include "Option.h"
 
 
-
 int main()
 {
 	// NOTE: All test functions are inline to make example reading easier.
-	Full().Basics();
+	Full full;
+	full.Basics();
+	full.add_n_join();
 
+
+	// NOTE: All test functions are inline to make example reading easier.
 	Option option;
 	option.split();
 	option.findall();

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #pragma warning (disable : 26444) // allow anynomous objects
 
 /*
@@ -59,8 +59,8 @@ public:
 	bool operator==(const char* other) const;
 
 	void print() const;
-	void print(const xstring& end) const;
-	void print(const xstring& front, const xstring& end) const;
+	void print(int num) const;
+	void print(const xstring& front, const xstring& end = "") const;
 
 	std::string to_string() const;
 
@@ -69,17 +69,6 @@ public:
 
 	xstring operator*(int total);
 	xstring operator*=(int total);
-
-	xstring operator+(const char other);
-	xstring operator+(const char* other);
-	xstring operator+(const xstring& other);
-	xstring operator+(xstring&& other);
-
-
-	void operator+=(const char other);
-	void operator+=(const char* other);
-	void operator+=(const xstring& other);
-	void operator+=(xstring&& other);
 
 	// =================================================================================================================================
 	

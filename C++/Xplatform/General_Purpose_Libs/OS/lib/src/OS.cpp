@@ -1,4 +1,4 @@
-﻿#pragma warning ( disable : 26444) // Allow un-named objects
+#pragma warning ( disable : 26444) // Allow un-named objects
 /*
 * Copyright[2018][Joel Leagues aka Scourge]
 * Scourge /at\ protonmail /dot\ com
@@ -194,6 +194,19 @@ bool OS::file_list_syntax(const xvector<xstring>& i_files) {
     }return true;
 }
 
+xstring OS::full_path(const xstring& file)
+{
+//#if defined(WIN_BASE)
+//	char full[_MAX_PATH];
+//	char* unused = _fullpath(full, file.sub("/", "\\\\").c_str(), _MAX_PATH);
+//#elif defined(NIX_BASE)
+//	char full[PATH_MAX];
+//	char* val = realpath(file.sub("\\\\", "/").c_str(), full);
+//#endif
+
+	return File_Names(m_rexit, file).target();;
+}
+
 // ---------------------------------------------------------------------------------------------
 
 void OS::touch(const xstring& new_file) {
@@ -266,9 +279,9 @@ OS OS::open(const xstring& new_file_name, const char write_method) {
 	char full[PATH_MAX];
 #endif
 #if defined(WIN_BASE)
-	 _fullpath(full, new_file_name.sub("/", "\\\\").c_str(), _MAX_PATH);
+	 const char* unused = _fullpath(full, new_file_name.sub("/", "\\\\").c_str(), _MAX_PATH);
 #elif defined(NIX_BASE)
-	realpath(new_file_name.sub("\\\\", "/").c_str(), full);
+	const char* unused = realpath(new_file_name.sub("\\\\", "/").c_str(), full);
 #endif
 
 	m_file_name.clear();
@@ -637,5 +650,3 @@ xstring OS::std_err() { return m_std_err;  }
 xstring OS::err_message() { return m_err_message;  }
 // <<<< Getters -------------------------------------------------------------------------------
 // ============================================================================================
-
-extern OS os;

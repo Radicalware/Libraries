@@ -4,7 +4,9 @@
 
 #include "xstring.h"
 #include "xvector.h"
+#include<iostream>
 
+using std::string;
 using std::cout;
 using std::endl;
 
@@ -62,8 +64,37 @@ struct Full
 
 		xstring nums = joined_vec.join(' ');
 		print(xstring("nums = ") + nums.split(R"(\s)").join('*'));
+		cout << '\n';
 
 		return 0;
 	}
+
+
+	inline void add_n_join() {
+		xstring str = "one";
+		const char* two = " two ";
+		str += two;
+		const char* three = " three ";
+		str = str + three;
+
+		const char* four = " four ";
+		for (const char* four_cp = four; four_cp != &four[strlen(four)]; four_cp++)
+			str += *four_cp;
+
+
+		const char* five = " five ";
+		for (const char* five_cp = five; five_cp != &five[strlen(five)]; five_cp++)
+			str = str + *five_cp;
+
+		str.print(2);
+		// ---------------------------------------------------------------------
+		xstring xstr = "aaa ";
+		xstr += string(" bbb ");
+		xstr = xstr + string(" ccc ");
+		xstr += xstring(" ddd ");
+		xstr = xstr + xstring(" eee ");
+		xstr.print();
+	}
+
 };
 

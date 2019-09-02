@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // Lib: OS.h
 // Version 1.4.1
@@ -96,6 +96,8 @@ public:
     bool file_regex_status();
     bool file_syntax(const xstring& file);
     bool file_list_syntax(const xvector<xstring>& files);
+
+	xstring full_path(const xstring& file);
 
     // ---------------------------------------------------------------------------------------------
     // Bash Style OS Commands

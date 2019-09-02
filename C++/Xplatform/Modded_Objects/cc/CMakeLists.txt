@@ -54,7 +54,7 @@ endif()
 # -------------------------- CONFIGURATION ------------------------------------
 # -------------------------- BUILD --------------------------------------------
 add_library(${THIS} SHARED ${SRC}/${THIS}.cpp)
-add_library(radical::${THIS} ALIAS ${THIS})
+add_library(radical_mod::${THIS} ALIAS ${THIS})
 
 target_include_directories(${THIS}
     PUBLIC

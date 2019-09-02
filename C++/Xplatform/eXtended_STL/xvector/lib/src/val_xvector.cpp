@@ -1,4 +1,4 @@
-﻿
+
 #include "val_xvector.h"
 
 

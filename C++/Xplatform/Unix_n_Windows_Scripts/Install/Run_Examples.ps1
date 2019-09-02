@@ -19,7 +19,7 @@ $(Get-ChildItem -Path ../../ -File -Recurse).foreach({
 	{
 		$executed.Add($name) | Out-Null
 
-		$out = "$((Invoke-Expression "$($name) 2>&1" ) | Out-String)"
+		$out = "$((Invoke-Expression "$($name) -Exec 2>&1" ) | Out-String)"
 		Write-Host "$($("|" * 130) + $("`n") + $name + $("`n") + $out )"
 		$counter--
     }
