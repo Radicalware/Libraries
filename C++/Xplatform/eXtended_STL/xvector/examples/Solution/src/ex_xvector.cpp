@@ -5,6 +5,7 @@
 #include "xstring.h"
 
 
+
 using std::cout;
 using std::endl;
 
@@ -74,6 +75,18 @@ int main(int argc, char** argv) {
 	xvector<xstring> tripple = { "one","two","three" };
 	tripple *= 4;
 	tripple.split(5).proc([](auto& xvec) {xvec.join(' ').print(); });
+	cout << '\n';
+
+	xvector<xstring>arr = { "one@gmail.com","two@gmail.com","three@gmail.com" };
+	arr.render([](auto& str) { return str.sub("gmail", "outlook"); }).join("\n").print(2);
+
+	arr.render(xstring("new"), [](auto& arg, auto& elem) { return elem.sub("gmail",arg); }).join("\n").print(2);
+
+
+	xvector<xstring*> arr_ptr = arr.ptrs();
+
+	arr_ptr.render([](auto* str) {return *str; }).join('\n').print(2);
+	arr_ptr.render(xstring("new"), [](auto& val, auto* str) {return str->sub("gmail", val); }).join('\n').print();
 
 	return 0;
 }

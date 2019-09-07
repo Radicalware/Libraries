@@ -15,7 +15,7 @@ $executed = New-Object System.Collections.ArrayList
 
 $(Get-ChildItem -Path ../../ -File -Recurse).foreach({
     $name = $_.FullName
-    if($name -match $rex -and $name -notmatch "^.*ex_SYS.*$")
+    if($name -match $rex -and $name -notmatch "^.*ex_SYS.*$" -and $name -notmatch "^.*[/\\]Debug[/\\].*$")
 	{
 		$executed.Add($name) | Out-Null
 
@@ -23,7 +23,7 @@ $(Get-ChildItem -Path ../../ -File -Recurse).foreach({
 		Write-Host "$($("|" * 130) + $("`n") + $name + $("`n") + $out )"
 		$counter--
     }
-	elseif($name -match $rex -and $name -match "^.*ex_SYS.*$")
+	elseif($name -match $rex -and $name -match "^.*ex_SYS.*$" -and $name -notmatch "^.*[/\\]Debug[/\\].*$")
 	{
 		$executed.Add($name) | Out-Null
 

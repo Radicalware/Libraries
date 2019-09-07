@@ -84,11 +84,13 @@ void xstring::print() const
 void xstring::print(int num) const
 {
 	std::cout << *this;
-	char* new_lines = new char[static_cast<size_t>(num)+1];
+	char* new_lines = static_cast<char*>(calloc(static_cast<size_t>(num)+1, sizeof(char)));
+	// calloc was used instead of "new" because "new" would give un-wanted after-effects.
 	for (int i = 0; i < num; i++)
+#pragma warning(suppress:6011) // we are derferencing a pointer, but assigning it a value at the same time
 		new_lines[i] = '\n';
 	std::cout << new_lines;
-	delete[] new_lines;
+	free(new_lines);
 }
 
 void xstring::print(const xstring& front, const xstring& end) const

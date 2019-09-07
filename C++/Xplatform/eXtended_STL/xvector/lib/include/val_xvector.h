@@ -28,6 +28,12 @@
 #include<set>
 
 
+#if (defined(WIN64) || defined(_WIN64) || defined(WIN32) || defined(_WIN32))
+	using size64_t = __int64;
+#else
+	using size64_t = __int64_t;
+#endif
+
 // THIS TEMPLATE WAS TESTED WITH xstring BY RADICALWARE.NET
 
 template<typename T>
@@ -99,9 +105,16 @@ public:
 	inline xvector<T*> ptrs();
 
 	template<typename F>
-	inline void proc(F function);
+	inline void proc(const F& function);
 	template<typename V, typename F>
-	inline void proc(V& value, F function);
+	inline void proc(V& value, const F& function);
+
+	template<typename V = T, typename F>
+	inline xvector<V> render(const F& function);
+	template<typename V = T, typename F>
+	inline xvector<V> render(V& value, const F& function);
+	template<typename V = T, typename F>
+	inline xvector<V> render(V&& value, const F& function);
 
 	template<typename S>
 	inline S sjoin(const S& seperator = "\0", bool tail = false);
@@ -364,14 +377,14 @@ inline xvector<xvector<T>> xvector<T>::split(N count)
 	if (!this->size())
 		return ret_vec;
 
-	int reset = count;
+	N reset = count;
 	count = 0;
-	const size_t new_size = this->size() / reset;
+	const N new_size = static_cast<N>(this->size()) / reset;
 	for (typename xvector<T>::iterator it = this->begin(); it != this->end(); it++) {
 		if (count == 0) {
 			count = reset;
 			ret_vec.push_back(xvector<T>({ *it })); // create new xvec and add first el
-			ret_vec[ret_vec.size() - 1].reserve(new_size);
+			ret_vec[ret_vec.size() - 1].reserve(static_cast<size64_t>(new_size));
 		}
 		else {
 			ret_vec[ret_vec.size() - 1] << *it;
@@ -449,7 +462,7 @@ inline xvector<T*> xvector<T>::ptrs()
 
 template<typename T>
 template<typename F>
-inline void xvector<T>::proc(F function)
+inline void xvector<T>::proc(const F& function)
 {
 	for (size_t i = 0; i < this->size(); i++)
 		function(this->operator[](i));
@@ -457,10 +470,41 @@ inline void xvector<T>::proc(F function)
 
 template<typename T>
 template<typename V, typename F>
-inline void xvector<T>::proc(V& value, F function)
+inline void xvector<T>::proc(V& value, const F& function)
 {
 	for (typename xvector<T>::const_iterator it = this->begin(); it != this->end(); it++)
 		function(value, *it);
+}
+
+
+template<typename T>
+template<typename V, typename F>
+inline xvector<V> xvector<T>::render(const F& function)
+{
+	xvector<V> vret;
+	for (typename xvector<T>::const_iterator it = this->begin(); it != this->end(); it++)
+		vret.push_back(function(*it));
+	return vret;
+}
+
+template<typename T>
+template<typename V, typename F>
+inline xvector<V> xvector<T>::render(V& value, const F& function)
+{
+	xvector<V> vret;
+	for (typename xvector<T>::const_iterator it = this->begin(); it != this->end(); it++)
+		vret.push_back(function(value, *it));
+	return vret;
+}
+
+template<typename T>
+template<typename V, typename F>
+inline xvector<V> xvector<T>::render(V&& value, const F& function)
+{
+	xvector<V> vret;
+	for (typename xvector<T>::const_iterator it = this->begin(); it != this->end(); it++)
+		vret.push_back(function(value, *it));
+	return vret;
 }
 
 template<typename T>

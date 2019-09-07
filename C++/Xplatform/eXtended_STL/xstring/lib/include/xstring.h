@@ -134,9 +134,9 @@ xstring to_xstring(const T& str) {
 
 
 #if defined(__unix__)
-#define   _NODISCARD
-constexpr size_t _FNV_offset_basis = 14695981039346656037ULL;
-constexpr size_t _FNV_prime = 1099511628211ULL;
+	#define   _NODISCARD
+	constexpr size_t _FNV_offset_basis = 14695981039346656037ULL;
+	constexpr size_t _FNV_prime = 1099511628211ULL;
 #endif
 
 // the following is an implementation from Type_Traits
