@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 // SYS.h version 1.5.0
 
@@ -31,13 +31,13 @@
 // -------------------------------------------------------------------------------
 
 #include<iostream>
-#include<vector>
 #include<stdexcept>
 #include<unordered_map>
 #include<stdio.h>
+#include<algorithm>
+#include<regex>
+#include<cstddef>
 
-// #define DllImport   __declspec( dllimport )
-// #define DllExport   __declspec( dllexport )
 
 // ----- Radicalware Libs -------------------
 // ----- eXtended STL Functionality ---------
@@ -52,25 +52,24 @@ class SYS
 private:
 	int    m_argc;
 	char** m_argv;
+
 	bool m_kvps_set = false;
-	bool m_chain_char_arg = false;
+	bool m_key_used = false;
 
-	xstring m_full_path = "";
-	xstring m_path = "";
-	xstring m_file = "";
+	xstring m_full_path;
+	xstring m_path;
+	xstring m_file;
 
-	xstring  m_ccaa; // C Char Arg Array
+	xmap<char, int>            m_chr_kvps;   // the int directs to the m_values location
+	xstring                    m_chr_lst;
+	xmap<xstring*, int>        m_str_kvps;   // the int directs to the m_values location
 
-	xmap<xstring, xvector<xstring*>> m_kvps; // {base_arg, [sub_args]}
+	xvector<xvector<xstring*>> m_values;     // strings point to m_all_args
+	xvector<xstring>		   m_all_args;   // where data is extracted (should come from main(int/char**))
 
-	xvector<xstring> m_all_args;
-	xvector<xstring*> m_keys; // base args
-	xvector< xvector<xstring*> > m_sub_args; // sub args
+	xmap<char, xstring> m_alias;  // User defined and inserted
 
-	xvector<xstring> alias_str_arr;
-	xstring empty_str = "";
-
-	bool c_arg_chain(char ch);
+	void add_value_section(size_t idx_start, size_t idx_end);
 
 	// ======================================================================================================================
 public:
@@ -80,55 +79,38 @@ public:
 	~SYS();
 	// -------------------------------------------------------------------------------------------------------------------
 	// >>>> args
-	SYS set_args(int argc, char** argv, bool chain_char_arg = false);
+	SYS set_args(int argc, char** argv);
 	void alias(const char c_arg, const xstring& s_arg); // char_arg, string_arg
 	// -------------------------------------------------------------------------------------------------------------------
-	xvector<xstring> argv(double x = 0, double y = 0, double z = 0);
 	int argc();
-
-	xmap<xstring, xvector<xstring*> > kvps();
-	xvector<const xstring*> keys();
-	xvector<xvector<xstring*>> values();
+	xvector<xstring> argv() const;
+	xvector<const xstring*> str_keys() const;
+	xstring chr_keys() const;
 	// -------------------------------------------------------------------------------------------------------------------
 	xstring full_path();
 	xstring path();
 	xstring file();
 	// -------------------------------------------------------------------------------------------------------------------
-	bool kvp_arg(const xstring& barg);
-	bool kvp_arg(const char barg);
-	bool bool_arg(const xstring& barg);
-	bool bool_arg(const char barg);
+	xvector<xstring*> key(const xstring& key);
+	xvector<xstring*> key(const char key);
+	bool key_used() const;
 	// -------------------------------------------------------------------------------------------------------------------
-	bool has_key(const xstring& barg); // --alias--|
-	bool has_key(const char barg); // ------alias--|
-	bool has(const xstring& barg); // -------------|
-	bool has(const xstring* barg); // -------------|
-	bool has(xstring&& barg);      // -------------|
-	bool has(const char* barg);    // -------------|
-	bool has(const char barg);     // -------------|
-
-	bool has_arg(const xstring& find_arg);
-	bool has_key_value(const xstring& barg, const xstring& value);
-	bool has_key_value(xstring&& barg, xstring&& value);
-	// -------------------------------------------------------------------------------------------------------------------	
-	// Return KVP Data
-	xstring first(const xstring& barg);  // = sys["barg"][0]
-	xstring second(const xstring& barg); // = sys["barg"][1]
-	xstring first(const char barg);  // = sys['k'][0]
-	xstring second(const char barg); // = sys['k'][1]
-
-	xvector<xstring*> key_values(const xstring& barg); // ---key_values alias--|
-	xvector<xstring*> key(const xstring& barg); // ----------------------------|
-	xvector<xstring*> key(const char barg);
-	xstring key_value(const xstring& barg, int i);
-	// -------------------------------------------------------------------------------------------------------------------
+	bool has(const xstring& key);
+	bool has(const xstring* key);
+	bool has(xstring&& key);
+	bool has(const char* key);
+	bool has(const char key);
+	//// -------------------------------------------------------------------------------------------------------------------
 	// Almost everything above can be handled using the operator overloading below and is the prefered method
-	xvector<xstring*> operator[](const xstring& barg);               // return barg values
-	xvector<xstring*> operator[](const char barg);                   // return barg values
-	xstring operator[](const int value);                             // return value by arg location in argv
-	bool operator()(const xstring& barg, const xstring& value = ""); // test boolean for barg or KVP
-	bool operator()(xstring&& barg, xstring&& value = "");           // test boolean for barg or KVP
-	bool operator()(const char barg, const xstring& value = "");     // test boolean for barg or KVP
+	xvector<xstring*> operator[](const xstring& key);               // Return Key-Values
+	xvector<xstring*> operator[](const char key);                   // Return Key-Values
+	xstring operator[](const int key);                              // Return value by arg location in argv
+	bool operator()(const xstring& key);                            // Test boolean for key or Key
+	bool operator()(const xstring& key, const xstring& value);      // Test boolean for key or KVP
+	bool operator()(xstring&& key);                                 // Test boolean for key or Key
+	bool operator()(xstring&& key, xstring&& value);                // Test boolean for key or KVP
+	bool operator()(const char key);                                // Test boolean for Key
+	bool operator()(const char key, const xstring& value);          // Test boolean for KVP
 	// -------------------------------------------------------------------------------------------------------------------
 	bool help();
 	// ======================================================================================================================

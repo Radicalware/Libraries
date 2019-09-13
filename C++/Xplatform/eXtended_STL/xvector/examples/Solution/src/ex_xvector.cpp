@@ -1,10 +1,7 @@
-
+﻿
 #include<iostream>
-
 #include "xvector.h"
 #include "xstring.h"
-
-
 
 using std::cout;
 using std::endl;
@@ -87,6 +84,16 @@ int main(int argc, char** argv) {
 
 	arr_ptr.render([](auto* str) {return *str; }).join('\n').print(2);
 	arr_ptr.render(xstring("new"), [](auto& val, auto* str) {return str->sub("gmail", val); }).join('\n').print();
+
+	cout << "============================================\n";
+
+	xvector<xstring> four_five_six = { "seven","eight","nine","nine" };
+	cout << "vec 1: " << vec_str.join(' ') << endl;
+	cout << "vec 2: " << four_five_six.join(' ') << endl;
+
+	xvector<xstring> vec_common_values = vec_str.common(four_five_six);
+	cout << "common values: " << vec_common_values.join(' ') << endl;
+
 
 	return 0;
 }

@@ -1,4 +1,4 @@
-
+﻿
 /*
 * Copyright[2018][Joel Leagues aka Scourge]
 * Scourge /at\ protonmail /dot\ com
@@ -26,18 +26,12 @@
 // also, on windows, be sure to remove the debugging for the iterator. 
 // -------------------------------------------------------------------------------
 
-
-
 #include "../include/SYS.h"
 
-#include<iostream>
-#include<vector>
-#include<stdexcept>
-#include<unordered_map>
-#include<stdio.h>
-#include<algorithm>
-#include<regex>
-#include<cstddef>
+
+// logical lok at how the KVP system works under 2 keys going to the same values
+// char key map ---| -- int map --- | --- values
+// str  key map ---|
 
 SYS::SYS(int c_argc, char** c_argv) :
 	m_argc(c_argc), m_argv(c_argv) {
@@ -49,16 +43,20 @@ SYS::SYS() {};
 
 SYS::~SYS() {};
 
-bool SYS::c_arg_chain(char ch) {
-	if (m_ccaa.size())
-		return (std::find(m_ccaa.begin(), m_ccaa.end(), ch) != m_ccaa.end());
-	return false;
+void SYS::add_value_section(size_t idx_start, size_t idx_end)
+{
+	size_t size = m_values.size();
+	m_values.resize(size + 1);
+
+	for (size_t i = idx_start; i < idx_end; i++) 
+		m_values[size] << &m_all_args[i];
+	
 }
 
 // ======================================================================================================================
 // >>>> args
 
-SYS SYS::set_args(int argc, char** argv, bool chain_char_arg) {
+SYS SYS::set_args(int argc, char** argv) {
 
 	m_full_path = xstring(argv[0]);
 	size_t program_split_loc = m_full_path.find_last_of("/\\");
@@ -66,288 +64,147 @@ SYS SYS::set_args(int argc, char** argv, bool chain_char_arg) {
 	m_file = m_full_path.substr(program_split_loc + 1, m_full_path.size() - 1);
 
 	m_argc = argc;
-	m_chain_char_arg = chain_char_arg;
-	if (argc == 1 || m_kvps_set) { return *this; }
 
-	bool key_start = (argv[1][0] == '-');
+	m_alias.allocate_reverse_map(); // rev goes str>char
+	m_all_args.add_char_strings(argc, argv);
 
-	bool sub_arg = false;
-	bool first_header = true;
-	int first_sub = 0;
-	xvector<xstring*> prep_sub_args; // STRs come from m_all_args
+	size_t last_args_idx = 0;
+	int vec_values_idx = 0;
 
-	xstring* current_base = &empty_str; // argv > m_all_args >> current_base
+	// program arg (stage 0)
+	short int stage = 0;
+	m_str_kvps.add_pair(&m_file, vec_values_idx);
 
-	m_all_args.insert(m_all_args.begin(), &argv[0], &argv[argc]);
+	size_t i = 1;
+	for (; i < argc; i++)
+	{
+		if (m_all_args[i][0] == '-' && m_all_args[i][1] == '-') // str key
+		{
+			m_key_used = true;
+			vec_values_idx++;
+			this->add_value_section(last_args_idx, i); 
+			m_str_kvps.add_pair(&m_all_args[i], vec_values_idx);
 
-	auto add_chain_char_arg = [&]()->void {
-		if ((*current_base)[0] == '-' && (*current_base)[1] != '-') {
-
-			xstring barg { (*current_base)[0], (*current_base)[current_base->size() - 1] };
-			m_kvps.insert(std::make_pair(barg, prep_sub_args));
+			if (m_alias.cached_rev_map().has(m_all_args[i]))  // if we have a char for the string add it
+				m_chr_kvps.add_pair(m_alias.cached_rev_map()[m_all_args[i]], vec_values_idx);
+			
+			last_args_idx = i + 1; // +1 to avoid key
+			stage = 1;
 		}
-	};
-
-	for (int arg_idx = 0; arg_idx <= argc; arg_idx++) { // loop through argv
-
-		if (arg_idx == argc) { // executes at the end of the args
-			if (prep_sub_args.size() == 0) { prep_sub_args.push_back(nullptr); }
-			// last call to append prep_sub_args to KVP
-			if (m_kvps.has(*current_base)) {
-				for (xstring* str : prep_sub_args)
-					m_kvps.at(*current_base).push_back(str);
-			}
-			else {
-				if (current_base->size()) {
-					if (chain_char_arg && (*current_base)[1] != '-') {
-						add_chain_char_arg();
-					}
-					else {
-						m_kvps.insert(std::make_pair(*current_base, prep_sub_args));
-					}
-				}
-				else {
-					m_kvps.insert(std::make_pair("none", prep_sub_args)); // note: none isn't -none
+		else if(m_all_args[i][0] == '-') // char key
+		{
+			m_key_used = true;
+			vec_values_idx++;
+			this->add_value_section(last_args_idx, i);
+			for (size_t char_idx = 1; char_idx < m_all_args[i].size(); char_idx++) { // starts at 1 to avoid the '-'
+				m_chr_kvps.add_pair(m_all_args[i][char_idx], vec_values_idx);
+				if (m_alias.has(m_all_args[i][char_idx])) { // if the alias has a str for the char key, add the value
+					m_str_kvps.add_pair(&m_alias.find(m_all_args[i][char_idx])->second, vec_values_idx); 
 				}
 			}
-		}
-		else if (arg_idx < argc) { // executes at a new barg
-			if (argv[arg_idx][0] == '-') {
-				if (prep_sub_args.size() > 0) { // append sub args to the last barg
-					m_sub_args.push_back(prep_sub_args);
-					if (m_kvps.has(*current_base)) { // if the barg was already specified
-						m_kvps.insert(std::make_pair(*current_base, m_sub_args.back()));
-					}
-					else {
-						if (chain_char_arg && current_base->size() && (*current_base)[1] != '-') 
-							add_chain_char_arg();
-						else 
-							m_kvps.insert(std::make_pair(*current_base, m_sub_args.back()));
-					}
-					prep_sub_args.clear();
-				}
-				else if (!chain_char_arg) { // barg does not have any sub-args
-					m_kvps.insert(std::make_pair(m_all_args[static_cast<size_t>(arg_idx) - 1], xvector<xstring*>({ &empty_str })));
-				}
-				current_base = &empty_str;
-				current_base = &m_all_args[arg_idx];
-
-				m_keys.push_back(&m_all_args[arg_idx]);
-			}
-			else { // appends new sub args
-				prep_sub_args.push_back(&m_all_args[arg_idx]);
-			}
+			last_args_idx = i + 1; // +1 to avoid key 
+			stage = 2;
 		}
 	}
+	this->add_value_section(last_args_idx, i);
 
-	// C Char Arg Array only occurs when kvp() == false
-	if (m_chain_char_arg) {
-		for (xstring* key : m_keys) {
-			if (key->size() > 1 && ((*key)[0] == '-' && (*key)[1] != '-')) {
-				m_ccaa += key->substr(1, key->size() - 1); // grab all keys for a joined set; ie: -abc
-			}
-		}
-		for (char char_val : m_ccaa) {
-			alias_str_arr.push_back(xstring({ '-',char_val }));
-			m_kvps.insert(std::make_pair(alias_str_arr.back(), xvector<xstring*>({&empty_str})));
-		}
-	}
+	m_str_kvps.allocate_keys();
+	m_chr_kvps.keys().proc([this](char chr) { m_chr_lst += chr; });
 
-	m_kvps.relocate();
-	m_kvps_set = true;
-	
+	// for debugging
+	//m_str_kvps.print();
+	//int i = 0;
+	//m_values.proc([&i](auto& vec) { std::cout << i << " >> " << vec.join(' ') << '\n'; i++; });
+
 	return *this;
 }
 
 
 void SYS::alias(const char c_arg, const xstring& s_arg) {
-	// char_arg, string_arg
-	// add the alias for the char or string version of the arg
-
-	if (m_kvps.has(s_arg)) {
-		m_kvps.insert(std::make_pair(xstring({ '-',c_arg }), m_kvps.at(s_arg)));
-		alias_str_arr << xstring({ '-',c_arg });
-		m_keys.push_back(&alias_str_arr[alias_str_arr.size() - 1]);
-		m_ccaa += c_arg;
-
-	}
-	else if (this->has(c_arg)) {
-		alias_str_arr << s_arg;
-		m_keys.push_back(&alias_str_arr[alias_str_arr.size() - 1]);
-		m_kvps.insert(std::make_pair(s_arg, this->key(c_arg)));
-	}
+	m_alias.add_pair(c_arg, s_arg);
 }
 
 
 // -------------------------------------------------------------------------------------------------------------------
-xvector<xstring> SYS::argv(double x, double y, double z) { 
-	if (x == 0 && y == 0 && z == 0)
-		return m_all_args;
-	else
-		return m_all_args(x, y, z);
-}
 int SYS::argc() { return m_argc; }
-xmap<xstring, xvector<xstring*> > SYS::kvps() { return m_kvps; }
-xvector<const xstring*> SYS::keys() { return m_kvps.keyStore(); }
-xvector<xvector<xstring*>> SYS::values() { return m_sub_args; }
+xvector<xstring> SYS::argv() const { return m_all_args; }
+xvector<const xstring*> SYS::str_keys() const { return m_str_kvps.cache(); }
+xstring SYS::chr_keys() const { return m_chr_lst; }
 // -------------------------------------------------------------------------------------------------------------------
 xstring SYS::full_path() { return m_full_path; }
 xstring SYS::path() { return m_path; }
 xstring SYS::file() { return m_file; }
 // -------------------------------------------------------------------------------------------------------------------
-bool SYS::kvp_arg(const xstring& barg) {
-	if (m_kvps.key(barg).size())
-		return true;
-	return false;
-}
-
-bool SYS::kvp_arg(const char c_barg) {
-	if (std::find(m_ccaa.begin(), m_ccaa.end(), c_barg) != m_ccaa.end())
-		return false;
-	return true;
-}
-
-bool SYS::bool_arg(const xstring& barg) {
-	if (m_kvps.key(barg).size())
-		return false;
-	return true;
-}
-
-bool SYS::bool_arg(const char c_barg) {
-	if (std::find(m_ccaa.begin(), m_ccaa.end(), c_barg) != m_ccaa.end())
-		return true;
-	return false;
-}
+xvector<xstring*> SYS::key(const xstring& key) { return m_values[m_str_kvps[key]]; }
+xvector<xstring*> SYS::key(const char key) { return m_values[m_chr_kvps[key]]; }
+bool SYS::key_used() const { return m_key_used; }
 // -------------------------------------------------------------------------------------------------------------------
 
-bool SYS::has(const xstring& barg) {
-	if (std::find(m_keys.begin(), m_keys.end(), &barg) != m_keys.end())
-		return true;
-	return this->c_arg_chain(barg[1]);
+bool SYS::has(const xstring& key) {
+	return this->m_str_kvps.cache().has(key);
 };
 
-bool SYS::has(const xstring* barg) {
-	for (typename xvector<xstring*>::iterator it = m_keys.begin(); it != m_keys.end(); it++) {
-		if (**it == *barg)
-			return true;
-	}
-	return this->c_arg_chain((*barg)[1]);
+bool SYS::has(const xstring* key) {
+	return this->m_str_kvps.cache().has(*key);
 }
-bool SYS::has(xstring&& barg)
+
+bool SYS::has(xstring&& key)
 {
-	for (typename xvector<xstring*>::iterator it = m_keys.begin(); it != m_keys.end(); it++) {
-		if (**it == barg)
-			return true;
-	}
-	return this->c_arg_chain(barg[1]);
+	return this->m_str_kvps.cache().has(key);
 }
 
-bool SYS::has(const char* barg)
+bool SYS::has(const char* key)
 {
-	return this->has(xstring(barg));
+	return this->m_str_kvps.cache().has(xstring(key));
 }
 
-
-bool SYS::has(const char barg) {
-	return (std::find(m_ccaa.begin(), m_ccaa.end(), barg) != m_ccaa.end());
-};
-
-bool SYS::has_key(const xstring& barg) { return m_kvps.has(barg); }
-bool SYS::has_key(const char barg) { return m_ccaa.has(barg); }
-
-bool SYS::has_arg(const xstring& find_arg) {
-	if (std::find(m_all_args.begin(), m_all_args.end(), find_arg) != m_all_args.end()) 
-		return true;
-	return false;
-}
-
-bool SYS::has_key_value(const xstring& barg, const xstring& value) {
-	if (m_kvps.at(barg).has(value))
-		return true;
-	return false;
-}
-bool SYS::has_key_value(xstring&& barg, xstring&& value)
+bool SYS::has(const char key)
 {
-	return this->has_key_value(barg, value);;
+	return this->m_chr_kvps.cache().has(key);
 }
-// -------------------------------------------------------------------------------------------------------------------
-xstring SYS::first(const xstring& barg) {
-	if (m_kvps.has(barg) && m_kvps.at(barg).size())
-		return *m_kvps.at(barg)[0];
-	return xstring();
-}
-
-xstring SYS::second(const xstring& barg) {
-	if (m_kvps.has(barg) && m_kvps.at(barg).size() >= 2)
-		return *m_kvps.at(barg)[1];
-	return xstring();
-};
-
-xstring SYS::first(const char i_key) {
-	return this->first(xstring({ '-', i_key }));
-}
-xstring SYS::second(const char i_key) {
-	return this->second(xstring({ '-', i_key }));
-};
-
-xvector<xstring*> SYS::key_values(const xstring& barg) { return this->key(barg); } // --alias of barg--|
-xvector<xstring*> SYS::key(const xstring& barg) { return m_kvps.at(barg); }  //  ----------------------|
-xvector<xstring*> SYS::key(const char barg) { return m_kvps.at(xstring{ '-',barg }); }
-xstring SYS::key_value(const xstring& barg, int i) { return *m_kvps.at(barg)[i]; }
 
 // -------------------------------------------------------------------------------------------------------------------
 
-xvector<xstring*> SYS::operator[](const xstring& barg) { return m_kvps.at(barg); }
-xvector<xstring*> SYS::operator[](const char barg) { return m_kvps.at(xstring({ '-',barg })); }
+xvector<xstring*> SYS::operator[](const xstring& key) { return m_values[m_str_kvps[key]]; }
 
-xstring SYS::operator[](int value) {
-	if (m_all_args.size() <= value) {
-		return xstring("");
-	}
-	else {
-		return m_all_args[value];
-	}
+xvector<xstring*> SYS::operator[](const char key) { return m_values[m_chr_kvps[key]]; }
+
+xstring SYS::operator[](int key) {
+	return m_all_args[key];
 }
 
-bool SYS::operator()(const xstring& barg, const xstring& value) {
-	if (m_keys.has(barg)) {
-		if (value.size()) {
-			if (m_kvps.at(barg).has(value)) {
-				return true;
-			}
-		}
-		else {
-			return true;
-		}
-	}
-
-	if (barg.size() == 2)
-		return this->c_arg_chain(barg[1]);
-	return false;
-}
-
-bool SYS::operator()(xstring&& barg, xstring&& value)
+bool SYS::operator()(const xstring& key)
 {
-	return (*this)(barg, value);
+	return m_str_kvps.has(key);
 }
 
-bool SYS::operator()(const char c_barg, const xstring& value) {
-	if (std::find(m_ccaa.begin(), m_ccaa.end(), c_barg) != m_ccaa.end()) {
-		if (value.size()) {
-			if (m_kvps.at(xstring({ '-', c_barg })).has(value)) {
-				return true;
-			}
-		}
-		else {
-			return true;
-		}
-	}
-	return false;
+bool SYS::operator()(const xstring& key, const xstring& value) {
+	return m_values[m_str_kvps[key]].has(value);
+}
+
+bool SYS::operator()(xstring&& key)
+{
+	return m_str_kvps.has(key);
+}
+
+bool SYS::operator()(xstring&& key, xstring&& value)
+{
+	return m_values[m_str_kvps[key]].has(value);
+}
+
+bool SYS::operator()(const char key)
+{
+	return this->m_chr_lst.has(key);
+}
+
+bool SYS::operator()(const char key, const xstring& value) {
+	return m_values[m_chr_kvps[key]].has(value);
+
 }
 
 // -------------------------------------------------------------------------------------------------------------------
 bool SYS::help() {
-	return (m_keys.match_one(R"(^[-]{1,2}[hH]((elp)?)$)"));
+	return m_str_kvps.keys().match_one(R"(^[-]{1,2}[hH]((elp)?)$)");
 }
 // ======================================================================================================================
 

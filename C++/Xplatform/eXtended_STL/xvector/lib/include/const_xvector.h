@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #pragma warning (disable : 26444) // allow anynomous objects
 
 /*
@@ -158,7 +158,7 @@ public:
 	inline xvector<const T*> ditto(const size_t repeate_count, char const* seperator = "", bool tail = false);
 
 	// double was chose to hold long signed and unsigned values
-	inline xvector<const T*> operator()(double x = 0, double y = 0, double z = 0, const char removal_method = 's');
+	inline xvector<const T*> operator()(double x = 0, double y = 0, double z = 0, const char removal_method = 's') const;
 	// s = slice perserves values you land on 
 	// d = dice  removes values you land on
 	// s/d only makes a difference if you modify the 'z' value
@@ -184,7 +184,7 @@ void xvector<const T*>::operator=(const xvector<const T*>& other) {
 
 template<typename T>
 bool xvector<const T*>::has(const T& item) {
-	for (auto& el : *this) {
+	for (auto* el : *this) {
 		if (*el == item)
 			return true;
 	}
@@ -198,7 +198,7 @@ bool xvector<const T*>::has(T&& item) {
 
 template<typename T>
 bool xvector<const T*>::has(char const* item) {
-	for (auto& el : *this) {
+	for (auto* el : *this) {
 		if (*el == item)
 			return true;
 	}
@@ -747,7 +747,7 @@ inline xvector<const T*> xvector<const T*>::ditto(const size_t repeate_count, ch
 // =============================================================================================================
 
 template<typename T>
-xvector<const T*> xvector<const T*>::operator()(double x, double y, double z, const char removal_method) {
+xvector<const T*> xvector<const T*>::operator()(double x, double y, double z, const char removal_method) const {
 
 	size_t m_size = this->size();
 	xvector<const T*> n_arr;
@@ -765,8 +765,8 @@ xvector<const T*> xvector<const T*>::operator()(double x, double y, double z, co
 
 		if (x > y) { return n_arr; }
 
-		typename xvector<const T*>::iterator iter = this->begin();
-		typename xvector<const T*>::iterator stop = this->begin() + static_cast<size_t>(y);
+		typename xvector<const T*>::const_iterator iter = this->begin();
+		typename xvector<const T*>::const_iterator stop = this->begin() + static_cast<size_t>(y);
 
 		if (z == 0) { // forward direction with no skipping
 			for (iter += static_cast<size_t>(x); iter != stop; ++iter)
@@ -809,8 +809,8 @@ xvector<const T*> xvector<const T*>::operator()(double x, double y, double z, co
 
 		if (y > x) { return n_arr; }
 
-		typename xvector<const T*>::reverse_iterator iter = this->rend() - static_cast<size_t>(x) - 1;
-		typename xvector<const T*>::reverse_iterator stop = this->rend() - static_cast<size_t>(y);
+		typename xvector<const T*>::cosnt_reverse_iterator iter = this->rend() - static_cast<size_t>(x) - 1;
+		typename xvector<const T*>::cosnt_reverse_iterator stop = this->rend() - static_cast<size_t>(y);
 
 		size_t iter_insert = 0;
 

@@ -9,7 +9,7 @@ param (
 # -----------------------------------
 $proj_name  = "xmap";
 $executable = $false;
-$shared_lib = $false;
+$shared_lib = $true;
 # -----------------------------------
 
 $module_path = ""

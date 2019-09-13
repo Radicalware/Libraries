@@ -22,7 +22,7 @@ Import-Module "$module_path\Arg_Struct.ps1" -Force;
 Import-Module "$module_path\Run_CMake.ps1" -Force;
 Set-Location $(Split-Path -parent $PSCommandPath);
 
-if($Exec){
+if($Exec -and !$Debug){
 	&"./execute.ps1"; 
 }else{
 	$argStruct = [Arg_Struct]::new($proj_name, [bool[]]($executable, $Debug, $Clean, $true));

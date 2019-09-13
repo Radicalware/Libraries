@@ -54,7 +54,22 @@ else()
 endif()
 # -------------------------- CONFIGURATION ------------------------------------
 # -------------------------- BUILD --------------------------------------------
-add_library(${THIS} STATIC ${SRC}/${THIS}.cpp)
+add_library(${THIS} STATIC 
+
+    ${INCLUDE}/${THIS}.h
+    ${INCLUDE}/const2_xmap.h
+    ${INCLUDE}/const_ptr_xmap.h
+    ${INCLUDE}/const_val_xmap.h
+    ${INCLUDE}/ptr_val_xmap.h
+    ${INCLUDE}/val2_xmap.h
+
+    ${SRC}/${THIS}.cpp
+    ${SRC}/const2_xmap.cpp
+    ${SRC}/const_ptr_xmap.cpp
+    ${SRC}/const_val_xmap.cpp
+    ${SRC}/ptr_val_xmap.cpp
+    ${SRC}/val2_xmap.cpp
+)
 add_library(radical::${THIS} ALIAS ${THIS})
 
 target_include_directories(${THIS}
@@ -64,8 +79,6 @@ target_include_directories(${THIS}
 )
 
 # Required Libs ---------------------------------------------------------------
-target_link_libraries(${THIS} ${EXT_BIN_PATH}/${BUILD_TYPE}/${PF}xvector${SF})
-target_link_libraries(${THIS} ${EXT_BIN_PATH}/${BUILD_TYPE}/${PF}xstring${SF})
 # -------------------------- BUILD --------------------------------------------
 # -------------------------- INSTALL ------------------------------------------
 

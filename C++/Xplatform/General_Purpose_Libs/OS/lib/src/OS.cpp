@@ -1,4 +1,4 @@
-#pragma warning ( disable : 26444) // Allow un-named objects
+﻿#pragma warning ( disable : 26444) // Allow un-named objects
 /*
 * Copyright[2018][Joel Leagues aka Scourge]
 * Scourge /at\ protonmail /dot\ com

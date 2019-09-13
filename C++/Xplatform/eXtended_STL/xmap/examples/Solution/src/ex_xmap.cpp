@@ -1,4 +1,4 @@
-#include <iostream>
+﻿#include <iostream>
 
 
 #include "xvector.h"
@@ -54,12 +54,14 @@ int main()
 	cout << "its value is BBBB = " << smap("hash222", "BBBB") << endl; // true, alternate method
 	cout << "its value is BBBB = " << smap("I don't exist", "BBBB") << endl; // false
 	
+	cout << "no cache allocated; size = " << smap.cached_keys().size() << endl;
+
 	cout << "========================================\n";
 	cout << "starting order of keys \n" << smap.keys().join("\n") << endl;
 	cout << "========================================\n";
-	cout << "order by key size \n";
-	smap.relocate()->sort([](const auto* first, const auto* second) { return first->size() < second->size(); });
-	smap.keyStore().join('\n').print();
+	cout << "orderd by key size \n";
+	smap.allocate_keys()->sort([](const auto* first, const auto* second) { return first->size() < second->size(); });
+	smap.cached_keys().join('\n').print();
 	cout << "========================================\n";
 	
 	xstring key_values;
@@ -68,6 +70,26 @@ int main()
 	});
 	key_values.print();
 	cout << "========================================\n";
+
+	xvector<xstring> str_lst = { "one","two","three","four","five" };
+	xvector<xstring*> ptr_lst = str_lst.ptrs();
+
+	xmap<xstring*, xstring> map_ptrs;
+	int count = 1;
+	for (xstring* ptr : ptr_lst) {
+		map_ptrs.add_pair(ptr, xstring(count, '='));
+		count++;
+	}
+
+	map_ptrs.allocate_keys()->join('\n').print(2);
+
+	cout << "cached truth: " << map_ptrs.cache().has(str_lst[0]) << endl; // faster (if cached) than
+	cout << "slow   truth: " << map_ptrs.has(str_lst[0]) << endl;
+
+	cout << "========================================\n";
+
+	smap.print(2);
+	smap.allocate_reverse_map()->print();
 
 	return 0;
 }

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #pragma warning (disable : 26444) // allow anynomous objects
 
 /*
@@ -47,8 +47,8 @@ public:
 	inline xvector(std::vector<T>&& vec)         : std::vector<T>(vec) {};
 	inline xvector(std::initializer_list<T> lst) : std::vector<T>(lst) {};
 	inline void operator=(const xvector<T>& other);
-	
-	template<typename P = T>
+
+	template<typename P = T> 
 	inline bool has(const P* item);
 	inline bool has(const T& item);
 	inline bool has(T&& item);
@@ -57,6 +57,13 @@ public:
 	inline bool lacks(const T& item);
 	inline bool lacks(T&& item);
 	inline bool lacks(char const* item);
+
+	// not const because sort is used (this only changes order, it does not remove dups)
+	template<typename L = xvector<T>>
+	inline xvector<T> common(L & item);
+	template<typename L = xvector<T>>
+	inline xvector<T> common(L && item);
+	inline xvector<T> common(char const* item);
 
 	inline void operator<<(const T& item);
 	inline void operator<<(const T&& item);
@@ -67,6 +74,8 @@ public:
 	inline void add(const T& val); 
 	template <typename First, typename... Rest>
 	inline void add(const First& first, const Rest& ... rest);
+
+	inline void add_char_strings(int strC, char** strV);
 
 	template<typename O>
 	inline bool operator>(const O& other);
@@ -162,7 +171,7 @@ public:
 	inline T ditto(const size_t repeate_count, char const* seperator = "", bool tail = false);
 
 	// double was chose to hold long signed and unsigned values
-	inline xvector<T> operator()(double x = 0, double y = 0, double z = 0, const char removal_method = 's');
+	inline xvector<T> operator()(double x = 0, double y = 0, double z = 0, const char removal_method = 's') const;
 	// s = slice perserves values you land on 
 	// d = dice  removes values you land on
 	// s/d only makes a difference if you modify the 'z' value
@@ -213,6 +222,7 @@ bool xvector<T>::has(char const* item) {
 	return (bool(std::find(this->begin(), this->end(), item) != this->end()));
 }
 
+// ------------------------------------------------------------------------------------------------
 
 template<typename T>
 bool xvector<T>::lacks(T&& item) {
@@ -229,6 +239,36 @@ bool xvector<T>::lacks(char const* item) {
 	return !(bool(std::find(this->begin(), this->end(), item) != this->end()));
 }
 
+// ------------------------------------------------------------------------------------------------
+
+template<typename T>
+template<typename L>
+xvector<T> xvector<T>::common(L& item) {
+	std::sort(this->begin(), this->end());
+	std::sort(item.begin(), item.end());
+
+	xvector<T> vret(this->size() + item.size());
+	set_intersection(this->begin(), this->end(), item.begin(), item.end(), vret.begin());
+	return vret;
+}
+
+template<typename T>
+template<typename L>
+xvector<T> xvector<T>::common(L&& item) {
+	return this->common(item);
+}
+
+template<typename T>
+xvector<T> xvector<T>::common(char const* item) {
+
+	size_t size = strlen(item);
+	xvector<char> c_vec(size);
+
+	for (int i = 0; i < size; i++)
+		c_vec << item[i];
+
+	return this->common(c_vec);
+}
 
 // ------------------------------------------------------------------------------------------------
 
@@ -270,6 +310,13 @@ inline void xvector<T>::add(const First& first, const Rest& ...rest)
 {
 	*this << first;
 	this->add(rest...);
+}
+
+template<typename T>
+inline void xvector<T>::add_char_strings(int strC, char** strV)
+{
+	for (int i = 0; i < strC; i++)
+		this->push_back(T(strV[i]));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -769,7 +816,7 @@ inline T xvector<T>::ditto(const size_t repeate_count, char const* seperator, bo
 // =============================================================================================================
 
 template<typename T>
-xvector<T> xvector<T>::operator()(double x, double y, double z, const char removal_method) {
+xvector<T> xvector<T>::operator()(double x, double y, double z, const char removal_method) const {
 
 	size_t m_size = this->size();
 	xvector<T> n_arr;
@@ -787,8 +834,8 @@ xvector<T> xvector<T>::operator()(double x, double y, double z, const char remov
 
 		if (x > y) { return n_arr; }
 
-		typename xvector<T>::iterator iter = this->begin();
-		typename xvector<T>::iterator stop = this->begin() + static_cast<size_t>(y);
+		typename xvector<T>::const_iterator iter = this->begin();
+		typename xvector<T>::const_iterator stop = this->begin() + static_cast<size_t>(y);
 
 		if (z == 0) { // forward direction with no skipping
 			for (iter += static_cast<size_t>(x); iter != stop; ++iter)
@@ -831,8 +878,8 @@ xvector<T> xvector<T>::operator()(double x, double y, double z, const char remov
 
 		if (y > x) { return n_arr; }
 		
-		typename xvector<T>::reverse_iterator iter = this->rend() - static_cast<size_t>(x) - 1;
-		typename xvector<T>::reverse_iterator stop = this->rend() - static_cast<size_t>(y);
+		typename xvector<T>::const_reverse_iterator iter = this->rend() - static_cast<size_t>(x) - 1;
+		typename xvector<T>::const_reverse_iterator stop = this->rend() - static_cast<size_t>(y);
 
 		size_t iter_insert = 0;
 

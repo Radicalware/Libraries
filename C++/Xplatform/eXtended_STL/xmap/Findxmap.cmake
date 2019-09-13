@@ -1,4 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.10)
 
 set(LIB xmap)
 
@@ -25,11 +25,26 @@ endif()
 set(XMAP_DIR ${INSTALL_PREFIX}/code/${LIB})
 # -------------------------- CONFIGURATION ------------------------------------
 # -------------------------- BUILD --------------------------------------------
-add_library(${LIB}
-	STATIC 
-		${XMAP_DIR}/include/${LIB}.h
-		${XMAP_DIR}/src/${LIB}.cpp
+add_library(${LIB} STATIC 
+    ${XMAP_DIR}/include/${LIB}.h
+    ${XMAP_DIR}/src/${LIB}.cpp
+
+    ${XMAP_DIR}/include/const2_xmap.h
+    ${XMAP_DIR}/src/const2_xmap.cpp
+
+    ${XMAP_DIR}/include/const_ptr_xmap.h
+    ${XMAP_DIR}/src/const_ptr_xmap.cpp
+
+    ${XMAP_DIR}/include/const_val_xmap.h
+    ${XMAP_DIR}/src/const_val_xmap.cpp
+
+    ${XMAP_DIR}/include/ptr_val_xmap.h
+    ${XMAP_DIR}/src/ptr_val_xmap.cpp
+
+    ${XMAP_DIR}/include/val2_xmap.h
+    ${XMAP_DIR}/src/val2_xmap.cpp
 )
+
 add_library(radical::${LIB} ALIAS ${LIB})
 
 include_directories(${LIB}

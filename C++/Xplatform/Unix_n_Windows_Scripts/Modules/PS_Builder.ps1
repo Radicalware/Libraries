@@ -125,7 +125,7 @@ Class PS_Builder
 
     [void] Compile_and_Link_Project(){
         if($this.ArgStruct.is_unix){ # I know, dumb that the -eq is required
-            Write-Host -ForegroundColor Green "[+] Make is the Building Project" 
+            Write-Host -ForegroundColor Green "[+] Make is Building the Project" 
             $make_txt_out = $(make 2>&1)
             Write-Host $this.Hide_Clock_Skew($make_txt_out);
         }else{
