@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #pragma warning (disable : 26444) // allow anynomous objects
 
 /*
@@ -226,7 +226,7 @@ bool xvector<const T*>::lacks(char const* item) {
 template<typename T>
 inline void xvector<const T*>::operator<<(T* item)
 {
-	this->push_back(item);
+	this->emplace_back(item);
 }
 
 template<typename T>

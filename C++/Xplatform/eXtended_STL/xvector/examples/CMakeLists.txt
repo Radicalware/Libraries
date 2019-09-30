@@ -66,7 +66,7 @@ add_executable(${THIS}
 )
 
 target_link_libraries( ${THIS}
-    PRIVATE 
+     PRIVATE
         radical::xvector
         radical::xstring
 )

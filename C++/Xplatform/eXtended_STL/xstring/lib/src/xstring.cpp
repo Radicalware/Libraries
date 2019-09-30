@@ -1,4 +1,4 @@
-﻿#pragma warning (disable : 26444) // allow anynomous objects
+#pragma warning (disable : 26444) // allow anynomous objects
 
 #include "xstring.h"
 

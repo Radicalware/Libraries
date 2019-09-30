@@ -99,7 +99,7 @@ Class PS_Builder
 		if(!$this.ArgStruct.is_unix){
 			$this.cmake_command += " -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE"
 		}
-		if($this.ArgStruct.shared_lib){
+		if($this.ArgStruct.shared_lib -or $this.ArgStruct.executable){
 			$this.cmake_command += " -DBUILD_SHARED_LIBS=TRUE";
 		}
 		if(!$this.ArgStruct.executable){
@@ -157,8 +157,3 @@ Class PS_Builder
         Set-Location ../../../
     }
 };
-
-
-
-
-

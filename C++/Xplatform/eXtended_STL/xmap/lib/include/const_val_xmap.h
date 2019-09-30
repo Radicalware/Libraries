@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 /*
 * Copyright[2019][Joel Leagues aka Scourge]
@@ -54,7 +54,7 @@ public:
 	inline xmap(const xmap<const K*, V>& other);
 	inline xmap(xmap<const K*, V>&& other);
 
-	inline void add_pair(const K* one, V two);
+	inline void add_pair(const K* one, const V& two);
 	// ======== INITALIZATION ========================================================================
 	// ======== RETREVAL =============================================================================
 	inline xvector<const K*> keys() const;
@@ -63,8 +63,10 @@ public:
 	inline xvector<const K*> cache() const;       // remember to allocate 
 
 	inline V key(const K& input) const; // ------|
-	inline V value_for(const K& input) const;//--|--all 3 are the same
-	inline V at(const K& input); //--------------|
+	inline V value_for(const K& input) const;//--|--all 4 are the same
+	inline V at(K&& input) const; //-------------|
+	inline V at(const K& input) const; //--------|
+	inline V at(const char* input) const; //-----|
 	// ======== RETREVAL =============================================================================
 	// ======== BOOLS ================================================================================
 	inline bool has(const K& input) const;
@@ -75,7 +77,7 @@ public:
 	inline bool operator()(const K& iKey) const;
 	inline bool operator()(const K& iKey, const V& iValue) const;
 
-	inline V operator[](const K& key);
+	inline V operator[](const K& key) const;
 	// ======== BOOLS ================================================================================
 	// ======== Functional ===========================================================================
 	inline xvector<const K*>* allocate_keys();
@@ -144,7 +146,7 @@ inline xmap<const K*, V>::xmap(xmap<const K*, V>&& other)
 {}
 
 template<typename K, typename V>
-inline void xmap<const K*, V>::add_pair(const K* one, V two)
+inline void xmap<const K*, V>::add_pair(const K* one, const V& two)
 {
 	this->insert(std::make_pair(one, two));
 }
@@ -181,8 +183,8 @@ template<typename K, typename V>
 inline V xmap<const K*, V>::key(const K& input) const
 {
 	for (typename std::unordered_map<const K*, V>::const_iterator iter = this->begin(); iter != this->end(); ++iter) {
-		if (*iter->first == input)
-			return *iter->second;
+		if (**iter->first == input)
+			return iter->second;
 	}
 	return V();
 }
@@ -190,19 +192,45 @@ template<typename K, typename V>
 inline V xmap<const K*, V>::value_for(const K& input) const
 {
 	for (typename std::unordered_map<const K*, V>::const_iterator iter = this->begin(); iter != this->end(); ++iter) {
-		if (*iter->first == input)
-			return *iter->second;
+		if (**iter->first == input)
+			return iter->second;
 	}
 	return V();
 }
+
 template<typename K, typename V>
-inline V xmap<const K*, V>::at(const K& input)
+inline V xmap<const K*, V>::at(K&& input) const
 {
 	if (this->size() == 0)
 		return V();
 	for (typename std::unordered_map<const K*, V>::const_iterator iter = this->begin(); iter != this->end(); ++iter) {
-		if (*iter->first == input)
-			return *iter->second;
+		if (input == *iter->first)
+			return iter->second;
+	}
+	return V();
+}
+
+template<typename K, typename V>
+inline V xmap<const K*, V>::at(const K& input) const
+{
+	if (this->size() == 0)
+		return V();
+	for (typename std::unordered_map<const K*, V>::const_iterator iter = this->begin(); iter != this->end(); ++iter) {
+		if (input == *iter->first)
+			return iter->second;
+	}
+	return V();
+}
+
+template<typename K, typename V>
+inline V xmap<const K*, V>::at(const char* input) const
+{
+	if (this->size() == 0)
+		return V();
+	K obj_input = K(input);
+	for (typename std::unordered_map<const K*, V>::const_iterator iter = this->begin(); iter != this->end(); ++iter) {
+		if (obj_input == *iter->first)
+			return iter->second;
 	}
 	return V();
 }
@@ -239,7 +267,7 @@ inline bool xmap<const K*, V>::operator()(const K& iKey, const V& iValue) const
 
 
 template<typename K, typename V>
-inline V xmap<const K*, V>::operator[](const K& key) {
+inline V xmap<const K*, V>::operator[](const K& key) const {
 
 	return this->at(key);
 }

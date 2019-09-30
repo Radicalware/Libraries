@@ -26,6 +26,7 @@ if(!$modify){
 		"../../General_Purpose_Libs/Iterator/install.ps1",
 		"../../General_Purpose_Libs/OS/install.ps1",
 		"../../General_Purpose_Libs/SYS/install.ps1",
+		"../../General_Purpose_Libs/Nexus/install.ps1",
 
 		"../../Modded_Objects/cc/install.ps1"
 	)
@@ -42,6 +43,7 @@ if(!$modify){
 
 		"../../General_Purpose_Libs/OS/examples/run.ps1",
 		"../../General_Purpose_Libs/SYS/examples/run.ps1",
+		"../../General_Purpose_Libs/Nexus/examples/run.ps1",
 
 		"../../Modded_Objects/cc/examples/run.ps1"
 	)
@@ -81,7 +83,7 @@ if($modify){
 		}
 	}
 }
-}
+
 
 Write-Host "`n`nAll Libs Installed!!"
 

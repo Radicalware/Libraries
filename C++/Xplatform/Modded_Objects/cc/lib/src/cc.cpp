@@ -1,4 +1,4 @@
-﻿//! NOT PROGRAMED BY SCOUGE FILE 1/1
+//! NOT PROGRAMED BY SCOUGE FILE 1/1
 //! termcolor from https://raw.githubusercontent.com/ikalnytskyi/termcolor/master/include/termcolor/termcolor.hpp
 //! ~~~~~~~~~
 //!

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 /*
 * Copyright[2019][Joel Leagues aka Scourge]
@@ -65,7 +65,7 @@ public:
 
 	inline V key(const K& input) const; // ------|
 	inline V value_for(const K& input) const;//--|--all 3 are the same
-	inline V at(const K& input); //--------------|
+	inline V at(const K& input) const; //--------|
 
 	// ======== RETREVAL =============================================================================
 	// ======== BOOLS ================================================================================
@@ -200,7 +200,7 @@ inline V xmap<const K*, V*>::value_for(const K& input) const
 	return V();
 }
 template<typename K, typename V>
-inline V xmap<const K*, V*>::at(const K& input)
+inline V xmap<const K*, V*>::at(const K& input) const
 {
 	if (this->size() == 0)
 		return V();

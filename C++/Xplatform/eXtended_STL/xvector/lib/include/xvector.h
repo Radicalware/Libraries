@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #pragma warning (disable : 26444) // allow anynomous objects
 
 /*
@@ -244,7 +244,7 @@ inline void xvector<T*>::add(First* first, Rest* ...rest)
 template<typename T>
 inline void xvector<T*>::operator<<(T* item)
 {
-	this->push_back(item);
+	this->emplace_back(item);
 }
 
 template<typename T>

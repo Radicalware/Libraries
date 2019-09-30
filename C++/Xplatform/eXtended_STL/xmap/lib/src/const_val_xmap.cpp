@@ -1,4 +1,4 @@
-﻿
+
 
 #include "../include/const_val_xmap.h"
 

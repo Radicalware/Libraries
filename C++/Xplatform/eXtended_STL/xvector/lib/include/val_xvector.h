@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #pragma warning (disable : 26444) // allow anynomous objects
 
 /*
@@ -91,7 +91,8 @@ public:
 	inline bool operator==(const size_t value);
 	inline bool operator!=(const size_t value);
 
-	T back(size_t value = 1);
+	T back(size_t value = 1) const;
+	T* back_ptr(size_t value = 1);
 
 	template<typename C>
 	inline xvector<C> convert();
@@ -275,13 +276,13 @@ xvector<T> xvector<T>::common(char const* item) {
 template<typename T>
 inline void xvector<T>::operator<<(const T& item)
 {
-	this->push_back(item);
+	this->emplace_back(item);
 }
 
 template<typename T>
 inline void xvector<T>::operator<<(const T&& item)
 {
-	this->push_back(item);
+	this->emplace_back(item);
 }
 
 template<typename T>
@@ -384,9 +385,15 @@ inline bool xvector<T>::operator!=(const size_t value)
 // ------------------------------------------------------------------------------------------------
 
 template<typename T>
-inline T xvector<T>::back(size_t value)
+inline T xvector<T>::back(size_t value) const
 {
 	return this->operator[](this->size() - value);
+}
+
+template<typename T>
+inline T* xvector<T>::back_ptr(size_t value)
+{
+	return &this->operator[](this->size() - value);
 }
 
 // ------------------------------------------------------------------------------------------------

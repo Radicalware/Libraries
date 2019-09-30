@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 /*
 * Copyright[2019][Joel Leagues aka Scourge]
@@ -54,7 +54,7 @@ public:
 	inline xmap(const xmap<K*, V>& other);
 	inline xmap(xmap<K*, V>&& other);
 
-	inline void add_pair(K* one,V two);
+	inline void add_pair(K* one, const V& two);
 	// ======== INITALIZATION ========================================================================
 	// ======== RETREVAL =============================================================================
 
@@ -64,7 +64,7 @@ public:
 
 	inline V key(const K& input) const; // ------|
 	inline V value_for(const K& input) const;//--|--all 3 are the same
-	inline V at(const K& input); //--------------|
+	inline V at(const K& input) const; //--------|
 
 	// ======== RETREVAL =============================================================================
 	// ======== BOOLS ================================================================================
@@ -76,7 +76,7 @@ public:
 
 	inline bool operator()(const K& iKey, const V& iValue) const;
 
-	inline V operator[](const K& key);
+	inline V operator[](const K& key) const;
 
 	// ======== BOOLS ================================================================================
 	// ======== Functional ===========================================================================
@@ -146,7 +146,7 @@ inline xmap<K*, V>::xmap(xmap<K*, V>&& other)
 {}
 
 template<typename K, typename V>
-inline void xmap<K*, V>::add_pair(K* one, V two)
+inline void xmap<K*, V>::add_pair(K* one, const V& two)
 {
 	this->insert(std::make_pair(one, two));
 }
@@ -199,7 +199,7 @@ inline V xmap<K*, V>::value_for(const K& input) const
 	return V();
 }
 template<typename K, typename V>
-inline V xmap<K*, V>::at(const K& input)
+inline V xmap<K*, V>::at(const K& input) const
 {
 	if (this->size() == 0)
 		return V();
@@ -242,7 +242,7 @@ inline bool xmap<K*, V>::operator()(const K& iKey, const V& iValue) const
 
 
 template<typename K, typename V>
-inline V xmap<K*, V>::operator[](const K& key) {
+inline V xmap<K*, V>::operator[](const K& key) const {
 
 	return this->at(key);
 }

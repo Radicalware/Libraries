@@ -1,4 +1,4 @@
-﻿
+
 #include<iostream>
 #include "xvector.h"
 #include "xstring.h"

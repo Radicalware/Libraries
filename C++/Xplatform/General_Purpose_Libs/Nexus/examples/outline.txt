@@ -1,0 +1,30 @@
+<xstring> nex; // <xstring> is the return type from the jobs
+<double> nex; // <double> is the return type from the jobs
+
+// you must make a method so that there is a static var that switches between 
+// which instance will run their next queue
+
+nex.add("local",std::bind(local_hunt, "all users"));
+nex.add("network",std::bind(network_hunt, "all ports"));
+
+xstring data = nex.ref("local").val;   // get reference for speed
+xstring data = nex.get("network").val; // get copy
+
+try{
+	std::rethrow_exception(nex.get("network").exception);
+}catch(const std::exception &ex){
+	std::cout << "Thread exited with exception: " << ex.what() << "\n";
+}
+
+nex.add(std::bind(prime_nums, 7)); // no xmap linking
+
+int val = nex.get(-1).val.to_int();    // take last value from list
+
+
+
+// maybe add veriodic function
+// add elements to temporary vector and then feed into the
+// std::bind
+nex.add(prime_nums, 7);
+
+
