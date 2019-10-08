@@ -55,13 +55,17 @@ endif()
 # -------------------------- CONFIGURATION ------------------------------------
 # -------------------------- BUILD --------------------------------------------
 add_library(${THIS} STATIC 
-    ${INCLUDE}/${THIS}.h
-    ${INCLUDE}/Job.h
+    ${SRC}/CPU_Threads.cpp
+    ${INCLUDE}/CPU_Threads.h
+
+    ${SRC}/Task.cpp
     ${INCLUDE}/Task.h
 
-    ${SRC}/${THIS}.cpp
     ${SRC}/Job.cpp
-    ${SRC}/Task.cpp
+    ${INCLUDE}/Job.h
+
+    ${SRC}/${THIS}.cpp
+    ${INCLUDE}/${THIS}.h
 )
 add_library(radical::${THIS} ALIAS ${THIS})
 

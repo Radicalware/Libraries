@@ -6,10 +6,11 @@
 #include<future>
 #include<thread>
 
+#include "CPU_Threads.h"
 #include "Task.h"
 
 template<typename T>
-class Job
+class Job : protected CPU_Threads
 {
 	Task<T> m_task;
 	T m_value;
@@ -19,11 +20,11 @@ class Job
 	size_t m_index;
 	bool m_done = false;
 	static xstring Default_STR;
-	void init();
 public:
 	Job();
 	Job(      Task<T>&& task, size_t index);
 	Job(const Task<T>&  task, size_t index);
+	void init();
 	Task<T> task() const;
 	const Task<T>* task_ptr() const;
 	T value() const;
@@ -44,31 +45,31 @@ inline Job<T>::Job()
 }
 
 template<typename T>
-inline void Job<T>::init()
-{
-	try {
-		m_value = m_task();
-	}catch(const char*) {
-		m_exc_ptr = std::current_exception();
-	}
-	catch (const std::exception&) {
-		m_exc_ptr = std::current_exception();
-	}
-	m_done = true;
-}
-
-template<typename T>
 inline Job<T>::Job(Task<T>&& task, size_t index) : 
 	m_task(task), m_index(index)
 {
-	this->init();
 }
 
 template<typename T>
 inline Job<T>::Job(const Task<T>& task, size_t index) : 
 	m_task(task), m_index(index)
 {
-	this->init();
+}
+
+template<typename T>
+inline void Job<T>::init()
+{
+	try {
+		m_value = m_task();
+	}
+	catch (const char*) {
+		m_exc_ptr = std::current_exception();
+	}
+	catch (const std::exception&) {
+		m_exc_ptr = std::current_exception();
+	}
+	CPU_Threads::Threads_Used--;
+	m_done = true;
 }
 
 template<typename T>

@@ -1,0 +1,13 @@
+
+
+
+10/8/2019 >> Libs v11.0.1
+
+Nexus is still in beta.
+It is working decently well in windows but is broken in Linux.
+It will be updated soon.
+
+
+
+
+

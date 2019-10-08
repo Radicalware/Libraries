@@ -9,10 +9,11 @@ class Task
 {
 	xstring* m_name = nullptr;
 	std::function<T()> m_method;
+	bool m_blank = false;
 
 public:
 	Task();
-	Task(      Task&& task);
+	Task(      Task&& task) noexcept;
 	Task(const Task&  task);
 	Task(      std::function<T()>&& i_method);
 	Task(const std::function<T()>&  i_method);
@@ -20,19 +21,22 @@ public:
 	Task(const std::function<T()>&  i_method, const xstring&  i_name);
 	~Task();
 
+	bool blank() const;
 	bool has_name() const;
 	const xstring* name_ptr() const;
 	T operator()();
 };
 
+
 template<typename T>
 inline Task<T>::Task()
 {
+	m_blank = true;
 }
 // ----------------------------------------------------------------------------------------------------
 
 template<typename T>
-inline Task<T>::Task(Task&& task)
+inline Task<T>::Task(Task&& task) noexcept
 {
 	if (task.has_name())
 		m_name = new xstring(*task.name_ptr());
@@ -71,6 +75,12 @@ inline Task<T>::~Task()
 {
 	if(m_name != nullptr)
 		delete m_name;
+}
+
+template<typename T>
+inline bool Task<T>::blank() const
+{
+	return m_blank;
 }
 
 template<typename T>

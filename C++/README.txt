@@ -26,8 +26,9 @@ funcitonal_STL
 General_Purpose_Libs
 	7. SYS       - Key/Value Pair Argument Parsing
 	8. OS        - Operating System handling
+	9. Nexus     - Thread Pool with Indexing & Exception Handling
 Mods
-	9. cc        - A modified version of termcolor by Ihor Kalnytskyi
+	10. cc        - A modified version of termcolor by Ihor Kalnytskyi
 Modules	
-	10. QtImage  - A module that handles images on Qt Objects
+	11. QtImage  - A module that handles images on Qt Objects
 

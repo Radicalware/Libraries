@@ -27,14 +27,17 @@ set(NEXUS_DIR ${INSTALL_PREFIX}/code/${LIB})
 # -------------------------- BUILD --------------------------------------------
 add_library(${LIB} 
     STATIC 
-        ${NEXUS_DIR}/src/${LIB}.cpp
-        ${NEXUS_DIR}/include/${LIB}.h
+        ${NEXUS_DIR}/src/CPU_Threads.cpp
+        ${NEXUS_DIR}/include/CPU_Threads.h
+
+        ${NEXUS_DIR}/src/Task.cpp
+        ${NEXUS_DIR}/include/Task.h
 
         ${NEXUS_DIR}/src/Job.cpp
         ${NEXUS_DIR}/include/Job.h
 
-        ${NEXUS_DIR}/src/Task.cpp
-        ${NEXUS_DIR}/include/Task.h
+        ${NEXUS_DIR}/src/${LIB}.cpp
+        ${NEXUS_DIR}/include/${LIB}.h
 )
 add_library(radical::${LIB} ALIAS ${LIB})
 

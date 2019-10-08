@@ -8,7 +8,6 @@
 #include<thread>
 #include<mutex>
 #include<condition_variable>
-//#include<xtr1common>
 
 #include<deque>
 #include<functional>
@@ -18,8 +17,16 @@
 #include "xstring.h"
 #include "xmap.h"
 
+#include "CPU_Threads.h"
 #include "Task.h"
 #include "Job.h"
+
+#if (defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64))
+#include<Windows.h>
+#else 
+#include<unistd.h>
+#endif
+
 
 // =========================================================================================
 namespace util {
@@ -27,15 +34,11 @@ namespace util {
 	using remove_cvref_t = std::remove_cv_t<std::remove_reference_t<T>>;
 }
 
-template<typename T>
-class Nexus
+template<typename T = int>
+class Nexus : public CPU_Threads
 {
 private:
-	static int     Thread_Count;
-	static size_t  Inst_Count;
-	static size_t  Task_Count;
-	static bool    Finish_Tasks;
-
+	bool m_finish_tasks = false;
 	size_t m_inst_task_count = 0;
 	std::mutex m_mutex;
 	std::condition_variable m_sig_deque;
@@ -49,6 +52,8 @@ private:
 	// m_inst_job_xm uses a map because Job<T> addresses must stay constant (they will change as a vector)
 	void TaskLooper(int thread_idx);
 
+	template <typename F, typename... A>
+	void add(const xstring& key, F&& function, A&& ... Args);
 public:
 	Nexus();
 	~Nexus();
@@ -64,14 +69,10 @@ public:
 	Job<T> get(const xstring& val);
 	Job<T> get(const size_t val);
 
-	const size_t task_count()   const;
-	const size_t inst_count()   const;
-	const size_t thread_count() const;
+	size_t size() const;
+	void wait_all() const;
+	void sleep(unsigned int extent) const;
 }; 
-template<typename T> size_t  Nexus<T>::Task_Count = 0;
-template<typename T> size_t  Nexus<T>::Inst_Count = 0;
-template<typename T> bool    Nexus<T>::Finish_Tasks = false;
-template<typename T> int     Nexus<T>::Thread_Count = std::thread::hardware_concurrency();
 
 // =========================================================================================
 
@@ -79,35 +80,62 @@ template<typename T>
 inline void Nexus<T>::TaskLooper(int thread_idx)
 {
 	while (true) {
-		std::unique_lock<std::mutex> lock(m_mutex);
-		m_sig_deque.wait(lock, [this]() {
-			return Nexus<T>::Finish_Tasks || m_task_deque.size();
-		});
+		size_t tsk_idx;
+		{
+			std::unique_lock<std::mutex> lock(m_mutex);
+			m_sig_deque.wait(lock, [this]() {
+				return ((m_finish_tasks || m_task_deque.size()) && CPU_Threads::threads_are_available());
+				});
 
-		if (m_task_deque.empty())
-			return;
-		
-		(*m_inst_job_xm).add_pair(m_inst_task_count, Job<T>(std::move(m_task_deque.front()), Nexus<T>::Task_Count));
+			if (m_task_deque.empty())
+				return;
 
-		const Task<T>* latest_task = (*m_inst_job_xm)[m_inst_task_count].task_ptr();
-		if (latest_task->has_name()) 
-			m_str_inst_xm.add_pair(latest_task->name_ptr(), m_inst_task_count);
+			CPU_Threads::Threads_Used++;
+			tsk_idx = m_inst_task_count;
+			if (m_task_deque.front().blank())
+				continue;
+			else
+				(*m_inst_job_xm).add_pair(tsk_idx, Job<T>(std::move(m_task_deque.front()), CPU_Threads::Task_Count));
 
-		Nexus<T>::Task_Count++;
-		m_inst_task_count++;
-		m_task_deque.pop_front();
-		m_sig_get.notify_all();
+			const Task<T>* latest_task = (*m_inst_job_xm)[tsk_idx].task_ptr();
+			if (latest_task->has_name())
+				m_str_inst_xm.add_pair(latest_task->name_ptr(), tsk_idx);
+
+			CPU_Threads::Task_Count++;
+			m_inst_task_count++;
+
+			m_task_deque.pop_front();
+			m_sig_get.notify_all();
+		}
+		(*m_inst_job_xm)[tsk_idx].init();
 	}
 }
 
 template<typename T>
+template<typename F, typename ...A>
+inline void Nexus<T>::add(const xstring& key, F&& function, A&& ...Args)
+{
+	std::lock_guard<std::mutex> glock(m_get_mutex);
+	auto binded_function = std::bind(std::forward<F>(function), std::forward<A>(Args)...);
+	std::lock_guard <std::mutex> lock(m_mutex);
+	if(key.size())
+		m_task_deque.emplace_back(std::move(binded_function), key);
+	else
+		m_task_deque.emplace_back(std::move(binded_function));
+	m_sig_deque.notify_one();
+	m_sig_get.notify_all();
+}
+// ------------------------------------------------------------------------------------------
+template<typename T>
 Nexus<T>::Nexus() 
 {
 	m_inst_job_xm = new xmap<size_t, Job<T>>;
-	Nexus<T>::Inst_Count++;
-	m_threads.reserve(Nexus<T>::Thread_Count);
-	for (int i = 0; i < Nexus<T>::Thread_Count; ++i)
+	CPU_Threads::Inst_Count++;
+	m_threads.reserve(CPU_Threads::Thread_Count);
+	for (int i = 0; i < CPU_Threads::Thread_Count; ++i)
 		m_threads.emplace_back(std::bind(&Nexus<T>::TaskLooper, this, i));
+
+	CPU_Threads::Threads_Used = 0;
 }
 
 template<typename T>
@@ -115,34 +143,24 @@ Nexus<T>::~Nexus()
 {
 	{
 		std::unique_lock <std::mutex> lock(m_mutex);
-		Nexus<T>::Finish_Tasks = true;
+		m_finish_tasks = true;
 		m_sig_deque.notify_all();
 	}
 	m_threads.proc([](auto& t) { t.join(); });
 }
-
+// ------------------------------------------------------------------------------------------
 template<typename T>
 template<typename F, typename ...A>
 inline void Nexus<T>::add_job(const xstring& key, F&& function, A&&... Args)
 {
-	std::lock_guard<std::mutex> glock(m_get_mutex);
-	auto binded_function = std::bind(std::forward<F>(function), std::forward<A>(Args)...);
-	std::lock_guard <std::mutex> lock(m_mutex);
-	m_task_deque.emplace_back(std::move(binded_function), key);
-	m_sig_deque.notify_one();
-	m_sig_get.notify_all();
+	this->add(key, std::forward<F>(function), std::forward<A>(Args)...);
 }
 
 template<typename T>
 template<typename F, typename ...A>
 inline void Nexus<T>::add_job(const char* key, F&& function, A&& ...Args)
 {
-	std::lock_guard<std::mutex> glock(m_get_mutex);
-	auto binded_function = std::bind(std::forward<F>(function), std::forward<A>(Args)...);
-	std::lock_guard <std::mutex> lock(m_mutex);
-	m_task_deque.emplace_back(std::move(binded_function), xstring(key));
-	m_sig_deque.notify_one();
-	m_sig_get.notify_all();
+	this->add(xstring(key), std::forward<F>(function), std::forward<A>(Args)...);
 }
 
 template<typename T>
@@ -150,14 +168,9 @@ template <typename F, typename... A>
 inline auto Nexus<T>::add_job(F&& function, A&& ... Args)->
 	std::enable_if_t<!std::is_same_v<util::remove_cvref_t<F>, xstring>, void>
 {
-	std::lock_guard<std::mutex> glock(m_get_mutex);
-	auto binded_function = std::bind(std::forward<F>(function), std::forward<A>(Args)...);
-	std::lock_guard <std::mutex> lock(m_mutex);
-	m_task_deque.emplace_back(std::move(binded_function));
-	m_sig_deque.notify_one();
-	m_sig_get.notify_all();
+	this->add(xstring(), std::forward<F>(function), std::forward<A>(Args)...);
 }
-
+// ------------------------------------------------------------------------------------------
 template<typename T>
 inline Job<T> Nexus<T>::get(const xstring& input) 
 {
@@ -172,9 +185,9 @@ inline Job<T> Nexus<T>::get(const xstring& input)
 		}
 		throw std::runtime_error("Nexus Key Not Found!");
 	}
-	while (!m_str_inst_xm.has(input)) continue;
+	while (!m_str_inst_xm.has(input)) this->sleep(1);
 	size_t loc = m_str_inst_xm[input];
-	while (!(*m_inst_job_xm)[loc].done()) continue;
+	while (!(*m_inst_job_xm)[loc].done()) this->sleep(1);
 
 	(*m_inst_job_xm)[loc].rethrow_exception();
 	return (*m_inst_job_xm)[loc];
@@ -190,28 +203,33 @@ inline Job<T> Nexus<T>::get(const size_t input)
 	if (m_inst_task_count + m_task_deque.size() < input + 1)
 		throw std::runtime_error("Requested Job is Out of Range\n");
 
-	while (!(*m_inst_job_xm)(input)) continue;
-	while (!(*m_inst_job_xm)[input].done()) continue;
+	while (!(*m_inst_job_xm)(input)) this->sleep(1);
+	while (!(*m_inst_job_xm)[input].done()) this->sleep(1);
 
 	(*m_inst_job_xm)[input].rethrow_exception();
 	return (*m_inst_job_xm)[input];
 }
+// ------------------------------------------------------------------------------------------
 
 template<typename T>
-inline const size_t Nexus<T>::task_count() const
+inline size_t Nexus<T>::size() const
 {
-	return Nexus<T>::Task_Count;
+	return m_inst_task_count;
 }
 
 template<typename T>
-inline const size_t Nexus<T>::inst_count() const
+inline void Nexus<T>::wait_all() const
 {
-	return Nexus<T>::Inst_Count;
+	while (m_task_deque.size()) this->sleep(1);
+	while (CPU_Threads::Threads_Used > 0) this->sleep(1);
 }
 
 template<typename T>
-inline const size_t Nexus<T>::thread_count() const
+inline void Nexus<T>::sleep(unsigned int extent) const
 {
-	return Nexus<T>::Thread_Count;
+#if (defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64))
+	::Sleep(extent);
+#else
+	::sleep(extent);
+#endif
 }
-

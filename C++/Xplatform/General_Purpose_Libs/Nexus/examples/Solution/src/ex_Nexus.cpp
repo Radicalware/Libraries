@@ -3,13 +3,14 @@
 
 #include "Nexus.h"
 
+
 using std::cout;
 using std::endl;
 using std::bind;
 
 using ull = unsigned long long;
 
-ull prime_number(int placement) {
+ull prime_number(size_t placement) {
 	if (placement == 1)
 		return 1;
 	else if (placement < 1)
@@ -105,7 +106,6 @@ int main(){
 	// =============================================================================================
 
 	Nexus<xstring> nexx;
-
 	auto prime_34_arg0 = []() -> xstring {
 		return to_xstring(prime_number(34));
 	};
@@ -126,6 +126,31 @@ int main(){
 	test_exception(3, nexx);
 
 	// =============================================================================================
+
+	nex.wait_all();
+	const size_t start_loc = nex.size();
+	cout << "Jobs in progress should not exceed: " << nex.thread_count() << endl;
+	cout << "Jobs In Progress: " << nex.threads_used() << endl;
+	cout << "Starting Loop\n";
+	for (int i = 0; i < nex.thread_count() * 2; i++) {
+		nex.add_job(prime_number, 10000);
+		nex.sleep(10);
+		cout << "Jobs Running: " << nex.threads_used() << endl;
+	}
+	cout << "waiting for jobs to finish\n";
+	nex.wait_all();
+
+	cout << "total: " << nex.size() << endl;
+	for (int i = start_loc; i < nex.size(); i++) {
+		try {
+			cout << "result " << i << ": " << nex.get(i) << endl;
+		}
+		catch (...) {
+			test_exception(i, nex);
+		}
+	}
+	nex.wait_all();
+	cout << "Jobs In Progress: " << nex.threads_used() << endl;
 
 	return 0;
 }
