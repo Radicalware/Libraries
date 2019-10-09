@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #pragma warning ( disable : 26444) // Allow un-named objects
 
 #include "OS.h"

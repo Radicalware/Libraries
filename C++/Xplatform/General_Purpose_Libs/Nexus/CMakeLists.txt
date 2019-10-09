@@ -66,6 +66,12 @@ add_library(${THIS} STATIC
 
     ${SRC}/${THIS}.cpp
     ${INCLUDE}/${THIS}.h
+
+    ${SRC}/${THIS}_void.cpp
+    ${INCLUDE}/${THIS}_void.h
+
+    ${SRC}/${THIS}_T.cpp
+    ${INCLUDE}/${THIS}_T.h
 )
 add_library(radical::${THIS} ALIAS ${THIS})
 

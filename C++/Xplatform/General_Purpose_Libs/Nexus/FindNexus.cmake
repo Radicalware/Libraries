@@ -38,6 +38,12 @@ add_library(${LIB}
 
         ${NEXUS_DIR}/src/${LIB}.cpp
         ${NEXUS_DIR}/include/${LIB}.h
+
+        ${NEXUS_DIR}/src/${LIB}_void.cpp
+        ${NEXUS_DIR}/include/${LIB}_void.h
+
+        ${NEXUS_DIR}/src/${LIB}_T.cpp
+        ${NEXUS_DIR}/include/${LIB}_T.h
 )
 add_library(radical::${LIB} ALIAS ${LIB})
 

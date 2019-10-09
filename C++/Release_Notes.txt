@@ -1,6 +1,13 @@
 
 
 
+10/9/2019 >> Libs v11.0.2
+
+Sense Release Nexus is pretty well established.
+exception handling, recalling values, 
+cross-instance thread limiter, cross-platform, etc.
+
+
 10/8/2019 >> Libs v11.0.1
 
 Nexus is still in beta.

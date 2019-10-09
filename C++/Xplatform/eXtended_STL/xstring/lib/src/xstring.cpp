@@ -1,4 +1,4 @@
-#pragma warning (disable : 26444) // allow anynomous objects
+﻿#pragma warning (disable : 26444) // allow anynomous objects
 
 #include "xstring.h"
 
@@ -521,6 +521,38 @@ xstring xstring::operator()(double x, double y, double z, const char removal_met
 		}
 	}
 	return n_arr;
+}
+
+// =========================================================================================================================
+
+int xstring::to_int() const
+{
+	return std::atoi(this->c_str());
+}
+
+long xstring::to_long() const
+{
+	return std::atol(this->c_str());
+}
+
+long long xstring::to_ll() const
+{
+	return std::atoll(this->c_str());
+}
+
+size_t xstring::to_64() const
+{
+	return std::atoll(this->c_str());
+}
+
+double xstring::to_double() const
+{
+	return std::atof(this->c_str());
+}
+
+float xstring::to_float() const
+{
+	return static_cast<float>(std::atof(this->c_str()));
 }
 
 // =========================================================================================================================

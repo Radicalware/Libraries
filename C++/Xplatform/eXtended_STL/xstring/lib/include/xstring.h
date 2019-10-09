@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #pragma warning (disable : 26444) // allow anynomous objects
 
 /*
@@ -121,6 +121,15 @@ public:
 	// =================================================================================================================================
 
 	xstring operator()(double x = 0, double y = 0, double z = 0, const char removal_method = 's') const;
+
+	// =================================================================================================================================
+
+	int    to_int() const;
+	long   to_long() const;
+	long long to_ll() const;
+	size_t to_64() const;
+	double to_double() const;
+	float  to_float() const;
 
 	// =================================================================================================================================
 };

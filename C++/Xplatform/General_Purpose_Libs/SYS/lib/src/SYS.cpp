@@ -1,4 +1,4 @@
-
+﻿
 /*
 * Copyright[2018][Joel Leagues aka Scourge]
 * Scourge /at\ protonmail /dot\ com

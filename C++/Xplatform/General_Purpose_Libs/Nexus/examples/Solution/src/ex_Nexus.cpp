@@ -1,4 +1,4 @@
-#include<iostream>
+﻿#include<iostream>
 #include<exception>
 
 #include "Nexus.h"
@@ -40,10 +40,14 @@ ull prime_number(size_t placement) {
 	return prime;
 }
 
+xstring str_prime_number(size_t placement) {
+	return to_xstring(prime_number(placement));
+}
+
 template<typename T>
-void test_exception(xstring input, Nexus<T>& nex) {
+void test_exception(xstring input, Nexus<T>& nex_ull) {
 	try {
-		cout << nex.get(input) << endl;
+		cout << nex_ull.get(input) << endl;
 	}
 	catch (const std::exception& exc) {
 		cout << "Exception by: \"" << input << "\"\n" << exc.what() << "\n\n";
@@ -55,9 +59,9 @@ void test_exception(xstring input, Nexus<T>& nex) {
 
 
 template<typename T>
-void test_exception(size_t input, Nexus<T>& nex) {
+void test_exception(size_t input, Nexus<T>& nex_ull) {
 	try {
-		cout << nex.get(input) << endl;
+		cout << nex_ull.get(input) << endl;
 	}
 	catch (const std::exception& exc) {
 		cout << "Exception by: \"" << input << "\"\n" << exc.what() << "\n\n";
@@ -66,91 +70,108 @@ void test_exception(size_t input, Nexus<T>& nex) {
 		cout << "Exception by: \"" << input << "\"\n" << err_str << "\n\n";
 	}
 }
+
+void loop_str_prime_func(Nexus<xstring>& nex) {
+	//for (int i = 0; i < nex.thread_count(); i++) {
+	//	nex.add_job(str_prime_number, 10000);
+	//	nex.sleep(5);
+	//	cout << "Jobs Running: " << nex.threads_used() << endl;
+	//}
+};
 
 int main(){
 
 	// =============================================================================================
 
-	Nexus<ull> nex;
-	nex.add_job("ten",    prime_number, 10);
-	nex.add_job("eleven", prime_number, 11);
-	nex.add_job("twelve", prime_number, 12);
-	nex.add_job(prime_number, 13);             // no key for 13, you must reference by int
-	nex.add_job("fourteen", prime_number, 14);
-	nex.add_job("fifteen",  prime_number, 15);
+	Nexus<ull> nex_ull;
+	nex_ull.add_job("ten",    prime_number, 10);
+	nex_ull.add_job("eleven", prime_number, 11);
+	nex_ull.add_job("twelve", prime_number, 12);
+	nex_ull.add_job(prime_number, 13);             // no key for 13, you must reference by int
+	nex_ull.add_job("fourteen", prime_number, 14);
+	nex_ull.add_job("fifteen",  prime_number, 15);
 
-	cout << "thread zero  : " << nex.get(0) << endl;
-	cout << "thread one   : " << nex.get(1) << endl;
-	cout << "thread two   : " << nex.get(2) << endl;
-	cout << "thread three : " << nex.get(3) << endl;
-	cout << "thread four  : " << nex.get(4) << endl;
-	cout << "thread five  : " << nex.get(5) << endl;
-	                      test_exception(20, nex); // 20 tasks were not created.
+	cout << "thread zero  : " << nex_ull.get(0) << endl;
+	cout << "thread one   : " << nex_ull.get(1) << endl;
+	cout << "thread two   : " << nex_ull.get(2) << endl;
+	cout << "thread three : " << nex_ull.get(3) << endl;
+	cout << "thread four  : " << nex_ull.get(4) << endl;
+	cout << "thread five  : " << nex_ull.get(5) << endl;
+	                      test_exception(20, nex_ull); // 20 tasks were not created.
 
-	cout << "thread zero  : " << nex.get("ten") << endl;
-	cout << "thread one   : " << nex.get("eleven") << endl;
-	cout << "thread two   : " << nex.get("twelve") << endl;
-	                      test_exception("thirteen", nex); // key thirteen was not given.
-	cout << "thread four  : " << nex.get("fourteen") << endl;
-	cout << "thread five  : " << nex.get("fifteen")  << "\n\n";
+	cout << "thread zero  : " << nex_ull.get("ten") << endl;
+	cout << "thread one   : " << nex_ull.get("eleven") << endl;
+	cout << "thread two   : " << nex_ull.get("twelve") << endl;
+	                      test_exception("thirteen", nex_ull); // key thirteen was not given.
+	cout << "thread four  : " << nex_ull.get("fourteen") << endl;
+	cout << "thread five  : " << nex_ull.get("fifteen")  << "\n\n";
 
 	// =============================================================================================
 
-	nex.add_job( "Failure 0", prime_number,  0);
-	nex.add_job("Failure 99", prime_number, 99);
+	nex_ull.add_job( "Failure 0", prime_number,  0);
+	nex_ull.add_job("Failure 99", prime_number, 99);
 
-	test_exception("Failure 0", nex);
-	test_exception("Failure 99", nex);
+	test_exception("Failure 0", nex_ull);
+	test_exception("Failure 99", nex_ull);
 	cout << "\n";
 
 	// =============================================================================================
 
-	Nexus<xstring> nexx;
+	Nexus<xstring> nex_str;
 	auto prime_34_arg0 = []() -> xstring {
 		return to_xstring(prime_number(34));
 	};
-	auto prime_35_arg1 = [](int val) -> xstring {
-		return to_xstring(prime_number(val));
+	auto prime_35_arg1 = [](size_t val) -> xstring {
+		return to_xstring(int(val));
 	};
-	auto prime_46_arg2 = [](int val1, const char* val2) -> xstring {
-		return to_xstring(prime_number(val1+std::atoi(val2)));
+	auto prime_46_arg2 = [](int val1, const xstring& val2) -> xstring {
+		return to_xstring(prime_number(static_cast<size_t>(val1) + val2.to_64()));
 	};
-
-	nexx.add_job(prime_34_arg0);
-	nexx.add_job(prime_35_arg1, 35);
-	nexx.add_job("two args", prime_46_arg2, 36, "10");
-	cout << nexx.get(0) << endl;
-	cout << nexx.get(1) << endl;
-	cout << nexx.get("two args") << endl;
+	// works with no args, one arg or multiple args
+	nex_str.add_job(prime_34_arg0);
+	nex_str.add_job(prime_35_arg1, 35);
+	nex_str.add_job("two args", prime_46_arg2, 36, "10");
+	cout << nex_str.get(0) << endl;
+	cout << nex_str.get(1) << endl;
+	cout << nex_str.get("two args") << endl;
 	
-	test_exception(3, nexx);
+	test_exception(3, nex_str);
 
 	// =============================================================================================
 
-	nex.wait_all();
-	const size_t start_loc = nex.size();
-	cout << "Jobs in progress should not exceed: " << nex.thread_count() << endl;
-	cout << "Jobs In Progress: " << nex.threads_used() << endl;
-	cout << "Starting Loop\n";
-	for (int i = 0; i < nex.thread_count() * 2; i++) {
-		nex.add_job(prime_number, 10000);
-		nex.sleep(10);
-		cout << "Jobs Running: " << nex.threads_used() << endl;
-	}
-	cout << "waiting for jobs to finish\n";
-	nex.wait_all();
+	nex_ull.wait_all();
+	nex_ull.clear();
 
-	cout << "total: " << nex.size() << endl;
-	for (int i = start_loc; i < nex.size(); i++) {
-		try {
-			cout << "result " << i << ": " << nex.get(i) << endl;
-		}
-		catch (...) {
-			test_exception(i, nex);
-		}
+	nex_str.wait_all();
+	nex_str.clear();
+
+	cout << "Jobs in progress should not exceed: " << nex_ull.thread_count() << endl;
+	cout << "Jobs In Progress: " << nex_ull.threads_used() << endl;
+	cout << "Starting Loop\n";
+
+
+	
+	Nexus<void> nex_void;
+	cout << "waiting for jobs to finish\n";
+
+	nex_ull.wait_all();
+	nex_str -= 1; // decrease allowed threads by 1
+	cout << "Usable Threads: " << nex_ull.thread_count() << endl;
+
+	for (int i = 0; i < nex_ull.thread_count() * 2; i++) {
+		nex_ull.add_job(prime_number, 10000);
+		nex_ull.sleep(5); // a thread isn't listed as being "used" until the actual process starts
+		// not when the "add_job" function is executed because that process may be just sitting in a queue
+		cout << "Jobs Running: " << nex_ull.threads_used() << endl;
 	}
-	nex.wait_all();
-	cout << "Jobs In Progress: " << nex.threads_used() << endl;
+	nex_ull.reset_thread_count();
+	cout << "Usable Threads: " << nex_ull.thread_count() << endl;
+
+	nex_void.wait_all(); // wait all isn't required because the getter will cause the wait
+	// but the print will be smoother if you wait for all the values to be populated first
+	for (int i = 0; i < nex_ull.size(); i++) {
+		cout << nex_ull(i) << endl;
+	}
 
 	return 0;
 }
