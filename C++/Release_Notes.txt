@@ -1,5 +1,12 @@
 
 
+---------------------------------------------------------------------
+
+10/9/2019 >> Libs v11.0.3
+
+Nexus had a memory leak that was removed
+
+---------------------------------------------------------------------
 
 10/9/2019 >> Libs v11.0.2
 
@@ -7,6 +14,7 @@ Sense Release Nexus is pretty well established.
 exception handling, recalling values, 
 cross-instance thread limiter, cross-platform, etc.
 
+---------------------------------------------------------------------
 
 10/8/2019 >> Libs v11.0.1
 
@@ -14,6 +22,7 @@ Nexus is still in beta.
 It is working decently well in windows but is broken in Linux.
 It will be updated soon.
 
+---------------------------------------------------------------------
 
 
 

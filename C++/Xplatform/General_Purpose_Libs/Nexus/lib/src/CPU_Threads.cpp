@@ -43,17 +43,17 @@ void CPU_Threads::operator+=(int val)
 {
 	Thread_Count += val;
 	if (Thread_Count < 0)
-		Thread_Count == 0;
+		Thread_Count = 0;
 }
 
 void CPU_Threads::operator-=(int val)
 {
 	Thread_Count -= val;
 	if (Thread_Count < 0)
-		Thread_Count == 0;
+		Thread_Count = 0;
 }
 
 void CPU_Threads::operator==(int val) const
 {
-	Thread_Count == val;
+	Thread_Count = val;
 }

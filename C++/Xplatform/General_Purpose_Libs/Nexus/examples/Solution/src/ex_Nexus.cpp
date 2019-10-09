@@ -1,4 +1,4 @@
-﻿#include<iostream>
+#include<iostream>
 #include<exception>
 
 #include "Nexus.h"
@@ -149,9 +149,6 @@ int main(){
 	cout << "Jobs In Progress: " << nex_ull.threads_used() << endl;
 	cout << "Starting Loop\n";
 
-
-	
-	Nexus<void> nex_void;
 	cout << "waiting for jobs to finish\n";
 
 	nex_ull.wait_all();
@@ -167,11 +164,17 @@ int main(){
 	nex_ull.reset_thread_count();
 	cout << "Usable Threads: " << nex_ull.thread_count() << endl;
 
-	nex_void.wait_all(); // wait all isn't required because the getter will cause the wait
+	nex_ull.wait_all(); // wait all isn't required because the getter will cause the wait
 	// but the print will be smoother if you wait for all the values to be populated first
 	for (int i = 0; i < nex_ull.size(); i++) {
 		cout << nex_ull(i) << endl;
 	}
 
+	Nexus<void> nex_void;
+	nex_void.add_job([]()->void {
+		cout << "Void Job" << endl;
+	});
+	nex_void.wait_all();
+	
 	return 0;
 }

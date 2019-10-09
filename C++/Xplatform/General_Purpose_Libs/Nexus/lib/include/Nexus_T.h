@@ -182,6 +182,7 @@ Nexus<T>::~Nexus()
 		m_sig_deque.notify_all();
 	}
 	m_threads.proc([](auto& t) { t.join(); });
+	delete m_inst_job_xm;
 }
 // ------------------------------------------------------------------------------------------
 template<typename T>

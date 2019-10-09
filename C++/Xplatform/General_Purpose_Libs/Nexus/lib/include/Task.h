@@ -7,7 +7,7 @@
 template<typename T>
 class Task
 {
-	xstring* m_name = nullptr;
+	xstring* m_name = nullptr; // set as pointer because it isn't always used
 	std::function<T()> m_method;
 	bool m_blank = false;
 
@@ -20,6 +20,8 @@ public:
 	Task(      std::function<T()>&& i_method,       xstring&& i_name);
 	Task(const std::function<T()>&  i_method, const xstring&  i_name);
 	~Task();
+
+	void add_method(const std::function<T()>& i_method);
 
 	bool blank() const;
 	bool has_name() const;
@@ -75,6 +77,13 @@ inline Task<T>::~Task()
 {
 	if(m_name != nullptr)
 		delete m_name;
+}
+
+template<typename T>
+inline void Task<T>::add_method(const std::function<T()>& i_method)
+{
+	m_method = i_method;
+	m_blank = false;
 }
 
 template<typename T>
