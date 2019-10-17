@@ -100,7 +100,8 @@ public:
 	Job<T> operator()(const xstring& val);
 	Job<T> operator()(const size_t val);
 	// Getters can't be const due to the mutex
-	Job<T> get(const xstring& val);
+    Job<T> get(const xstring& val);
+    Job<T> get(const char* val);
 	Job<T> get(const size_t val);
 
 	size_t size() const;
@@ -251,6 +252,12 @@ inline Job<T> Nexus<T>::operator()(const size_t input)
 template<typename T>
 inline Job<T> Nexus<T>::get(const xstring& input) {
 	return this->operator()(input);
+}
+
+template<typename T>
+inline Job<T> Nexus<T>::get(const char* val)
+{
+    return this->get(xstring(val));
 }
 
 template<typename T>

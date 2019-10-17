@@ -6,7 +6,7 @@ set(LIB xvector)
 set(CMAKE_BUILD_TYPE "${BUILD_TYPE}")
 if(MSVC)
     if("${BUILD_TYPE}" STREQUAL "Release")
-        message("Buidling with -O2 ${BUILD_TYPE}")
+        message("Buidling ${THIS} with -O2 ${BUILD_TYPE}")
         add_definitions( "-O2" )
     endif()
 else()
@@ -30,8 +30,8 @@ add_library(${LIB}
         ${XVECTOR_DIR}/include/${LIB}.h
         ${XVECTOR_DIR}/src/${LIB}.cpp
 
-        ${XVECTOR_DIR}/include/const_${LIB}.h
-        ${XVECTOR_DIR}/src/const_${LIB}.cpp
+        ${XVECTOR_DIR}/include/ptr_${LIB}.h
+        ${XVECTOR_DIR}/src/ptr_${LIB}.cpp
 
         ${XVECTOR_DIR}/include/val_${LIB}.h
         ${XVECTOR_DIR}/src/val_${LIB}.cpp

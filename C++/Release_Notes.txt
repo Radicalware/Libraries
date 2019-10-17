@@ -2,6 +2,15 @@
 
 ---------------------------------------------------------------------
 
+10/16/2019 >> Libs v12.0.0
+
+Threader.h has been added. This is basically Nexus but without
+xvector/xstring/xmap. I will be using it in those objects
+to make integrated multi-threading in later releases. Nexus will
+get all the new updates because it is easier to work with.
+
+---------------------------------------------------------------------
+
 10/9/2019 >> Libs v11.0.3
 
 Nexus had a memory leak that was removed

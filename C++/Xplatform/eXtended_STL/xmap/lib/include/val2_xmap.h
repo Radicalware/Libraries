@@ -28,11 +28,7 @@
 #include "xvector.h"
 #include "xstring.h"
 
-#include "val2_xmap.h"
 #include "xmap.h"
-
-template<typename K, typename V> class xmap;
-template<typename K, typename V> class xmap<K*, V*>;
 
 
 template<typename K, typename V>
@@ -66,7 +62,6 @@ public:
 
 	inline V key(const K& input) const; // ------|
 	inline V value_for(const K& input) const;//--|--all 3 are the same
-	//inline V at(const K& input) const; //--------|
 
 	// ======== RETREVAL =============================================================================
 	// ======== BOOLS ================================================================================
@@ -78,10 +73,6 @@ public:
 
 	inline bool operator()(const K& iKey) const;
 	inline bool operator()(const K& iKey, const V& iValue) const;
-
-	//inline V operator[](const K& key) const;
-	//inline V operator[](K&& key) const;
-	//inline V operator[](char* key) const;
 
 	// ======== BOOLS ================================================================================
 	// ======== Functional ===========================================================================
@@ -124,10 +115,7 @@ inline xmap<K, V>::~xmap()
 template<typename K, typename V>
 inline xmap<K, V>::xmap(std::initializer_list<std::pair<K, V>> init)
 {
-	//for (const std::pair<K, V>& val : init) // for std::map
-	//	this->insert(val);
 	this->insert(init.begin(), init.end());
-
 }
 
 template<typename K, typename V>
@@ -213,17 +201,7 @@ inline V xmap<K, V>::value_for(const K& input) const
 	}
 	return V();
 }
-//template<typename K, typename V>
-//inline V xmap<K, V>::at(const K& input) const
-//{
-//	if (this->size() == 0)
-//		return V();
-//	for (typename std::unordered_map<K, V>::const_iterator iter = this->begin(); iter != this->end(); ++iter) {
-//		if (iter->first == input)
-//			return iter->second;
-//	}
-//	return V();
-//}
+
 // ======== RETREVAL =============================================================================
 // ======== BOOLS ================================================================================
 
@@ -278,23 +256,6 @@ inline bool xmap<K, V>::operator()(const K& iKey, const V& iValue) const
 		return false;
 }
 
-
-//template<typename K, typename V>
-//inline V xmap<K, V>::operator[](const K& key) const {
-//
-//	return this->at(key);
-//}
-//
-//template<typename K, typename V>
-//inline V xmap<K, V>::operator[](K&& key) const {
-//	return this->at(key)
-//}
-//
-//template<typename K, typename V>
-//inline V xmap<K, V>::operator[](char* key) const{
-//	return this->at(K(key));
-//}
-
 // ======== BOOLS ================================================================================
 // ======== Functional ===========================================================================
 template<typename K, typename V>
@@ -331,6 +292,7 @@ inline xvector<const K*> xmap<K, V>::cached_keys() const
 {
 	if (m_keys == nullptr)
 		return xvector<const K*>();
+
 	return *m_keys;
 }
 

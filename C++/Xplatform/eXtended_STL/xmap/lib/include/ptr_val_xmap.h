@@ -28,11 +28,7 @@
 #include "xvector.h"
 #include "xstring.h"
 
-#include "val2_xmap.h"
 #include "xmap.h"
-
-template<typename K, typename V> class xmap;
-template<typename K, typename V> class xmap<K*, V*>;
 
 template<typename K, typename V>
 class xmap<K*,V> : public std::unordered_map<K*,V>
@@ -70,8 +66,7 @@ public:
 	// ======== BOOLS ================================================================================
 
 	inline bool has(const K& input) const;
-	//inline bool has(K&& input) const;
-	//inline bool has(char const* input) const;
+
 	inline bool operator()(const K& iKey) const;
 
 	inline bool operator()(const K& iKey, const V& iValue) const;
@@ -201,13 +196,14 @@ inline V xmap<K*, V>::value_for(const K& input) const
 template<typename K, typename V>
 inline V xmap<K*, V>::at(const K& input) const
 {
-	if (this->size() == 0)
-		return V();
+    if (this->size() == 0)
+        throw std::out_of_range("Map Size is Zero!");
+
 	for (typename std::unordered_map<K*, V>::const_iterator iter = this->begin(); iter != this->end(); ++iter) {
 		if (*iter->first == input)
 			return iter->second;
 	}
-	return V();
+    throw std::out_of_range("Key [" + input + "] Not Found!");
 }
 // ======== RETREVAL =============================================================================
 // ======== BOOLS ================================================================================
@@ -242,9 +238,13 @@ inline bool xmap<K*, V>::operator()(const K& iKey, const V& iValue) const
 
 
 template<typename K, typename V>
-inline V xmap<K*, V>::operator[](const K& key) const {
-
-	return this->at(key);
+inline V xmap<K*, V>::operator[](const K& key) const 
+{
+    for (typename std::unordered_map<K*, V>::const_iterator iter = this->begin(); iter != this->end(); ++iter) {
+        if (*iter->first == key)
+            return iter->second;
+    }
+    return V();
 }
 
 // ======== BOOLS ================================================================================

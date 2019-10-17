@@ -1,7 +1,7 @@
 ﻿
 cmake_minimum_required(VERSION 3.10)
 
-set(THIS xvector)
+SET(THIS ex_Threader)
 project (${THIS})
 
 message("")
@@ -17,18 +17,12 @@ message("-----------------------------------------------------------------------
 # -------------------------- ARGUMENTS ----------------------------------------
 set(CMAKE_BUILD_TYPE "${BUILD_TYPE}")
 if(MSVC)
-    set(PF "")
-    set(SF ".lib")
-
     if("${BUILD_TYPE}" STREQUAL "Release")
         message("Buidling with -O2 ${BUILD_TYPE}")
         add_definitions( "-O2" )
     endif()
-else() # NIX
-    set(PF "lib")
-    set(SF ".a")
-    set(LINUX_ARGS "-std=c++17 -Wfatal-errors -finput-charset=UTF-8 -fPIC")
-
+else()
+    set(LINUX_ARGS "-std=c++17 -Wfatal-errors -finput-charset=UTF-8 -fPIC -pthread")
     if("${BUILD_TYPE}" STREQUAL "Release")
         message("Buidling with -O2 ${BUILD_TYPE}")
         set(CMAKE_CXX_FLAGS " ${CMAKE_CXX_FLAGS_INIT}  ${LINUX_ARGS} -O2")
@@ -40,72 +34,44 @@ else() # NIX
 endif()
 # -------------------------- ARGUMENTS ----------------------------------------
 # -------------------------- CONFIGURATION ------------------------------------
-set(BUILD_DIR ${CMAKE_SOURCE_DIR}/lib)
+set(BUILD_DIR ${CMAKE_SOURCE_DIR}/Solution)
 set(INCLUDE   ${BUILD_DIR}/include)
 set(SRC       ${BUILD_DIR}/src)
 
-set(CMAKE_CONFIGURATION_TYPES ${BUILD_TYPE} CACHE STRING "" FORCE)
 include_directories(${CMAKE_CURRENT_BINARY_DIR} ${INCLUDE}) 
+set(CMAKE_CONFIGURATION_TYPES ${BUILD_TYPE} CACHE STRING "" FORCE)
+set(CMAKE_MODULE_PATH ${MODULE_PATH})
 
-if(EXISTS "${PROJECT_SOURCE_DIR}/Find${THIS}.cmake")
-    file(REMOVE ${MODULE_PATH}/Find${THIS}.cmake)
+if(MSVC)
+    SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG   "${CMAKE_BINARY_DIR}/${BUILD_TYPE}/bin")
+    SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/${BUILD_TYPE}/bin")
+
+    SET( CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG   "${CMAKE_BINARY_DIR}/${BUILD_TYPE}/lib")
+    SET( CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/${BUILD_TYPE}/lib")
+
+    SET( CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG   "${CMAKE_BINARY_DIR}/${BUILD_TYPE}/lib")
+    SET( CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/${BUILD_TYPE}/lib")
 else()
-    message(FATAL_ERROR "/n/n!!!! Find${THIS}.cmake NOT FOUND !!!!/n/n")
-endif()
+    set (CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${BUILD_TYPE}")
+    set (CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${BUILD_TYPE}/bin")
+    set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${BUILD_TYPE}/lib")
+endif() 
 # -------------------------- CONFIGURATION ------------------------------------
 # -------------------------- BUILD --------------------------------------------
-add_library( 
-    ${THIS} STATIC
-        ${SRC}/${THIS}.cpp
-        ${SRC}/val_${THIS}.cpp
-        ${SRC}/ptr_${THIS}.cpp
-)
-add_library(radical::${THIS} ALIAS ${THIS})
+find_package(xstring)
+find_package(xvector)
+find_package(Threader)
 
-target_include_directories(${THIS}
+add_executable(${THIS}
+    ${SRC}/${THIS}.cpp
+)
+
+target_link_libraries( ${THIS}
     PRIVATE
-        ${EXT_INCLUDE_PATH}
-        ${INCLUDE}
+        radical::xstring
+        radical::xvector
+        radical::Threader
 )
 
-# Required Libs ---------------------------------------------------------------
-message ("No Required Libs Required")
 # -------------------------- BUILD --------------------------------------------
-# -------------------------- INSTALL ------------------------------------------
-
-# Binary File
-install (  
-    TARGETS             ${THIS}
-    DESTINATION         bin/${BUILD_TYPE}
-)
-
-# Include file
-install (   
-    DIRECTORY           ${BUILD_DIR}/include 
-    DESTINATION         .
-)
-
-# Header/Src Files
-install (   
-    DIRECTORY           ${BUILD_DIR}/include 
-    DESTINATION         code/${THIS}
-)
-install (   
-    DIRECTORY           ${BUILD_DIR}/src 
-    DESTINATION         code/${THIS}
-)
-
-# CMake Module
-if(UNIX)
-    install (   
-        FILES           Find${THIS}.cmake 
-        DESTINATION     /${PART_MODULE_PATH}
-    ) 
-else()
-    install (   
-        FILES           Find${THIS}.cmake 
-        DESTINATION     C:/${PART_MODULE_PATH}
-    )
-endif()
-# -------------------------- INSTALL ------------------------------------------
 # -------------------------- END ----------------------------------------------

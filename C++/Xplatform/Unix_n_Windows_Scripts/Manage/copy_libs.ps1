@@ -1,7 +1,7 @@
 #!/usr/bin/env pwsh
 
 Write-Host
-Write-Host '--------------------------------------------------'
+Write-Host "----------------------------------------------------------------------"
 
 $build_dir         = "C:\source\include"
 $cmake_install_dir = 'C:\source\CMake\Radicalware\Libraries\cpp\code'
@@ -14,7 +14,7 @@ $Modded_Objects       = 'Modded_Objects'
 
 Write-Host "Copying Lib Folders: "
 Write-Host "1. $General_Purpose_Libs : OS, SYS, Iterator, Nexus"
-Write-Host "2. $eXtended_STL         : xvector, xstring, xmap"
+Write-Host "2. $eXtended_STL         : xvector, xstring, xmap, Threader"
 Write-Host "2. $Functional_STL       : re, ac, mc"
 Write-Host "3. $Modded_Objects       : cc"
 
@@ -23,6 +23,7 @@ Copy-Item "$cmake_install_dir\SYS\*"      $build_dir\$General_Purpose_Libs\SYS\l
 Copy-Item "$cmake_install_dir\Iterator\*" $build_dir\$General_Purpose_Libs\Iterator\lib -Recurse -Force
 Copy-Item "$cmake_install_dir\Nexus\*"    $build_dir\$General_Purpose_Libs\Nexus\lib -Recurse -Force
 
+Copy-Item "$cmake_install_dir\Threader\*" $build_dir\$eXtended_STL\Threader\lib -Recurse -Force 
 Copy-Item "$cmake_install_dir\xvector\*"  $build_dir\$eXtended_STL\xvector\lib -Recurse -Force 
 Copy-Item "$cmake_install_dir\xstring\*"  $build_dir\$eXtended_STL\xstring\lib -Recurse -Force 
 Copy-Item "$cmake_install_dir\xmap\*"     $build_dir\$eXtended_STL\xmap\lib -Recurse -Force
@@ -35,4 +36,4 @@ Copy-Item "$cmake_install_dir\cc\*"       $build_dir\$Modded_Objects\cc\lib -Rec
 
 
 Write-Host "All Lib Folders Updated!!"
-Write-Host "--------------------------------------------------`n"
+Write-Host "----------------------------------------------------------------------`n"

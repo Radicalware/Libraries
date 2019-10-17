@@ -17,6 +17,7 @@ if(!$modify){
 		"../../functional_STL/mc/install.ps1",
 		"../../functional_STL/re/install.ps1",
 
+		"../../eXtended_STL/Threader/install.ps1",
 		"../../eXtended_STL/xstring/install.ps1",
 		"../../eXtended_STL/xvector/install.ps1",
 		"../../eXtended_STL/xmap/install.ps1",
@@ -34,6 +35,7 @@ if(!$modify){
 		"../../functional_STL/mc/examples/run.ps1",
 		"../../functional_STL/re/examples/run.ps1",
 
+		"../../eXtended_STL/Threader/examples/run.ps1",
 		"../../eXtended_STL/xvector/examples/run.ps1",
 		"../../eXtended_STL/xstring/example/run.ps1",
 		"../../eXtended_STL/xmap/examples/run.ps1",

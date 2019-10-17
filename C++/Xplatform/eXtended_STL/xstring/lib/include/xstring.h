@@ -33,6 +33,10 @@
 
 #include "xvector.h"
 
+class xstring;
+template<typename T>
+xstring to_xstring(const T& num);
+
 class xstring : public std::string
 {
 public:
@@ -55,6 +59,8 @@ public:
 	void operator=(const xstring& other);
 	void operator=(xstring&& other) noexcept;
 	void operator=(const char* other);
+
+    //void operator+=(const size_t& val);
 
 	bool operator==(const char* other) const;
 
@@ -137,49 +143,45 @@ public:
 
 // stand-alone function
 template<typename T>
-xstring to_xstring(const T& str) {
-	return xstring(std::to_string(str)); // TODO: use ss
+xstring to_xstring(const T& num) {
+	return xstring(std::to_string(num)); // TODO: use ss
 }
-
 
 #if defined(__unix__)
-	#define   _NODISCARD
-	constexpr size_t _FNV_offset_basis = 14695981039346656037ULL;
-	constexpr size_t _FNV_prime = 1099511628211ULL;
+#define   _NODISCARD
+#define   _CXX17_DEPRECATE_ADAPTOR_TYPEDEFS
+constexpr size_t _FNV_offset_basis = 14695981039346656037ULL;
+constexpr size_t _FNV_prime = 1099511628211ULL;
 #endif
 
-// the following is an implementation from Type_Traits
 namespace std
 {
+    struct hash_xstring_vals
+    {
+        _CXX17_DEPRECATE_ADAPTOR_TYPEDEFS typedef xstring argument_type;
+        _CXX17_DEPRECATE_ADAPTOR_TYPEDEFS typedef size_t result_type;
 
-	_NODISCARD inline size_t _xstring_append_bytes(size_t _Val, const unsigned char* const _First,
-		const size_t _Count) noexcept { // accumulate range [_First, _First + _Count) into partial FNV-1a hash _Val
-		for (size_t _Idx = 0; _Idx < _Count; ++_Idx) {
-			_Val ^= static_cast<size_t>(_First[_Idx]);
-			_Val *= _FNV_prime;
-		}
-		return _Val;
-	}
+#if defined(__unix__)
+        template <class _Kty>
+        _NODISCARD size_t _Hash_array_representation(
+            const _Kty* const _First, const size_t _Count) const noexcept;
 
-	_NODISCARD inline size_t xstring_Hash_array_representation(
-		const char* const _First, size_t _Count) noexcept { // bitwise hashes the representation of an array
-		static_assert(is_trivial_v<char*>, "Only trivial types can be directly hashed.");
-		return _xstring_append_bytes(
-			_FNV_offset_basis, reinterpret_cast<const unsigned char*>(_First), _Count * sizeof(char*));
-	}
+        _NODISCARD inline size_t _Fnv1a_append_bytes(
+            size_t _Val, const unsigned char* const _First, const size_t _Count) const noexcept;
+#endif
+    };
 
-	template<>
-	struct hash<xstring> {
-		_NODISCARD size_t operator()(const xstring& str) const
-		{ // hash _Keyval to size_t value by pseudorandomizing transform
-			return xstring_Hash_array_representation(str.c_str(), str.size());
-		}
-	};
-	template<>
-	struct hash<xstring*> {
-		_NODISCARD size_t operator()(const xstring* str) const
-		{ // hash _Keyval to size_t value by pseudorandomizing transform
-			return xstring_Hash_array_representation(str->c_str(), str->size());
-		}
-	};
+    // STRUCT TEMPLATE SPECIALIZATION hash
+    template<> struct hash<xstring> : hash_xstring_vals {
+        _NODISCARD size_t operator()(const xstring& _Keyval) const noexcept;
+    };
+
+    template<> struct hash<xstring*> : hash_xstring_vals {
+        _NODISCARD size_t operator()(const xstring* _Keyval) const noexcept;
+    };
+
+    template<> struct hash<const xstring*> : hash_xstring_vals {
+        _NODISCARD size_t operator()(const xstring* _Keyval) const noexcept;
+    };
 }
+

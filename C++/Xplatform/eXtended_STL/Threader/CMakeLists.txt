@@ -1,7 +1,7 @@
 ﻿
 cmake_minimum_required(VERSION 3.10)
 
-set(THIS xvector)
+set(THIS Threader)
 project (${THIS})
 
 message("")
@@ -27,7 +27,7 @@ if(MSVC)
 else() # NIX
     set(PF "lib")
     set(SF ".a")
-    set(LINUX_ARGS "-std=c++17 -Wfatal-errors -finput-charset=UTF-8 -fPIC")
+    set(LINUX_ARGS "-std=c++17 -Wfatal-errors -finput-charset=UTF-8 -fPIC -pthread")
 
     if("${BUILD_TYPE}" STREQUAL "Release")
         message("Buidling with -O2 ${BUILD_TYPE}")
@@ -44,7 +44,7 @@ set(BUILD_DIR ${CMAKE_SOURCE_DIR}/lib)
 set(INCLUDE   ${BUILD_DIR}/include)
 set(SRC       ${BUILD_DIR}/src)
 
-set(CMAKE_CONFIGURATION_TYPES ${BUILD_TYPE} CACHE STRING "" FORCE)
+set(cmake_configuration_types ${build_type} cache string "" force)
 include_directories(${CMAKE_CURRENT_BINARY_DIR} ${INCLUDE}) 
 
 if(EXISTS "${PROJECT_SOURCE_DIR}/Find${THIS}.cmake")
@@ -54,11 +54,24 @@ else()
 endif()
 # -------------------------- CONFIGURATION ------------------------------------
 # -------------------------- BUILD --------------------------------------------
-add_library( 
-    ${THIS} STATIC
-        ${SRC}/${THIS}.cpp
-        ${SRC}/val_${THIS}.cpp
-        ${SRC}/ptr_${THIS}.cpp
+add_library(${THIS} STATIC 
+    ${SRC}/CPU_Threads.cpp
+    ${INCLUDE}/CPU_Threads.h
+
+    ${SRC}/Task.cpp
+    ${INCLUDE}/Task.h
+
+    ${SRC}/Job.cpp
+    ${INCLUDE}/Job.h
+
+    ${SRC}/${THIS}.cpp
+    ${INCLUDE}/${THIS}.h
+
+    ${SRC}/${THIS}_void.cpp
+    ${INCLUDE}/${THIS}_void.h
+
+    ${SRC}/${THIS}_T.cpp
+    ${INCLUDE}/${THIS}_T.h
 )
 add_library(radical::${THIS} ALIAS ${THIS})
 
@@ -67,12 +80,8 @@ target_include_directories(${THIS}
         ${EXT_INCLUDE_PATH}
         ${INCLUDE}
 )
-
-# Required Libs ---------------------------------------------------------------
-message ("No Required Libs Required")
 # -------------------------- BUILD --------------------------------------------
 # -------------------------- INSTALL ------------------------------------------
-
 # Binary File
 install (  
     TARGETS             ${THIS}
@@ -101,7 +110,7 @@ if(UNIX)
         FILES           Find${THIS}.cmake 
         DESTINATION     /${PART_MODULE_PATH}
     ) 
-else()
+else() # Windows x86/x86_64
     install (   
         FILES           Find${THIS}.cmake 
         DESTINATION     C:/${PART_MODULE_PATH}

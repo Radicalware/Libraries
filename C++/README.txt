@@ -19,16 +19,17 @@ eXtended_STL
 	1. xvector   - eXtended std::vector
 	2. xstring   - eXtended std::string
 	3. xmap      - eXtended std::map
+	4. Threader  - for eXtended integrated multi-threading
 funcitonal_STL
-	4. ac        - array controller
-	5. re        - regex (string controller)
-	6. mc        - map controller
+	5. ac        - array controller
+	6. re        - regex (string controller)
+	7. mc        - map controller
 General_Purpose_Libs
-	7. SYS       - Key/Value Pair Argument Parsing
-	8. OS        - Operating System handling
-	9. Nexus     - Thread Pool with Indexing & Exception Handling
+	8. SYS       - Key/Value Pair Argument Parsing
+	9. OS        - Operating System handling
+	10. Nexus    - Thread Pool with Indexing & Exception Handling
 Mods
-	10. cc        - A modified version of termcolor by Ihor Kalnytskyi
+	11. cc       - A modified version of termcolor by Ihor Kalnytskyi
 Modules	
-	11. QtImage  - A module that handles images on Qt Objects
+	12. QtImage  - A module that handles images on Qt Objects
 

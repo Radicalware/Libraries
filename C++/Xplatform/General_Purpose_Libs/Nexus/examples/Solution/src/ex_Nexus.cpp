@@ -1,4 +1,4 @@
-#include<iostream>
+﻿#include<iostream>
 #include<exception>
 
 #include "Nexus.h"
@@ -91,7 +91,7 @@ int main(){
 	nex_ull.add_job("fourteen", prime_number, 14);
 	nex_ull.add_job("fifteen",  prime_number, 15);
 
-	cout << "thread zero  : " << nex_ull.get(0) << endl;
+	cout << "thread zero  : " << nex_ull(0) << endl;
 	cout << "thread one   : " << nex_ull.get(1) << endl;
 	cout << "thread two   : " << nex_ull.get(2) << endl;
 	cout << "thread three : " << nex_ull.get(3) << endl;
@@ -131,7 +131,7 @@ int main(){
 	nex_str.add_job(prime_34_arg0);
 	nex_str.add_job(prime_35_arg1, 35);
 	nex_str.add_job("two args", prime_46_arg2, 36, "10");
-	cout << nex_str.get(0) << endl;
+	cout << nex_str(0) << endl;
 	cout << nex_str.get(1) << endl;
 	cout << nex_str.get("two args") << endl;
 	

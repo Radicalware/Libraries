@@ -21,7 +21,7 @@ if(MSVC)
     set(SF ".lib")
 
     if("${BUILD_TYPE}" STREQUAL "Release")
-        message("Buidling with -O2 ${BUILD_TYPE}")
+        message("Buidling ${THIS} with -O2 ${BUILD_TYPE}")
         add_definitions( "-O2" )
     endif()
 else() # NIX

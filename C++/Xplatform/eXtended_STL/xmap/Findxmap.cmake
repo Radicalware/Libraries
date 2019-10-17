@@ -6,7 +6,7 @@ set(LIB xmap)
 set(CMAKE_BUILD_TYPE "${BUILD_TYPE}")
 if(MSVC)
     if("${BUILD_TYPE}" STREQUAL "Release")
-        message("Buidling with -O2 ${BUILD_TYPE}")
+        message("Buidling ${THIS} with -O2 ${BUILD_TYPE}")
         add_definitions( "-O2" )
     endif()
 else()
@@ -28,21 +28,18 @@ set(XMAP_DIR ${INSTALL_PREFIX}/code/${LIB})
 add_library(${LIB} STATIC 
     ${XMAP_DIR}/include/${LIB}.h
     ${XMAP_DIR}/src/${LIB}.cpp
+	
+    ${XMAP_DIR}/include/val2_xmap.h
+    ${XMAP_DIR}/src/val2_xmap.cpp
 
-    ${XMAP_DIR}/include/const2_xmap.h
-    ${XMAP_DIR}/src/const2_xmap.cpp
-
-    ${XMAP_DIR}/include/const_ptr_xmap.h
-    ${XMAP_DIR}/src/const_ptr_xmap.cpp
-
-    ${XMAP_DIR}/include/const_val_xmap.h
-    ${XMAP_DIR}/src/const_val_xmap.cpp
+    ${XMAP_DIR}/include/ptr2_xmap.h
+    ${XMAP_DIR}/src/ptr2_xmap.cpp
 
     ${XMAP_DIR}/include/ptr_val_xmap.h
     ${XMAP_DIR}/src/ptr_val_xmap.cpp
 
-    ${XMAP_DIR}/include/val2_xmap.h
-    ${XMAP_DIR}/src/val2_xmap.cpp
+    ${XMAP_DIR}/include/val_ptr_xmap.h
+    ${XMAP_DIR}/src/val_ptr_xmap.cpp
 )
 
 add_library(radical::${LIB} ALIAS ${LIB})

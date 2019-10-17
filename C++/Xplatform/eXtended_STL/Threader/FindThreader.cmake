@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-set(LIB Nexus)
+set(LIB Threader)
 
 # -------------------------- ARGUMENTS ----------------------------------------
 set(CMAKE_BUILD_TYPE "${BUILD_TYPE}")
@@ -22,42 +22,34 @@ else()
 endif()
 # -------------------------- ARGUMENTS ----------------------------------------
 # -------------------------- CONFIGURATION ------------------------------------
-set(NEXUS_DIR ${INSTALL_PREFIX}/code/${LIB})
+set(Threader_DIR ${INSTALL_PREFIX}/code/${LIB})
 # -------------------------- CONFIGURATION ------------------------------------
 # -------------------------- BUILD --------------------------------------------
 add_library(${LIB} 
     STATIC 
-        ${NEXUS_DIR}/src/CPU_Threads.cpp
-        ${NEXUS_DIR}/include/CPU_Threads.h
+        ${Threader_DIR}/src/CPU_Threads.cpp
+        ${Threader_DIR}/include/CPU_Threads.h
 
-        ${NEXUS_DIR}/src/Task.cpp
-        ${NEXUS_DIR}/include/Task.h
+        ${Threader_DIR}/src/Task.cpp
+        ${Threader_DIR}/include/Task.h
 
-        ${NEXUS_DIR}/src/Job.cpp
-        ${NEXUS_DIR}/include/Job.h
+        ${Threader_DIR}/src/Job.cpp
+        ${Threader_DIR}/include/Job.h
 
-        ${NEXUS_DIR}/src/${LIB}.cpp
-        ${NEXUS_DIR}/include/${LIB}.h
+        ${Threader_DIR}/src/${LIB}.cpp
+        ${Threader_DIR}/include/${LIB}.h
 
-        ${NEXUS_DIR}/src/${LIB}_void.cpp
-        ${NEXUS_DIR}/include/${LIB}_void.h
+        ${Threader_DIR}/src/${LIB}_void.cpp
+        ${Threader_DIR}/include/${LIB}_void.h
 
-        ${NEXUS_DIR}/src/${LIB}_T.cpp
-        ${NEXUS_DIR}/include/${LIB}_T.h
+        ${Threader_DIR}/src/${LIB}_T.cpp
+        ${Threader_DIR}/include/${LIB}_T.h
 )
 add_library(radical::${LIB} ALIAS ${LIB})
 
 include_directories(${LIB}
-    PRIVATE
-        ${XVECTOR_DIR}/include
-        ${XSTRING_DIR}/include
-        ${XMAP_DIR}/include
-        
-        ${NEXUS_DIR}/include
+    PRIVATE        
+        ${Threader_DIR}/include
 )
-
-target_link_libraries(${LIB} radical::xvector)
-target_link_libraries(${LIB} radical::xstring)
-target_link_libraries(${LIB} radical::xmap)
 # -------------------------- BUILD --------------------------------------------
 # -------------------------- END ----------------------------------------------

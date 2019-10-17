@@ -20,25 +20,15 @@
 * limitations under the License.
 */
 
-#include<vector>
-#include<initializer_list>
-#include<string>
-#include<regex>
-#include<sstream>
-#include<set>
 
-
-#if (defined(WIN64) || defined(_WIN64) || defined(WIN32) || defined(_WIN32))
-	using size64_t = __int64;
-#else
-	using size64_t = __int64_t;
-#endif
-
-// THIS TEMPLATE WAS TESTED WITH xstring BY RADICALWARE.NET
+#include "xvector.h"
 
 template<typename T>
 class xvector : public std::vector<T>
 {
+    typedef typename std::remove_const<T>::type E;
+    // E for Elusive
+
 public:
 	inline ~xvector();
 	inline xvector() {};
@@ -49,20 +39,20 @@ public:
 	inline void operator=(const xvector<T>& other);
 
 	template<typename P = T> 
-	inline bool has(const P* item);
-	inline bool has(const T& item);
-	inline bool has(T&& item);
-	inline bool has(char const* item);
+	inline bool has(const P* item) const;
+	inline bool has(const T& item) const;
+	inline bool has(T&& item) const;
+	inline bool has(char const* item) const;
 
-	inline bool lacks(const T& item);
-	inline bool lacks(T&& item);
-	inline bool lacks(char const* item);
+	inline bool lacks(const T& item) const;
+	inline bool lacks(T&& item) const;
+	inline bool lacks(char const* item) const;
 
 	// not const because sort is used (this only changes order, it does not remove dups)
 	template<typename L = xvector<T>>
-	inline xvector<T> common(L & item);
+	inline xvector<T> common(L& item);
 	template<typename L = xvector<T>>
-	inline xvector<T> common(L && item);
+	inline xvector<T> common(L&& item);
 	inline xvector<T> common(char const* item);
 
 	inline void operator<<(const T& item);
@@ -78,33 +68,33 @@ public:
 	inline void add_char_strings(int strC, char** strV);
 
 	template<typename O>
-	inline bool operator>(const O& other);
+	inline bool operator>(const O& other) const;
 	template<typename O>
-	inline bool operator<(const O& other);
+	inline bool operator<(const O& other) const;
 	template<typename O>
-	inline bool operator==(const O& other);
+	inline bool operator==(const O& other) const;
 	template<typename O>
-	inline bool operator!=(const O& other);
+	inline bool operator!=(const O& other) const;
 
-	inline bool operator>(const size_t value);
-	inline bool operator<(const size_t value);
-	inline bool operator==(const size_t value);
-	inline bool operator!=(const size_t value);
+	inline bool operator>(const size_t value) const;
+	inline bool operator<(const size_t value) const;
+	inline bool operator==(const size_t value) const;
+	inline bool operator!=(const size_t value) const;
 
 	T back(size_t value = 1) const;
-	T* back_ptr(size_t value = 1);
+	T* back_ptr(size_t value = 1) const;
 
 	template<typename C>
-	inline xvector<C> convert();
+	inline xvector<C> convert() const;
 
 	template<typename C, typename F>
-	inline xvector<C> convert(F function);
+	inline xvector<C> convert(F function) const;
 
 	template<typename N = unsigned int>
-	inline xvector<xvector<T>> split(N count = 1);
+	inline xvector<xvector<T>> split(N count = 1) const;
 
 	inline void operator+=(const xvector<T>& other);
-	inline xvector<T> operator+(const xvector<T>& other);
+	inline xvector<T> operator+(const xvector<T>& other) const;
 
 	inline void organize();
 	inline void remove_dups();
@@ -120,24 +110,24 @@ public:
 	inline void proc(V& value, const F& function);
 
 	template<typename V = T, typename F>
-	inline xvector<V> render(const F& function);
+	inline xvector<V> render(const F& function) const;
 	template<typename V = T, typename F>
-	inline xvector<V> render(V& value, const F& function);
+	inline xvector<V> render(V& value, const F& function) const;
 	template<typename V = T, typename F>
-	inline xvector<V> render(V&& value, const F& function);
+	inline xvector<V> render(V&& value, const F& function) const;
 
 	template<typename S>
-	inline S sjoin(const S& seperator = "\0", bool tail = false);
+	inline S sjoin(const S& seperator = "\0", bool tail = false) const;
 
 	// =================================== DESIGNED FOR NUMERIC BASED VECTORS ===================================
 
-	inline size_t sum();
+	inline size_t sum() const;
 
 	// =================================== DESIGNED FOR STRING  BASED VECTORS ===================================
 
-	inline T join(const T& str = "");
-	inline T join(const char str);
-	inline T join(const char* str);
+	inline T join(const T& str = "") const;
+	inline T join(const char str) const;
+	inline T join(const char* str) const;
 
 	inline bool match_one(const T& in_pattern) const;
 	inline bool match_one(T&& in_pattern) const;
@@ -167,10 +157,6 @@ public:
 	inline xvector<T> sub_all(T&& in_pattern, T&& replacement) const;
 	inline xvector<T> sub_all(char const* in_pattern, char const* replacement) const;
 	
-	inline T ditto(const size_t repeate_count, const T& seperator = "", bool tail = false);
-	inline T ditto(const size_t repeate_count, T&& seperator = "", bool tail = false);
-	inline T ditto(const size_t repeate_count, char const* seperator = "", bool tail = false);
-
 	// double was chose to hold long signed and unsigned values
 	inline xvector<T> operator()(double x = 0, double y = 0, double z = 0, const char removal_method = 's') const;
 	// s = slice perserves values you land on 
@@ -178,7 +164,6 @@ public:
 	// s/d only makes a difference if you modify the 'z' value
 
 	// =================================== DESIGNED FOR STRING BASED VECTORS ===================================
-
 };
 // =============================================================================================================
 
@@ -199,9 +184,9 @@ void xvector<T>::operator=(const xvector<T>& other) {
 
 template<typename T>
 template<typename P>
-inline bool xvector<T>::has(const P* item)
+inline bool xvector<T>::has(const P* item) const
 {
-	for (typename xvector<T>::iterator it = this->begin(); it != this->end(); it++) {
+	for (typename xvector<T>::const_iterator it = this->begin(); it != this->end(); it++) {
 		if (**it == *item)
 			return true;
 	}
@@ -209,34 +194,34 @@ inline bool xvector<T>::has(const P* item)
 }
 
 template<typename T>
-bool xvector<T>::has(const T& item) {
+bool xvector<T>::has(const T& item) const {
 	return (bool(std::find(this->begin(), this->end(), item) != this->end()));
 }
 
 template<typename T>
-bool xvector<T>::has(T&& item) {
+bool xvector<T>::has(T&& item) const {
 	return (bool(std::find(this->begin(), this->end(), item) != this->end()));
 }
 
 template<typename T>
-bool xvector<T>::has(char const* item) {
+bool xvector<T>::has(char const* item) const {
 	return (bool(std::find(this->begin(), this->end(), item) != this->end()));
 }
 
 // ------------------------------------------------------------------------------------------------
 
 template<typename T>
-bool xvector<T>::lacks(T&& item) {
+bool xvector<T>::lacks(T&& item) const {
 	return !(bool(std::find(this->begin(), this->end(), item) != this->end()));
 }
 
 template<typename T>
-bool xvector<T>::lacks(const T& item) {
+bool xvector<T>::lacks(const T& item) const {
 	return !(bool(std::find(this->begin(), this->end(), item) != this->end()));
 }
 
 template<typename T>
-bool xvector<T>::lacks(char const* item) {
+bool xvector<T>::lacks(char const* item) const {
 	return !(bool(std::find(this->begin(), this->end(), item) != this->end()));
 }
 
@@ -244,7 +229,8 @@ bool xvector<T>::lacks(char const* item) {
 
 template<typename T>
 template<typename L>
-xvector<T> xvector<T>::common(L& item) {
+xvector<T> xvector<T>::common(L& item) 
+{
 	std::sort(this->begin(), this->end());
 	std::sort(item.begin(), item.end());
 
@@ -260,8 +246,8 @@ xvector<T> xvector<T>::common(L&& item) {
 }
 
 template<typename T>
-xvector<T> xvector<T>::common(char const* item) {
-
+xvector<T> xvector<T>::common(char const* item) 
+{
 	size_t size = strlen(item);
 	xvector<char> c_vec(size);
 
@@ -274,14 +260,12 @@ xvector<T> xvector<T>::common(char const* item) {
 // ------------------------------------------------------------------------------------------------
 
 template<typename T>
-inline void xvector<T>::operator<<(const T& item)
-{
+inline void xvector<T>::operator<<(const T& item){
 	this->emplace_back(item);
 }
 
 template<typename T>
-inline void xvector<T>::operator<<(const T&& item)
-{
+inline void xvector<T>::operator<<(const T&& item){
 	this->emplace_back(item);
 }
 
@@ -301,8 +285,7 @@ inline void xvector<T>::operator*=(const size_t count)
 template<typename T>
 inline void xvector<T>::add() {}
 template<typename T>
-inline void xvector<T>::add(const T& val)
-{
+inline void xvector<T>::add(const T& val){
 	*this << val;
 }
 template<typename T>
@@ -324,21 +307,19 @@ inline void xvector<T>::add_char_strings(int strC, char** strV)
 
 template<typename T>
 template<typename O>
-inline bool xvector<T>::operator>(const O& other)
-{
+inline bool xvector<T>::operator>(const O& other) const {
 	return this->size() > other.size();
 }
 
 template<typename T>
 template<typename O>
-inline bool xvector<T>::operator<(const O& other)
-{
+inline bool xvector<T>::operator<(const O& other) const {
 	return this->size() < other.size();
 }
 
 template<typename T>
 template<typename O>
-inline bool xvector<T>::operator==(const O& other)
+inline bool xvector<T>::operator==(const O& other) const
 {
 	for (T& it : other) {
 		if (this->lacks(it))
@@ -349,7 +330,7 @@ inline bool xvector<T>::operator==(const O& other)
 
 template<typename T>
 template<typename O>
-inline bool xvector<T>::operator!=(const O& other)
+inline bool xvector<T>::operator!=(const O& other) const
 {
 	for (T& it : other) {
 		if (this->lacks(it))
@@ -359,40 +340,34 @@ inline bool xvector<T>::operator!=(const O& other)
 }
 // --------------------------------------------------------
 template<typename T>
-inline bool xvector<T>::operator>(const size_t value)
-{
+inline bool xvector<T>::operator>(const size_t value) const {
 	return this->size() > value;
 }
 
 template<typename T>
-inline bool xvector<T>::operator<(const size_t value)
-{
+inline bool xvector<T>::operator<(const size_t value) const {
 	return this->size() < value;
 }
 
 template<typename T>
-inline bool xvector<T>::operator==(const size_t value)
-{
+inline bool xvector<T>::operator==(const size_t value) const {
 	return this->size() == value;
 }
 
 template<typename T>
-inline bool xvector<T>::operator!=(const size_t value)
-{
+inline bool xvector<T>::operator!=(const size_t value) const {
 	return this->size() != value;
 }
 
 // ------------------------------------------------------------------------------------------------
 
 template<typename T>
-inline T xvector<T>::back(size_t value) const
-{
+inline T xvector<T>::back(size_t value) const {
 	return this->operator[](this->size() - value);
 }
 
 template<typename T>
-inline T* xvector<T>::back_ptr(size_t value)
-{
+inline T* xvector<T>::back_ptr(size_t value) const {
 	return &this->operator[](this->size() - value);
 }
 
@@ -400,7 +375,7 @@ inline T* xvector<T>::back_ptr(size_t value)
 
 template<typename T>
 template<typename C>
-inline xvector<C> xvector<T>::convert()
+inline xvector<C> xvector<T>::convert() const
 {
 	xvector<C> ret;
 	for (typename xvector<T>::const_iterator it = this->begin(); it != this->end(); it++)
@@ -411,7 +386,7 @@ inline xvector<C> xvector<T>::convert()
 
 template<typename T>
 template<typename C, typename F>
-inline xvector<C> xvector<T>::convert(F function)
+inline xvector<C> xvector<T>::convert(F function) const
 {
 	xvector<C> ret;
 	for (typename xvector<T>::const_iterator it = this->begin(); it != this->end(); it++)
@@ -421,7 +396,7 @@ inline xvector<C> xvector<T>::convert(F function)
 
 template<typename T>
 template<typename N>
-inline xvector<xvector<T>> xvector<T>::split(N count)
+inline xvector<xvector<T>> xvector<T>::split(N count) const
 {
 	if (count < 2)
 		return xvector<xvector<T>>{ *this };
@@ -434,7 +409,7 @@ inline xvector<xvector<T>> xvector<T>::split(N count)
 	N reset = count;
 	count = 0;
 	const N new_size = static_cast<N>(this->size()) / reset;
-	for (typename xvector<T>::iterator it = this->begin(); it != this->end(); it++) {
+	for (typename xvector<T>::const_iterator it = this->begin(); it != this->end(); it++) {
 		if (count == 0) {
 			count = reset;
 			ret_vec.push_back(xvector<T>({ *it })); // create new xvec and add first el
@@ -457,12 +432,11 @@ void xvector<T>::operator+=(const xvector<T>& other)
 }
 
 template<typename T>
-xvector<T> xvector<T>::operator+(const xvector<T>& other) {
+xvector<T> xvector<T>::operator+(const xvector<T>& other) const {
 	size_t sz = this->size();
-	*this += other;
-	xvector<T> ret_val = *this;
-	this->resize(sz);
-	return ret_val;
+	xvector<E> vret = *this;
+	vret += other;
+	return vret;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -471,13 +445,13 @@ template<typename T>
 inline void xvector<T>::organize()
 {
 	std::multiset<T> set_arr;
-	for (typename xvector<T>::iterator it = this->begin(); it != this->end(); it++)
+	for (typename xvector<T>::const_iterator it = this->begin(); it != this->end(); it++)
 		set_arr.insert(*it);
 
 	this->clear();
 	this->reserve(set_arr.size());
 
-	for (typename std::multiset<T>::iterator it = set_arr.begin(); it != set_arr.end(); it++)
+	for (typename std::multiset<T>::const_iterator it = set_arr.begin(); it != set_arr.end(); it++)
 		this->push_back(*it);
 }
 
@@ -485,13 +459,13 @@ template<typename T>
 inline void xvector<T>::remove_dups()
 {
 	std::set<T> set_arr;
-	for (typename xvector<T>::iterator it = this->begin(); it != this->end(); it++)
+	for (typename xvector<T>::const_iterator it = this->begin(); it != this->end(); it++)
 		set_arr.insert(*it);
 
 	this->clear();
 	this->reserve(set_arr.size());
 
-	for (typename std::set<T>::iterator it = set_arr.begin(); it != set_arr.end(); it++)
+	for (typename std::set<T>::const_iterator it = set_arr.begin(); it != set_arr.end(); it++)
 		this->push_back(*it);
 }
 
@@ -508,9 +482,9 @@ template<typename T>
 inline xvector<T*> xvector<T>::ptrs()
 {
 	xvector<T*> ret_vec;
-	for (T& item : *this) {
+	for (T& item : *this)
 		ret_vec << &item;
-	}
+	
 	return ret_vec;
 }
 
@@ -533,7 +507,7 @@ inline void xvector<T>::proc(V& value, const F& function)
 
 template<typename T>
 template<typename V, typename F>
-inline xvector<V> xvector<T>::render(const F& function)
+inline xvector<V> xvector<T>::render(const F& function) const
 {
 	xvector<V> vret;
 	for (typename xvector<T>::const_iterator it = this->begin(); it != this->end(); it++)
@@ -543,7 +517,7 @@ inline xvector<V> xvector<T>::render(const F& function)
 
 template<typename T>
 template<typename V, typename F>
-inline xvector<V> xvector<T>::render(V& value, const F& function)
+inline xvector<V> xvector<T>::render(V& value, const F& function) const
 {
 	xvector<V> vret;
 	for (typename xvector<T>::const_iterator it = this->begin(); it != this->end(); it++)
@@ -553,7 +527,7 @@ inline xvector<V> xvector<T>::render(V& value, const F& function)
 
 template<typename T>
 template<typename V, typename F>
-inline xvector<V> xvector<T>::render(V&& value, const F& function)
+inline xvector<V> xvector<T>::render(V&& value, const F& function) const
 {
 	xvector<V> vret;
 	for (typename xvector<T>::const_iterator it = this->begin(); it != this->end(); it++)
@@ -563,7 +537,7 @@ inline xvector<V> xvector<T>::render(V&& value, const F& function)
 
 template<typename T>
 template<typename S>
-S xvector<T>::sjoin(const S& seperator, bool tail) {
+S xvector<T>::sjoin(const S& seperator, bool tail) const {
 	std::ostringstream ostr;
 	if (seperator[0] != '\0') {
 		for (auto& i : *this) {
@@ -586,10 +560,10 @@ S xvector<T>::sjoin(const S& seperator, bool tail) {
 
 
 template<typename T>
-inline size_t xvector<T>::sum()
+inline size_t xvector<T>::sum() const
 {
 	size_t num = 0;
-	for (typename xvector<T>::iterator it = this->begin(); it != this->end(); it++) {
+	for (typename xvector<T>::const_iterator it = this->begin(); it != this->end(); it++) {
 		num += *it;
 	}
 	return num;
@@ -598,30 +572,30 @@ inline size_t xvector<T>::sum()
 // =============================================================================================================
 
 template<typename T>
-inline T xvector<T>::join(const T& str)
+inline T xvector<T>::join(const T& str) const
 {
 	T ret;
-	for (typename xvector<T>::iterator it = this->begin(); it != this->end(); it++)
+	for (typename xvector<T>::const_iterator it = this->begin(); it != this->end(); it++)
 		ret += *it + str;
 
 	return ret.substr(0, ret.length() - str.size());
 }
 
 template<typename T>
-T xvector<T>::join(const char str)
+T xvector<T>::join(const char str) const
 {
 	T ret;
-	for (typename xvector<T>::iterator it = this->begin(); it != this->end(); it++)
+	for (typename xvector<T>::const_iterator it = this->begin(); it != this->end(); it++)
 		ret += *it + str;
 
 	return ret.substr(0, ret.length() - 1);
 }
 
 template<typename T>
-T xvector<T>::join(const char* str)
+T xvector<T>::join(const char* str) const
 {
 	T ret;
-	for (typename xvector<T>::iterator it = this->begin(); it != this->end(); it++)
+	for (typename xvector<T>::const_iterator it = this->begin(); it != this->end(); it++)
 		ret += *it + str;
 
 	return ret.substr(0, ret.length() - strlen(str));
@@ -793,31 +767,6 @@ template<typename T>
 inline xvector<T> xvector<T>::sub_all(char const* in_pattern, char const* replacement) const
 {
 	return this->sub_all(T(in_pattern), T(replacement));
-}
-
-// =============================================================================================================
-
-template<typename T>
-inline T xvector<T>::ditto(const size_t repeate_count, const T& seperator, bool tail /* = false */) {
-	T ret_str;
-	for (size_t count = 0; count < repeate_count; count++)
-		ret_str += (*this) + seperator;
-
-	if (tail == false && seperator.size())
-		ret_str = ret_str.substr(0, ret_str.size() - seperator.size());
-
-	return ret_str;
-}
-
-
-template<typename T>
-inline T xvector<T>::ditto(const size_t repeate_count, T&& seperator, bool tail /* = false */) {
-	return this->ditto(repeate_count, seperator, tail);
-}
-
-template<typename T>
-inline T xvector<T>::ditto(const size_t repeate_count, char const* seperator, bool tail /* = false */) {
-	return this->ditto(repeate_count, seperator, tail);
 }
 
 // =============================================================================================================
