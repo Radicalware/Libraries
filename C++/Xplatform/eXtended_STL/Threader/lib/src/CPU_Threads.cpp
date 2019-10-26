@@ -1,4 +1,4 @@
-﻿#include "CPU_Threads.h"
+#include "CPU_Threads.h"
 
 int CPU_Threads::Thread_Count = std::thread::hardware_concurrency();
 

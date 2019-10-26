@@ -21,13 +21,12 @@ if(MSVC)
     set(SF ".lib")
 
     if("${BUILD_TYPE}" STREQUAL "Release")
-        message("Buidling with -O2 ${BUILD_TYPE}")
         add_definitions( "-O2" )
     endif()
 else() # NIX
     set(PF "lib")
     set(SF ".a")
-    set(LINUX_ARGS "-std=c++17 -Wfatal-errors -finput-charset=UTF-8 -fPIC")
+    set(LINUX_ARGS "-std=c++17 -Wfatal-errors -finput-charset=UTF-8 -fPIC -pthread")
 
     if("${BUILD_TYPE}" STREQUAL "Release")
         message("Buidling with -O2 ${BUILD_TYPE}")
@@ -53,6 +52,7 @@ else()
     message(FATAL_ERROR "/n/n!!!! Find${THIS}.cmake NOT FOUND !!!!/n/n")
 endif()
 # -------------------------- CONFIGURATION ------------------------------------
+
 # -------------------------- BUILD --------------------------------------------
 add_library( 
     ${THIS} STATIC
@@ -71,6 +71,7 @@ target_include_directories(${THIS}
 # Required Libs ---------------------------------------------------------------
 message ("No Required Libs Required")
 # -------------------------- BUILD --------------------------------------------
+target_link_libraries(${THIS} ${EXT_BIN_PATH}/${BUILD_TYPE}/${PF}Nexus${SF})
 # -------------------------- INSTALL ------------------------------------------
 
 # Binary File

@@ -21,13 +21,12 @@ if(MSVC)
     set(SF ".lib")
 
     if("${BUILD_TYPE}" STREQUAL "Release")
-        message("Buidling ${THIS} with -O2 ${BUILD_TYPE}")
         add_definitions( "-O2" )
     endif()
 else() # NIX
     set(PF "lib")
     set(SF ".a")
-    set(LINUX_ARGS "-std=c++17 -Wfatal-errors -finput-charset=UTF-8 -fPIC")
+    set(LINUX_ARGS "-std=c++17 -Wfatal-errors -finput-charset=UTF-8 -fPIC -pthread")
 
     if("${BUILD_TYPE}" STREQUAL "Release")
         message("Buidling with -O2 ${BUILD_TYPE}")
@@ -63,6 +62,7 @@ target_include_directories(${THIS}
         ${INCLUDE}
 )
 # Required Libs ---------------------------------------------------------------
+target_link_libraries(${THIS} ${EXT_BIN_PATH}/${BUILD_TYPE}/${PF}Nexus${SF})
 target_link_libraries(${THIS} ${EXT_BIN_PATH}/${BUILD_TYPE}/${PF}xvector${SF})
 # -------------------------- BUILD --------------------------------------------
 # -------------------------- INSTALL ------------------------------------------

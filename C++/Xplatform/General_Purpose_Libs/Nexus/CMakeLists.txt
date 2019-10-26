@@ -21,7 +21,6 @@ if(MSVC)
     set(SF ".lib")
 
     if("${BUILD_TYPE}" STREQUAL "Release")
-        message("Buidling with -O2 ${BUILD_TYPE}")
         add_definitions( "-O2" )
     endif()
 else() # NIX
@@ -80,10 +79,6 @@ target_include_directories(${THIS}
         ${EXT_INCLUDE_PATH}
         ${INCLUDE}
 )
-# Required Libs ---------------------------------------------------------------
-target_link_libraries(${THIS} ${EXT_BIN_PATH}/${BUILD_TYPE}/${PF}xvector${SF})
-target_link_libraries(${THIS} ${EXT_BIN_PATH}/${BUILD_TYPE}/${PF}xstring${SF})
-target_link_libraries(${THIS} ${EXT_BIN_PATH}/${BUILD_TYPE}/${PF}xmap${SF})
 # -------------------------- BUILD --------------------------------------------
 # -------------------------- INSTALL ------------------------------------------
 # Binary File

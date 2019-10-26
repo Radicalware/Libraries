@@ -26,9 +26,11 @@
 template<typename T>
 class xvector : public std::vector<T>
 {
-    typedef typename std::remove_const<T>::type E;
-    // E for Elusive
-
+    typedef typename std::remove_const<T>::type E; // E for Erratic
+    
+    Nexus<E>* td = nullptr;
+    Nexus<void>* tvoid = nullptr;
+    
 public:
 	inline ~xvector();
 	inline xvector() {};
@@ -104,17 +106,21 @@ public:
 
 	inline xvector<T*> ptrs();
 
-	template<typename F>
-	inline void proc(const F& function);
-	template<typename V, typename F>
-	inline void proc(V& value, const F& function);
+    template<typename F, typename... A>
+    inline void proc(F&& function, A&& ...Args);
+    template<typename F, typename... A>
+    inline void xproc(F&& function, A&& ...Args);
 
-	template<typename V = T, typename F>
-	inline xvector<V> render(const F& function) const;
-	template<typename V = T, typename F>
-	inline xvector<V> render(V& value, const F& function) const;
-	template<typename V = T, typename F>
-	inline xvector<V> render(V&& value, const F& function) const;
+    template<typename F, typename ...A>
+    inline xvector<T> render(F&& function, A&& ...Args);
+    template<typename F, typename... A>
+    inline xvector<T> xrender(F&& function, A&& ...Args);
+
+    template<typename F, typename... A>
+    inline void start(F&& function, A&& ...Args);
+    inline xvector<T> get() const;
+    inline xvector<T> get_wipe();
+    inline void wipe();
 
 	template<typename S>
 	inline S sjoin(const S& seperator = "\0", bool tail = false) const;
@@ -170,7 +176,11 @@ public:
 template<typename T>
 inline xvector<T>::~xvector()
 {
+    if (td != nullptr)
+        delete td;
 
+    if (tvoid != nullptr)
+        delete tvoid;
 }
 
 template<typename T>
@@ -489,50 +499,96 @@ inline xvector<T*> xvector<T>::ptrs()
 }
 
 template<typename T>
-template<typename F>
-inline void xvector<T>::proc(const F& function)
+template<typename F, typename... A>
+inline void xvector<T>::proc(F&& function, A&& ...Args)
 {
-	for (size_t i = 0; i < this->size(); i++)
-		function(this->operator[](i));
+    for (typename xvector<E>::iterator it = this->begin(); it != this->end(); it++)
+        function(*it, Args...);
 }
 
 template<typename T>
-template<typename V, typename F>
-inline void xvector<T>::proc(V& value, const F& function)
+template<typename F, typename... A>
+inline void xvector<T>::xproc(F&& function, A&& ...Args)
 {
-	for (typename xvector<T>::const_iterator it = this->begin(); it != this->end(); it++)
-		function(value, *it);
+    if (tvoid == nullptr)
+        tvoid = new Nexus<void>;
+
+    for (typename xvector<E>::iterator it = this->begin(); it != this->end(); it++)
+        tvoid->add_job_val(function, *it, Args...);
+
+    tvoid->wait_all();
 }
 
-
 template<typename T>
-template<typename V, typename F>
-inline xvector<V> xvector<T>::render(const F& function) const
+template<typename F, typename ...A>
+inline xvector<T> xvector<T>::render(F&& function, A&& ...Args)
 {
-	xvector<V> vret;
-	for (typename xvector<T>::const_iterator it = this->begin(); it != this->end(); it++)
-		vret.push_back(function(*it));
+	xvector<E> vret;
+	for (typename xvector<E>::iterator it = this->begin(); it != this->end(); it++)
+		vret.push_back(function(*it, Args...));
 	return vret;
 }
 
 template<typename T>
-template<typename V, typename F>
-inline xvector<V> xvector<T>::render(V& value, const F& function) const
+template<typename F, typename ...A>
+inline xvector<T> xvector<T>::xrender(F&& function, A&& ...Args)
 {
-	xvector<V> vret;
-	for (typename xvector<T>::const_iterator it = this->begin(); it != this->end(); it++)
-		vret.push_back(function(value, *it));
-	return vret;
+    if (td == nullptr)
+        td = new Nexus<T>;
+
+    for (typename xvector<E>::iterator it = this->begin(); it != this->end(); it++)
+        td->add_job_val(function, *it, Args...);
+
+    td->wait_all();
+    xvector<E> vret;
+    vret.reserve(td->size());
+
+    for (size_t i = 0; i < td->size(); i++)
+        vret << td->get_fast(i).value();
+
+    td->clear();
+    return vret;
 }
 
 template<typename T>
-template<typename V, typename F>
-inline xvector<V> xvector<T>::render(V&& value, const F& function) const
+template <typename F, typename ...A>
+inline void xvector<T>::start(F&& function, A&& ...Args)
 {
-	xvector<V> vret;
-	for (typename xvector<T>::const_iterator it = this->begin(); it != this->end(); it++)
-		vret.push_back(function(value, *it));
-	return vret;
+    if (td == nullptr)
+        td = new Nexus<E>;
+    else
+        td->clear();
+
+    for (typename xvector<E>::iterator it = this->begin(); it != this->end(); it++)
+        td->add_job_val(function, *it, Args...);
+}
+
+template<typename T>
+inline xvector<T> xvector<T>::get() const
+{
+	xvector<T> vret;
+    td->wait_all();
+    for (size_t i = 0; i < td->size(); i++)
+        vret << td->get_fast(i).value();
+    return vret;
+}
+
+template<typename T>
+inline xvector<T> xvector<T>::get_wipe()
+{
+	xvector<T> vret;
+    td->wait_all();
+    for (size_t i = 0; i < td->size(); i++)
+        vret << td->get_fast(i).value();
+
+    td->clear();
+    return vret;
+}
+
+template<typename T>
+inline void xvector<T>::wipe()
+{
+    td->clear();
 }
 
 template<typename T>

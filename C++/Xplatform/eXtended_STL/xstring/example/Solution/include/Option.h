@@ -96,13 +96,13 @@ vice.crusade.ctr@us.underground.nil
 		// if you need to feed in a vector split at regex spot you can either
 		// feed in an re::split or use ac::match_one // ac::match_all
 
-		cout << "match lines 'all' = " << emails.match_lines("^.*(?:\\@)(gmail)\\.(com)$") << endl;
-		// all returns falls sense all the lines don't contain gmail
+		cout << "match all lines = " << emails.match_lines("^.*(?:\\@)(GMAIL)\\.(com)$", rxm::icase) << endl;
+		// all returns fails sense all the lines don't contain gmail
 
-		cout << "match lines 'one' = " << emails.match_line("^.*(?:\\@)(gmail)\\.(com)$") << endl;
+		cout << "match one line  = " << emails.match_line("^.*(?:\\@)(GMAIL)\\.(com)$", rxm::icase) << endl;
 		// returns true sense at lease one line contains gmail
 
-		cout << "match lines 'all' = " << emails.match_lines("^.*(@).*$") << endl;
+		cout << "match all lines = " << emails.match_lines("^.*(@).*$") << endl;
 		// true sense all lines have a "@"
 	}
 

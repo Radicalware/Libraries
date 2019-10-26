@@ -58,6 +58,7 @@ else()
 endif() 
 # -------------------------- CONFIGURATION ------------------------------------
 # -------------------------- BUILD --------------------------------------------
+find_package(Nexus)
 find_package(xvector)
 find_package(xstring)
 find_package(xmap)
@@ -68,6 +69,7 @@ add_executable(${THIS}
 
 target_link_libraries( ${THIS}
     PRIVATE
+        radical::Nexus
         radical::xvector
         radical::xstring
         radical::xmap

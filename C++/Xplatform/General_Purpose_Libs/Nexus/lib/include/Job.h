@@ -19,7 +19,7 @@ class Job : protected CPU_Threads
 	
 	size_t m_index;
 	bool m_done = false;
-	static xstring Default_STR;
+	static std::string Default_STR;
 public:
 	Job();
 	Job(      Task<T>&& task, size_t index);
@@ -37,7 +37,7 @@ public:
 	bool operator< (const Job<T> other) const;
 	bool operator==(const Job<T> other) const;
 };
-template<typename T> xstring Job<T>::Default_STR = "";
+template<typename T> std::string Job<T>::Default_STR = "";
 
 template<typename T>
 inline Job<T>::Job()

@@ -1,13 +1,14 @@
+---------------------------------------------------------------------
 
+                   !!! Release Highlights !!!
 
 ---------------------------------------------------------------------
 
-10/16/2019 >> Libs v12.0.0
+10/25/2019 >> Libs v12.1.0
 
-Threader.h has been added. This is basically Nexus but without
-xvector/xstring/xmap. I will be using it in those objects
-to make integrated multi-threading in later releases. Nexus will
-get all the new updates because it is easier to work with.
+Timer.h was added.
+Lots of multi-threading integration has been made for xvector/xmap
+using Nexus.h
 
 ---------------------------------------------------------------------
 

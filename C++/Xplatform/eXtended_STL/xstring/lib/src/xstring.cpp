@@ -160,10 +160,10 @@ xvector<xstring> xstring::split(size_t loc) const
 	return ret_vec;
 }
 
-xvector<xstring> xstring::split(const xstring& in_pattern) const
+xvector<xstring> xstring::split(const xstring& in_pattern, rxm mod) const
 {
 	xvector<xstring> split_content;
-	std::regex pattern(in_pattern);
+	std::regex pattern(in_pattern, static_cast<rexmod>(mod));
 	std::sregex_token_iterator iter(this->begin(), this->end(), pattern, -1);
 
 	for ( ; iter != std::sregex_token_iterator(); ++iter)
@@ -172,12 +172,12 @@ xvector<xstring> xstring::split(const xstring& in_pattern) const
 	return split_content;
 }
 
-xvector<xstring> xstring::split(xstring&& in_pattern) const
+xvector<xstring> xstring::split(xstring&& in_pattern, rxm mod) const
 {
 	return this->split(in_pattern);
 }
 
-xvector<xstring> xstring::split(const char splitter) const
+xvector<xstring> xstring::split(const char splitter, rxm mod) const
 {
 	xvector<xstring> all_sections;
 	xstring current_section;
@@ -200,16 +200,16 @@ xvector<xstring> xstring::split(const char splitter) const
 
 // =========================================================================================================================
 
-bool xstring::match(const xstring& in_pattern) const
+bool xstring::match(const xstring& in_pattern, rxm mod) const
 {
-	std::regex pattern(in_pattern.c_str());
+	std::regex pattern(in_pattern.c_str(), static_cast<rexmod>(mod));
 	return bool(std::regex_match(*this, pattern));
 }
 
-bool xstring::match_line(const xstring& in_pattern) const
+bool xstring::match_line(const xstring& in_pattern, rxm mod) const
 {
 	std::vector<xstring> lines = this->split('\n');
-	std::regex pattern(in_pattern.c_str());
+	std::regex pattern(in_pattern.c_str(), static_cast<rexmod>(mod));
 	for (std::vector<xstring>::iterator iter = lines.begin(); iter != lines.end(); iter++) {
 		if (std::regex_match(*iter, pattern)) {
 			return true;
@@ -218,10 +218,10 @@ bool xstring::match_line(const xstring& in_pattern) const
 	return false;
 }
 
-bool xstring::match_lines(const xstring& in_pattern) const
+bool xstring::match_lines(const xstring& in_pattern, rxm mod) const
 {
 	std::vector<xstring> lines = this->split('\n');
-	std::regex pattern(in_pattern);
+	std::regex pattern(in_pattern, static_cast<rexmod>(mod));
 	for (std::vector<xstring>::iterator iter = lines.begin(); iter != lines.end(); iter++) {
 		if (!std::regex_match(*iter, pattern)) {
 			return false;
@@ -232,20 +232,20 @@ bool xstring::match_lines(const xstring& in_pattern) const
 
 // =========================================================================================================================
 
-bool xstring::scan(const char in_pattern) const
+bool xstring::scan(const char in_pattern, rxm mod) const
 {
 	return (std::find(this->begin(), this->end(), in_pattern) != this->end());
 }
 
-bool xstring::scan(const xstring& in_pattern) const
+bool xstring::scan(const xstring& in_pattern, rxm mod) const
 {
 	return bool(std::regex_search(*this, std::regex(in_pattern)));
 }
 
-bool xstring::scan_line(const xstring& in_pattern) const
+bool xstring::scan_line(const xstring& in_pattern, rxm mod) const
 {
 	std::vector<xstring> lines = this->split('\n');
-	std::regex pattern(in_pattern);
+	std::regex pattern(in_pattern, static_cast<rexmod>(mod));
 	for (std::vector<xstring>::iterator iter = lines.begin(); iter != lines.end(); iter++) {
 		if (std::regex_search(*iter, pattern)) {
 			return true;
@@ -254,10 +254,10 @@ bool xstring::scan_line(const xstring& in_pattern) const
 	return false;
 }
 
-bool xstring::scan_lines(const xstring& in_pattern) const
+bool xstring::scan_lines(const xstring& in_pattern, rxm mod) const
 {
 	std::vector<xstring> lines = this->split('\n');
-	std::regex pattern(in_pattern);
+	std::regex pattern(in_pattern, static_cast<rexmod>(mod));
 	for (std::vector<xstring>::iterator iter = lines.begin(); iter != lines.end(); iter++) {
 		if (!std::regex_search(*iter, pattern)) {
 			return false;
@@ -299,9 +299,8 @@ xstring xstring::remove_non_ascii() const {
 
 // =========================================================================================================================
 
-xvector<xstring> xstring::grouper(const xstring& content, xvector<xstring>& ret_vector, const xstring& in_pattern)  const {
+xvector<xstring> xstring::grouper(const xstring& content, xvector<xstring>& ret_vector, const std::regex& pattern)  const {
 	std::smatch match_array;
-	std::regex pattern(in_pattern);
 	xstring::const_iterator searchStart(content.cbegin());
 	xstring::const_iterator prev(content.cbegin());
 	while (regex_search(searchStart, content.cend(), match_array, pattern)) {
@@ -319,9 +318,8 @@ xvector<xstring> xstring::grouper(const xstring& content, xvector<xstring>& ret_
 }
 
 
-xvector<xstring> xstring::iterate(const xstring& content, xvector<xstring>& ret_vector, const xstring& in_pattern) const {
+xvector<xstring> xstring::iterate(const xstring& content, xvector<xstring>& ret_vector, const std::regex& pattern) const {
 	//std::smatch match_array;
-	std::regex pattern(in_pattern.c_str());
 	int start_iter = 1;
 	if (bool(std::regex_search(R"(^\(\?\:)", pattern)) == true)
 		start_iter = 2;
@@ -341,7 +339,7 @@ xvector<xstring> xstring::iterate(const xstring& content, xvector<xstring>& ret_
 }
 
 
-std::vector<xstring> xstring::findall(const std::string& in_pattern, const bool group /*false*/) const
+std::vector<xstring> xstring::findall(const std::string& in_pattern, rxm mod, const bool group /*false*/) const
 {
 	xvector<xstring> ret_vector;
 	xvector<xstring> split_string;
@@ -364,16 +362,16 @@ std::vector<xstring> xstring::findall(const std::string& in_pattern, const bool 
 	}
 
 	std::smatch match_array;
-	std::regex pattern(in_pattern);
+	const std::regex pattern(in_pattern, static_cast<rexmod>(mod));
 	// now iterate through each line (now each element of the array)
 	if (group == false) { // grouping is set to false by default
 		for (ull index = 0; index < new_line_count; index++) {
-			this->iterate(split_string[index], ret_vector, in_pattern);
+			this->iterate(split_string[index], ret_vector, pattern);
 		}
 	}
 	else { // If you chose grouping, you have more controle but more work. (C++ not Python style)
 		for (ull i = 0; i < new_line_count; i++) {
-			this->grouper(split_string[i], ret_vector, in_pattern);
+			this->grouper(split_string[i], ret_vector, pattern);
 		}
 	}
 
@@ -388,32 +386,32 @@ std::vector<xstring> xstring::findall(const std::string& in_pattern, const bool 
 
 // =========================================================================================================================
 
-bool xstring::has(const char var_char) const {
+bool xstring::has(const char var_char, rxm mod) const {
 	if ((std::find(this->begin(), this->end(), var_char) != this->end()))
 		return true;
 	return false;
 }
 
-bool xstring::lacks(const char var_char) const {
+bool xstring::lacks(const char var_char, rxm mod) const {
 
 	if ((std::find(this->begin(), this->end(), var_char) != this->end()))
 		return false;
 	return true;
 }
 
-unsigned long long xstring::count(const char var_char) const {
+unsigned long long xstring::count(const char var_char, rxm mod) const {
 	unsigned long long n = std::count(this->begin(), this->end(), var_char);
 	return n;
 }
 
-unsigned long long xstring::count(const xstring& in_pattern) const {
+unsigned long long xstring::count(const xstring& in_pattern, rxm mod) const {
 	unsigned long long n = this->split(in_pattern).size();
 	return n;
 }
 
 // =========================================================================================================================
 
-xstring xstring::sub(const std::string& in_pattern, const std::string& replacement) const {
+xstring xstring::sub(const std::string& in_pattern, const std::string& replacement, rxm mod) const {
 	return std::regex_replace(*this, std::regex(in_pattern), replacement);
 }
 

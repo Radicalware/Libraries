@@ -1,7 +1,7 @@
 ﻿
 cmake_minimum_required(VERSION 3.10)
 
-set(THIS Threader)
+set(THIS Timer)
 project (${THIS})
 
 message("")
@@ -21,7 +21,6 @@ if(MSVC)
     set(SF ".lib")
 
     if("${BUILD_TYPE}" STREQUAL "Release")
-        message("Buidling with -O2 ${BUILD_TYPE}")
         add_definitions( "-O2" )
     endif()
 else() # NIX
@@ -54,25 +53,7 @@ else()
 endif()
 # -------------------------- CONFIGURATION ------------------------------------
 # -------------------------- BUILD --------------------------------------------
-add_library(${THIS} STATIC 
-    ${SRC}/CPU_Threads.cpp
-    ${INCLUDE}/CPU_Threads.h
-
-    ${SRC}/Task.cpp
-    ${INCLUDE}/Task.h
-
-    ${SRC}/Job.cpp
-    ${INCLUDE}/Job.h
-
-    ${SRC}/${THIS}.cpp
-    ${INCLUDE}/${THIS}.h
-
-    ${SRC}/${THIS}_void.cpp
-    ${INCLUDE}/${THIS}_void.h
-
-    ${SRC}/${THIS}_T.cpp
-    ${INCLUDE}/${THIS}_T.h
-)
+add_library(${THIS} STATIC ${SRC}/${THIS}.cpp)
 add_library(radical::${THIS} ALIAS ${THIS})
 
 target_include_directories(${THIS}
@@ -80,8 +61,14 @@ target_include_directories(${THIS}
         ${EXT_INCLUDE_PATH}
         ${INCLUDE}
 )
+# Required Libs ---------------------------------------------------------------
+target_link_libraries(${THIS} ${EXT_BIN_PATH}/${BUILD_TYPE}/${PF}Nexus${SF})
+target_link_libraries(${THIS} ${EXT_BIN_PATH}/${BUILD_TYPE}/${PF}xvector${SF})
+target_link_libraries(${THIS} ${EXT_BIN_PATH}/${BUILD_TYPE}/${PF}xstring${SF})
+target_link_libraries(${THIS} ${EXT_BIN_PATH}/${BUILD_TYPE}/${PF}xmap${SF})
 # -------------------------- BUILD --------------------------------------------
 # -------------------------- INSTALL ------------------------------------------
+
 # Binary File
 install (  
     TARGETS             ${THIS}

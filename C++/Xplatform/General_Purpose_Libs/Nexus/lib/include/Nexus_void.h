@@ -13,10 +13,6 @@
 #include<functional>
 #include<type_traits>
 
-#include "xvector.h"
-#include "xstring.h"
-#include "xmap.h"
-
 #include "Nexus_T.h"
 #include "CPU_Threads.h"
 #include "Task.h"
@@ -42,11 +38,6 @@
 #include<functional>
 #include<type_traits>
 
-#include "xvector.h"
-#include "xstring.h"
-#include "xmap.h"
-
-#include "Nexus_T.h"
 #include "CPU_Threads.h"
 #include "Task.h"
 
@@ -56,9 +47,9 @@
 #include<unistd.h>
 #endif
 
-
-
 // =========================================================================================
+
+template<typename T> class Nexus;
 
 template<>
 class Nexus<void> : public CPU_Threads
@@ -68,7 +59,7 @@ private:
 	size_t m_inst_task_count = 0;
 	std::mutex m_mutex;
 	std::condition_variable m_sig_deque;
-	xvector<std::thread> m_threads;      // We add new tasks by succession from the m_task_queue here
+	std::vector<std::thread> m_threads;      // We add new tasks by succession from the m_task_queue here
 	std::queue<Task<void>> m_task_queue; // This is where tasks are held before being run
 
 	void TaskLooper(int thread_idx);
@@ -78,9 +69,15 @@ public:
 	~Nexus();
 
 	template <typename F, typename... A>
-	void add_job(F&& function, A&& ... args);
+	void add_job(F&& function, A&& ... Args);
 
-	size_t size() const;
+    template <typename F, typename V, typename... A>
+    void add_job_val(F&& function, V& element, A&&... Args);
+
+    template <typename K, typename V, typename F, typename... A>
+    void add_job_pair(F&& function, K key, V& value, A&& ... Args);
+
+    size_t size() const;
 
 	void wait_all() const;
 	void clear();
@@ -102,7 +99,7 @@ inline void Nexus<void>::TaskLooper(int thread_idx)
 
 			if (m_task_queue.empty())
 				return;
-
+            
 			CPU_Threads::Threads_Used++;
 			tsk = new Task<void>(std::move(m_task_queue.front()));
 
@@ -136,19 +133,37 @@ inline Nexus<void>::~Nexus()
 		m_finish_tasks = true;
 		m_sig_deque.notify_all();
 	}
-	m_threads.proc([](auto& t) { t.join(); });
+    for (auto& thrd : m_threads) thrd.join();
 }
 
 template <typename F, typename... A>
-inline void Nexus<void>::add_job(F&& function, A&&... args) 
+inline void Nexus<void>::add_job(F&& function, A&&... Args) 
 {
-	auto binded_function = std::bind(std::forward<F>(function), std::forward<A>(args)...);
+	auto binded_function = std::bind(function, Args...);
 	std::lock_guard <std::mutex> lock(m_mutex);
 	m_task_queue.emplace(std::move(binded_function));
 	m_sig_deque.notify_one();
 }
 
-inline size_t Nexus<void>::size() const{
+template <typename F, typename V, typename... A>
+void Nexus<void>::add_job_val(F&& function, V& element, A&&... Args)
+{
+    auto binded_function = std::bind(function, element, Args...);
+    std::lock_guard <std::mutex> lock(m_mutex);
+    m_task_queue.emplace(std::move(binded_function));
+    m_sig_deque.notify_one();
+}
+
+template<typename K, typename V, typename F, typename ...A>
+inline void Nexus<void>::add_job_pair(F&& function, K key, V& value, A&& ...Args)
+{
+    auto binded_function = std::bind(function, key, value, Args...);
+    std::lock_guard <std::mutex> lock(m_mutex);
+    m_task_queue.emplace(std::move(binded_function));
+    m_sig_deque.notify_one();
+}
+
+inline size_t Nexus<void>::size() const {
 	return m_inst_task_count;
 }
 

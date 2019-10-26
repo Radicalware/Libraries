@@ -16,7 +16,6 @@ using wrap = std::pair<xstring, xstring>;
 
 int main()
 {
-
 	xvector<xstring> single_vec{ "one","two","three","four","five","six" };
 	xvector<xvector<xstring>> double_vec = single_vec.split(3);
 
@@ -39,7 +38,6 @@ int main()
 		{ "hash33", "CCCC"},
 		{ "hash4", ""}
 	};
-
 
 	map_s_v.keys().join(' ').print();
 	smap.keys().join(' ').print();
@@ -64,11 +62,25 @@ int main()
 	smap.cached_keys().join('\n').print();
 	cout << "========================================\n";
 	
-	xstring key_values;
-	smap.proc(key_values, [](auto& key_values, const auto& iter) {
-		key_values += iter.second + " ";
-	});
-	key_values.print();
+    xstring key_values1;
+    smap.proc([&key_values1](const auto& key, const auto& value) {
+        if (value.size())
+            key_values1 += value + " ";
+    });
+    cout << '[' << key_values1 << ']' << endl;
+
+    // above does not use multi-threading
+    // below does use multi-threading
+    // I suggest not passing in references if you are multi-threading
+
+    xstring key_values2 = smap.xrender([](const auto& key, const auto& value) {
+        xstring ret_str;
+        if (value.size())
+            ret_str += value + " ";
+        return ret_str;
+    }).join();
+    cout << '[' << key_values2 << ']' << endl;
+
 	cout << "========================================\n";
 
 	xvector<xstring> str_lst = { "one","two","three","four","five" };
@@ -89,7 +101,18 @@ int main()
 	cout << "========================================\n";
 
 	smap.print(2);
-	smap.allocate_reverse_map()->print();
+	smap.allocate_reverse_map()->print(2);
+
+    xmap<xstring, int> awd_cars = {
+        { "Ford RS", 350 },
+        { "VW Golf R", 288 },
+        { "Subaru WRX STI", 310 },
+        { "Audi S5", 349 }
+    };
+
+    awd_cars.xrender<xstring>([](const xstring& key, const int& value) {
+        return key + " = " + to_xstring(value) + " HP";
+    }).join('\n').print(2);
 
 	return 0;
 }

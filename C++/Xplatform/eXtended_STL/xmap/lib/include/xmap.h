@@ -25,13 +25,14 @@
 #include<utility>
 #include<memory>
 
+#include "Nexus.h"
 #include "xvector.h"
 #include "xstring.h"
 
-template<typename K, typename V> class xmap;
-template<typename K, typename V> class xmap<K*, V*>;
-template<typename K, typename V> class xmap<K*, V >;
-template<typename K, typename V> class xmap<K , V*>;
+//template<typename K, typename V> class xmap;
+//template<typename K, typename V> class xmap<K*, V*>;
+//template<typename K, typename V> class xmap<K*, V >;
+//template<typename K, typename V> class xmap<K , V*>;
 
 #include "val2_xmap.h"
 #include "ptr2_xmap.h"

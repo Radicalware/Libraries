@@ -1,7 +1,7 @@
-﻿
+
 cmake_minimum_required(VERSION 3.10)
 
-SET(THIS ex_Threader)
+SET(THIS ex_Timer)
 project (${THIS})
 
 message("")
@@ -58,9 +58,11 @@ else()
 endif() 
 # -------------------------- CONFIGURATION ------------------------------------
 # -------------------------- BUILD --------------------------------------------
-find_package(xstring)
+find_package(Nexus)
 find_package(xvector)
-find_package(Threader)
+find_package(xstring)
+find_package(xmap)
+find_package(Timer)
 
 add_executable(${THIS}
     ${SRC}/${THIS}.cpp
@@ -68,9 +70,11 @@ add_executable(${THIS}
 
 target_link_libraries( ${THIS}
     PRIVATE
-        radical::xstring
+        radical::Nexus
         radical::xvector
-        radical::Threader
+        radical::xstring
+        radical::xmap
+        radical::Timer
 )
 
 # -------------------------- BUILD --------------------------------------------

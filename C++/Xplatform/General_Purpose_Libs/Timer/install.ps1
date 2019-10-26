@@ -7,7 +7,7 @@ param (
 )
 
 # -----------------------------------
-$proj_name  = "Threader";
+$proj_name  = "Timer";
 $executable = $false;
 $shared_lib = $false;
 # -----------------------------------

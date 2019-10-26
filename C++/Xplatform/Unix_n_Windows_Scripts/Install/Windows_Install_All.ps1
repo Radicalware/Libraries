@@ -17,7 +17,8 @@ if(!$modify){
 		"../../functional_STL/mc/install.ps1",
 		"../../functional_STL/re/install.ps1",
 
-		"../../eXtended_STL/Threader/install.ps1",
+		"../../General_Purpose_Libs/Nexus/install.ps1",
+
 		"../../eXtended_STL/xstring/install.ps1",
 		"../../eXtended_STL/xvector/install.ps1",
 		"../../eXtended_STL/xmap/install.ps1",
@@ -25,7 +26,7 @@ if(!$modify){
 		"../../General_Purpose_Libs/Iterator/install.ps1",
 		"../../General_Purpose_Libs/OS/install.ps1",
 		"../../General_Purpose_Libs/SYS/install.ps1",
-		"../../General_Purpose_Libs/Nexus/install.ps1",
+		"../../General_Purpose_Libs/Timer/install.ps1",
 
 		"../../Modded_Objects/cc/install.ps1"
 	)
@@ -35,15 +36,15 @@ if(!$modify){
 		"../../functional_STL/mc/examples/run.ps1",
 		"../../functional_STL/re/examples/run.ps1",
 
-		"../../eXtended_STL/Threader/examples/run.ps1",
+		"../../General_Purpose_Libs/Nexus/examples/run.ps1",
+
 		"../../eXtended_STL/xvector/examples/run.ps1",
 		"../../eXtended_STL/xstring/example/run.ps1",
 		"../../eXtended_STL/xmap/examples/run.ps1",
 
-
 		"../../General_Purpose_Libs/OS/examples/run.ps1",
 		"../../General_Purpose_Libs/SYS/examples/run.ps1",
-		"../../General_Purpose_Libs/Nexus/examples/run.ps1",
+		"../../General_Purpose_Libs/Timer/examples/run.ps1",
 
 		"../../Modded_Objects/cc/examples/run.ps1"
 	)

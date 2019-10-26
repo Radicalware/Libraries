@@ -33,6 +33,25 @@
 
 #include "xvector.h"
 
+typedef std::regex_constants::syntax_option_type rexmod;
+
+enum class rxm // Regular Expression Modification
+{
+    none        = 0x00,
+    ECMAScript  = 0x01,
+    basic       = 0x02,
+    extended = 0x04,
+    awk         = 0x08,
+    grep        = 0x10,
+    egrep       = 0x20,
+    _Gmask      = 0x3F,
+
+    icase       = 0x0100,
+    nosubs      = 0x0200,
+    optimize    = 0x0400,
+    collate     = 0x0800
+};
+
 class xstring;
 template<typename T>
 xstring to_xstring(const T& num);
@@ -79,21 +98,21 @@ public:
 	// =================================================================================================================================
 	
 	xvector<xstring> split(size_t loc) const;
-	xvector<xstring> split(const xstring& in_pattern) const;
-	xvector<xstring> split(xstring&& in_pattern) const;
-	xvector<xstring> split(const char splitter) const;
+	xvector<xstring> split(const xstring& in_pattern, rxm mod = rxm::none) const;
+	xvector<xstring> split(xstring&& in_pattern, rxm mod = rxm::none) const;
+	xvector<xstring> split(const char splitter, rxm mod = rxm::none) const;
 
 	//// =================================================================================================================================
 	//   match is based on regex_match
-	bool match(const xstring& in_pattern) const;
-	bool match_line(const xstring& in_pattern) const;
-	bool match_lines(const xstring& in_pattern) const;
+	bool match(const xstring& in_pattern, rxm mod = rxm::none) const;
+	bool match_line(const xstring& in_pattern, rxm mod = rxm::none) const;
+	bool match_lines(const xstring& in_pattern, rxm mod = rxm::none) const;
 
 	//   scan is based on regex_search
-	bool scan(const char in_pattern) const;
-	bool scan(const xstring& in_pattern) const;
-	bool scan_line(const xstring& in_pattern) const;
-	bool scan_lines(const xstring& in_pattern) const;
+	bool scan(const char in_pattern, rxm mod = rxm::none) const;
+	bool scan(const xstring& in_pattern, rxm mod = rxm::none) const;
+	bool scan_line(const xstring& in_pattern, rxm mod = rxm::none) const;
+	bool scan_lines(const xstring& in_pattern, rxm mod = rxm::none) const;
 
 	// exact match (no regex)
 	bool is(const xstring& other) const;
@@ -107,21 +126,21 @@ public:
 	// =================================================================================================================================
 private:
 	// re::search & re::findall use grouper/iterator, don't use them via the namespace directly
-	xvector<xstring> grouper(const xstring& content, xvector<xstring>& ret_vector, const xstring& in_pattern) const;
-	xvector<xstring> iterate(const xstring& content, xvector<xstring>& ret_vector, const xstring& in_pattern) const;
+	xvector<xstring> grouper(const xstring& content, xvector<xstring>& ret_vector, const std::regex& pattern) const;
+	xvector<xstring> iterate(const xstring& content, xvector<xstring>& ret_vector, const std::regex& pattern) const;
 	// --------------------------------------------------------------------------------------------------------------------------------
 public:
-	std::vector<xstring> findall(const std::string& in_pattern, const bool group = false) const;
+	std::vector<xstring> findall(const std::string& in_pattern, rxm mod = rxm::none, const bool group = false) const;
 	// =================================================================================================================================
 
-	bool has(const char var_char) const;
-	bool lacks(const char var_char) const;
-	unsigned long long count(const char var_char) const;
-	unsigned long long count(const xstring& in_pattern) const;
+	bool has(const char var_char, rxm mod = rxm::none) const;
+	bool lacks(const char var_char, rxm mod = rxm::none) const;
+	unsigned long long count(const char var_char, rxm mod = rxm::none) const;
+	unsigned long long count(const xstring& in_pattern, rxm mod = rxm::none) const;
 
 	// =================================================================================================================================
 
-	xstring sub(const std::string& in_pattern, const std::string& replacement) const;
+	xstring sub(const std::string& in_pattern, const std::string& replacement, rxm mod = rxm::none) const;
 	xstring strip(); // this updates *this as well as return *this
 
 	// =================================================================================================================================

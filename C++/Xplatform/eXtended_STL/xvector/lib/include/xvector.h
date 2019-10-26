@@ -20,24 +20,23 @@
 * limitations under the License.
 */
 
+
+#if (defined(WIN64) || defined(_WIN64) || defined(WIN32) || defined(_WIN32))
+	using size64_t = __int64;
+#else
+	#include <cstdint>
+	using size64_t = int64_t;
+#endif
+
 #include<vector>
-#include <type_traits>
+#include<type_traits>
 #include<initializer_list>
 #include<string>
 #include<regex>
 #include<sstream>
 #include<set>
 
-using namespace std::string_literals;
-
-#if (defined(WIN64) || defined(_WIN64) || defined(WIN32) || defined(_WIN32))
-	using size64_t = __int64;
-#else
-	using size64_t = __int64_t;
-#endif
-
-template<typename T> class xvector;
-template<typename T> class xvector<T*>;
-
+#include "Nexus.h"
+	
 #include "val_xvector.h"
 #include "ptr_xvector.h"

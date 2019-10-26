@@ -60,6 +60,7 @@ endif()
 # -------------------------- BUILD --------------------------------------------
 find_package(xvector)
 find_package(xstring)
+find_package(Nexus)
 
 add_executable(${THIS}
     ${SRC}/${THIS}.cpp
@@ -69,6 +70,7 @@ target_link_libraries( ${THIS}
      PRIVATE
         radical::xvector
         radical::xstring
+        radical::Nexus
 )
 # -------------------------- BUILD --------------------------------------------
 # -------------------------- END ----------------------------------------------

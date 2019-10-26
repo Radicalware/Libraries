@@ -74,16 +74,45 @@ int main(int argc, char** argv) {
 	tripple.split(5).proc([](auto& xvec) {xvec.join(' ').print(); });
 	cout << '\n';
 
+
+    auto sub_function_val = [](xstring& elem, xstring& str) -> xstring {
+        return elem.sub("gmail", str);
+    };
+    auto sub_function_val2 = [](xstring& elem, xstring& junk, xstring& str) -> xstring {
+        return elem.sub("gmail", str);
+    };
+    auto sub_function_ptr = [](xstring* elem, xstring& str) -> xstring {
+        return elem->sub("gmail", str);
+    };
+
 	xvector<xstring>arr = { "one@gmail.com","two@gmail.com","three@gmail.com" };
-	arr.render([](auto& str) { return str.sub("gmail", "outlook"); }).join("\n").print(2);
 
-	arr.render(xstring("new"), [](auto& arg, auto& elem) { return elem.sub("gmail",arg); }).join("\n").print(2);
+    arr.render(sub_function_val2, xstring("junk"), xstring("render")).join("\n").print(2);
 
+    arr.xrender(
+        [](auto& elem, auto& val) 
+        {
+            return elem.sub("gmail", val); 
+        },
+        "new_val"
+    ).join('\n').print(2);
+
+    xstring x_new = "new_ref";
+    arr.xrender([&x_new](auto& elem) {return elem.sub("gmail", x_new); }).join('\n').print(2);
+
+    arr.xrender([](auto& elem, xstring def_replace = "default") {return elem.sub("gmail", def_replace); }).join('\n').print(2);
 
 	xvector<xstring*> arr_ptr = arr.ptrs();
+    arr_ptr.render([](xstring* elem, xstring str = "mod_ptr1") {return elem->sub("gmail", str); }).join('\n').print();
+    arr_ptr.render(sub_function_ptr, xstring("mod_ptr2")).join('\n').print();
 
-	arr_ptr.render([](auto* str) {return *str; }).join('\n').print(2);
-	arr_ptr.render(xstring("new"), [](auto& val, auto* str) {return str->sub("gmail", val); }).join('\n').print();
+    arr_ptr.xrender([](xstring& elem, xstring str = "mod_ptr3") {return elem.sub("gmail", str); }).join('\n').print();
+    arr_ptr.xrender(sub_function_val, xstring("mod_ptr4")).join('\n').print();
+    xstring mod5 = "mod_ptr5";
+    arr_ptr.xrender([&mod5](xstring& elem) {return elem.sub("gmail", mod5); }).join('\n').print();
+
+
+    arr_ptr.xproc([&mod5](xstring& elem) {return elem.sub("gmail", mod5); }); // executes but returns nothing
 
 	cout << "============================================\n";
 
@@ -93,6 +122,8 @@ int main(int argc, char** argv) {
 
 	xvector<xstring> vec_common_values = vec_str.common(four_five_six);
 	cout << "common values: " << vec_common_values.join(' ') << endl;
+
+
 
 
 	return 0;

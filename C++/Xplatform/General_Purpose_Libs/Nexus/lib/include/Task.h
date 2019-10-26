@@ -1,13 +1,12 @@
 ﻿#pragma once
 
 #include<functional>
-
-#include "xstring.h"
+#include<string>
 
 template<typename T>
 class Task
 {
-	xstring* m_name = nullptr; // set as pointer because it isn't always used
+	std::string* m_name = nullptr; // set as pointer because it isn't always used
 	std::function<T()> m_method;
 	bool m_blank = false;
 
@@ -17,15 +16,16 @@ public:
 	Task(const Task&  task);
 	Task(      std::function<T()>&& i_method);
 	Task(const std::function<T()>&  i_method);
-	Task(      std::function<T()>&& i_method,       xstring&& i_name);
-	Task(const std::function<T()>&  i_method, const xstring&  i_name);
+	Task(      std::function<T()>&& i_method,       std::string&& i_name);
+	Task(const std::function<T()>&  i_method, const std::string&  i_name);
 	~Task();
 
 	void add_method(const std::function<T()>& i_method);
 
 	bool blank() const;
 	bool has_name() const;
-	const xstring* name_ptr() const;
+    const std::string* name_ptr() const;
+    const std::string name() const;
 	T operator()();
 };
 
@@ -41,7 +41,7 @@ template<typename T>
 inline Task<T>::Task(Task&& task) noexcept
 {
 	if (task.has_name())
-		m_name = new xstring(*task.name_ptr());
+		m_name = new std::string(*task.name_ptr());
 	m_method = task.m_method;
 }
 
@@ -49,7 +49,7 @@ template<typename T>
 inline Task<T>::Task(const Task& task)
 {
 	if (task.has_name())
-		m_name = new xstring(*task.name_ptr());
+		m_name = new std::string(*task.name_ptr());
 	m_method = task.m_method;
 }
 // ----------------------------------------------------------------------------------------------------
@@ -61,14 +61,14 @@ inline Task<T>::Task(const std::function<T()>& i_method) : m_method(i_method)
 {   }
 // ----------------------------------------------------------------------------------------------------
 template<typename T>
-inline Task<T>::Task(std::function<T()>&& i_method, xstring&& i_name): m_method(i_method)
+inline Task<T>::Task(std::function<T()>&& i_method, std::string&& i_name): m_method(i_method)
 {
-	m_name = new xstring(i_name);
+	m_name = new std::string(i_name);
 }
 template<typename T>
-inline Task<T>::Task(const std::function<T()>& i_method, const xstring& i_name): m_method(i_method)
+inline Task<T>::Task(const std::function<T()>& i_method, const std::string& i_name): m_method(i_method)
 {
-	m_name = new xstring(i_name);
+	m_name = new std::string(i_name);
 }
 // ----------------------------------------------------------------------------------------------------
 
@@ -99,9 +99,15 @@ inline bool Task<T>::has_name() const
 }
 
 template<typename T>
-inline const xstring* Task<T>::name_ptr() const
+inline const std::string* Task<T>::name_ptr() const
 {
 	return m_name;
+}
+
+template<typename T>
+inline const std::string Task<T>::name() const
+{
+    return *m_name;
 }
 
 template<typename T>

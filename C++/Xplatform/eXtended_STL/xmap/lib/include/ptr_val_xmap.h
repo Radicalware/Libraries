@@ -19,14 +19,7 @@
 * limitations under the License.
 */
 
-#include<map>
-#include<unordered_map>
-#include<initializer_list>
-#include<utility>
-#include<memory>
-
-#include "xvector.h"
-#include "xstring.h"
+template<typename K, typename V> class xmap;
 
 #include "xmap.h"
 
@@ -34,7 +27,8 @@ template<typename K, typename V>
 class xmap<K*,V> : public std::unordered_map<K*,V>
 {
 private:
-	xvector<const K*>* m_keys = nullptr;   // used for setting orders to your keys 
+    // All of the pointers are allocated on an "As-Needed Basis"
+	xvector<const K*>* m_keys = nullptr;             // used for setting orders to your keys 
 	xmap<const V*, const K*>* m_rev_map = nullptr;   // go from KVPs to VKPs
 
 public:
@@ -84,11 +78,16 @@ public:
 	template<typename F>
 	inline void sort(F func);
 
-	template<typename F>
-	inline void proc(F function);
+    template<typename F, typename... A>
+    inline void proc(F&& function, A&& ...Args);
+    template<typename F, typename... A>
+    inline void xproc(F&& function, A&& ...Args);
 
-	template<typename I, typename F>
-	inline void proc(I& input, F function);
+    // R = Return Type  ||  T = Nexus Type
+    template<typename R = V, typename F, typename ...A>
+    inline xvector<R> render(F&& function, A&& ...Args);
+    template<typename T = V, typename R = T, typename F, typename ...A>
+    inline xvector<R> xrender(F&& function, A&& ...Args);
 
 	inline void print() const;
 	inline void print(int num) const;
@@ -301,11 +300,53 @@ inline void xmap<K*, V>::sort(F func)
 }
 
 template<typename K, typename V>
-template<typename F>
-inline void xmap<K*, V>::proc(F function)
+template<typename F, typename... A>
+inline void xmap<K*, V>::proc(F&& function, A&& ...Args)
 {
-	for (typename std::unordered_map<K*, V>::const_iterator iter = this->begin(); iter != this->end(); ++iter)
-		function(iter->first, iter->second);
+    for (typename xmap<K*, V>::iterator iter = this->begin(); iter != this->end(); ++iter)
+        function(iter->first, iter->second, Args...);
+}
+
+template<typename K, typename V>
+template<typename F, typename... A>
+inline void xmap<K*, V>::xproc(F&& function, A&& ...Args)
+{
+    Nexus<void> tvoid;
+
+    for (typename xmap<K*, V>::iterator iter = this->begin(); iter != this->end(); ++iter)
+        tvoid.add_job_pair(function, *iter->first, iter->second, Args...);
+
+    tvoid.wait_all();
+}
+
+template<typename K, typename V>
+template<typename R, typename F, typename ...A>
+inline xvector<R> xmap<K*, V>::render(F&& function, A&& ...Args)
+{
+    xvector<R> vret;
+    for (typename std::unordered_map<K*, V>::iterator iter = this->begin(); iter != this->end(); ++iter)
+        vret.push_back(function(iter->first, iter->second, Args...));
+    return vret;
+}
+
+template<typename K, typename V>
+template<typename T, typename R, typename F, typename ...A>
+inline xvector<R> xmap<K*, V>::xrender(F&& function, A&& ...Args)
+{
+    Nexus<T> td;
+
+    for (typename std::unordered_map<K*, V>::iterator iter = this->begin(); iter != this->end(); ++iter)
+        td.add_job_pair(function, *iter->first, iter->second, Args...);
+
+    td.wait_all();
+    xvector<R> vret;
+    vret.reserve(td.size());
+
+    for (size_t i = 0; i < td.size(); i++)
+        vret << td.get_fast(i).value();
+
+    td.clear();
+    return vret;
 }
 
 template<typename K, typename V>

@@ -1,2 +1,2 @@
-﻿#include "Threader.h"
+#include "Threader.h"
 

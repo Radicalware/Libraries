@@ -1,1 +1,1 @@
-﻿#include "Threader_void.h"
+#include "Threader_void.h"
