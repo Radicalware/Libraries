@@ -13,7 +13,7 @@ will use PowerShell on Unix.
 
 Version <Lib Count>.<New Addition Push Count>.<Hotfix>
 
-Version = 10.X.X
+Version = 12.X.X
 
 eXtended_STL
 	 1. xvector   - eXtended std::vector
