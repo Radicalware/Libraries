@@ -39,6 +39,7 @@ else() # NIX
 endif()
 # -------------------------- ARGUMENTS ----------------------------------------
 # -------------------------- CONFIGURATION ------------------------------------
+set(LIB ${THIS})
 set(BUILD_DIR ${CMAKE_SOURCE_DIR}/lib)
 set(INCLUDE   ${BUILD_DIR}/include)
 set(SRC       ${BUILD_DIR}/src)
@@ -54,11 +55,25 @@ endif()
 # -------------------------- CONFIGURATION ------------------------------------
 
 # -------------------------- BUILD --------------------------------------------
-add_library( 
-    ${THIS} STATIC
-        ${SRC}/${THIS}.cpp
-        ${SRC}/val_${THIS}.cpp
-        ${SRC}/ptr_${THIS}.cpp
+add_library( ${THIS} STATIC
+
+        ${INCLUDE}/base_val_${LIB}.h
+        ${SRC}/base_ptr_${LIB}.cpp
+
+        ${INCLUDE}/val_obj_xvector.h
+        ${SRC}/val_obj_xvector.cpp
+
+        ${INCLUDE}/val_prim_xvector.h
+        ${SRC}/val_prim_xvector.cpp
+        # -------------------------------------
+        ${INCLUDE}/base_ptr_xvector.h
+        ${SRC}/base_ptr_xvector.cpp
+
+        ${INCLUDE}/ptr_obj_xvector.h
+        ${SRC}/ptr_obj_xvector.cpp
+
+        ${INCLUDE}/ptr_prim_xvector.h
+        ${SRC}/ptr_prim_xvector.cpp
 )
 add_library(radical::${THIS} ALIAS ${THIS})
 

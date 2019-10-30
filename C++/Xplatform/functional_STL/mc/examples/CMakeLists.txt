@@ -58,12 +58,13 @@ else()
 endif() 
 # -------------------------- CONFIGURATION ------------------------------------
 # -------------------------- BUILD --------------------------------------------
-find_package(ac)
-find_package(mc)
 
 add_executable(${THIS}
     ${SRC}/${THIS}.cpp
 )
+
+find_package(ac)
+find_package(mc)
 
 target_link_libraries( ${THIS}
     PRIVATE

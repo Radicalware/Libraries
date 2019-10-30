@@ -1,15 +1,16 @@
-﻿#pragma once
+#pragma once
 
 #include<thread>
 #include<atomic>
 
+
+
 class CPU_Threads
 {
 protected:
-	const  int              CPU_THREADS = std::thread::hardware_concurrency();
-	static int              Thread_Count;
-
-	static std::atomic<int> Threads_Used;
+    static const int CPU_THREADS_COUNT;
+    static std::atomic<int>  Thread_Count;
+	static std::atomic<int>  Threads_Used;
 	static std::atomic<int>  Inst_Count;
 	static std::atomic<int>  Task_Count;
 
@@ -22,10 +23,12 @@ public:
 	static const int    threads_available();
 	static const bool   threads_are_available();
 
-	void reset_thread_count();
-	void operator+=(int val);
-	void operator-=(int val);
+    static void reset_thread_count();
+    void operator+=(int val);
+    void operator++();
+    void operator-=(int val);
+    void operator--();
 	void operator==(int val) const;
+    void static set_thread_count(int val);
 };
-
 

@@ -1,8 +1,13 @@
-﻿#include<iostream>
+#include<iostream>
 #include<exception>
+
+#include<functional>  // for testing only
+#include<thread>      // for testing only
+#include<type_traits> // for testing only
 
 #include "Nexus.h"
 #include "xstring.h"
+#include "xvector.h"
 
 using std::cout;
 using std::endl;
@@ -71,15 +76,37 @@ void test_exception(size_t input, Nexus<T>& nex_ull) {
     }
 }
 
-void loop_str_prime_func(Nexus<xstring>& nex) {
-    //for (int i = 0; i < nex.thread_count(); i++) {
-    //	nex.add_job(str_prime_number, 10000);
-    //	nex.sleep(5);
-    //	cout << "Jobs Running: " << nex.threads_used() << endl;
-    //}
+struct NUM // number represented by a str
+{
+    xstring val = "0";
+    NUM() {}
+
+    xstring inc(int input)
+    {
+        val = to_xstring(val.to_int() + input);
+        return val;
+    }
+    xstring dec(int input)
+    {
+        val = to_xstring(val.to_int() - input);
+        return val;
+    }
 };
 
-int main() {
+int main() 
+{
+    NUM num;
+    Nexus<void> nxv;
+    nxv.mutex_on(); // very important when modifying one object in multiple threads!!
+
+    for (int i = 0; i < 200; i++) {
+        if (i % 3 == 0)
+            nxv.add_job(&NUM::dec, num, 1);
+        else
+            nxv.add_job(&NUM::inc, num, 1);
+    }
+    nxv.wait_all();
+    num.val.print();
 
     // =============================================================================================
 

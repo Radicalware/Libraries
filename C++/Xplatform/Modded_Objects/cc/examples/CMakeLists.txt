@@ -58,11 +58,12 @@ else()
 endif() 
 # -------------------------- CONFIGURATION ------------------------------------
 # -------------------------- BUILD --------------------------------------------
-find_package(cc)
-
 add_executable(${THIS}
     ${SRC}/${THIS}.cpp
 )
+
+find_package(cc)
+
 target_link_libraries( ${THIS}
     PRIVATE
 		radical_mod::cc

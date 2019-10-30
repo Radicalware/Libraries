@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 /*
 * Copyright[2019][Joel Leagues aka Scourge]
@@ -278,6 +278,7 @@ inline V xmap<K*, V*>::operator[](const K& key) const
         if (*iter->first == key)
             return *iter->second;
     }
+    return V();
 }
 
 // ======== BOOLS ================================================================================

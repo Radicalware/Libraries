@@ -58,11 +58,6 @@ else()
 endif() 
 # -------------------------- CONFIGURATION ------------------------------------
 # -------------------------- BUILD --------------------------------------------
-find_package(Nexus)
-find_package(xvector)
-find_package(xstring)
-find_package(xmap)
-find_package(OS)
 
 add_executable(${THIS}
     ${SRC}/${THIS}.cpp
@@ -72,6 +67,12 @@ add_executable(${THIS}
     ${INCLUDE}/ex_open_n_delete.h
 )
 
+find_package(Nexus)
+find_package(xvector)
+find_package(xstring)
+find_package(xmap)
+find_package(OS)
+
 target_link_libraries( ${THIS}
     PRIVATE		
         radical::Nexus
@@ -80,6 +81,5 @@ target_link_libraries( ${THIS}
         radical::xmap
         radical::OS
 )
-
 # -------------------------- BUILD --------------------------------------------
 # -------------------------- END ----------------------------------------------

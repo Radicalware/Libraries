@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include<iostream>
 #include<initializer_list>
@@ -55,6 +55,7 @@ template<>
 class Nexus<void> : public CPU_Threads
 {
 private:
+
 	bool m_finish_tasks = false;
 	size_t m_inst_task_count = 0;
 	std::mutex m_mutex;
@@ -62,11 +63,17 @@ private:
 	std::vector<std::thread> m_threads;      // We add new tasks by succession from the m_task_queue here
 	std::queue<Task<void>> m_task_queue; // This is where tasks are held before being run
 
+    bool m_use_mutex = false; // This should only be turned on when you are modifying an instance of an object. 
+    std::mutex m_obj_mutex;
+
 	void TaskLooper(int thread_idx);
 
 public:
 	Nexus();
 	~Nexus();
+
+    void mutex_on(); 
+    void mutex_off();
 
 	template <typename F, typename... A>
 	void add_job(F&& function, A&& ... Args);
@@ -76,6 +83,9 @@ public:
 
     template <typename K, typename V, typename F, typename... A>
     void add_job_pair(F&& function, K key, V& value, A&& ... Args);
+
+	// Required due to Linux not Windows (returns void Job<T>)
+    Job<short int> get_fast(size_t dummy) noexcept; 
 
     size_t size() const;
 
@@ -108,7 +118,13 @@ inline void Nexus<void>::TaskLooper(int thread_idx)
 
 			m_task_queue.pop();
 		}
-		(*tsk)();
+        if(!m_use_mutex)
+		    (*tsk)();
+        else {
+            std::lock_guard<std::mutex> l(m_obj_mutex);
+            (*tsk)();
+        }
+
 		CPU_Threads::Threads_Used--; // protected as atomic
 		if(tsk != nullptr)
 			delete tsk;
@@ -136,10 +152,20 @@ inline Nexus<void>::~Nexus()
     for (auto& thrd : m_threads) thrd.join();
 }
 
+inline void Nexus<void>::mutex_on()
+{
+    m_use_mutex = true;
+}
+
+inline void Nexus<void>::mutex_off()
+{
+    m_use_mutex = false;
+}
+
 template <typename F, typename... A>
 inline void Nexus<void>::add_job(F&& function, A&&... Args) 
 {
-	auto binded_function = std::bind(function, Args...);
+	auto binded_function = std::bind(function, std::ref(Args)...);
 	std::lock_guard <std::mutex> lock(m_mutex);
 	m_task_queue.emplace(std::move(binded_function));
 	m_sig_deque.notify_one();
@@ -148,7 +174,7 @@ inline void Nexus<void>::add_job(F&& function, A&&... Args)
 template <typename F, typename V, typename... A>
 void Nexus<void>::add_job_val(F&& function, V& element, A&&... Args)
 {
-    auto binded_function = std::bind(function, element, Args...);
+    auto binded_function = std::bind(function, std::ref(element), std::ref(Args)...);
     std::lock_guard <std::mutex> lock(m_mutex);
     m_task_queue.emplace(std::move(binded_function));
     m_sig_deque.notify_one();
@@ -157,11 +183,14 @@ void Nexus<void>::add_job_val(F&& function, V& element, A&&... Args)
 template<typename K, typename V, typename F, typename ...A>
 inline void Nexus<void>::add_job_pair(F&& function, K key, V& value, A&& ...Args)
 {
-    auto binded_function = std::bind(function, key, value, Args...);
+    auto binded_function = std::bind(function, std::ref(key), std::ref(value), std::ref(Args)...);
     std::lock_guard <std::mutex> lock(m_mutex);
     m_task_queue.emplace(std::move(binded_function));
     m_sig_deque.notify_one();
 }
+
+// Class required due to Linux (not Windows)
+inline Job<short int> Nexus<void>::get_fast(size_t dummy) noexcept { return Job<short int>(); } 
 
 inline size_t Nexus<void>::size() const {
 	return m_inst_task_count;
@@ -185,3 +214,4 @@ inline void Nexus<void>::sleep(unsigned int extent) const
 		::usleep(extent);
 	#endif
 }
+

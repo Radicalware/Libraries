@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #pragma warning (disable : 26444) // allow anynomous objects
 
 /*
@@ -22,10 +22,10 @@
 
 
 #if (defined(WIN64) || defined(_WIN64) || defined(WIN32) || defined(_WIN32))
-	using size64_t = __int64;
+    using size64_t = __int64;
 #else
-	#include <cstdint>
-	using size64_t = int64_t;
+    #include <cstdint>
+    using size64_t = int64_t;
 #endif
 
 #include<vector>
@@ -37,6 +37,24 @@
 #include<set>
 
 #include "Nexus.h"
-	
-#include "val_xvector.h"
-#include "ptr_xvector.h"
+
+template<typename T> class val_xvector;
+template<typename T> class ptr_xvector;
+
+template<typename T, typename enabler_t = void> class xvector;
+    
+// Values (Object/Primitive)
+template<typename T> class xvector<T, typename std::enable_if< std::is_class<T>::value>::type>; // val_obj_xvector
+template<typename T> class xvector<T, typename std::enable_if<!std::is_class<T>::value>::type>; // val_prim_xvector
+
+// Pointers (Object/Primitive)
+template<typename T> class xvector<T*, typename std::enable_if< std::is_class<T*>::value>::type>; // ptr_obj_xvector
+template<typename T> class xvector<T*, typename std::enable_if<!std::is_class<T*>::value>::type>; // ptr_prim_xvector
+
+#include "base_val_xvector.h"
+#include "val_obj_xvector.h"
+#include "val_prim_xvector.h"
+
+#include "base_ptr_xvector.h"
+#include "ptr_obj_xvector.h"
+#include "ptr_prim_xvector.h"

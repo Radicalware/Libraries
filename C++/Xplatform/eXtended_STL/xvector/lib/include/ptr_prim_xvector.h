@@ -1,4 +1,5 @@
 #pragma once
+#pragma warning (disable : 26444) // allow anynomous objects
 
 /*
 * Copyright[2019][Joel Leagues aka Scourge]
@@ -6,7 +7,7 @@
 * www.Radicalware.com
 * https://www.youtube.com/channel/UCivwmYxoOdDT3GmDnD0CfQA/playlists
 *
-* Licensed under the Apache License, const V*ersion 2.0 (the "License");
+* Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
 *
@@ -19,23 +20,16 @@
 * limitations under the License.
 */
 
-#include<map>
-#include<unordered_map>
-#include<initializer_list>
-#include<utility>
-#include<memory>
+#include "base_ptr_xvector.h"
 
-#include "Nexus.h"
-#include "xvector.h"
-#include "xstring.h"
+template<typename T> class ptr_xvector;
+template<typename T, typename enabler_t> class xvector;
 
-//template<typename K, typename V> class xmap;
-//template<typename K, typename V> class xmap<K*, V*>;
-//template<typename K, typename V> class xmap<K*, V >;
-//template<typename K, typename V> class xmap<K , V*>;
-
-#include "val2_xmap.h"
-#include "ptr2_xmap.h"
-#include "ptr_val_xmap.h"
-#include "val_ptr_xmap.h"
-
+template<typename T>
+class xvector<T*, typename std::enable_if<!std::is_class<T*>::value>::type> : public ptr_xvector<T*>
+{
+private:
+    using ptr_xvector<T*>::ptr_xvector;
+public:
+    
+};

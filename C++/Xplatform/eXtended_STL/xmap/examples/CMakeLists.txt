@@ -58,14 +58,15 @@ else()
 endif() 
 # -------------------------- CONFIGURATION ------------------------------------
 # -------------------------- BUILD --------------------------------------------
-find_package(Nexus)
-find_package(xvector)
-find_package(xstring)
-find_package(xmap)
 
 add_executable(${THIS}
     ${SRC}/${THIS}.cpp
 )
+
+find_package(Nexus)
+find_package(xvector)
+find_package(xstring)
+find_package(xmap)
 
 target_link_libraries( ${THIS}
     PRIVATE

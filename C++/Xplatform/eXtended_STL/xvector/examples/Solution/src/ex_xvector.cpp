@@ -1,4 +1,4 @@
-﻿
+
 #include<iostream>
 #include "xvector.h"
 #include "xstring.h"
@@ -124,7 +124,12 @@ int main(int argc, char** argv) {
 	cout << "common values: " << vec_common_values.join(' ') << endl;
 
 
+    xvector<xstring> first = { "one" , "two", "three" };
+    xvector<xstring> second = { "four", "five", "six" };
 
+    xvector<xvector<xstring>> nested_vecs = { first, second };
+    xvector<xstring> un_nested_vecs = nested_vecs.expand();
+    un_nested_vecs.join(' ').print();
 
 	return 0;
 }

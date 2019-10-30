@@ -1,7 +1,7 @@
-﻿#include "CPU_Threads.h"
+#include "CPU_Threads.h"
 
-int CPU_Threads::Thread_Count = std::thread::hardware_concurrency();
-
+const int CPU_Threads::CPU_THREADS_COUNT = std::thread::hardware_concurrency() - 1;
+std::atomic<int> CPU_Threads::Thread_Count = std::thread::hardware_concurrency() - 1;
 std::atomic<int> CPU_Threads::Threads_Used = 0;
 std::atomic<int> CPU_Threads::Inst_Count = 0;
 std::atomic<int> CPU_Threads::Task_Count = 0;
@@ -36,24 +36,49 @@ const bool CPU_Threads::threads_are_available(){
 
 void CPU_Threads::reset_thread_count()
 {
-	Thread_Count = CPU_THREADS;
+    Thread_Count = CPU_THREADS_COUNT;
 }
 
 void CPU_Threads::operator+=(int val)
 {
-	Thread_Count += val;
-	if (Thread_Count < 0)
+	if ((Thread_Count + val) < 0)
 		Thread_Count = 0;
+    else
+        Thread_Count += val;
+}
+
+void CPU_Threads::operator++()
+{
+    if ((Thread_Count + 1) < 0) 
+        Thread_Count = 0;
+    else
+        Thread_Count++;
 }
 
 void CPU_Threads::operator-=(int val)
 {
-	Thread_Count -= val;
-	if (Thread_Count < 0)
+	if ((Thread_Count - val) < 0)
 		Thread_Count = 0;
+    else
+        Thread_Count -= val;
+}
+
+void CPU_Threads::operator--()
+{
+
+    if ((Thread_Count - 1) < 1) 
+        Thread_Count = 0;
+    else
+        Thread_Count--;
 }
 
 void CPU_Threads::operator==(int val) const
 {
 	Thread_Count = val;
+}
+
+void CPU_Threads::set_thread_count(int val)
+{
+    if(val > 0)
+        Thread_Count = val;
 }

@@ -21,18 +21,29 @@ endif()
 # -------------------------- ARGUMENTS ----------------------------------------
 # -------------------------- CONFIGURATION ------------------------------------
 set(XVECTOR_DIR ${INSTALL_PREFIX}/code/${LIB})
+set(INCLUDE   ${XVECTOR_DIR}/include)
+set(SRC       ${XVECTOR_DIR}/src)
 # -------------------------- CONFIGURATION ------------------------------------
 # -------------------------- BUILD --------------------------------------------
 add_library(${LIB} 
     STATIC
-        ${XVECTOR_DIR}/include/${LIB}.h
-        ${XVECTOR_DIR}/src/${LIB}.cpp
+        ${INCLUDE}/base_val_${LIB}.h
+        ${SRC}/base_ptr_${LIB}.cpp
 
-        ${XVECTOR_DIR}/include/ptr_${LIB}.h
-        ${XVECTOR_DIR}/src/ptr_${LIB}.cpp
+        ${INCLUDE}/val_obj_xvector.h
+        ${SRC}/val_obj_xvector.cpp
 
-        ${XVECTOR_DIR}/include/val_${LIB}.h
-        ${XVECTOR_DIR}/src/val_${LIB}.cpp
+        ${INCLUDE}/val_prim_xvector.h
+        ${SRC}/val_prim_xvector.cpp
+        # -------------------------------------
+        ${INCLUDE}/base_ptr_xvector.h
+        ${SRC}/base_ptr_xvector.cpp
+
+        ${INCLUDE}/ptr_obj_xvector.h
+        ${SRC}/ptr_obj_xvector.cpp
+
+        ${INCLUDE}/ptr_prim_xvector.h
+        ${SRC}/ptr_prim_xvector.cpp
 )
 
 add_library(radical::${LIB} ALIAS ${LIB})

@@ -59,10 +59,6 @@ endif()
 # -------------------------- CONFIGURATION ------------------------------------
 # -------------------------- BUILD --------------------------------------------
 
-find_package(Nexus)
-find_package(xvector)
-find_package(xstring)
-
 add_executable(${THIS}
     ${SRC}/${THIS}.cpp
 
@@ -72,6 +68,10 @@ add_executable(${THIS}
     ${INCLUDE}/Option.h
     ${SRC}/Option.cpp
 )
+
+find_package(Nexus)
+find_package(xvector)
+find_package(xstring)
 
 target_link_libraries( ${THIS}
     PRIVATE 

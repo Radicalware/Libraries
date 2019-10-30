@@ -13,19 +13,17 @@ $Functional_STL       = 'Functional_STL'
 $Modded_Objects       = 'Modded_Objects'
 
 Write-Host "Copying Lib Folders: "
-Write-Host "1. $General_Purpose_Libs : OS, SYS, Iterator, Nexus"
-Write-Host "2. $eXtended_STL         : xvector, xstring, xmap, 
-                          Threader, Timer"
+Write-Host "1. $General_Purpose_Libs : Nexus, OS, SYS, Iterator, Timer"
+Write-Host "2. $eXtended_STL         : xvector, xstring, xmap"
 Write-Host "3. $Functional_STL       : re, ac, mc"
 Write-Host "4. $Modded_Objects       : cc"
 
+Copy-Item "$cmake_install_dir\Nexus\*"    $build_dir\$General_Purpose_Libs\Nexus\lib -Recurse -Force
 Copy-Item "$cmake_install_dir\OS\*"       $build_dir\$General_Purpose_Libs\OS\lib -Recurse -Force
 Copy-Item "$cmake_install_dir\SYS\*"      $build_dir\$General_Purpose_Libs\SYS\lib -Recurse -Force
 Copy-Item "$cmake_install_dir\Iterator\*" $build_dir\$General_Purpose_Libs\Iterator\lib -Recurse -Force
-Copy-Item "$cmake_install_dir\Nexus\*"    $build_dir\$General_Purpose_Libs\Nexus\lib -Recurse -Force
 Copy-Item "$cmake_install_dir\Timer\*"    $build_dir\$General_Purpose_Libs\Timer\lib -Recurse -Force
 
-Copy-Item "$cmake_install_dir\Threader\*" $build_dir\$eXtended_STL\Threader\lib -Recurse -Force 
 Copy-Item "$cmake_install_dir\xvector\*"  $build_dir\$eXtended_STL\xvector\lib -Recurse -Force 
 Copy-Item "$cmake_install_dir\xstring\*"  $build_dir\$eXtended_STL\xstring\lib -Recurse -Force 
 Copy-Item "$cmake_install_dir\xmap\*"     $build_dir\$eXtended_STL\xmap\lib -Recurse -Force

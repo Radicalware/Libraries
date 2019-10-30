@@ -4,6 +4,16 @@
 
 ---------------------------------------------------------------------
 
+10/30/2019 >> Libs v12.2.0
+
+Nexus was greatly slowed down due to Base class not being a pod.
+It's speed has been almost doubled to my suprise. xvector
+now has new functionality and a much different configuration with 
+two new base-classes and minimal increase in code due to no
+repeating constructors. 
+
+---------------------------------------------------------------------
+
 10/25/2019 >> Libs v12.1.0
 
 Timer.h was added.

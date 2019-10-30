@@ -1,4 +1,4 @@
-﻿#pragma once 
+#pragma once 
 
 #include<iostream>
 #include<exception>
@@ -27,7 +27,8 @@ public:
 	void init();
 	Task<T> task() const;
 	const Task<T>* task_ptr() const;
-	T value() const;
+    T value() const;
+    T* value_ptr() const;
 	std::exception_ptr exception() const;
 	void rethrow_exception() const;
 	bool done() const;
@@ -68,7 +69,7 @@ inline void Job<T>::init()
 	catch (const std::exception&) {
 		m_exc_ptr = std::current_exception();
 	}
-	CPU_Threads::Threads_Used--;
+	Threads_Used--;
 	m_done = true;
 }
 
@@ -88,6 +89,12 @@ template<typename T>
 inline T Job<T>::value() const
 {
 	return m_value;
+}
+
+template<typename T>
+inline T* Job<T>::value_ptr() const
+{
+    return &m_value;
 }
 
 template<typename T>

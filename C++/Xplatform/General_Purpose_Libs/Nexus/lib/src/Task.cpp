@@ -1,2 +1,2 @@
-﻿
+
 #include "Job.h"
