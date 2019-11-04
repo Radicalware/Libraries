@@ -1,7 +1,7 @@
 ﻿#include "CPU_Threads.h"
 
-const int CPU_Threads::CPU_THREADS_COUNT = std::thread::hardware_concurrency() - 1;
-std::atomic<int> CPU_Threads::Thread_Count = std::thread::hardware_concurrency() - 1;
+const int CPU_Threads::CPU_THREADS_COUNT = std::thread::hardware_concurrency();
+std::atomic<int> CPU_Threads::Thread_Count = std::thread::hardware_concurrency();
 std::atomic<int> CPU_Threads::Threads_Used = 0;
 std::atomic<int> CPU_Threads::Inst_Count = 0;
 std::atomic<int> CPU_Threads::Task_Count = 0;
