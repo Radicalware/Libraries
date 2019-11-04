@@ -10,7 +10,6 @@ to run the command above than to install Python on windows, so I
 will use PowerShell on Unix.
 
 
-
 Version <Lib Count>.<New Addition Push Count>.<Hotfix>
 
 Version = 12.X.X
@@ -33,3 +32,18 @@ Mods
 Modules	
 	12. QtImage   - A module that handles images on Qt Objects
 
+
+On Nix, add the following to your bash env (bashrc/bash_profile/etc)
+--------------------------------------------------------------------------------
+# Library Path for Source Code
+export LIBRARY_PATH="/usr/local/include":$LIBRARY_PATH
+
+export LIBRARY_PATH="/opt/Radicalware/Libraries/cpp/include":$LIBRARY_PATH
+export LIBRARY_PATH="/opt/Radicalware/Libraries/cpp/code/Projects":$LIBRARY_PATH
+
+export CPATH="/opt/Radicalware/Libraries/cpp/include":$CPATH
+export CPATH="/opt/Radicalware/Libraries/cpp/code/Projects":$CPATH
+
+# LD = Linker Directory for '.so' files
+export LD_LIBRARY_PATH="/opt/Radicalware/Tools/Release/bin":$LD_LIBRARY_PATH
+export LD_RUN_PATH="/opt/Radicalware/Tools/Release/bin":$LD_RUN_PATH
