@@ -20,7 +20,7 @@ else()
 endif()
 # -------------------------- ARGUMENTS ----------------------------------------
 # -------------------------- CONFIGURATION ------------------------------------
-set(XVECTOR_DIR ${INSTALL_PREFIX}/code/${LIB})
+set(XVECTOR_DIR ${INSTALL_PREFIX}/code/Projects/${LIB})
 set(INCLUDE   ${XVECTOR_DIR}/include)
 set(SRC       ${XVECTOR_DIR}/src)
 # -------------------------- CONFIGURATION ------------------------------------

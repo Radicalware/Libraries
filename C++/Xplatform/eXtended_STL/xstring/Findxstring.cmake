@@ -20,13 +20,16 @@ else()
 endif()
 # -------------------------- ARGUMENTS ----------------------------------------
 # -------------------------- CONFIGURATION ------------------------------------
-set(XSTRING_DIR ${INSTALL_PREFIX}/code/${LIB})
+set(XSTRING_DIR ${INSTALL_PREFIX}/code/Projects/${LIB})
 # -------------------------- CONFIGURATION ------------------------------------
 # -------------------------- BUILD --------------------------------------------
 add_library(${LIB} 
-	STATIC 
-		${XSTRING_DIR}/include/${LIB}.h
-		${XSTRING_DIR}/src/${LIB}.cpp
+    STATIC 
+        ${XSTRING_DIR}/include/${LIB}.h
+        ${XSTRING_DIR}/src/${LIB}.cpp
+
+        ${XSTRING_DIR}/include/std_xstring.h
+        ${XSTRING_DIR}/src/std_xstring.cpp
 )
 add_library(radical::${LIB} ALIAS ${LIB})
 

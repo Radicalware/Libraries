@@ -39,7 +39,7 @@ else() # NIX
 endif()
 # -------------------------- ARGUMENTS ----------------------------------------
 # -------------------------- CONFIGURATION ------------------------------------
-set(BUILD_DIR ${CMAKE_SOURCE_DIR}/lib)
+set(BUILD_DIR ${CMAKE_SOURCE_DIR}/Project)
 set(INCLUDE   ${BUILD_DIR}/include)
 set(SRC       ${BUILD_DIR}/src)
 
@@ -68,9 +68,10 @@ message ("No Required Libs Needed")
 # -------------------------- INSTALL ------------------------------------------
 
 # Binary File
-install (  
-    TARGETS             ${THIS}
-    DESTINATION         bin/${BUILD_TYPE}
+install(TARGETS ${THIS}
+        RUNTIME DESTINATION build/${BUILD_TYPE}/bin
+        LIBRARY DESTINATION build/${BUILD_TYPE}/lib
+        ARCHIVE DESTINATION build/${BUILD_TYPE}/lib
 )
 
 # Include file
@@ -82,11 +83,11 @@ install (
 # Header/Src Files
 install (   
     DIRECTORY           ${BUILD_DIR}/include 
-    DESTINATION         code/${THIS}
+    DESTINATION         code/Projects/${THIS}
 )
 install (   
     DIRECTORY           ${BUILD_DIR}/src 
-    DESTINATION         code/${THIS}
+    DESTINATION         code/Projects/${THIS}
 )
 
 # CMake Module

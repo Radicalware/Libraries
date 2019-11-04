@@ -1,9 +1,9 @@
 
 $module_path = ""
 if($($global:PSVersionTable.Platform -eq "Unix")){
-	$module_path = "~/.local/share/powershell/Modules"
+    $module_path = "~/.local/share/powershell/Modules"
 }else{
-	$module_path = "$HOME\Documents\WindowsPowerShell\Modules"
+    $module_path = "$HOME\Documents\WindowsPowerShell\Modules"
 }
 Import-Module "$module_path\Arg_Struct.ps1" -Force
 
@@ -11,39 +11,39 @@ $OFS = "`n"
 
 Class PS_Builder
 {
-	$ArgStruct
+    $ArgStruct
 
     [string] $module_path;
     [string] $part_module_path;
     [string] $install_prefix;
-	[string] $vcpkg_path;
+    [string] $vcpkg_path;
     [string] $vcvars;
     [string] $cmake_command
 
     PS_Builder($ArgStruct){
-		
+        
 
-		$this.ArgStruct = $ArgStruct;
+        $this.ArgStruct = $ArgStruct;
 
-		# Modify the paths below if they are not what you want.
-		if($this.ArgStruct.is_unix){
-			$this.part_module_path  = 'usr/share/cmake/Modules'  
-			$this.install_prefix = '/opt/Radicalware/Libraries/cpp'
-			$this.vcpkg_path = "$global:HOME/lp/vcpkg/scripts/buildsystems/vcpkg.cmake"
-			$this.vcvars = ''
+        # Modify the paths below if they are not what you want.
+        if($this.ArgStruct.is_unix){
+            $this.part_module_path  = 'usr/share/cmake/Modules'  
+            $this.install_prefix = '/opt/Radicalware/Libraries/cpp'
+            $this.vcpkg_path = "$global:HOME/lp/vcpkg/scripts/buildsystems/vcpkg.cmake"
+            $this.vcvars = ''
             $this.module_path   = '/'+$this.part_module_path;
             $this.cmake_command = "cmake"
 
-		}else{
-			$this.part_module_path  = 'source/CMake/Modules'  
-			$this.install_prefix = 'C:/source/CMake/Radicalware/Libraries/cpp'
-			$this.vcpkg_path = "C:/source/lp/vcpkg/scripts/buildsystems/vcpkg.cmake"
-			$this.vcvars = 'C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Auxiliary/Build/vcvars64.bat'
+        }else{
+            $this.part_module_path  = 'source/CMake/Modules'  
+            $this.install_prefix = 'C:/source/CMake/Radicalware/Libraries/cpp'
+            $this.vcpkg_path = "C:/source/lp/vcpkg/scripts/buildsystems/vcpkg.cmake"
+            $this.vcvars = 'C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Auxiliary/Build/vcvars64.bat'
             $this.module_path   = 'C:/'+$this.part_module_path;
             $this.cmake_command = "cmake.exe"
 
-		}
-		# build_dir = "Build \ <Windows/Nix> \ <Debug/Release>
+        }
+        # build_dir = "Build \ <Windows/Nix> \ <Debug/Release>
     }
 
     # ----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -91,36 +91,36 @@ Class PS_Builder
             + " -DCMAKE_INSTALL_PREFIX=" + $this.install_prefix `
             + " -DINSTALL_PREFIX=" + $this.install_prefix `
             + " -DEXT_INCLUDE_PATH=" + $this.install_prefix + "/include" `
-            + " -DEXT_BIN_PATH=" + $this.install_prefix + "/bin/$($this.build_type)" `
+            + " -DEXT_BIN_PATH=" + $this.install_prefix + "/build/$($this.build_type)" `
             + " -DMODULE_PATH=" + $this.module_path 
-			# + " -DCMAKE_TOOLCHAIN_FILE=" + $this.vcpkg_path
+            # + " -DCMAKE_TOOLCHAIN_FILE=" + $this.vcpkg_path
 
 
-		if(!$this.ArgStruct.is_unix){
-			$this.cmake_command += " -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE"
-		}
-		if($this.ArgStruct.shared_lib -or $this.ArgStruct.executable){
-			$this.cmake_command += " -DBUILD_SHARED_LIBS=TRUE";
-		}
-		if(!$this.ArgStruct.executable){
+        if(!$this.ArgStruct.is_unix){
+            $this.cmake_command += " -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE"
+        }
+        if($this.ArgStruct.shared_lib -or $this.ArgStruct.executable){
+            $this.cmake_command += " -DBUILD_SHARED_LIBS=TRUE";
+        }
+        if(!$this.ArgStruct.executable){
             $this.cmake_command += " -DPART_MODULE_PATH=" + $this.part_module_path `
-		}
+        }
 
-		$this.cmake_command += " ../../../";
-		Write-Host $this.cmake_command;
-		$ps_error_strings = @(
-			"cmake.exe :"
-			"At line:1 char:1"
-			"\+ cmake.exe --config"
-			"\+ ~~~~~~~~~~~~~~~"
-			"    \+ CategoryInfo"
-			"    \+ FullyQualified"
-		)
+        $this.cmake_command += " ../../../";
+        Write-Host $this.cmake_command;
+        $ps_error_strings = @(
+            "cmake.exe :"
+            "At line:1 char:1"
+            "\+ cmake.exe --config"
+            "\+ ~~~~~~~~~~~~~~~"
+            "    \+ CategoryInfo"
+            "    \+ FullyQualified"
+        )
 
-		# Write-Host $cmake_command
-		$cmake_out = "$(((Invoke-Expression "$($this.cmake_command) 2>&1" ) | Out-String).Split([Environment]::NewLine).Where({ $_ -ne `"`" -and !$([regex]::match($_, '^(('+$([string]::join(")|(",$ps_error_strings))+'))' )).Success }))".split("`n");
-		
-		Write-Host ([string]::Join("`n",$cmake_out));
+        # Write-Host $cmake_command
+        $cmake_out = "$(((Invoke-Expression "$($this.cmake_command) 2>&1" ) | Out-String).Split([Environment]::NewLine).Where({ $_ -ne `"`" -and !$([regex]::match($_, '^(('+$([string]::join(")|(",$ps_error_strings))+'))' )).Success }))".split("`n");
+        
+        Write-Host ([string]::Join("`n",$cmake_out));
     }
 
     [void] Compile_and_Link_Project(){

@@ -39,7 +39,7 @@ else() # NIX
 endif()
 # -------------------------- ARGUMENTS ----------------------------------------
 # -------------------------- CONFIGURATION ------------------------------------
-set(BUILD_DIR ${CMAKE_SOURCE_DIR}/lib)
+set(BUILD_DIR ${CMAKE_SOURCE_DIR}/Project)
 set(INCLUDE   ${BUILD_DIR}/include)
 set(SRC       ${BUILD_DIR}/src)
 
@@ -62,16 +62,17 @@ target_include_directories(${THIS}
         ${INCLUDE}
 )
 # Required Libs ---------------------------------------------------------------
-target_link_libraries(${THIS} ${EXT_BIN_PATH}/${BUILD_TYPE}/${PF}Nexus${SF})
-target_link_libraries(${THIS} ${EXT_BIN_PATH}/${BUILD_TYPE}/${PF}xvector${SF})
-target_link_libraries(${THIS} ${EXT_BIN_PATH}/${BUILD_TYPE}/${PF}xstring${SF})
-target_link_libraries(${THIS} ${EXT_BIN_PATH}/${BUILD_TYPE}/${PF}xmap${SF})
+target_link_libraries(${THIS} ${EXT_BIN_PATH}/${BUILD_TYPE}/lib/${PF}Nexus${SF})
+target_link_libraries(${THIS} ${EXT_BIN_PATH}/${BUILD_TYPE}/lib/${PF}xvector${SF})
+target_link_libraries(${THIS} ${EXT_BIN_PATH}/${BUILD_TYPE}/lib/${PF}xstring${SF})
+target_link_libraries(${THIS} ${EXT_BIN_PATH}/${BUILD_TYPE}/lib/${PF}xmap${SF})
 # -------------------------- BUILD --------------------------------------------
 # -------------------------- INSTALL ------------------------------------------
 # Binary File
-install (  
-    TARGETS             ${THIS}
-    DESTINATION         bin/${BUILD_TYPE}
+install(TARGETS ${THIS}
+        RUNTIME DESTINATION build/${BUILD_TYPE}/bin
+        LIBRARY DESTINATION build/${BUILD_TYPE}/lib
+        ARCHIVE DESTINATION build/${BUILD_TYPE}/lib
 )
 
 # Include file
@@ -83,11 +84,11 @@ install (
 # Header/Src Files
 install (   
     DIRECTORY           ${BUILD_DIR}/include 
-    DESTINATION         code/${THIS}
+    DESTINATION         code/Projects/${THIS}
 )
 install (   
     DIRECTORY           ${BUILD_DIR}/src 
-    DESTINATION         code/${THIS}
+    DESTINATION         code/Projects/${THIS}
 )
 
 # CMake Module

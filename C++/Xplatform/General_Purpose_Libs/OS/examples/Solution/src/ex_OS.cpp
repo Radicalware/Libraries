@@ -1,4 +1,4 @@
-#include<iostream>
+﻿#include<iostream>
 #include<vector>
 #include<string>
 
@@ -14,17 +14,17 @@ using std::endl;
 using std::string;
 
 #if (defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64))
-	#include<vld.h>
+    #include<vld.h>
 #endif
 
 OS os;
 
 int main() {
 
-	ex_open_n_delete();
-	ex_file_managment();
-	ex_bash_style();
+    ex_open_n_delete();
+    ex_file_managment();
+    ex_bash_style();
 
 
-	return 0;
+    return 0;
 }

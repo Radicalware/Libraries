@@ -1,9 +1,9 @@
 
 $module_path = ""
 if($($global:PSVersionTable.Platform -eq "Unix")){
-	$module_path = "~/.local/share/powershell/Modules"
+    $module_path = "~/.local/share/powershell/Modules"
 }else{
-	$module_path = "$HOME\Documents\WindowsPowerShell\Modules"
+    $module_path = "$HOME\Documents\WindowsPowerShell\Modules"
 }
 Import-Module "$module_path\Arg_Struct.ps1" -Force
 Import-Module "$module_path\PS_Builder.ps1" -Force
@@ -13,19 +13,19 @@ class Run_CMake
 
     $ArgStruct;
     
-	Run_CMake($ArgStruct){
-		$this.ArgStruct = $ArgStruct;
-		$this.Copy_Files();
+    Run_CMake($ArgStruct){
+        $this.ArgStruct = $ArgStruct;
+        $this.Copy_Files();
 
     }
 
-	[void] Copy_Files(){ # For Myself and not to be of consern to the userbase
-		if("$env:USERNAME`:$env:COMPUTERNAME" -eq "Scourge:WIT"){
-			if($this.ArgStruct.Overwrite -ne $true){ # Do Not Overwrite Install Files (Preserve Them)
-				   &"$PSScriptRoot\copy_libs.ps1"    
-			}
-		}
-	}
+    [void] Copy_Files(){ # For Myself and not to be of consern to the userbase
+        if("$env:USERNAME`:$env:COMPUTERNAME" -eq "Scourge:WIT"){
+            if($this.ArgStruct.Overwrite -ne $true){ # Do Not Overwrite Install Files (Preserve Them)
+                   &"$PSScriptRoot\copy_projects.ps1"    
+            }
+        }
+    }
 
     [Run_CMake] Print_Config(){
 
@@ -39,15 +39,15 @@ class Run_CMake
     }
 
     [Run_CMake] Link_n_Compile(){
-		$build = $(New-Object -TypeName PS_Builder -ArgumentList @($this.ArgStruct))
+        $build = $(New-Object -TypeName PS_Builder -ArgumentList @($this.ArgStruct))
 
-		if($this.ArgStruct.clean){
-			$build.Configure_Build_Folder();
-		}
-		$build.Execute_CMake_Build_Config();
-		$build.Compile_and_Link_Project();
-		$build.Install_Files();
-		$build.Return_Home();
+        if($this.ArgStruct.clean){
+            $build.Configure_Build_Folder();
+        }
+        $build.Execute_CMake_Build_Config();
+        $build.Compile_and_Link_Project();
+        $build.Install_Files();
+        $build.Return_Home();
 
         return $this;
     }

@@ -14,9 +14,9 @@ $shared_lib = $true;
 
 $module_path = ""
 if($($global:PSVersionTable.Platform -eq "Unix")){
-	$module_path = "~/.local/share/powershell/Modules"
+    $module_path = "~/.local/share/powershell/Modules"
 }else{
-	$module_path = "$HOME\Documents\WindowsPowerShell\Modules"
+    $module_path = "$HOME\Documents\WindowsPowerShell\Modules"
 }
 Import-Module "$module_path\Arg_Struct.ps1" -Force
 Import-Module "$module_path\Run_CMake.ps1" -Force

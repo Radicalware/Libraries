@@ -35,5 +35,5 @@ int main(int argc, char** argv)
     timer.wait(600);
     cout << timer << endl;
 
-	return 0;
+    return 0;
 }

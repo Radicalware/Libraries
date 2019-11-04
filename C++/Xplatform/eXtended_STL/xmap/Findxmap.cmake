@@ -20,13 +20,13 @@ else()
 endif()
 # -------------------------- ARGUMENTS ----------------------------------------
 # -------------------------- CONFIGURATION ------------------------------------
-set(XMAP_DIR ${INSTALL_PREFIX}/code/${LIB})
+set(XMAP_DIR ${INSTALL_PREFIX}/code/Projects/${LIB})
 # -------------------------- CONFIGURATION ------------------------------------
 # -------------------------- BUILD --------------------------------------------
 add_library(${LIB} STATIC 
     ${XMAP_DIR}/include/${LIB}.h
     ${XMAP_DIR}/src/${LIB}.cpp
-	
+    
     ${XMAP_DIR}/include/val2_xmap.h
     ${XMAP_DIR}/src/val2_xmap.cpp
 
