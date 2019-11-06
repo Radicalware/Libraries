@@ -118,7 +118,8 @@ public:
     // w = write mode (clears then writes like in python)
 
     xstring read(const char content = 'n');
-    xstring read_file();
+    xstring read(const xstring& file_name);
+
     OS write(const xstring& content = "", const char write_method = 'n');
 
     // ---------------------------------------------------------------------------------------------

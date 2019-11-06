@@ -4,9 +4,13 @@
 
 ---------------------------------------------------------------------
 
-11/04/2019 >> Libs v12.2.1
+11/06/2019 >> Libs v12.3.0
 
-Many various updates, mainly due to cmake installs
+Upgraded the "findall" for xstring and re function namespace.
+Now, findall will search the whole text at once
+"findwalk" was added which will find values as it walks your text 
+line by line. "search" was added which returns a xvector<xstring>
+of all the captured values in a specific order.
 
 ---------------------------------------------------------------------
 
@@ -36,7 +40,7 @@ Nexus had a memory leak that was removed
 
 10/09/2019 >> Libs v11.0.2
 
-Sense Release Nexus is pretty well established.
+Since Release, Nexus is pretty well established.
 exception handling, recalling values, 
 cross-instance thread limiter, cross-platform, etc.
 

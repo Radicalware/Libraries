@@ -63,11 +63,9 @@ namespace re // Regular Expression
 
     // =================================================================================================================================
 
-    // re::search & re::findall use grouper/iterator, don't use them via the namespace directly
-    std::vector<std::string> grouper(const std::string& content, std::vector<std::string>& ret_vector, const std::string& in_pattern);
-    std::vector<std::string> iterator(const std::string& content, std::vector<std::string>& ret_vector, const std::string& in_pattern);
-    // --------------------------------------------------------------------------------------------------------------------------------
+    std::vector<std::string> findwalk(const std::string& in_pattern, const std::string& content, const bool group = false);
     std::vector<std::string> findall(const std::string& in_pattern, const std::string& content, const bool group = false);
+    std::vector<std::string> search(const std::string& in_pattern, const std::string& content, const bool group = false);
 
     // =================================================================================================================================
 

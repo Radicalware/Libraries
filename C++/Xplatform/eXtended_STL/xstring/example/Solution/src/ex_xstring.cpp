@@ -2,9 +2,12 @@
 #include "Full.h"
 #include "Option.h"
 
+#include "xvector.h"
+#include "xstring.h"
 
 int main()
 {
+
     // NOTE: All test functions are inline to make example reading easier.
     Full full;
     full.Basics();
@@ -14,6 +17,7 @@ int main()
     Option option;
     option.split();
     option.findall();
+    option.search(); 
     option.match();
     option.sub();
     option.char_count();

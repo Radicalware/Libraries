@@ -83,11 +83,19 @@ target_include_directories(${THIS}
 # -------------------------- INSTALL ------------------------------------------
 # Binary File
 
-install(TARGETS ${THIS}
-        RUNTIME DESTINATION build/${BUILD_TYPE}/bin
-        LIBRARY DESTINATION build/${BUILD_TYPE}/lib
-        ARCHIVE DESTINATION build/${BUILD_TYPE}/lib
-)
+if(msvc)
+    install(TARGETS ${THIS}
+            RUNTIME DESTINATION build/${BUILD_TYPE}/bin
+            LIBRARY DESTINATION build/${BUILD_TYPE}/lib
+            ARCHIVE DESTINATION build/${BUILD_TYPE}/lib
+    )
+else()
+    install(TARGETS ${THIS}
+            RUNTIME DESTINATION build/${BUILD_TYPE}/bin
+            LIBRARY DESTINATION build/${BUILD_TYPE}/bin
+            ARCHIVE DESTINATION build/${BUILD_TYPE}/lib
+    )
+endif()
 
 # Include file
 install (   

@@ -68,7 +68,7 @@ private:
     // deque chosen over queue because the deque has an iterator
 
     std::unordered_map<std::string,  const size_t> m_str_inst_mp; // KVP (std::string >> job inst)
-    std::unordered_map<size_t, Job<T>>* m_inst_job_mp; //                               (job inst >> Job)
+    std::unordered_map<size_t, Job<T>>* m_inst_job_mp = nullptr;  //                    (job inst >> Job)
 
     void TaskLooper(int thread_idx);
 
@@ -195,7 +195,8 @@ Nexus<T>::~Nexus()
         m_sig_deque.notify_all();
     }
     for (auto& t : m_threads) t.join();
-    delete m_inst_job_mp;
+    if(m_inst_job_mp != nullptr)
+        delete m_inst_job_mp;
 }
 
 

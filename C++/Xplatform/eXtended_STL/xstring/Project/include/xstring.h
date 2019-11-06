@@ -89,6 +89,10 @@ public:
     xvector<xstring> split(xstring&& in_pattern, rxm::type mod = rxm::ECMAScript) const;
     xvector<xstring> split(const char splitter, rxm::type mod = rxm::ECMAScript) const;
 
+    xvector<xstring> inclusive_split(const char splitter, rxm::type mod = rxm::ECMAScript) const;
+    xvector<xstring> inclusive_split(const char* splitter, rxm::type mod = rxm::ECMAScript) const;
+    xvector<xstring> inclusive_split(const xstring& splitter, rxm::type mod) const;
+
     //// =================================================================================================================================
     //   match is based on regex_match
     bool match(const xstring& in_pattern, rxm::type mod = rxm::ECMAScript) const;
@@ -111,13 +115,12 @@ public:
     xstring remove_non_ascii() const;
 
     // =================================================================================================================================
-private:
-    // re::search & re::findall use grouper/iterator, don't use them via the namespace directly
-    xvector<xstring> grouper(const xstring& content, xvector<xstring>& ret_vector, const std::regex& pattern) const;
-    xvector<xstring> iterate(const xstring& content, xvector<xstring>& ret_vector, const std::regex& pattern) const;
-    // --------------------------------------------------------------------------------------------------------------------------------
-public:
-    std::vector<xstring> findall(const std::string& in_pattern, rxm::type mod = rxm::ECMAScript, const bool group = false) const;
+    
+    xvector<xstring> findall(const xstring& in_pattern, rxm::type mod = rxm::ECMAScript, const bool group = false) const;
+    xvector<xstring> findwalk(const xstring& in_pattern, rxm::type mod = rxm::ECMAScript, const bool group = false) const;
+    
+    xvector<xstring> search(const xstring& in_pattern, int depth, rxm::type mod = rxm::ECMAScript, const bool group = false) const;
+
     // =================================================================================================================================
 
     bool has(const char var_char, rxm::type mod = rxm::ECMAScript) const;

@@ -38,42 +38,43 @@ void split() {
 // ===================================================================================================
 
 void findall() {
-    const char *emails = R"emails(my_email@gmail.com
-subdomain.another_mailing_address@hotmail.com
-Hacker.Havoc.ctr@street.district.city ctrFx
-vice.crusade.ctr@us.underground.nil   ctrEx
+
+
+        std::string emails = R"emails(my_email@gmail.com garbage
+un-needed subdomain.another_mailing_address@hotmail.com
+Hacker.Havoc.ctr@street.district.city junktext
+more junk text vice.crusade.ctr@us.underground.nil   junk
 )emails";
+
 
 
     cout << "\n===(FINDALL)====================================================\n";
 
     // Findall iterates over every line individually
 
-    vector<string> findall_array = re::findall(R"(^(?:(.+\@))(.+(\.?).+?)(?=\.))", emails);
-    // return only the capturegroup of interest
-
-    //vector<string> findall_array = re::findall(R"(^(?:(.+\@))(.+(\.?).+?)(?=\.))", emails, true);
-    // returns the full capture group, look behind, and look ahead seperatly
+    vector<string> findall_array = re::findall(R"rex((?:(?:^|\n).*\@)(.+(\.?).+?)(?=\.))rex", emails);
+    // findall uses regex all at once (notice tha twe use nested look-aheads to account for this)
 
     for (string& i : findall_array)
         cout << "Findall_1 = " << i << endl;
     // OUTPUT
-    // Findall = gmail
-    // Findall = hotmail
-    // Findall = nsoc.health
-    // Findall = us.army
+    // Findall_1 = gmail
+    // Findall_1 = hotmail
+    // Findall_1 = street.district
+    // Findall_1 = us.underground
 
-    // returns the domains with the top-level domain stripped
     cout << endl;
 
-    findall_array = re::findall("^([^\\s]*)((\\s|$)?)", emails);
-    // return the whole email
+    findall_array = re::findwalk(R"(([^\s]*\@[^\s]*))", emails); // findwalk uses regex line/by/line
+
     for (string& i : findall_array)
         cout << "Findall_2 = " << i << endl;
 
-    // Findall_2 is interesting because unlike the first one that doesn't have
-    // a beginning capture group, this one dones, and we still get our the
-    // correct regex sent to our vector
+    // OUTPUT
+    // Findall_2 = my_email@gmail.com
+    // Findall_2 = subdomain.another_mailing_address@hotmail.com
+    // Findall_2 = Hacker.Havoc.ctr@street.district.city
+    // Findall_2 = vice.crusade.ctr@us.underground.nil
 
 }
 
@@ -152,8 +153,6 @@ VVVVsentencePPPPP
     cout << "The string has \"" << re::count("(sentence)", string_to_search) << "\" str matches\n";
 }
 
-void search() { /* This is the only function that doesn't exist yet */ }
-
 
 
 int main()
@@ -164,9 +163,7 @@ int main()
 
     split();      // splits the string via regex
 
-    findall();    // returns a vector of all the regex found on a per-line basis
-                  // similar to the following python command
-                  // re.findall(re.compile(r'regex',re.M),string_to_search)
+    findall();    // findwalk/findall returns a all the matches for a given regex
 
     match();      // returns "bool" = 0/1 depending of if the string matches 
                   // (use ^.*(regex).*$) if there is only a segment your searching for
@@ -179,9 +176,7 @@ int main()
 
     str_count();  // get the number of a specific string found in a string
     
-    search();     // This is the only one that does not exist yet.
-                  // Later on, if I find it a priority I will make a search object
-                  // That will house an array of groups matched. 
+
 
     cout << '\n';
 

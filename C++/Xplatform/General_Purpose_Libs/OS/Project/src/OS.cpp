@@ -297,26 +297,26 @@ OS OS::open(const xstring& new_file_name, const char write_method) {
 xstring OS::read(char content) {
     content = (content == 'n') ? m_last_read : content;
     switch (content) {
-        case 'f':  return this->read_file();
+        case 'f':  return this->read(m_file_name);
         case 'c':  return m_std_out;
         default:  return xstring("none");
     }
 
 }
 
-
-xstring OS::read_file() {
-    std::ifstream os_file(m_file_name);
+xstring OS::read(const xstring& file_name)
+{
+    std::ifstream os_file(file_name);
+    xstring file_data;
     xstring line;
-    m_file_data.clear();
 
     if (os_file.is_open()) {
         while (getline(os_file, line)) {
-            m_file_data += line + '\n';
+            file_data += line + '\n';
         }
         os_file.close();
     }
-    return m_file_data;
+    return file_data;
 }
 
 
@@ -361,7 +361,8 @@ xvector<xstring> OS::dir(const xstring& folder_start, const char mod1, const cha
         return track_vec;
     }
 
-   const char* options = new const char[4]{ mod1, mod2, mod3, '\0'};
+   const char* options = nullptr;
+   options = new const char[4]{ mod1, mod2, mod3, '\0'};
 
     bool files = false;
     bool directories = false;

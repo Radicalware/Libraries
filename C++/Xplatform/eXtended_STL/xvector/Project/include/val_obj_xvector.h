@@ -24,7 +24,7 @@
 
 template<typename T> class val_xvector;
 template<typename T, typename enabler_t> class xvector;
-
+class xstring;
 template<typename T>
 class xvector<T, typename std::enable_if<std::is_class<T>::value && !std::is_pointer<T>::value>::type> : public val_xvector<T>
 {
@@ -82,6 +82,6 @@ inline T xvector<T, typename std::enable_if<std::is_class<T>::value && !std::is_
     for (typename xvector<T>::const_iterator it = this->begin(); it != this->end(); it++)
         ret += *it + str;
 
-    return ret.substr(0, ret.size() - 1);
+    return ret.substr(0, ret.size() - strlen(str));
 }
 

@@ -35,42 +35,73 @@ struct Option
     // ===================================================================================================
 
     inline void findall() {
-        xstring emails = R"emails(my_email@gmail.com
-subdomain.another_mailing_address@hotmail.com
-Hacker.Havoc.ctr@street.district.city ctrFx
-vice.crusade.ctr@us.underground.nil   ctrEx
+        xstring emails = R"emails(my_email@gmail.com garbage
+un-needed subdomain.another_mailing_address@hotmail.com
+Hacker.Havoc.ctr@street.district.city junktext
+more junk text vice.crusade.ctr@us.underground.nil   junk
 )emails";
 
+        
+        cout << "\n===(FINDWALK/FINDALL)===========================================\n";
 
-        cout << "\n===(FINDALL)====================================================\n";
+        // findwalk = regex over every element line-by-line
+        // findall  = regex over everything at once
 
-        // Findall iterates over every line individually
+        xvector<xstring> finder;
+        xstring header;
 
-        xvector<xstring> findall_array = emails.findall(R"rex(^(?:.*\@)(.+(\.?).+?)(?=\.))rex");
-        // return only the capturegroup of interest
+        header = "\nFindall 1 = "; 
+        header.print(0);
+        emails.findwalk(R"(([^\s]*\@[^\s]*))").join(header).print(2);
+        // return the whole email
+        // first  '(' is for string literal indicated by the 'R'
+        // second '(' is for our primary capture group (anything outside will be omitted) from the capture returned
 
-        //vector<string> findall_array = re::findall(R"(^(?:(.+\@))(.+(\.?).+?)(?=\.))", emails, true);
-        // returns the full capture group, look behind, and look ahead seperatly
+        // ------------------- OUTPUT BELOW --------------------------
+        //Findall 1 = my_email@gmail.com
+        //Findall 1 = subdomain.another_mailing_address@hotmail.com
+        //Findall 1 = Hacker.Havoc.ctr@street.district.city
+        //Findall 1 = vice.crusade.ctr@us.underground.nil
+        // -----------------------------------------------------------
 
-        cout << "Findall_1 = " << findall_array.join("\nFindall_1 = ") << endl;
-        // OUTPUT
-        // Findall = gmail
-        // Findall = hotmail
-        // Findall = nsoc.health
-        // Findall = us.army
+        header = "\nFindall 2 = "; 
+        header.print(0);
+        emails.findwalk(R"rex((?:.*\@)(.+(\.?).+?)(?=\.))rex").join(header).print(2);
+
+        // a big advantage here is that look-ahead/behind is not a finite length like in python
+        // lookahead  = (?:<regex>)
+        // lookbehind = (?=<regex>)
 
         // returns the domains with the top-level domain stripped
+        // ----- OUTPUT BELOW --------------
+        // Findall 2 = gmail
+        // Findall 2 = hotmail
+        // Findall 2 = street.district
+        // Findall 2 = us.underground
+        // ---------------------------------
 
-        findall_array = emails.findall("^([^\\s]*)((\\s|$)?)");
-        // return the whole email
-        cout << findall_array.join("Findall_2 = ") << endl;
+        // next we do the same thing but regex over the whole thing at once
+        header = "\nFindall 3 = "; 
+        header.print(0);
+        emails.findall(R"rex((?:(?:^|\n).*\@)(.+(\.?).+?)(?=\.))rex").join(header).print(2);
 
-        // Findall_2 is interesting because unlike the first one that doesn't have
-        // a beginning capture group, this one dones, and we still get our the
-        // correct regex sent to our vector
-
+        // ----- OUTPUT BELOW --------------
+        // Findall 2 = gmail
+        // Findall 2 = hotmail
+        // Findall 2 = street.district
+        // Findall 2 = us.underground
+        // ---------------------------------
     }
 
+
+    inline void search() {
+        xstring emails = R"email(more junk text vice.crusade.ctr@us.underground.nil   junk)email";
+
+        cout << "Found capture groups\n";
+        emails.search(R"((vice).(crusade).(ctr)@(us).(underground))", 5).join('\n').print(2);
+        // 5 idicates we want the first 5 on (opposed to off) capture groups
+
+    }
     // ===================================================================================================
 
     inline void match()
@@ -142,13 +173,6 @@ VVVVsentencePPPPP
 
         cout << "\n===(STR COUNT)==================================================\n";
         cout << "The string has \"" << string_to_search.count("(sentence)") << "\" str matches\n";
-    }
-
-    inline void search() { 
-        /* 
-        This is the only function that doesn't exist yet.
-        I plan to make Search its own object at a later time.
-        */ 
     }
 
 };
