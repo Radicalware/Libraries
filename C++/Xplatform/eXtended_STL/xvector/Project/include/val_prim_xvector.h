@@ -35,8 +35,8 @@ public:
     typedef T value_type;
 
     inline T common(char const* item);
-    template<typename S>
-    inline S join(const S& str);
+    template<typename S = std::string>
+    inline S join(const S& str = "") const;
     inline std::string join(const char str) const;
     inline std::string join(const char* str) const;
 };
@@ -56,31 +56,27 @@ inline T xvector<T, typename std::enable_if<!std::is_class<T>::value && !std::is
 
 template<typename T>
 template<typename S>
-inline S xvector<T, typename std::enable_if<!std::is_class<T>::value && !std::is_pointer<T>::value>::type>::join(const S& str)
+inline S xvector<T, typename std::enable_if<!std::is_class<T>::value && !std::is_pointer<T>::value>::type>::join(const S& str) const
 {
-    std::string ret;
-    for (typename xvector<T>::const_iterator it = this->begin(); it != this->end(); it++)
-        ret += std::to_string(*it) + str.c_str();
-    return S(ret.substr(0, ret.size() - str.size()));
+    std::ostringstream ostr;
+    for (const auto& i : *this) {
+        ostr << i;
+        ostr << str;
+    }
+    return S(ostr.str().substr(0, ostr.str().size() - str.size()));
 }
 
 template<typename T>
 inline std::string xvector<T, typename std::enable_if<!std::is_class<T>::value && !std::is_pointer<T>::value>::type>::join(const char str) const
 {
-    std::string retstr;
-    for (typename xvector<T>::const_iterator it = this->begin(); it != this->end(); it++)
-        retstr += std::to_string(*it) + str;
-
-    return retstr.substr(0, retstr.size()-1);
+    std::string val;
+    val.insert(val.begin(), str);
+    return this->join(val);
 }
 
 template<typename T>
 inline std::string xvector<T, typename std::enable_if<!std::is_class<T>::value && !std::is_pointer<T>::value>::type>::join(const char* str) const
 {
-    std::string retstr;
-    for (typename xvector<T>::const_iterator it = this->begin(); it != this->end(); it++)
-        retstr += std::to_string(*it) + str;
-
-    return retstr.substr(0, retstr.size() - strlen(str));
+    return this->join(std::string(str));
 }
 

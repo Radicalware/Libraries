@@ -86,7 +86,7 @@ xstring Dir_Type::dir_item_str(const xstring& input) {
 }
 
 
-xstring Dir_Type::bpwd() {
+xstring Dir_Type::bpwd() const {
 #if defined(NIX_BASE)
     char result[FILENAME_MAX];
     ssize_t count = readlink("/proc/self/exe", result, FILENAME_MAX);
@@ -99,7 +99,7 @@ xstring Dir_Type::bpwd() {
 #endif
 }
 
-xstring Dir_Type::pwd() {
+xstring Dir_Type::pwd() const {
 #if defined(NIX_BASE)
     char c_pwd[256];
     if (NULL == getcwd(c_pwd, sizeof(c_pwd))) {
@@ -122,7 +122,7 @@ xstring Dir_Type::pwd() {
 }
 
 
-xstring Dir_Type::home() {
+xstring Dir_Type::home() const {
 #if defined(NIX_BASE)
     struct passwd *pw = getpwuid(getuid());
     const char *char_home_dir = pw->pw_dir;

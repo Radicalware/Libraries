@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include<iostream>
 
@@ -58,13 +58,17 @@ struct Full
         xvector<xstring> joined_vec = vec1 + vec2;
         print(joined_vec.join(" "));
 
-
         xvector<int> vec{ 0,1,2,3,4,5,6,7,8,9,10 };
-        print(vec(3, 9).sjoin(xstring(' '))); // stream join
+        print(vec(3, 9, 2).join(' ')); // stream join
+        // start at the 3rd element, end at the 9th element, skipping every other element
 
         xstring nums = joined_vec.join(' ');
         print(xstring("nums = ") + nums.split(R"(\s)").join('*'));
         cout << '\n';
+
+
+        cout << "Match insensitive case: " << xstring("Ryan").match("rYaN", rxm::icase) << endl;
+        cout << "Match sensitive   case: " << xstring("Ryan").match("rYaN") << endl;
 
         return 0;
     }

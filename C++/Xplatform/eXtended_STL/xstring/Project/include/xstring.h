@@ -30,6 +30,7 @@
 #include<initializer_list>
 #include<iostream>
 #include<string.h>
+#include<ctype.h>
 
 #include "xvector.h"
 
@@ -89,9 +90,9 @@ public:
     xvector<xstring> split(xstring&& in_pattern, rxm::type mod = rxm::ECMAScript) const;
     xvector<xstring> split(const char splitter, rxm::type mod = rxm::ECMAScript) const;
 
-    xvector<xstring> inclusive_split(const char splitter, rxm::type mod = rxm::ECMAScript) const;
-    xvector<xstring> inclusive_split(const char* splitter, rxm::type mod = rxm::ECMAScript) const;
-    xvector<xstring> inclusive_split(const xstring& splitter, rxm::type mod) const;
+    xvector<xstring> inclusive_split(const char splitter, rxm::type mod = rxm::ECMAScript, bool aret = true) const;
+    xvector<xstring> inclusive_split(const char* splitter, rxm::type mod = rxm::ECMAScript, bool aret = true) const;
+    xvector<xstring> inclusive_split(const xstring& splitter, rxm::type mod = rxm::ECMAScript, bool aret = true) const;
 
     //// =================================================================================================================================
     //   match is based on regex_match
@@ -111,7 +112,7 @@ public:
 
     // =================================================================================================================================
 
-    bool has_non_ascii() const;
+    int has_non_ascii(int front_skip = 0, int end_skip = 0, int threshold = 0) const;
     xstring remove_non_ascii() const;
 
     // =================================================================================================================================
@@ -135,7 +136,7 @@ public:
 
     // =================================================================================================================================
 
-    xstring operator()(double x = 0, double y = 0, double z = 0, const char removal_method = 's') const;
+    xstring operator()(long double x = 0, long double y = 0, long double z = 0, const char removal_method = 's') const;
 
     // =================================================================================================================================
 
@@ -151,8 +152,11 @@ public:
 
 // stand-alone function
 template<typename T>
-xstring to_xstring(const T& num) {
-    return xstring(std::to_string(num)); // TODO: use ss
+xstring to_xstring(const T& num) 
+{
+    std::ostringstream ostr;
+    ostr << num;
+    return xstring(ostr.str().c_str());
 }
 
 

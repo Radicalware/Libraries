@@ -1,4 +1,4 @@
-﻿
+
 #include<iostream>
 #include<vector>
 #include<string>
@@ -46,8 +46,6 @@ Hacker.Havoc.ctr@street.district.city junktext
 more junk text vice.crusade.ctr@us.underground.nil   junk
 )emails";
 
-
-
     cout << "\n===(FINDALL)====================================================\n";
 
     // Findall iterates over every line individually
@@ -75,7 +73,6 @@ more junk text vice.crusade.ctr@us.underground.nil   junk
     // Findall_2 = subdomain.another_mailing_address@hotmail.com
     // Findall_2 = Hacker.Havoc.ctr@street.district.city
     // Findall_2 = vice.crusade.ctr@us.underground.nil
-
 }
 
 // ===================================================================================================

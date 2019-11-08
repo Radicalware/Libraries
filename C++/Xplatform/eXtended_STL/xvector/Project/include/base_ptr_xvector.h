@@ -126,9 +126,6 @@ public:
     inline xvector<N> get_wipe();
     inline void wipe();
 
-    template<typename S>
-    inline S sjoin(S seperator = "", bool tail = false) const;
-
     // =================================== DESIGNED FOR NUMERIC BASED VECTORS ===================================
 
     inline size_t sum() const;
@@ -165,7 +162,7 @@ public:
     inline xvector<T> sub_all(char const* in_pattern, char const* replacement) const;
 
     // double was chose to hold long signed and unsigned values
-    inline xvector<T*> operator()(double x = 0, double y = 0, double z = 0, const char removal_method = 's') const;
+    inline xvector<T*> operator()(long double x = 0, long double y = 0, long double z = 0, const char removal_method = 's') const;
     // s = slice perserves values you land on 
     // d = dice  removes values you land on
     // s/d only makes a difference if you modify the 'z' value
@@ -560,26 +557,6 @@ inline void ptr_xvector<T*>::wipe()
     td->clear();
 }
 
-template<typename T>
-template<typename S>
-S ptr_xvector<T*>::sjoin(S seperator, bool tail) const {
-    std::ostringstream ostr;
-    if (seperator[0] != '\0') {
-        for (auto& i : *this) {
-            ostr << i;
-            ostr << seperator;
-        }
-        if (tail == false)
-            return (ostr.str().substr(0, ostr.str().size() - seperator.size()));
-    }
-    else {
-        for (auto& i : *this)
-            ostr << i;
-    }
-
-    return ostr.str();
-}
-
 // =============================================================================================================
 
 template<typename T>
@@ -774,7 +751,7 @@ inline xvector<T> ptr_xvector<T*>::sub_all(char const* in_pattern, char const* r
 // =============================================================================================================
 
 template<typename T>
-xvector<T*> ptr_xvector<T*>::operator()(double x, double y, double z, const char removal_method) const {
+xvector<T*> ptr_xvector<T*>::operator()(long double x, long double y, long double z, const char removal_method) const {
 
     size_t m_size = this->size();
     xvector<T*> n_arr;

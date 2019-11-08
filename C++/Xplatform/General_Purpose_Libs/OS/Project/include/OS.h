@@ -38,6 +38,7 @@
 #include<winnt.h>
 #include<direct.h>
 #include<stdlib.h>
+#include<streambuf>
 #else
 #define NIX_BASE
 #include<sys/stat.h>
@@ -88,7 +89,6 @@ private:
 
 public:
     OS();
-
     ~OS();
 
     xvector<int> console_size(); // columns, rows
@@ -118,7 +118,8 @@ public:
     // w = write mode (clears then writes like in python)
 
     xstring read(const char content = 'n');
-    xstring read(const xstring& file_name);
+    static xstring fast_text(const xstring& file_name);
+    static xstring read(const xstring& file_name);
 
     OS write(const xstring& content = "", const char write_method = 'n');
 

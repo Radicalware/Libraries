@@ -119,13 +119,15 @@ void OS::dir_continued(const xstring folder_start, xvector<xstring>& track_vec, 
                     continue;
                 xstring full_path = folder_start + "\\" + file_path_str;
                 if (folders)
-                    track_vec.push_back(full_path);
+                    track_vec.push_back(full_path.sub(R"([\\]+)", "\\"));
                 if (recursive)
                     dir_continued(full_path, track_vec, folders, files, recursive);
             }
             else {
-                if (files)
-                    track_vec.push_back(folder_start + "\\" + t_path_to_str_path());
+                if (files) {
+                    xstring rfolder = folder_start + "\\" + t_path_to_str_path();
+                    track_vec.push_back(rfolder.sub(R"([\\]+)", "\\"));
+                }
             }
             //} while (FindNextFile(hFind, &find_data) != 0);
         } while (FindNextFileA(hFind, &find_data) != 0);
@@ -304,16 +306,38 @@ xstring OS::read(char content) {
 
 }
 
+xstring OS::fast_text(const xstring& file_name)
+{
+    FILE* fp = fopen(file_name.c_str(), "r");
+    if (fp == nullptr) {
+        xstring err("File Not Found: ");
+        err += file_name;
+        throw std::runtime_error(err.c_str());
+    }
+
+    fseek(fp, 0L, SEEK_END);
+    const long int file_size = ftell(fp);
+    fseek(fp, 0, SEEK_SET);
+
+    char* rbuffer = static_cast<char*>(malloc(file_size + 1 * sizeof(char)));
+    fread(rbuffer, sizeof(char), file_size, fp);
+
+    xstring rets(rbuffer);
+    if (rbuffer != nullptr) free(rbuffer);
+    if (fp) fclose(fp);
+
+    return rets;
+}
+
 xstring OS::read(const xstring& file_name)
 {
-    std::ifstream os_file(file_name);
+    std::ifstream os_file(file_name, std::ios::out | std::ios::binary);
     xstring file_data;
     xstring line;
 
     if (os_file.is_open()) {
-        while (getline(os_file, line)) {
+        while (getline(os_file, line)) 
             file_data += line + '\n';
-        }
         os_file.close();
     }
     return file_data;

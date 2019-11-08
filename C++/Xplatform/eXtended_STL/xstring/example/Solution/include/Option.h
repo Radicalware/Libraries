@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 
 #include<iostream>
@@ -128,13 +128,13 @@ vice.crusade.ctr@us.underground.nil
         // feed in an re::split or use ac::match_one // ac::match_all
 
         cout << "match all lines = " << emails.match_lines("^.*(?:\\@)(GMAIL)\\.(com)$", rxm::icase) << endl;
-        // all returns fails sense all the lines don't contain gmail
+        // returns false since all the lines don't contain gmail
 
         cout << "match one line  = " << emails.match_line("^.*(?:\\@)(GMAIL)\\.(com)$", rxm::icase) << endl;
         // returns true sense at lease one line contains gmail
 
         cout << "match all lines = " << emails.match_lines("^.*(@).*$") << endl;
-        // true sense all lines have a "@"
+        // returns true sense all lines have a "@"
     }
 
     // ===================================================================================================

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "OS.h"
 
@@ -37,7 +37,12 @@ int ex_file_managment() {
 #endif
 
     os.clear_file("./fm_open/tmp.txt");
-    cout << "clear_file() >> " << os.open("./fm_open/tmp.txt").read() << endl;
+    try {
+        cout << "clear_file() >> " << os.open("./fm_open/tmp.txt").read() << endl;
+    }
+    catch (std::runtime_error&) {
+        cout << "File was deleted\n";
+    }
     cout << '\n';
     replenish();
 

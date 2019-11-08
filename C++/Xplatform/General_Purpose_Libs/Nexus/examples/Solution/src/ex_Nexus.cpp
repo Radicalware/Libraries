@@ -1,4 +1,4 @@
-﻿#include<iostream>
+#include<iostream>
 #include<exception>
 
 #include<functional>  // for testing only

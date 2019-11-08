@@ -36,8 +36,8 @@ public:
     xstring dir_item_str(const xstring& item);
 
     
-    xstring bpwd(); // binary pwd
-    xstring pwd();  // user pwd
-    xstring home(); // home dir
+    xstring bpwd() const; // binary pwd
+    xstring pwd()  const;  // user pwd
+    xstring home() const; // home dir
 };
 

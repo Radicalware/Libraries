@@ -25,9 +25,10 @@
 
 std::vector<std::string> re::cont_split(const std::string& in_pattern, const std::string& content) {
     std::vector<std::string> split_content;
-    std::regex pattern(in_pattern);
-    std::copy(std::sregex_token_iterator(content.begin(), content.end(), pattern, -1),
-        std::sregex_token_iterator(), back_inserter(split_content));
+    std::regex rpattern(in_pattern);
+    for (std::sregex_token_iterator iter(content.begin(), content.end(), rpattern, -1); iter != std::sregex_token_iterator(); ++iter)
+        split_content.push_back(*iter);
+
     return split_content;
 }
 
@@ -37,17 +38,16 @@ std::vector<std::string> re::split(const std::string& in_pattern, const std::str
 std::vector<std::string> re::split(const std::string& in_pattern, const std::string&& content) {
     return re::cont_split(in_pattern, content);
 }
-
-std::vector<std::string> re::cont_split(const char splitter, const std::string& content) {
-    return re::cont_split(std::to_string(splitter), content);
-}
-
 std::vector<std::string> re::split(const char splitter, const std::string& content) {
-    return re::cont_split(splitter, content);
+    std::string str;
+    str.insert(str.begin(), splitter);
+    return re::cont_split(str, content);
 };
 std::vector<std::string> re::split(const char splitter, const std::string&& content) {
-    return re::cont_split(splitter, content);
-};
+    std::string str;
+    str.insert(str.begin(), splitter);
+    return re::cont_split(str, content);
+}
 
 // ======================================================================================
 
@@ -57,11 +57,13 @@ bool re::match(const std::string& in_pattern, const std::string& content) {
 }
 bool re::match_line(const std::string& in_pattern, const std::string& content) {
     std::vector<std::string> lines = re::split('\n', content);
+    std::cout << "size: " << lines.size() << std::endl;
     std::regex pattern(in_pattern);
-    for (std::vector<std::string>::iterator iter = lines.begin(); iter != lines.end(); iter++) {
+    for (std::vector<std::string>::const_iterator iter = lines.begin(); iter != lines.end(); iter++) {
         if (std::regex_match(*iter, pattern)) {
             return true;
         }
+        std::cout << '"' << *iter << '"' << std::endl;
     }
     return false;
 }
@@ -70,6 +72,7 @@ bool re::match_lines(const std::string& in_pattern, const std::string& content) 
     std::regex pattern(in_pattern);
     for (std::vector<std::string>::iterator iter = lines.begin(); iter != lines.end(); iter++) {
         if (!std::regex_match(*iter, pattern)) {
+            std::cout << '"' << *iter << '"' << std::endl;
             return false;
         }
     }

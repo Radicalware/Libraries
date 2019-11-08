@@ -27,6 +27,7 @@
 #include<string>
 #include<regex>
 #include<algorithm>
+#include<iostream>
 
 
 namespace re // Regular Expression
@@ -50,8 +51,6 @@ namespace re // Regular Expression
 
     std::vector<std::string> split(const std::string& in_pattern, const std::string& content);
     std::vector<std::string> split(const std::string& in_pattern, const std::string&& content);
-
-    std::vector<std::string> cont_split(const char splitter, const std::string& content);
 
     std::vector<std::string> split(const char splitter, const std::string& content);
     std::vector<std::string> split(const char splitter, const std::string&& content);
