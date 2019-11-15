@@ -28,16 +28,16 @@ Class PS_Builder
         # Modify the paths below if they are not what you want.
         if($this.ArgStruct.is_unix){
             $this.part_module_path  = 'usr/share/cmake/Modules'  
-            $this.install_prefix = '/opt/Radicalware/Libraries/cpp'
+            $this.install_prefix = '/opt/Radicalware/Libraries'
             $this.vcpkg_path = "$global:HOME/lp/vcpkg/scripts/buildsystems/vcpkg.cmake"
             $this.vcvars = ''
             $this.module_path   = '/'+$this.part_module_path;
             $this.cmake_command = "cmake"
 
         }else{
-            $this.part_module_path  = 'source/CMake/Modules'  
-            $this.install_prefix = 'C:/source/CMake/Radicalware/Libraries/cpp'
-            $this.vcpkg_path = "C:/source/lp/vcpkg/scripts/buildsystems/vcpkg.cmake"
+            $this.part_module_path  = 'Source/CMake/Modules'  
+            $this.install_prefix = 'C:/Source/CMake/Radicalware/Libraries'
+            $this.vcpkg_path = "C:/Source/lp/vcpkg/scripts/buildsystems/vcpkg.cmake"
             $this.vcvars = 'C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Auxiliary/Build/vcvars64.bat'
             $this.module_path   = 'C:/'+$this.part_module_path;
             $this.cmake_command = "cmake.exe"
@@ -90,8 +90,8 @@ Class PS_Builder
             + " -DBUILD_TYPE=" + $this.ArgStruct.build_type `
             + " -DCMAKE_INSTALL_PREFIX=" + $this.install_prefix `
             + " -DINSTALL_PREFIX=" + $this.install_prefix `
-            + " -DEXT_INCLUDE_PATH=" + $this.install_prefix + "/include" `
-            + " -DEXT_BIN_PATH=" + $this.install_prefix + "/build/$($this.build_type)" `
+            + " -DEXT_HEADER_PATH=" + $this.install_prefix + "/Headers" `
+            + " -DEXT_BIN_PATH=" + $this.install_prefix + "/Build/$($this.build_type)" `
             + " -DMODULE_PATH=" + $this.module_path 
             # + " -DCMAKE_TOOLCHAIN_FILE=" + $this.vcpkg_path
 
@@ -143,7 +143,7 @@ Class PS_Builder
                 Write-Host -ForegroundColor Green "[+] CL.exe Is Already Configured for x86_64 Compiling"
             }
             Write-Host -ForegroundColor Green "[+] CL.exe is the Building Project"
-            devenv $($this.ArgStruct.name + '.sln') /build $this.ArgStruct.build_type | Write-Host
+            devenv $($this.ArgStruct.name + '.sln') /Build $this.ArgStruct.build_type | Write-Host
         }
     }
 

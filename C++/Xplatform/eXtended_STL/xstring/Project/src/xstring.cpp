@@ -31,6 +31,10 @@ xstring::xstring(const char* str): std::string(str)
 {
 }
 
+xstring::xstring(const unsigned char* str): std::string((char*)str)
+{
+}
+
 xstring::xstring(const char i_char, const int i_int) :
     std::string(i_int, i_char)
 {
@@ -305,15 +309,45 @@ size_t xstring::hash() const
 
 int xstring::has_non_ascii(int front_skip , int end_skip, int threshold) const
 {
+    if (!this->size())
+        return 0;
 
     for (xstring::const_iterator it = this->begin() + front_skip; it < this->end() - end_skip; it++) {
-        if (!isascii(*it)) {
+        if (!isascii(*it)) { // not always reliable but fast
             threshold--;
-            if(threshold < 1)
+            if (threshold < 1)
                 return static_cast<int>(*it);
         }
     }
     return 0;
+}
+
+bool xstring::has_nulls() const
+{
+    for (xstring::const_iterator it = this->begin(); it < this->end(); it++) {
+        if (*it == '\0')
+            return true;
+    }
+    return false;
+}
+
+bool xstring::has_dual_nulls() const
+{
+    bool null_set = false;
+
+    for (xstring::const_iterator it = this->begin(); it < this->end(); it++) 
+    {
+        if (*it != '\0') 
+            null_set = false;
+
+        else if (*it == '\0' && null_set == false)
+            null_set = true;
+        
+        else if (*it == '\0' && null_set == true)
+            return true;
+        
+    }
+    return false;
 }
 
 xstring xstring::remove_non_ascii() const 
@@ -384,13 +418,13 @@ bool xstring::lacks(const char var_char, rxm::type mod) const {
     return true;
 }
 
-unsigned long long xstring::count(const char var_char, rxm::type mod) const {
-    unsigned long long n = std::count(this->begin(), this->end(), var_char);
+size_t xstring::count(const char var_char, rxm::type mod) const {
+    size_t n = std::count(this->begin(), this->end(), var_char);
     return n;
 }
 
-unsigned long long xstring::count(const xstring& in_pattern, rxm::type mod) const {
-    unsigned long long n = this->split(in_pattern).size();
+size_t xstring::count(const xstring& in_pattern, rxm::type mod) const {
+    size_t n = this->split(in_pattern).size();
     return n;
 }
 

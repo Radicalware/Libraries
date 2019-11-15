@@ -42,8 +42,7 @@ template<typename T>
 class ptr_xvector<T*> : public std::vector<T*>
 {
     typedef typename std::remove_const<T>::type E;// E for Erratic
-    Nexus<void>* td = nullptr;
-    Nexus<void>* tvoid = nullptr;
+    Nexus<E>* td = nullptr;
     
 public:
     typedef typename std::remove_const<T>::type EVEC_T;
@@ -177,9 +176,6 @@ inline ptr_xvector<T*>::~ptr_xvector()
 {
     if (td != nullptr)
         delete td;
-
-    if (tvoid != nullptr)
-        delete tvoid;
 }
 
 template<typename T>
@@ -475,13 +471,8 @@ template<typename T>
 template<typename F, typename... A>
 inline void ptr_xvector<T*>::xproc(F&& function, A&& ...Args)
 {
-    if (tvoid == nullptr)
-        tvoid = new Nexus<void>;
-
     for (typename xvector<E*>::iterator it = this->begin(); it != this->end(); it++)
-        tvoid->add_job_val(function, **it, Args...);
-
-    tvoid->wait_all();
+        Nexus<>::Add_Job_Val(function, **it, Args...);
 }
 
 template<typename T>

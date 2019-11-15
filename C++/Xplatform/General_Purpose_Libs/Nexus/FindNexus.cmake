@@ -20,34 +20,41 @@ else()
 endif()
 # -------------------------- ARGUMENTS ----------------------------------------
 # -------------------------- CONFIGURATION ------------------------------------
-set(Nexus_DIR ${INSTALL_PREFIX}/code/Projects/${LIB})
+set(LIB_DIR   ${INSTALL_PREFIX}/Projects/${LIB})
+set(INC       ${LIB_DIR}/include)
+set(SRC       ${LIB_DIR}/src)
+
+set(NEXUS_DIR ${INSTALL_PREFIX}/Projects/${LIB})
 # -------------------------- CONFIGURATION ------------------------------------
 # -------------------------- BUILD --------------------------------------------
-add_library(${LIB} 
-    STATIC 
-        ${Nexus_DIR}/src/CPU_Threads.cpp
-        ${Nexus_DIR}/include/CPU_Threads.h
+add_library(${LIB} STATIC 
 
-        ${Nexus_DIR}/src/Task.cpp
-        ${Nexus_DIR}/include/Task.h
+    ${SRC}/NX_Threads.cpp
+    ${INC}/NX_Threads.h
 
-        ${Nexus_DIR}/src/Job.cpp
-        ${Nexus_DIR}/include/Job.h
+    ${SRC}/NX_Mutex.cpp
+    ${INC}/NX_Mutex.h
 
-        ${Nexus_DIR}/src/${LIB}.cpp
-        ${Nexus_DIR}/include/${LIB}.h
+    ${SRC}/Task.cpp
+    ${INC}/Task.h
 
-        ${Nexus_DIR}/src/${LIB}_void.cpp
-        ${Nexus_DIR}/include/${LIB}_void.h
+    ${SRC}/Job.cpp
+    ${INC}/Job.h
 
-        ${Nexus_DIR}/src/${LIB}_T.cpp
-        ${Nexus_DIR}/include/${LIB}_T.h
+    ${SRC}/${LIB}.cpp
+    ${INC}/${LIB}.h
+
+    ${SRC}/${LIB}_void.cpp
+    ${INC}/${LIB}_void.h
+
+    ${SRC}/${LIB}_T.cpp
+    ${INC}/${LIB}_T.h
 )
 add_library(radical::${LIB} ALIAS ${LIB})
 
 include_directories(${LIB}
     PRIVATE        
-        ${Nexus_DIR}/include
+        ${NEXUS_DIR}/include
 )
 # -------------------------- BUILD --------------------------------------------
 # -------------------------- END ----------------------------------------------

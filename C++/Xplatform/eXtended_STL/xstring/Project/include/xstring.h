@@ -40,7 +40,7 @@ namespace rxm {
 }
 class xstring;
 template<typename T>
-xstring to_xstring(const T& num);
+xstring to_xstring(const T& obj);
 
 class xstring : public std::string
 {
@@ -56,6 +56,7 @@ public:
     xstring(const xstring& str);
 
     xstring(const char* str);
+    xstring(const unsigned char* str);
     xstring(const char i_char, const int i_int = 1);
     xstring(const int i_int, const char i_char);
     xstring(std::initializer_list<char> lst);
@@ -113,6 +114,8 @@ public:
     // =================================================================================================================================
 
     int has_non_ascii(int front_skip = 0, int end_skip = 0, int threshold = 0) const;
+    bool has_nulls() const;
+    bool has_dual_nulls() const;
     xstring remove_non_ascii() const;
 
     // =================================================================================================================================
@@ -126,8 +129,8 @@ public:
 
     bool has(const char var_char, rxm::type mod = rxm::ECMAScript) const;
     bool lacks(const char var_char, rxm::type mod = rxm::ECMAScript) const;
-    unsigned long long count(const char var_char, rxm::type mod = rxm::ECMAScript) const;
-    unsigned long long count(const xstring& in_pattern, rxm::type mod = rxm::ECMAScript) const;
+    size_t count(const char var_char, rxm::type mod = rxm::ECMAScript) const;
+    size_t count(const xstring& in_pattern, rxm::type mod = rxm::ECMAScript) const;
 
     // =================================================================================================================================
 
@@ -152,10 +155,10 @@ public:
 
 // stand-alone function
 template<typename T>
-xstring to_xstring(const T& num) 
+xstring to_xstring(const T& obj)
 {
     std::ostringstream ostr;
-    ostr << num;
+    ostr << obj;
     return xstring(ostr.str().c_str());
 }
 

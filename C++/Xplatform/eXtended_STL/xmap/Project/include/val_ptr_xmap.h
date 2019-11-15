@@ -357,12 +357,8 @@ template<typename K, typename V>
 template<typename F, typename... A>
 inline void xmap<K, V*>::xproc(F&& function, A&& ...Args)
 {
-    Nexus<void> tvoid;
-
     for (typename xmap<K, V*>::iterator iter = this->begin(); iter != this->end(); ++iter)
-        tvoid.add_job_pair(function, iter->first, *iter->second, Args...);
-
-    tvoid.wait_all();
+        Nexus<>::Add_Job_Pair(function, iter->first, *iter->second, Args...);
 }
 
 template<typename K, typename V>

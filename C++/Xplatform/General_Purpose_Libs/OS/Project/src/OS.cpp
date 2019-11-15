@@ -26,15 +26,12 @@
 // -------------------------------------------------------------------------------
 
 #include "OS.h"
-#include "dir_support/Dir_Type.h"
-#include "dir_support/File_Names.h"
-
 
 // -------------------------------------------------------------------------------------------
 #if defined(NIX_BASE)
-void OS::dir_continued(const xstring scan_start, xvector<xstring>& track_vec, \
-    const bool folders, const bool files, const bool recursive) {
-
+void OS::Dir_Continued(const xstring scan_start, xvector<xstring>& track_vec, \
+    const bool folders, const bool files, const bool recursive) 
+{
     DIR* current_dir = opendir(scan_start.c_str());
     xstring dir_item;
     // starting dir given as a xstring
@@ -49,7 +46,7 @@ void OS::dir_continued(const xstring scan_start, xvector<xstring>& track_vec, \
                     track_vec.push_back(scan_start + "/" + dir_item + "/");
                 }
                 if (recursive) {
-                    this->dir_continued(scan_start + "/" + dir_item, \
+                    OS::Dir_Continued(scan_start + "/" + dir_item, \
                         track_vec, folders, files, recursive);
                     // recursive function
                 }
@@ -65,8 +62,9 @@ void OS::dir_continued(const xstring scan_start, xvector<xstring>& track_vec, \
     closedir(current_dir);
 }
 #elif defined(WIN_BASE)
-void OS::dir_continued(const xstring folder_start, xvector<xstring>& track_vec, \
-    const bool folders, const bool files, const bool recursive) {
+void OS::Dir_Continued(const xstring folder_start, xvector<xstring>& track_vec, \
+    const bool folders, const bool files, const bool recursive) 
+{
 
     WIN32_FIND_DATA find_data;
     //LPWIN32_FIND_DATAA find_data = nullptr;
@@ -117,11 +115,11 @@ void OS::dir_continued(const xstring folder_start, xvector<xstring>& track_vec, 
                 file_path_str = t_path_to_str_path() + "\\";
                 if (file_path_str == ".\\" || file_path_str == "..\\")
                     continue;
-                xstring full_path = folder_start + "\\" + file_path_str;
+                xstring Full_Path = folder_start + "\\" + file_path_str;
                 if (folders)
-                    track_vec.push_back(full_path.sub(R"([\\]+)", "\\"));
+                    track_vec.push_back(Full_Path.sub(R"([\\]+)", "\\"));
                 if (recursive)
-                    dir_continued(full_path, track_vec, folders, files, recursive);
+                    Dir_Continued(Full_Path, track_vec, folders, files, recursive);
             }
             else {
                 if (files) {
@@ -139,26 +137,16 @@ void OS::dir_continued(const xstring folder_start, xvector<xstring>& track_vec, 
 
 // -------------------------------------------------------------------------------------------
 
-OS::OS() {
-    m_command = "";
-    m_std_out = "";
-    m_std_err = "";
-    m_err_message = "";
-
-    m_file_name = "";
-    m_file_data = "";
-
+OS::OS() 
+{
     m_last_read = 'n';
-    m_write_method = 'a';
-
-    m_rexit = false;
-
 };
 
 OS::~OS() {
+    file.close();
 };
 
-xvector<int> OS::console_size() // [columns, rows]
+xvector<int> OS::Console_Size() // [columns, rows]
 {
 #if (defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64))
 
@@ -176,13 +164,7 @@ xvector<int> OS::console_size() // [columns, rows]
 #endif
 }
 
-void OS::set_file_regex(bool rexit) {
-    m_rexit = rexit;
-}
-
-bool OS::file_regex_status() { return m_rexit; }
-
-bool OS::file_syntax(const xstring& i_file) {
+bool OS::File_Syntax(const xstring& i_file) {
     if (!i_file.match(R"(^([\./\\]+?)[\-\d\w\.\\/]+$)"))
         return false;
     else if (i_file.scan(R"([^\\]\s)"))
@@ -191,137 +173,231 @@ bool OS::file_syntax(const xstring& i_file) {
         return true;
 }
 
-bool OS::file_list_syntax(const xvector<xstring>& i_files) {
+bool OS::File_List_Syntax(const xvector<xstring>& i_files)
+{
     for (const xstring& i_file : i_files) {
-        if (!(file_syntax(i_file))) 
+        if (!(OS::File_Syntax(i_file)))
             return false;
     }return true;
 }
 
-xstring OS::full_path(const xstring& file)
+xstring OS::Full_Path(const xstring& file)
 {
-//#if defined(WIN_BASE)
-//    char full[_MAX_PATH];
-//    char* unused = _fullpath(full, file.sub("/", "\\\\").c_str(), _MAX_PATH);
-//#elif defined(NIX_BASE)
-//    char full[PATH_MAX];
-//    char* val = realpath(file.sub("\\\\", "/").c_str(), full);
-//#endif
-
-    return File_Names(m_rexit, file).target();;
-}
-
-// ---------------------------------------------------------------------------------------------
-
-void OS::touch(const xstring& new_file) {
-
-    if (new_file.size())
-        m_file_data = new_file;
-
-    if (m_file_data.empty())
-        return;
-
-    File_Names fls(m_rexit, new_file);
-    std::ofstream os_file(fls.target().c_str());
-    if (os_file.is_open()) os_file.close();
-}
-
-
-void OS::cp(const xstring& old_location, const xstring& new_location) {
-    File_Names fls(m_rexit, old_location, new_location);
-
-    if (!(old_location.size() || new_location.size())) return;
-
-    if (this->file(fls.old())) 
-        this->copy_file(fls.old(), fls.target());
-    else if (this->directory(fls.old())) 
-        this->copy_dir(fls.old(), fls.target());
-    else 
-        throw std::runtime_error("Location of Copy Not Found: " + fls.old());
-}
-
-
-void OS::mv(const xstring& old_location, const xstring& new_location) {
-    File_Names fls(m_rexit, old_location, new_location);
-
-    if (!(old_location.size() || new_location.size())) return;
-
-    if (this->has(fls.old()) == os_file) 
-        this->move_file(fls.old(), fls.target());
-    else if (this->has(fls.old()) == os_directory)
-        this->move_dir(fls.old(), fls.target());
-    else
-        throw std::runtime_error("Move Start Location Not Found: " + fls.old());
-}
-
-
-void OS::rm(const xstring& del_file) {
-    if (!del_file.size()) return;
-
-    File_Names fls(m_rexit, del_file);
-
-    if (this->file(fls.target()))
-        this->delete_file(fls.target());
-
-    else if (this->directory(fls.target()))
-        this->delete_dir(fls.target());
-}
-
-// ---------------------------------------------------------------------------------------------
-
-OS OS::open(const xstring& new_file_name, const char write_method) {
-    // a = append     (append then writes like in python)
-    // w = write mode (clears then writes like in python)
-
-    m_write_method = write_method;
-
 #ifdef WIN_BASE
     char full[_MAX_PATH];
 #else
     char full[PATH_MAX];
 #endif
 #if defined(WIN_BASE)
-     const char* unused = _fullpath(full, new_file_name.sub("/", "\\\\").c_str(), _MAX_PATH);
+    const char* unused = _fullpath(full, file.sub("/", "\\\\").c_str(), _MAX_PATH);
 #elif defined(NIX_BASE)
-    const char* unused = realpath(new_file_name.sub("\\\\", "/").c_str(), full);
+    const char* unused = realpath(file.sub("\\\\", "/").c_str(), full);
 #endif
+    return xstring(full);
+}
 
-    //m_file_name.clear();
-    m_file_name = full; // TODO: fix, this causes an issue in linux when global OS is set in the h file
-    // FIX: Just don't set the extern OS in the header, instead set it in the main.cpp
+// ---------------------------------------------------------------------------------------------
 
-    m_last_read = 'f';
+void OS::touch(const xstring& new_file)
+{
+    if (new_file.size())
+        file.m_name = OS::Full_Path(new_file);
+
+    if (OS::Has(file.m_name))
+        return;
+
+    file.set_write();
+}
+
+
+void OS::MKDIR(const xstring& folder) {
+
+    if (!folder.size()) return;
+
+    xstring new_folder = OS::Full_Path(folder);
+
+    xstring additional_dirs = new_folder.substr(OS::PWD().size(), new_folder.size() - OS::PWD().size());
+
+    xvector<xstring> folder_names = additional_dirs.split(R"([\\/](?=[^\s]))");
+
+    xstring folder_path = OS::PWD();
+    for (xvector<xstring>::iterator iter = folder_names.begin(); iter < folder_names.end(); ++iter) 
+    {
+        if (!iter->size()) continue;
+#if defined(NIX_BASE)
+        folder_path += '/' + *iter;
+        ::mkdir(folder_path.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+
+#elif defined(WIN_BASE)
+        folder_path += '\\' + *iter;
+        CreateDirectoryA(folder_path.c_str(), NULL);
+#endif
+    }
+}
+
+
+void OS::CP(const xstring& old_location, const xstring& new_location)
+{
+    if (!(old_location.size() || new_location.size())) return;
+
+    xstring old_path = OS::Full_Path(old_location);
+    xstring new_path = OS::Full_Path(new_location);
+
+    if (OS::Has_File(old_path))
+        OS::Copy_File(old_path, new_path);
+    else if (OS::Has_Dir(new_path))
+        OS::Copy_Dir(old_path, new_path);
+    else
+        throw std::runtime_error("Location of Copy Not Found: " + old_location);
+}
+
+
+void OS::MV(const xstring& old_location, const xstring& new_location)
+{
+    xstring old_path = OS::Full_Path(old_location);
+    xstring new_path = OS::Full_Path(new_location);
+
+    if (!(old_location.size() || new_location.size())) return;
+
+    if (OS::Has_File(old_path))
+        OS::Move_File(old_path, new_path);
+    else if (OS::Has_Dir(old_path))
+        OS::Move_Dir(old_path, new_path);
+    else
+        throw std::runtime_error("Move Start Location Not Found: " + old_location);
+}
+
+
+void OS::RM(const xstring& del_file)
+{
+    if (!del_file.size()) return;
+
+    xstring bad_file = OS::Full_Path(del_file);
+
+    if (OS::Has_File(bad_file))
+        OS::Remove_File(bad_file);
+
+    else if (OS::Has_Dir(bad_file))
+        OS::Remove_Dir(bad_file);
+}
+
+// ---------------------------------------------------------------------------------------------
+
+OS OS::open(const xstring& new_file_name, const char write_method) 
+{
+    // r = read       
+    // w = write mode 
+    // a = append
+
+    file.close();
+    file.set_file(new_file_name);
+
+    switch (write_method)
+    {
+        case 'r':
+            file.set_read();
+            break;
+
+        case 'w':
+            file.set_write();
+            break;
+
+        case 'a':
+            file.set_append();
+            break;
+
+        default:
+            file.set_read();
+    }
+
+    m_last_read = 'f'; // 'f' for file opposed to 'c' for command
+    return *this;
+}
+
+OS OS::close()
+{
+    file.close();    
     return *this;
 }
 
 // os.open(file_name).read()
 // os.popen(command).read()
-xstring OS::read(char content) {
-    content = (content == 'n') ? m_last_read : content;
+xstring OS::read(char content, bool close_file /* = false */) 
+{
+    content = (content == 'd') ? m_last_read : content;
     switch (content) {
-        case 'f':  return this->read(m_file_name);
-        case 'c':  return m_std_out;
+        case 'f':  return this->inst_read();
+        case 'c':  return cmd.m_out;
         default:  return xstring("none");
     }
-
+    if (close_file)
+        this->close();
 }
 
-xstring OS::fast_text(const xstring& file_name)
+xstring OS::inst_read() 
 {
-    FILE* fp = fopen(file_name.c_str(), "r");
-    if (fp == nullptr) {
-        xstring err("File Not Found: ");
+    if (file.m_handler != 'r') 
+        file.set_read();
+    
+    file.m_data.clear();
+    xstring line;
+    errno = 0;
+    if (file.m_in_stream.is_open()) {
+        while (getline(file.m_in_stream, line))
+            file.m_data += line + '\n';
+    }
+    else {
+        xstring err("Error (" + to_xstring(errno) + "): Could Not Open Text File: ");
+        err += file.m_name;
+        throw std::runtime_error(err.c_str());
+    }
+    return file.m_data;
+}
+
+
+xstring OS::Fast_Read(const xstring& file_name, bool re_try)
+{
+    errno = 0;
+    FILE* fp;
+#if defined(WIN_BASE)
+    fopen_s(&fp, file_name.c_str(), "rb");
+#else
+    fp = fopen(file_name.c_str(), "rb");
+#endif
+    if (fp == nullptr && !re_try) {
+        xstring err("Error (" + to_xstring(errno) + "): Could Not Open Text File: ");
         err += file_name;
         throw std::runtime_error(err.c_str());
     }
+    else if ((errno || fp == nullptr) && re_try)
+    {
+        if (fp) fclose(fp);
+        return OS::Stat_Read(file_name);
+    }
 
-    fseek(fp, 0L, SEEK_END);
+    fseek(fp, 0, SEEK_END);
     const long int file_size = ftell(fp);
     fseek(fp, 0, SEEK_SET);
 
-    char* rbuffer = static_cast<char*>(malloc(file_size + 1 * sizeof(char)));
-    fread(rbuffer, sizeof(char), file_size, fp);
+    if (!file_size) {
+        if (fp) fclose(fp);
+        return xstring();
+    }
 
+    //char* rbuffer = static_cast<char*>(malloc(file_size + 1 * sizeof(char)));
+    unsigned char* rbuffer = static_cast<unsigned char*>(calloc(file_size, sizeof(unsigned char)));
+    if (rbuffer != nullptr) {
+#if defined(WIN_BASE)
+        fread(rbuffer, sizeof(unsigned char), file_size, fp);
+#else
+        size_t unused = fread(rbuffer, sizeof(unsigned char), file_size, fp); // -Wunused-result would not work
+#endif
+    }
+    else {
+        if (rbuffer != nullptr) free(rbuffer); // I know. . . but I want it here anyway.
+        if (fp) fclose(fp);
+        throw std::runtime_error("Failed to allocated file data buffer\n");
+    }
     xstring rets(rbuffer);
     if (rbuffer != nullptr) free(rbuffer);
     if (fp) fclose(fp);
@@ -329,59 +405,91 @@ xstring OS::fast_text(const xstring& file_name)
     return rets;
 }
 
-xstring OS::read(const xstring& file_name)
+xstring OS::Stat_Read(const xstring& file_name)
 {
-    std::ifstream os_file(file_name, std::ios::out | std::ios::binary);
+    struct stat stat_buf;
+    int state = stat(file_name.c_str(), &stat_buf);
+    size_t file_size = stat_buf.st_size;
+    if (file_size < 1)
+        return xstring();
+
+    FILE* fp;
+#if defined(WIN_BASE)
+    fopen_s(&fp, file_name.c_str(), "rb");
+#else
+    fp = fopen(file_name.c_str(), "rb");
+#endif
+    unsigned char* rbuffer = static_cast<unsigned char*>(calloc(file_size, sizeof(unsigned char)));
+    size_t read_size;
+    errno = 0;
+    if (rbuffer != nullptr && fp != nullptr)
+        read_size = fread(rbuffer, sizeof(char), file_size, fp);
+    else {
+        throw std::runtime_error("Could not allocate stat_read buffer's ByteArray!\n");
+    }
+    if (fp)fclose(fp);
+    xstring rets;
+    rets.insert(rets.begin(), rbuffer, rbuffer + file_size);
+    free(rbuffer);
+    return rets;
+}
+
+xstring OS::Stream_Read(const xstring& file_name)
+{
+    std::ifstream os_file(file_name, std::ios::in | std::ios::binary); // ios::in for data intake 
+
     xstring file_data;
     xstring line;
-
+    
+    errno = 0;
     if (os_file.is_open()) {
-        while (getline(os_file, line)) 
+        while (getline(os_file, line))
             file_data += line + '\n';
         os_file.close();
     }
-    return file_data;
+    else {
+        xstring err("Error (" + to_xstring(errno) + "): Could Not Open Text File: ");
+        err += file_name;
+        throw std::runtime_error(err.c_str());
+    }
+    return file_data; 
 }
 
-
-OS OS::write(const xstring& content, char write_method) 
+// you must use open before write
+OS OS::write(const xstring& content, bool store /* = false */) 
 {
-    if (!m_file_name.size()) return *this;
-
-    m_write_method = (write_method == 'n') ? m_write_method : write_method;
-
-    switch (m_write_method) {
-    case 'a':  m_write_method = 'a';
-        m_file_data = this->read() + content;
-        break;
-
-    case 'w':  m_write_method = 'w';
-        this->clear_file(m_file_name);
-        m_file_data = content.c_str();
+    if (file.m_handler != 'w' && file.m_handler != 'a') {
+        file.set_append();
     }
-    std::ofstream os_file;
-    os_file.open(m_file_name);
-    if (os_file.is_open()) {
-        os_file << m_file_data;
-        os_file.close();
-    }
+
+    errno = 0;
+    if (!file.m_out_stream.is_open())
+        throw std::runtime_error("Error (" + std::to_string(errno) + ") Unable to Open File: " + file.m_name + "\n");
+
+    if (store)
+        file.m_data = content;
+    else
+        file.m_data.clear();
+
+    file.m_out_stream << content;
 
     m_last_read = 'f';
     return *this;
 }
 
 
-xvector<xstring> OS::dir(const xstring& folder_start, const char mod1, const char mod2, const char mod3) {
+xvector<xstring> OS::Dir(const xstring& folder_start, const char mod1, const char mod2, const char mod3) 
+{
     // recursive = search foldres recursivly
     // folders   = return folders in search
     // files     = return files in search
 
     if (!folder_start.size()) return xvector<xstring>();
 
-    File_Names fls(m_rexit, folder_start);
+    xstring search_path = OS::Full_Path(folder_start);
     xvector<xstring> track_vec;
 
-    if (folder_start == "" || (!this->directory(fls.target()))) {
+    if (folder_start == "" || (!OS::Has_Dir(search_path))) {
         return track_vec;
     }
 
@@ -405,36 +513,37 @@ xvector<xstring> OS::dir(const xstring& folder_start, const char mod1, const cha
     if (files == 0 && directories == 0) {
         return xvector<xstring>{ "" };
     }
-    dir_continued(fls.target(), track_vec, directories, files, recursive);
+    Dir_Continued(search_path, track_vec, directories, files, recursive);
     delete [] options;
     return track_vec;
 }
 
-OS OS::popen(const xstring& command, char leave) {
+OS& OS::popen(const xstring& command, char leave) 
+{
     // leave styles
     // p = pass (nothing happens = defult)
     // t = throw exception if command fails
     // e = exit if command fails
 
 #if defined(NIX_BASE)
-    m_command = command + xstring(" 2>&1");
+    cmd.m_cmd = command + xstring(" 2>&1");
 #elif defined(WIN_BASE)
-    m_command = command;
+    cmd.m_cmd = command;
 #endif
 
-    m_std_out.clear();
+    cmd.m_out.clear();
     int buf_size = 512;
     char buffer[512];
 
 #if defined(NIX_BASE)
-    FILE* file = ::popen(m_command.c_str(), "r");
+    FILE* file = ::popen(cmd.m_cmd.c_str(), "r");
 #elif defined(WIN_BASE)
-    FILE* file = ::_popen(m_command.c_str(), "r");
+    FILE* file = ::_popen(cmd.m_cmd.c_str(), "r");
 #endif
 
     while (!feof(file)) {
         if (fgets(buffer, buf_size, file) != NULL)
-            m_std_out += buffer;
+            cmd.m_out += buffer;
     }
 
 #if defined(NIX_BASE)
@@ -444,230 +553,220 @@ OS OS::popen(const xstring& command, char leave) {
 #endif
 
     if (returnCode) {
-        m_std_err = m_std_out;
-        m_err_message = xstring("\nConsole Command Failed:\n") + m_command + "\nerror out: " + m_std_err;
+        cmd.m_err = cmd.m_out;
+        cmd.m_err_message = xstring("\nConsole Command Failed:\n") + cmd.m_cmd + "\nerror out: " + cmd.m_err;
+        if (leave == 'd') {
+            m_last_read = 'c';
+            return *this;
+        }
         switch (leave) {
-            case 't': throw std::runtime_error (m_std_err);
-            case 'x': exit(1);
-            case 'm': std::cout << m_err_message << std::endl; break;
-            case 'e': std::cout << m_std_err << std::endl; break;
-            default:  std::cout << m_err_message << std::endl; break;
+            case 't': throw std::runtime_error (cmd.m_err);                 // t = throw error
+            case 'x': std::cout << cmd.m_err_message << std::endl; exit(1); // x = eXit
+            case 'm': std::cout << cmd.m_err_message << std::endl; break;   // m = full error Message
+            case 'e': std::cout << cmd.m_err << std::endl; break;           // e = standard Error
+            case 'p': std::cout << cmd.m_err << std::endl; break;           // p = Programatic error
         }
     } else {
-        m_std_err.clear();
-        m_err_message.clear();
+        cmd.m_err.clear();
+        cmd.m_err_message.clear();
     }
     m_last_read = 'c';
     return *this;
 }
 
-xstring OS::operator()(const xstring& command) {
-    return this->popen(command).read();
+xstring OS::operator()(const xstring& command, const char leave) {
+    return this->popen(command, leave).read();
 };
+// ============================================================================================
+// easy printing
 
 template<typename T>
-void OS::p(const T& input){
-    std::cout << input << std::endl;
+void OS::P(const T& input){
+    std::cout << to_xstring(input);
 }
 
-template<typename T, typename X>
-void OS::p(const T& input1, const X& input2){
-    std::cout << input1 << input2 << std::endl;
+template<typename First, typename ...Rest>
+void OS::P(const First& first, const Rest&& ...reset)
+{
+    std::cout << to_xstring(first);
+    std::cout << p(reset...);
+    std::cout << std::endl;
 }
-
 
 // ============================================================================================
 
-void OS::move_file(const xstring& old_location, const xstring& new_location) {
+void OS::Assert_Folder_Syntax(const xstring& folder)
+{
+    if (!folder.match(R"(^([\./\\]+?)[\-\d\w\.\\/]+$)")) {
+        throw std::runtime_error("Failed Dir Syntax = "
+            R"(^([\./\\]+?)[\-\d\w\.\\/]+$)"
+            "\n  what():  Dir Item: " + folder + "\n");
+    }
 
-
-    if (!(old_location.size() || new_location.size())) return;
-
-    File_Names fls(m_rexit, old_location, new_location);
-    std::ifstream  in(fls.old(), std::ios::in | std::ios::binary);
-    std::ofstream out(fls.target(), std::ios::out | std::ios::binary);
-    out << in.rdbuf();
-
-    if (in.is_open()) in.close();
-    if (out.is_open()) out.close();
-    
-#if defined(NIX_BASE)
-    ::remove(fls.old().c_str());
-#elif defined(WIN_BASE)
-    DeleteFileA(fls.old().c_str());
-#endif
-}
-
-
-void OS::copy_file(const xstring& old_location, const xstring& new_location) {
-
-    if (!(old_location.size() || new_location.size())) return;
-
-    File_Names fls(m_rexit, old_location, new_location);
-    std::ifstream  in(fls.old(), std::ios::in | std::ios::binary);
-    std::ofstream out(fls.target(), std::ios::out | std::ios::binary);
-
-    out << in.rdbuf();
-    if (in.is_open()) in.close();
-    if (out.is_open()) out.close();
-}
-
-
-void OS::clear_file(const xstring& i_file) {
-
-    if (!i_file.size()) return;
-
-    File_Names fls(m_rexit, i_file);
-    std::ofstream ofs;
-    ofs.open(fls.target().c_str(), std::ofstream::out | std::ofstream::trunc);
-    if (ofs.is_open()) ofs.close();
-}
-
-
-void OS::delete_file(const xstring& item) {
-
-    //if (!item.size()) return;
-
-    //File_Names fls(m_rexit, item);
-
-#if defined(NIX_BASE)
-    ::remove(item.c_str());
-#elif defined(WIN_BASE)
-    DeleteFileA(item.c_str());
-#endif
-}
-
-
-void OS::mkdir(const xstring& folder) {
-
-    if (!folder.size()) return;
-
-    File_Names fls(m_rexit, folder);
-    //fls.imaginary_path();
-    
-    xstring additional_dirs = fls.target().substr(this->pwd().size(), fls.target().size() - this->pwd().size());
-
-    xvector<xstring> folder_names = additional_dirs.split(R"([\\/](?=[^\s]))");
-
-    xstring folder_path = this->pwd();
-    for (xvector<xstring>::iterator iter = folder_names.begin(); iter < folder_names.end(); ++iter) {
-        if (!iter->size()) continue;
-#if defined(NIX_BASE)
-        folder_path += '/' + *iter;
-        ::mkdir(folder_path.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-
-#elif defined(WIN_BASE)
-        folder_path += '\\' + *iter;
-        CreateDirectoryA(folder_path.c_str(), NULL);
-#endif
+    if (folder.scan(R"([^\\]\s)")) {
+        throw std::runtime_error("You can't have a space in a dir item\n" \
+            "  what():  without an escape char\n");
     }
 }
 
+void OS::Move_File(const xstring& old_location, const xstring& new_location)
+{
+    if (!(old_location.size() || new_location.size())) return;
 
+    xstring old_path = OS::Full_Path(old_location);
+    xstring new_path = OS::Full_Path(new_location);
+    try {
+        std::ifstream  in(old_path, std::ios::in | std::ios::binary);
+        std::ofstream out(new_path, std::ios::out | std::ios::binary);
+        out << in.rdbuf();
 
-void OS::copy_dir(const xstring& old_location, const xstring& new_location) {
+        if (in.is_open()) in.close();
+        if (out.is_open()) out.close();
+    }
+    catch (std::runtime_error & err) {
+        throw std::runtime_error(xstring("OS::move_file Failed: ") + err.what());
+    }
+    
+    OS::Remove_File(old_path);
+}
 
+void OS::Move_Dir(const xstring& old_location, const xstring& new_location) {
 
     if (!(old_location.size() || new_location.size())) return;
 
-    File_Names fls(m_rexit, old_location, new_location);
-    if (!this->directory(fls.old()))
-        throw std::runtime_error("\nThis is not a folder\n" + fls.old() + '\n');
+    OS::Copy_Dir(old_location, new_location);
+    OS::Remove_Dir(old_location);
+}
 
 
-    if (this->file(fls.target()))
-        throw std::runtime_error("\nA file exists there\n" + fls.target() + '\n');
+void OS::Copy_File(const xstring& old_location, const xstring& new_location) 
+{
+    if (!(old_location.size() || new_location.size())) return;
 
-    xvector<xstring> old_folders = this->dir(fls.old(), 'r', 'd');
-    xvector<xstring> old_files = this->dir(fls.old(), 'r', 'f');
+    xstring old_path = OS::Full_Path(old_location);
+    xstring new_path = OS::Full_Path(new_location);
+
+    std::ifstream  in(old_path, std::ios::in | std::ios::binary);
+    std::ofstream out(new_path, std::ios::out | std::ios::binary);
+
+    out << in.rdbuf();
+    if (in.is_open()) in.close();
+    if (out.is_open()) out.close();
+}
+
+void OS::Copy_Dir(const xstring& old_location, const xstring& new_location)
+{
+
+    if (!(old_location.size() || new_location.size()))
+        return;
+
+    xstring old_path = OS::Full_Path(old_location);
+    xstring new_path = OS::Full_Path(new_location);
+
+    if (!OS::Has_Dir(old_path))
+        throw std::runtime_error("\nThis is not a folder\n" + old_path + '\n');
+
+
+    if (OS::Has_File(new_path))
+        throw std::runtime_error("\nA file exists there\n" + new_path + '\n');
+
+    xvector<xstring> old_folders = OS::Dir(old_path, 'r', 'd');
+    xvector<xstring> old_files = OS::Dir(old_path, 'r', 'f');
+    size_t old_size = old_path.size();
 
     xstring nested_dir_item;
-    if (old_folders.size()){
+    if (old_folders.size()) {
         for (xvector<xstring>::const_iterator it = old_folders.begin(); it < old_folders.end(); it++) {
-            nested_dir_item = (*it).substr(fls.old().size(), (*it).size() - fls.old().size());
-            this->mkdir(fls.target() + nested_dir_item);
+            nested_dir_item = (*it).substr(old_size, (*it).size() - old_size);
+            OS::MKDIR(new_path + nested_dir_item);
         }
-    }else {
-        this->mkdir(fls.target());
+    }
+    else {
+        OS::MKDIR(new_path);
     }
 
     if (old_files.size()) {
         for (xvector<xstring>::const_iterator it = old_files.begin(); it < old_files.end(); it++) {
-            nested_dir_item = (*it).substr(fls.old().size(), (*it).size() - fls.old().size());
-            this->copy_file(*it, fls.target() + nested_dir_item);
+            nested_dir_item = (*it).substr(old_size, (*it).size() - old_size);
+            OS::Copy_File(*it, new_path + nested_dir_item);
         }
     }
+}
 
+void OS::Remove_File(const xstring& item)
+{
+    xstring fitem = OS::Full_Path(item);
+
+    if (!OS_O::Dir_Type::Has_File(fitem))
+        throw std::runtime_error(std::string("Error Filename: ") + fitem + " Does Not Exist!\n");
+
+    errno = 0;
+    try {
+
+#if   defined(NIX_BASE)
+        ::remove(fitem.c_str());
+#elif defined(WIN_BASE)
+        DeleteFileA(fitem.c_str());
+#endif
+        if (errno)
+            throw;
+    }
+    catch (...) {
+        xstring err = "Failed (" + to_xstring(errno) + "): Failed to delete file: '" + fitem + "'\n";
+        throw std::runtime_error(err);
+    }
 }
 
 
-void OS::move_dir(const xstring& old_location, const xstring& new_location) {
-
-    if (!(old_location.size() || new_location.size())) return;
-
-    this->copy_dir(old_location, new_location);
-    this->delete_dir(old_location);
-}
-
-
-void OS::delete_dir(const xstring& folder) {
-
+void OS::Remove_Dir(const xstring& folder)
+{
     if (!folder.size()) return;
 
-    File_Names fls(m_rexit, folder);
+    xstring del_path = OS::Full_Path(folder);
 
-    xvector<xstring> dir_items = this->dir(fls.target(), 'r','f','d');
-    dir_items.push_back(fls.target());
-    xvector<unsigned long long> file_sizes;
+    xvector<xstring> dir_items = OS::Dir(del_path, 'r','f','d');
+    dir_items.push_back(del_path);
 
-    for(size_t i = 0; i < dir_items.size(); i++){
-        file_sizes.push_back(dir_items[i].count("([\\\\/][^\\\\/\\s])"));
-    }
-    if(file_sizes.size())
-        std::sort(file_sizes.rbegin(), file_sizes.rend());
+    std::multimap<size_t, xstring> dir_size_mp; // I only have a unordered_map of the extended stl at this time
 
-    xvector<unsigned long long>::iterator sz;
-    xvector<xstring>::iterator dir_item;
+    for(xvector<xstring>::const_iterator it = dir_items.begin(); it != dir_items.end(); it++)
+        dir_size_mp.insert({ it->count("([\\\\/][^\\\\/\\s])"), *it });
 
-    auto delete_dir_item = [&dir_item, this]() -> void {
+    std::multimap<size_t, xstring>::const_reverse_iterator dir_item;
+
+    auto delete_dir_item = [&dir_item]() -> void 
+    {
         #if defined(NIX_BASE)
-            if(this->directory(*dir_item)){
-                ::rmdir((*dir_item).c_str());
-            }else if(this->file(*dir_item)){
-                ::remove((*dir_item).c_str());
-            }
+            if (OS::Has_Dir(dir_item->second))
+                ::rmdir(dir_item->second.c_str());
+            else if (OS::Has_File(dir_item->second))
+                ::remove(dir_item->second.c_str());
+
         #elif defined(WIN_BASE)
-            if(this->directory(*dir_item)){
-                RemoveDirectoryA((*dir_item).c_str());
-            }else if(this->file(*dir_item)){
-                DeleteFileA((*dir_item).c_str());
-            }
+            if(OS::Has_Dir(dir_item->second))
+                RemoveDirectoryA(dir_item->second.c_str());
+            else if(OS::Has_File(dir_item->second))
+                DeleteFileA(dir_item->second.c_str());
+            
         #endif
     };
 
-    for(sz = file_sizes.begin(); sz < file_sizes.end(); sz++){
+    for (dir_item = dir_size_mp.rbegin(); dir_item != dir_size_mp.rend(); dir_item++)
+        delete_dir_item();
+}
 
-        for(dir_item = dir_items.begin(); dir_item < dir_items.end(); dir_item++ ){
+void OS::Clear_File(const xstring& i_file)
+{
+    if (!i_file.size())
+        return;
 
-            if(*sz == dir_item->count("([\\\\/][^\\\\/\\s])")){
-                delete_dir_item();
-            }
-        }
-    }
+    xstring file = OS::Full_Path(i_file);
+    std::ofstream ofs;
+    ofs.open(file.c_str(), std::ofstream::out | std::ofstream::trunc);
+    if (ofs.is_open())
+        ofs.close();
 }
 
 // <<<< file managment ------------------------------------------------------------------------
 // ============================================================================================
-// >>>> Getters -------------------------------------------------------------------------------
-xstring OS::file_data() { return m_file_data; }
-xstring OS::file_name() { return m_file_name; }
-// -------------------------------------------------------------------------------
-xstring OS::cli_command() { return m_command; }
 
-xstring OS::std_in() { return m_command;  }
-xstring OS::std_out() { return m_std_out; }
-xstring OS::std_err() { return m_std_err;  }
-
-xstring OS::err_message() { return m_err_message;  }
-// <<<< Getters -------------------------------------------------------------------------------
-// ============================================================================================

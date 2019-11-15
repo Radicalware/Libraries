@@ -3,7 +3,7 @@
 param (
     [switch] $modify,   # you shouldn't use this, look at code if you really want to
     [switch] $lib,      # only install libs
-    [switch] $examples  # only install examples
+    [switch] $Examples  # only install Examples
 )
 
 Set-Location "$PSScriptRoot"
@@ -34,22 +34,22 @@ if(!$modify){
     )
         # --------------------------------------------------
     $run_installs = @(
-        "../../functional_STL/ac/examples/run.ps1",
-        "../../functional_STL/mc/examples/run.ps1",
-        "../../functional_STL/re/examples/run.ps1",
+        "../../functional_STL/ac/Examples/run.ps1",
+        "../../functional_STL/mc/Examples/run.ps1",
+        "../../functional_STL/re/Examples/run.ps1",
 
-        "../../General_Purpose_Libs/Nexus/examples/run.ps1",
+        "../../General_Purpose_Libs/Nexus/Examples/run.ps1",
 
-        "../../eXtended_STL/xvector/examples/run.ps1",
-        "../../eXtended_STL/xstring/example/run.ps1",
-        "../../eXtended_STL/xmap/examples/run.ps1",
+        "../../eXtended_STL/xvector/Examples/run.ps1",
+        "../../eXtended_STL/xstring/Examples/run.ps1",
+        "../../eXtended_STL/xmap/Examples/run.ps1",
 
 
-        "../../General_Purpose_Libs/OS/examples/run.ps1",
-        "../../General_Purpose_Libs/SYS/examples/run.ps1",
-        "../../General_Purpose_Libs/Timer/examples/run.ps1",
+        "../../General_Purpose_Libs/OS/Examples/run.ps1",
+        "../../General_Purpose_Libs/SYS/Examples/run.ps1",
+        "../../General_Purpose_Libs/Timer/Examples/run.ps1",
 
-        "../../Modded_Objects/cc/examples/run.ps1"
+        "../../Modded_Objects/cc/Examples/run.ps1"
     )
 };
 
@@ -65,9 +65,9 @@ if($modify){
         });
     };
 }else{
-    if($lib -eq $false -and $examples -eq $false){
+    if($lib -eq $false -and $Examples -eq $false){
         $lib = $true;
-        $examples = $true;
+        $Examples = $true;
     }
 
     if($lib -eq $true){
@@ -78,7 +78,7 @@ if($modify){
             &"$install" -Overwrite -No_Exec
         }
     }
-    if($examples -eq $true){
+    if($Examples -eq $true){
         foreach($install in $run_installs){
             Set-Location "$PSScriptRoot"
 

@@ -20,30 +20,36 @@ else()
 endif()
 # -------------------------- ARGUMENTS ----------------------------------------
 # -------------------------- CONFIGURATION ------------------------------------
-set(XMAP_DIR ${INSTALL_PREFIX}/code/Projects/${LIB})
+set(LIB_DIR  ${INSTALL_PREFIX}/Projects/${LIB})
+set(INC      ${LIB_DIR}/include)
+set(SRC      ${LIB_DIR}/src)
+
+set(XMAP_DIR ${INSTALL_PREFIX}/Projects/${LIB})
 # -------------------------- CONFIGURATION ------------------------------------
 # -------------------------- BUILD --------------------------------------------
 add_library(${LIB} STATIC 
-    ${XMAP_DIR}/include/${LIB}.h
-    ${XMAP_DIR}/src/${LIB}.cpp
+	
+    ${INC}/${LIB}.h
+    ${SRC}/${LIB}.cpp
+
+    ${INC}/val2_xmap.h
+    ${SRC}/val2_xmap.cpp
+
+    ${INC}/ptr2_xmap.h
+    ${SRC}/ptr2_xmap.cpp
+
+    ${INC}/ptr_val_xmap.h
+    ${SRC}/ptr_val_xmap.cpp
     
-    ${XMAP_DIR}/include/val2_xmap.h
-    ${XMAP_DIR}/src/val2_xmap.cpp
-
-    ${XMAP_DIR}/include/ptr2_xmap.h
-    ${XMAP_DIR}/src/ptr2_xmap.cpp
-
-    ${XMAP_DIR}/include/ptr_val_xmap.h
-    ${XMAP_DIR}/src/ptr_val_xmap.cpp
-
-    ${XMAP_DIR}/include/val_ptr_xmap.h
-    ${XMAP_DIR}/src/val_ptr_xmap.cpp
+    ${INC}/val_ptr_xmap.h
+    ${SRC}/val_ptr_xmap.cpp
 )
 
 add_library(radical::${LIB} ALIAS ${LIB})
 
 include_directories(${LIB}
     PRIVATE
+        ${NEXUS_DIR}/include
         ${XVECTOR_DIR}/include
         ${XSTRING_DIR}/include
         

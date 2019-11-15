@@ -56,10 +56,13 @@ inline auto xvector<T*, typename std::enable_if<!std::is_class<std::remove_point
 template<typename T>
 inline std::string xvector<T*, typename std::enable_if<!std::is_class<std::remove_pointer_t<T*>>::value>::type>::join(const char str) const
 {
-    std::string retstr;
-    for (typename xvector<T*>::const_iterator it = this->begin(); it != this->end(); it++)
-        retstr += std::to_string(**it) + str;
-
+    std::ostringstream ostr;
+    for (typename xvector<T*>::const_iterator it = this->begin(); it != this->end(); it++) 
+    {
+        ostr << *it;
+        ostr << str;
+    }
+    std::string retstr(ostr.str().c_str());
     return retstr.substr(0, retstr.size() - 1);
 }
 

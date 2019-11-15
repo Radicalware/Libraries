@@ -20,18 +20,23 @@ else()
 endif()
 # -------------------------- ARGUMENTS ----------------------------------------
 # -------------------------- CONFIGURATION ------------------------------------
-set(SYS_DIR ${INSTALL_PREFIX}/code/Projects/${LIB})
+set(LIB_DIR  ${INSTALL_PREFIX}/Projects/${LIB})
+set(INC      ${LIB_DIR}/include)
+set(SRC      ${LIB_DIR}/src)
+
+set(SYS_DIR  ${INSTALL_PREFIX}/Projects/${LIB})
 # -------------------------- CONFIGURATION ------------------------------------
 # -------------------------- BUILD --------------------------------------------
-add_library(${LIB} 
-    SHARED 
-        ${SYS_DIR}/src/${LIB}.cpp
-        ${SYS_DIR}/include/${LIB}.h
+add_library(${LIB} SHARED 
+    
+    ${INC}/${LIB}.h
+    ${SRC}/${LIB}.cpp
 )
 add_library(radical::${LIB} ALIAS ${LIB})
 
 target_include_directories(${LIB}
     PUBLIC
+        ${NEXUS_DIR}/include
         ${XVECTOR_DIR}/include
         ${XSTRING_DIR}/include
         ${XMAP_DIR}/include

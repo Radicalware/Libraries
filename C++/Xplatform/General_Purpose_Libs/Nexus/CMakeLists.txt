@@ -1,15 +1,15 @@
 ﻿
 cmake_minimum_required(VERSION 3.10)
 
-set(THIS Nexus)
-project (${THIS})
+set(LIB Nexus)
+project (${LIB})
 
 message("")
 message("--------------------------------------------------------------------------------")
-message("THIS:              ${THIS}")
+message("LIB:               ${LIB}")
 message("BUILD_TYPE:        ${BUILD_TYPE}")
 message("INSTALL_PREFIX:    ${INSTALL_PREFIX}")
-message("EXT_INCLUDE_PATH:  ${EXT_INCLUDE_PATH}")
+message("EXT_HEADER_PATH:   ${EXT_HEADER_PATH}")
 message("EXT_BIN_PATH:      ${EXT_BIN_PATH}")
 message("MODULE_PATH:       ${MODULE_PATH}")
 message("--------------------------------------------------------------------------------")
@@ -40,88 +40,92 @@ endif()
 # -------------------------- ARGUMENTS ----------------------------------------
 # -------------------------- CONFIGURATION ------------------------------------
 set(BUILD_DIR ${CMAKE_SOURCE_DIR}/Project)
-set(INCLUDE   ${BUILD_DIR}/include)
+set(INC       ${BUILD_DIR}/include)
 set(SRC       ${BUILD_DIR}/src)
 
 set(cmake_configuration_types ${build_type} cache string "" force)
-include_directories(${CMAKE_CURRENT_BINARY_DIR} ${INCLUDE}) 
+include_directories(${CMAKE_CURRENT_BINARY_DIR} ${INC}) 
 
-if(EXISTS "${PROJECT_SOURCE_DIR}/Find${THIS}.cmake")
-    file(REMOVE ${MODULE_PATH}/Find${THIS}.cmake)
+if(EXISTS "${PROJECT_SOURCE_DIR}/Find${LIB}.cmake")
+    file(REMOVE ${MODULE_PATH}/Find${LIB}.cmake)
 else()
-    message(FATAL_ERROR "/n/n!!!! Find${THIS}.cmake NOT FOUND !!!!/n/n")
+    message(FATAL_ERROR "/n/n!!!! Find${LIB}.cmake NOT FOUND !!!!/n/n")
 endif()
 # -------------------------- CONFIGURATION ------------------------------------
 # -------------------------- BUILD --------------------------------------------
-add_library(${THIS} STATIC 
-    ${SRC}/CPU_Threads.cpp
-    ${INCLUDE}/CPU_Threads.h
+add_library(${LIB} STATIC
+
+    ${SRC}/NX_Threads.cpp
+    ${INC}/NX_Threads.h
+
+    ${SRC}/NX_Mutex.cpp
+    ${INC}/NX_Mutex.h
 
     ${SRC}/Task.cpp
-    ${INCLUDE}/Task.h
+    ${INC}/Task.h
 
     ${SRC}/Job.cpp
-    ${INCLUDE}/Job.h
+    ${INC}/Job.h
 
-    ${SRC}/${THIS}.cpp
-    ${INCLUDE}/${THIS}.h
+    ${SRC}/${LIB}.cpp
+    ${INC}/${LIB}.h
 
-    ${SRC}/${THIS}_void.cpp
-    ${INCLUDE}/${THIS}_void.h
+    ${SRC}/${LIB}_void.cpp
+    ${INC}/${LIB}_void.h
 
-    ${SRC}/${THIS}_T.cpp
-    ${INCLUDE}/${THIS}_T.h
+    ${SRC}/${LIB}_T.cpp
+    ${INC}/${LIB}_T.h
 )
-add_library(radical::${THIS} ALIAS ${THIS})
+add_library(radical::${LIB} ALIAS ${LIB})
 
-target_include_directories(${THIS}
+target_include_directories(${LIB}
     PRIVATE
-        ${EXT_INCLUDE_PATH}
-        ${INCLUDE}
+         ${EXT_HEADER_PATH}
+        ${INC}
 )
 # -------------------------- BUILD --------------------------------------------
 # -------------------------- INSTALL ------------------------------------------
 # Binary File
 
 if(msvc)
-    install(TARGETS ${THIS}
-            RUNTIME DESTINATION build/${BUILD_TYPE}/bin
-            LIBRARY DESTINATION build/${BUILD_TYPE}/lib
-            ARCHIVE DESTINATION build/${BUILD_TYPE}/lib
+    install(TARGETS ${LIB}
+            RUNTIME DESTINATION Build/${BUILD_TYPE}/bin
+            LIBRARY DESTINATION Build/${BUILD_TYPE}/lib
+            ARCHIVE DESTINATION Build/${BUILD_TYPE}/lib
     )
 else()
-    install(TARGETS ${THIS}
-            RUNTIME DESTINATION build/${BUILD_TYPE}/bin
-            LIBRARY DESTINATION build/${BUILD_TYPE}/bin
-            ARCHIVE DESTINATION build/${BUILD_TYPE}/lib
+    install(TARGETS ${LIB}
+            RUNTIME DESTINATION Build/${BUILD_TYPE}/bin
+            LIBRARY DESTINATION Build/${BUILD_TYPE}/bin
+            ARCHIVE DESTINATION Build/${BUILD_TYPE}/lib
     )
 endif()
 
 # Include file
 install (   
-    DIRECTORY           ${BUILD_DIR}/include 
-    DESTINATION         .
+    DIRECTORY           ${BUILD_DIR}/include/
+    DESTINATION         ${EXT_HEADER_PATH}/
 )
 
 # Header/Src Files
 install (   
     DIRECTORY           ${BUILD_DIR}/include 
-    DESTINATION         code/Projects/${THIS}
+    DESTINATION         Projects/${LIB}
 )
 install (   
     DIRECTORY           ${BUILD_DIR}/src 
-    DESTINATION         code/Projects/${THIS}
+    DESTINATION         Projects/${LIB}
 )
 
 # CMake Module
 if(UNIX)
     install (   
-        FILES           Find${THIS}.cmake 
+        FILES           Find${LIB}.cmake 
         DESTINATION     /${PART_MODULE_PATH}
     ) 
 else() # Windows x86/x86_64
     install (   
-        FILES           Find${THIS}.cmake 
+        FILES           Find${LIB}.cmake 
         DESTINATION     C:/${PART_MODULE_PATH}
     )
 endif()

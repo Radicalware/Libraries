@@ -41,17 +41,17 @@
 #include<streambuf>
 #else
 #define NIX_BASE
-#include<sys/stat.h>
 #include<sys/types.h>
 #include<unistd.h>
 #include<pwd.h>
-#include<unistd.h>
 #include<dirent.h>     // read/write
 #include<sys/ioctl.h>
 #endif
 
 #include<iostream>
+#include<map>
 #include<assert.h>
+#include<errno.h>
 
 #include<stdio.h>      // defines FILENAME_MAX or PATH_MAX
 #include<fstream>      // file-handling
@@ -59,74 +59,68 @@
 #include<sys/stat.h>   // mkdir 
 #include<stdio.h>      // popen
 
-#include "xstring.h"
 #include "xvector.h"
+#include "xstring.h"
 
+#include "handlers/CMD.h"
+#include "handlers/File.h"
 #include "dir_support/Dir_Type.h"
-#include "dir_support/File_Names.h"
 
-class OS : public Dir_Type
+
+// Note: All Static Functions / Objects start with a CAP
+class OS : public OS_O::Dir_Type
 {
 private:
-    xstring m_command;
-    xstring m_std_out;
-    xstring m_std_err;
-    xstring m_err_message;
-
-    xstring m_file_name;
-    xstring m_file_data;
-
     char m_last_read;
-    char m_write_method;
 
-    bool m_rexit;
-
-    static bool instance_started;
-    static OS* inst;
-
-    void dir_continued(const xstring scan_start, xvector<xstring>& vec_track, \
+    static void Dir_Continued(const xstring scan_start, xvector<xstring>& vec_track, \
         const bool folders, const bool files, const bool recursive);
 
 public:
+    OS_O::File file; // .name()   .data()     
+    OS_O::CMD  cmd;  // .cmd()    .in()     .out().   .err()    .err_message()
+
     OS();
     ~OS();
 
-    xvector<int> console_size(); // columns, rows
-    void set_file_regex(bool rexit); // asserting file-regex consumes a lot of time
-                                     // only turn on when you are parsing user input
-    bool file_regex_status();
-    bool file_syntax(const xstring& file);
-    bool file_list_syntax(const xvector<xstring>& files);
+    static xvector<int> Console_Size(); // columns, rows
 
-    xstring full_path(const xstring& file);
+    static bool File_Syntax(const xstring& file);
+    static bool File_List_Syntax(const xvector<xstring>& files);
+    static xstring Full_Path(const xstring& file);
 
     // ---------------------------------------------------------------------------------------------
     // Bash Style OS Commands
 
     void touch(const xstring& new_file = "");
-    void mkdir(const xstring& folder = "");
+    static void MKDIR(const xstring& folder = "");
 
-    void cp(const xstring& old_location, const xstring& new_location);
-    void mv(const xstring& old_location, const xstring& new_location);
-    void rm(const xstring& del_file);
+    static void CP(const xstring& old_location, const xstring& new_location);
+    static void MV(const xstring& old_location, const xstring& new_location);
+    static void RM(const xstring& del_file);
     
     // ---------------------------------------------------------------------------------------------
     // Open & Read/Write Files
 
-    OS open(const xstring& new_file_name, const char write_method = 'a');
-    // a = append     (append then writes like in python)
-    // w = write mode (clears then writes like in python)
+    // r = read,     w = write,     a = append,     d = default (read)
+    OS open(const xstring& new_file_name, const char write_method = 'd');
+    OS close();
 
-    xstring read(const char content = 'n');
-    static xstring fast_text(const xstring& file_name);
-    static xstring read(const xstring& file_name);
+    xstring read(const char content = 'd', bool close_file = false);
+private:
+    xstring inst_read();
 
-    OS write(const xstring& content = "", const char write_method = 'n');
+public:
+    static xstring Fast_Read(const xstring& file_name, bool re_try = false); // Good for reading files text only
+    static xstring Stat_Read(const xstring& file_name);   // Good for text and binaries on Linux
+    static xstring Stream_Read(const xstring& file_name); // Good for text and binaries on Linux and Windows
+
+    OS write(const xstring& content = "", bool store = false);
 
     // ---------------------------------------------------------------------------------------------
     // Dir Parsing
 
-    xvector<xstring> dir(const xstring& folder_start, \
+    static xvector<xstring> Dir(const xstring& folder_start, \
         const char mod1 = 'n', const char mod2 = 'n', const char mod3 = 'n');
     // dir(folder_to_start_search_from, mod can match for any of the following 3);
     // r = recursive = search dirs recursivly
@@ -135,41 +129,32 @@ public:
 
     // ---------------------------------------------------------------------------------------------
     // Console Command and Return
-    OS popen(const xstring& command, char leave = 'p');
-    xstring operator()(const xstring& command);
+    OS& popen(const xstring& command, char leave = 'd'); 
+    xstring operator()(const xstring& command, const char leave = 'd');
+
+    // ============================================================================================
+    // Below are methods for short-hand printing;
     template<typename T>
-    void p(const T& input);
-    template<typename T, typename X>
-    void p(const T& input1, const X& input2);
-    // shorthand for os.popen(command).read()
+    static void P(const T& input);
+
+    template <typename First, typename... Rest>
+    static void P(const First& input1, const Rest&&... input2);
 
     // ============================================================================================
     // Filesystem Managment (use "Bash style OS commands" above for shorthand)
 
-    void move_file(const xstring& old_location, const xstring& new_location);
-    void move_dir(const xstring& old_location, const xstring& new_location);
+    static void Assert_Folder_Syntax(const xstring& folder1);
 
-    void copy_file(const xstring& old_location, const xstring& new_location);
-    void copy_dir(const xstring& old_location, const xstring& new_location);
+    static void Move_File(const xstring& old_location, const xstring& new_location);
+    static void Move_Dir(const xstring& old_location, const xstring& new_location);
 
-    void delete_file(const xstring& content = "");
-    void delete_dir(const xstring& folder = "");
+    static void Copy_File(const xstring& old_location, const xstring& new_location);
+    static void Copy_Dir(const xstring& old_location, const xstring& new_location);
 
-    void clear_file(const xstring& content = "");
+    static void Remove_File(const xstring& content = "");
+    static void Remove_Dir(const xstring& folder = "");
 
-    // -------------------------------------------------------------------------------
-    // Getters
-
-    xstring file_data();
-    xstring file_name();
-
-    xstring cli_command();
-
-    xstring std_in();
-    xstring std_out();
-    xstring std_err();
-
-    xstring err_message();
+    static void Clear_File(const xstring& content = "");
     // ============================================================================================
 };
 

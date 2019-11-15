@@ -1,4 +1,5 @@
 ﻿#pragma once 
+#pragma warning( disable : 26495 ) // for allowing to make a Job class without initializing all vars
 
 #include<iostream>
 #include<exception>
@@ -6,11 +7,11 @@
 #include<future>
 #include<thread>
 
-#include "CPU_Threads.h"
+#include "NX_Threads.h"
 #include "Task.h"
 
 template<typename T>
-class Job : protected CPU_Threads
+class Job : protected NX_Threads
 {
     Task<T> m_task;
     T m_value;
@@ -69,7 +70,7 @@ inline void Job<T>::init()
     catch (const std::exception&) {
         m_exc_ptr = std::current_exception();
     }
-    Threads_Used--;
+    s_Threads_Used--;
     m_done = true;
 }
 

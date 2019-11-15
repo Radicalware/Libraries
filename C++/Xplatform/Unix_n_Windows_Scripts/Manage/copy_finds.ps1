@@ -12,7 +12,8 @@ if($($global:PSVersionTable.Platform -eq "Unix")){
     $find_cmake_path = "C:\source\CMake\Modules"
 }
 
-$(Get-ChildItem -Path ..\..\ -Recurse -Force).foreach({ # -Force to find hidden files                
+$(Get-ChildItem -Path C:\Source\Libraries -Recurse -Force).foreach({ 
+	# -Force to find hidden files                
     $name = $_.FullName                                                                         
     if($name -match "^.*\\(Find[\w\d_-]+\.cmake)$"){                    
         if(Test-Path -Path $name){                                                              

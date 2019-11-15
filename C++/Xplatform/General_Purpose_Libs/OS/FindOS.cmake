@@ -20,32 +20,41 @@ else()
 endif()
 # -------------------------- ARGUMENTS ----------------------------------------
 # -------------------------- CONFIGURATION ------------------------------------
-set(OS_DIR ${INSTALL_PREFIX}/code/Projects/${LIB})
+set(LIB_DIR  ${INSTALL_PREFIX}/Projects/${LIB})
+set(INC      ${LIB_DIR}/include)
+set(SRC      ${LIB_DIR}/src)
+
+set(OS_DIR   ${INSTALL_PREFIX}/Projects/${LIB})
 # -------------------------- CONFIGURATION ------------------------------------
 # -------------------------- BUILD --------------------------------------------
 
-add_library(${LIB} 
-    SHARED  
-        ${OS_DIR}/include/${LIB}.h
-        ${OS_DIR}/src/${LIB}.cpp
+add_library(${LIB} SHARED  
 
-        ${OS_DIR}/include/dir_support/Dir_Type.h
-        ${OS_DIR}/src/dir_support/Dir_Type.cpp
+    ${INC}/${LIB}.h
+    ${SRC}/${LIB}.cpp
 
-        ${OS_DIR}/include/dir_support/File_Names.h
-        ${OS_DIR}/src/dir_support/File_Names.cpp
+    ${INC}/dir_support/Dir_Type.h
+    ${SRC}/dir_support/Dir_Type.cpp
+
+    ${INC}/handlers/File.h
+    ${SRC}/handlers/File.cpp
+
+    ${INC}/handlers/CMD.h
+    ${SRC}/handlers/CMD.cpp
 )
 
 add_library(radical::${LIB} ALIAS ${LIB})
 
 target_include_directories(${LIB}
     PUBLIC
+        ${NEXUS_DIR}/include
         ${XVECTOR_DIR}/include
         ${XSTRING_DIR}/include
         ${XMAP_DIR}/include
 
         ${OS_DIR}/include
-        ${OS_DIR}/include/support_dir
+        ${OS_DIR}/include/dir_support
+        ${OS_DIR}/include/handlers
 )
 
 target_link_libraries(${LIB} radical::Nexus)

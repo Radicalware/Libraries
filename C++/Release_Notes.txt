@@ -4,6 +4,21 @@
 
 ---------------------------------------------------------------------
 
+11/14/2019 >> Libs v12.5.0
+
+The biggest change is Nexus<void> aka Nexus<> is now a static class.
+Also, Nexus<> uses NX_Mutex to manage specific tasks per job.
+That way you can update the same object with Nexus under multiple
+jobs at one time and it also be thread safe!!. (updated example)
+Cmake file restructuring was done and xprocs now don't wait to
+finish, instead you must use Nexus<>::Wait_All(); OS.h is now
+mostly static so in most cases you won't need make it a global obj
+but it can still be handy. Also, OS now has a File object and
+a CMD object that can be used easily retrieve data. Other minor
+changes were done as well. 
+
+---------------------------------------------------------------------
+
 11/08/2019 >> Libs v12.4.0
 
 I discovered that C libs are often faster than C++ libs and in 

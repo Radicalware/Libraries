@@ -20,29 +20,38 @@ else()
 endif()
 # -------------------------- ARGUMENTS ----------------------------------------
 # -------------------------- CONFIGURATION ------------------------------------
-set(XVECTOR_DIR ${INSTALL_PREFIX}/code/Projects/${LIB})
-set(INCLUDE   ${XVECTOR_DIR}/include)
-set(SRC       ${XVECTOR_DIR}/src)
+set(LIB_DIR     ${INSTALL_PREFIX}/Projects/${LIB})
+set(INC         ${LIB_DIR}/include)
+set(SRC         ${LIB_DIR}/src)
+
+set(XVECTOR_DIR ${INSTALL_PREFIX}/Projects/${LIB})
 # -------------------------- CONFIGURATION ------------------------------------
 # -------------------------- BUILD --------------------------------------------
-add_library(${LIB} 
-    STATIC
-        ${INCLUDE}/base_val_${LIB}.h
+add_library(${LIB}  STATIC
+	
+        ${INC}/${LIB}.h
+        ${SRC}/${LIB}.cpp
+
+        # -------------------------------
+        
+        ${INC}/base_val_${LIB}.h
+        ${SRC}/base_val_${LIB}.cpp
+
+        ${INC}/base_ptr_${LIB}.h
         ${SRC}/base_ptr_${LIB}.cpp
 
-        ${INCLUDE}/val_obj_xvector.h
+        # -------------------------------
+
+        ${INC}/val_obj_xvector.h
         ${SRC}/val_obj_xvector.cpp
 
-        ${INCLUDE}/val_prim_xvector.h
+        ${INC}/val_prim_xvector.h
         ${SRC}/val_prim_xvector.cpp
-        # -------------------------------------
-        ${INCLUDE}/base_ptr_xvector.h
-        ${SRC}/base_ptr_xvector.cpp
 
-        ${INCLUDE}/ptr_obj_xvector.h
+        ${INC}/ptr_obj_xvector.h
         ${SRC}/ptr_obj_xvector.cpp
 
-        ${INCLUDE}/ptr_prim_xvector.h
+        ${INC}/ptr_prim_xvector.h
         ${SRC}/ptr_prim_xvector.cpp
 )
 
@@ -50,6 +59,8 @@ add_library(radical::${LIB} ALIAS ${LIB})
 
 include_directories(${LIB}
     PRIVATE
+        ${NEXUS_DIR}/include
+        
         ${XVECTOR_DIR}/include
 )
 

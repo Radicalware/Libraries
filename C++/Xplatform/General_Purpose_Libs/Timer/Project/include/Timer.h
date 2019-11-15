@@ -27,12 +27,13 @@ public:
     void lap(const xstring& key);
     void clear();
 
-    void sleep(unsigned long extent) const;
     double get(size_t idx) const;
     double get(const xstring& key) const;
 
     xvector<double> get_xvector() const;
     xmap<xstring, double> get_xmap() const;
+
+    static void Sleep(unsigned long extent);
 };
 
 

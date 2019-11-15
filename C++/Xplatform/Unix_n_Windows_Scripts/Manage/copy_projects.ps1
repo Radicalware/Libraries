@@ -3,8 +3,8 @@
 Write-Host
 Write-Host "----------------------------------------------------------------------"
 
-$build_dir         = "C:\source\include"
-$cmake_install_dir = 'C:\source\CMake\Radicalware\Libraries\cpp\code\Projects'
+$build_dir         = 'C:\Source\Libraries'
+$cmake_install_dir = 'C:\Source\CMake\Radicalware\Libraries\Projects'
 
 
 $General_Purpose_Libs = 'General_Purpose_Libs'

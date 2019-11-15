@@ -13,11 +13,14 @@
 #endif
 
 
-Dir_Type::Dir_Type() {}
-Dir_Type::~Dir_Type() {}
+const unsigned char OS_O::Dir_Type::IsFile   = 0x8;
+const unsigned char OS_O::Dir_Type::IsFolder = 0x4;
+
+OS_O::Dir_Type::Dir_Type() {}
+OS_O::Dir_Type::~Dir_Type() {}
 
 
-Dir_Type::dir_type Dir_Type::has(const xstring& input) {
+OS_O::Dir_Type::DT OS_O::Dir_Type::Get_Dir_Type(const xstring& input) {
 
 #if defined(NIX_BASE)
 
@@ -34,9 +37,9 @@ Dir_Type::dir_type Dir_Type::has(const xstring& input) {
     }
 
     switch(dt){
-        case 'f': return os_file;break;
-        case 'd': return os_directory;break;
-        case 'n': return os_none;
+        case 'f': return DT::file;break;
+        case 'd': return DT::directory;break;
+        case 'n': return DT::none;
     } 
 
 #elif defined(WIN_BASE)
@@ -44,49 +47,54 @@ Dir_Type::dir_type Dir_Type::has(const xstring& input) {
     struct stat st;
     if (stat(input.sub("\\\\", "/").c_str(), &st) == 0) {
         if (st.st_mode & S_IFDIR) {
-            return os_directory;
+            return DT::directory;
         } else if (st.st_mode & S_IFREG) {
-            return os_file;
+            return DT::file;
         } else {
-            return os_none;
+            return DT::none;
         }
     }
 #endif
-    return os_none;
+    return DT::none;
 }
 
-bool Dir_Type::file(const xstring& file) {
-    return (this->has(file) == os_file);
+bool OS_O::Dir_Type::Has(const xstring& item)
+{
+    return (Dir_Type::Has_File(item) || Dir_Type::Has_Dir(item));
 }
 
-bool Dir_Type::directory(const xstring& folder) {
-    return (this->has(folder) == os_directory);
+bool OS_O::Dir_Type::Has_File(const xstring& file) {
+    return (Dir_Type::Get_Dir_Type(file) == DT::file);
 }
 
-bool Dir_Type::file(xstring&& file) {
-    return (this->has(file) == os_file);
+bool OS_O::Dir_Type::Has_Dir(const xstring& folder) {
+    return (Dir_Type::Get_Dir_Type(folder) == DT::directory);
 }
 
-bool Dir_Type::directory(xstring&& folder) {
-    return (this->has(folder) == os_directory);
+bool OS_O::Dir_Type::Has_File(xstring&& file) {
+    return (Dir_Type::Get_Dir_Type(file) == DT::file);
+}
+
+bool OS_O::Dir_Type::Has_Dir(xstring&& folder) {
+    return (Dir_Type::Get_Dir_Type(folder) == DT::directory);
 }
 
 
-xstring Dir_Type::dir_item_str(const xstring& input) {
+xstring OS_O::Dir_Type::Dir_Item_Str(const xstring& input) {
 
-    dir_type dt = os_none;
-    dt = this->has(input);
+    DT dt = DT::none;
+    dt = Dir_Type::Get_Dir_Type(input);
 
     switch(dt){
-        case os_file:      return "file";break;
-        case os_directory: return "directory";break;
-        case os_none:      return "none";
-        default:           return "none";
+        case DT::file:      return "file";break;
+        case DT::directory: return "directory";break;
+        case DT::none:      return "none";
+        default:            return "none";
     }
 }
 
 
-xstring Dir_Type::bpwd() const {
+xstring OS_O::Dir_Type::BWD() {
 #if defined(NIX_BASE)
     char result[FILENAME_MAX];
     ssize_t count = readlink("/proc/self/exe", result, FILENAME_MAX);
@@ -99,7 +107,7 @@ xstring Dir_Type::bpwd() const {
 #endif
 }
 
-xstring Dir_Type::pwd() const {
+xstring OS_O::Dir_Type::PWD() {
 #if defined(NIX_BASE)
     char c_pwd[256];
     if (NULL == getcwd(c_pwd, sizeof(c_pwd))) {
@@ -122,7 +130,7 @@ xstring Dir_Type::pwd() const {
 }
 
 
-xstring Dir_Type::home() const {
+xstring OS_O::Dir_Type::Home() {
 #if defined(NIX_BASE)
     struct passwd *pw = getpwuid(getuid());
     const char *char_home_dir = pw->pw_dir;

@@ -9,35 +9,36 @@
 
 #include "xstring.h"
 
-#include <string>
-
-class Dir_Type
+namespace OS_O // OS Object
 {
-protected:
-    enum dir_type
+    class Dir_Type
     {
-        os_none,
-        os_file,
-        os_directory
+    protected:
+        enum class DT // dir type
+        {
+            none,
+            file,
+            directory
+        };
+
+        static const unsigned char IsFile;
+        static const unsigned char IsFolder;
+
+    public:
+        Dir_Type();
+        ~Dir_Type();
+
+        static DT Get_Dir_Type(const xstring& item);
+        static bool Has(const xstring& item);
+        static bool Has_File(const xstring& file);
+        static bool Has_Dir(const xstring& folder);
+        static bool Has_File(xstring&& file);
+        static bool Has_Dir(xstring&& folder);
+        static xstring Dir_Item_Str(const xstring& item);
+
+
+        static xstring BWD(); // binary pwd
+        static xstring PWD();  // user pwd
+        static xstring Home(); // home dir
     };
-
-    const unsigned char isFile =0x8;
-    const unsigned char isFolder =0x4;
-
-public:
-    Dir_Type();
-    ~Dir_Type();
-
-    dir_type has(const xstring& item);
-    bool file(const xstring& file);
-    bool directory(const xstring& folder);
-    bool file(xstring&& file);
-    bool directory(xstring&& folder);
-    xstring dir_item_str(const xstring& item);
-
-    
-    xstring bpwd() const; // binary pwd
-    xstring pwd()  const;  // user pwd
-    xstring home() const; // home dir
 };
-

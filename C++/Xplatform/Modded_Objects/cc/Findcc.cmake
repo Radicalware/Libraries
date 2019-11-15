@@ -20,13 +20,17 @@ else()
 endif()
 # -------------------------- ARGUMENTS ----------------------------------------
 # -------------------------- CONFIGURATION ------------------------------------
-set(CC_DIR ${INSTALL_PREFIX}/code/Projects/${LIB})
+set(LIB_DIR  ${INSTALL_PREFIX}/Projects/${LIB})
+set(INC      ${LIB_DIR}/include)
+set(SRC      ${LIB_DIR}/src)
+
+set(CC_DIR   ${INSTALL_PREFIX}/Projects/${LIB})
 # -------------------------- CONFIGURATION ------------------------------------
 # -------------------------- BUILD --------------------------------------------
-add_library(${LIB} 
-    SHARED 
-        ${CC_DIR}/src/${LIB}.cpp
-        ${CC_DIR}/include/${LIB}.h
+add_library(${LIB} SHARED 
+
+    ${INC}/${LIB}.h
+    ${SRC}/${LIB}.cpp
 )
 add_library(radical_mod::${LIB} ALIAS ${LIB})
 

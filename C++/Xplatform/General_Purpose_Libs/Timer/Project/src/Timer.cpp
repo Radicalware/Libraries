@@ -16,13 +16,13 @@ double Timer::elapsed() const {
 void Timer::wait_seconds(double extent) const
 {
     while (this->elapsed() < extent)
-        this->sleep(1);
+        Timer::Sleep(1);
 }
 
 void Timer::wait_milliseconds(unsigned long extent) const
 {
     while (this->elapsed() < extent / static_cast<double>(1000))
-        this->sleep(1);
+        Timer::Sleep(1);
 }
 
 void Timer::wait(unsigned long extent) const
@@ -46,16 +46,6 @@ void Timer::clear()
 {
     m_laps_xv.clear();
     m_laps_xm.clear();
-}
-
-
-void Timer::sleep(unsigned long extent) const
-{
-#if (defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64))
-    ::Sleep(extent);
-#else
-    ::usleep(extent);
-#endif
 }
 
 double Timer::get(size_t idx) const
@@ -82,4 +72,13 @@ std::ostream& operator<<(std::ostream& out, const Timer& time)
 {
     out << time.elapsed();
     return out;
+}
+
+void Timer::Sleep(unsigned long extent)
+{
+#if (defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64))
+    ::Sleep(extent);
+#else
+    ::usleep(extent);
+#endif
 }

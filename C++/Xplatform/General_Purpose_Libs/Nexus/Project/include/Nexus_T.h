@@ -13,7 +13,7 @@
 #include<functional>
 #include<type_traits>
 
-#include "CPU_Threads.h"
+#include "NX_Threads.h"
 #include "Task.h"
 #include "Job.h"
 
@@ -39,7 +39,7 @@
 #include<functional>
 #include<type_traits>
 
-#include "CPU_Threads.h"
+#include "NX_Threads.h"
 #include "Task.h"
 #include "Job.h"
 
@@ -53,24 +53,26 @@
 // =========================================================================================
 
 
-template<typename T>
-class Nexus : public CPU_Threads
+template<typename T = void>
+class Nexus : public NX_Threads
 {
 private:
     bool m_finish_tasks = false;
     size_t m_inst_task_count = 0;
+
     std::mutex m_mutex;
     std::condition_variable m_sig_deque;
     std::mutex m_get_mutex;
     std::condition_variable m_sig_get;
-    std::vector<std::thread> m_threads;   // We add new tasks by succession from the m_task_deque here
+
+    std::vector<std::thread> m_threads; // these threads start in the constructor and don't stop until Nexus is over
     std::deque<Task<T>> m_task_deque; // This is where tasks are held before being run
     // deque chosen over queue because the deque has an iterator
 
     std::unordered_map<std::string,  const size_t> m_str_inst_mp; // KVP (std::string >> job inst)
     std::unordered_map<size_t, Job<T>>* m_inst_job_mp = nullptr;  //                    (job inst >> Job)
 
-    void TaskLooper(int thread_idx);
+    void task_looper(int thread_idx);
 
     template <typename F, typename ...A>
     void add(F& function, A&& ...Args);
@@ -116,31 +118,31 @@ public:
 // =========================================================================================
 
 template<typename T>
-inline void Nexus<T>::TaskLooper(int thread_idx)
+inline void Nexus<T>::task_looper(int thread_idx)
 {
     while (true) {
         size_t tsk_idx;
         {
             std::unique_lock<std::mutex> lock(m_mutex);
             m_sig_deque.wait(lock, [this]() {
-                return ((m_finish_tasks || m_task_deque.size()) && CPU_Threads::threads_are_available());
+                return ((m_finish_tasks || m_task_deque.size()) && NX_Threads::Threads_Are_Available());
             });
 
             if (m_task_deque.empty())
                 return;
 
-            CPU_Threads::Threads_Used++;
+            NX_Threads::s_Threads_Used++;
             tsk_idx = m_inst_task_count;
             if (m_task_deque.front().blank())
                 continue;
             else
-                (*m_inst_job_mp).insert({ tsk_idx, Job<T>(std::move(m_task_deque.front()), CPU_Threads::Task_Count) });
+                (*m_inst_job_mp).insert({ tsk_idx, Job<T>(std::move(m_task_deque.front()), NX_Threads::s_task_count) });
 
             const Task<T>* latest_task = (*m_inst_job_mp)[tsk_idx].task_ptr();
             if (latest_task->has_name())
                 m_str_inst_mp.insert({ latest_task->name(), tsk_idx });
 
-            CPU_Threads::Task_Count++;
+            NX_Threads::s_task_count++;
             m_inst_task_count++;
 
             m_task_deque.pop_front();
@@ -178,12 +180,12 @@ template<typename T>
 Nexus<T>::Nexus()
 {
     m_inst_job_mp = new std::unordered_map<size_t, Job<T>>; 
-    CPU_Threads::Inst_Count++;
-    m_threads.reserve(CPU_Threads::Thread_Count);
-    for (int i = 0; i < CPU_Threads::Thread_Count; ++i)
-        m_threads.emplace_back(std::bind(&Nexus<T>::TaskLooper, std::ref(*this), i));
+    NX_Threads::s_Inst_Count++;
+    m_threads.reserve(NX_Threads::s_Thread_Count);
+    for (int i = 0; i < NX_Threads::s_Thread_Count; ++i)
+        m_threads.emplace_back(std::bind(&Nexus<T>::task_looper, std::ref(*this), i));
 
-    CPU_Threads::Threads_Used = 0;
+    NX_Threads::s_Threads_Used = 0;
 }
 
 template<typename T>
@@ -330,7 +332,7 @@ template<typename T>
 inline void Nexus<T>::wait_all() const
 {
     while (m_task_deque.size()) this->sleep(1);
-    while (CPU_Threads::Threads_Used > 0) this->sleep(1);
+    while (NX_Threads::s_Threads_Used > 0) this->sleep(1);
 }
 
 template<typename T>
