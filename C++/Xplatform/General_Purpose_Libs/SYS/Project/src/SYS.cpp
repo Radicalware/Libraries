@@ -1,4 +1,4 @@
-﻿/*
+/*
 * Copyright[2018][Joel Leagues aka Scourge]
 * Scourge /at\ protonmail /dot\ com
 * www.Radicalware.com
@@ -224,8 +224,7 @@ bool SYS::help()
         error.print();
         throw std::runtime_error(error.c_str());
     }
-
-    if (m_str_kvps.keys().match_one(R"(^[-]{1,2}[hH]((elp)?)$)") || this->argc() == 1)
+    if (m_str_kvps.keys().match_one(R"(^[-]{1,2}[hH]((elp)?)$)") || m_argc == 1)
         return true;
     return false;
 }

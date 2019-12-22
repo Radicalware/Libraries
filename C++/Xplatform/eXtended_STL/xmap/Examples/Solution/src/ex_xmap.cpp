@@ -20,7 +20,7 @@ using std::string;
 
 int main()
 {
-    Nexus<>::Construct();
+    Nexus<>::Start();
 
     xvector<xstring> single_vec{ "one","two","three","four","five","six" };
     xvector<xvector<xstring>> double_vec = single_vec.split(3);
@@ -124,7 +124,7 @@ int main()
     tmp_mp.print();
 
 
-    Nexus<>::Dispose();
+    Nexus<>::Stop();
     return 0;
 }
 

@@ -2,12 +2,9 @@
 #include "Full.h"
 #include "Option.h"
 
-#include "xvector.h"
-#include "xstring.h"
-
 int main()
 {
-    Nexus<>::Construct();
+    Nexus<>::Start();
 
     // NOTE: All test functions are inline to make example reading easier.
     Full full;
@@ -25,6 +22,6 @@ int main()
     option.str_count();
 
 
-    Nexus<>::Dispose();
+    Nexus<>::Stop();
     return 0;
 }

@@ -1,4 +1,4 @@
-﻿#include "std_xstring.h"
+#include "std_xstring.h"
 
 #if defined(__unix__)
 template <class _Kty>

@@ -31,8 +31,9 @@ class Run_CMake
 
         Write-Host Options for: $this.ArgStruct.name;
         Write-Host ==================================;
-        Write-Host "Debug Build = " $this.ArgStruct.debug;
-        Write-Host "Clean Build = " $this.ArgStruct.clean;
+        Write-Host "Program Name  = " $this.ArgStruct.name;
+        Write-Host "Debug   Build = " $this.ArgStruct.debug;
+        Write-Host "Clean   Build = " $this.ArgStruct.clean;
         Write-Host ==================================;
 
         return $this;

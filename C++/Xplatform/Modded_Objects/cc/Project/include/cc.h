@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 // v1.0.1 --(MOD)-- Console Colors
 // A mod on termcolor.h
 

@@ -1,4 +1,4 @@
-﻿#pragma once 
+#pragma once 
 #pragma warning( disable : 26495 ) // for allowing to make a Job class without initializing all vars
 
 #include<iostream>

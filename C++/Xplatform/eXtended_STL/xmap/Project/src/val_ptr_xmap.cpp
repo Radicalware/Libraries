@@ -1,4 +1,4 @@
-﻿
+
 
 #include "../include/val_ptr_xmap.h"
 

@@ -1,4 +1,4 @@
-﻿#pragma warning ( disable : 26444) // Allow un-named objects
+#pragma warning ( disable : 26444) // Allow un-named objects
 /*
 * Copyright[2018][Joel Leagues aka Scourge]
 * Scourge /at\ protonmail /dot\ com
@@ -577,21 +577,6 @@ OS& OS::popen(const xstring& command, char leave)
 xstring OS::operator()(const xstring& command, const char leave) {
     return this->popen(command, leave).read();
 };
-// ============================================================================================
-// easy printing
-
-template<typename T>
-void OS::P(const T& input){
-    std::cout << to_xstring(input);
-}
-
-template<typename First, typename ...Rest>
-void OS::P(const First& first, const Rest&& ...reset)
-{
-    std::cout << to_xstring(first);
-    std::cout << p(reset...);
-    std::cout << std::endl;
-}
 
 // ============================================================================================
 

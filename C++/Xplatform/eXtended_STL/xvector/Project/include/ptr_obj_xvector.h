@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #pragma warning (disable : 26444) // allow anynomous objects
 
 /*
@@ -85,5 +85,5 @@ inline T xvector<T*, typename std::enable_if<std::is_class<std::remove_pointer_t
     for (typename xvector<T*>::const_iterator it = this->begin(); it != this->end(); it++)
         ret += **it + str;
 
-    return ret.substr(0, ret.size() - 1);
+    return ret.substr(0, ret.size() - strlen(str));
 }

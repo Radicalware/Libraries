@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #pragma warning (disable : 26444) // allow anynomous objects
 
 /*
@@ -40,12 +40,13 @@
 
 template<typename T>
 class val_xvector : public std::vector<T>
-{
-    typedef typename std::remove_const<T>::type E; // E for Erratic
-    Nexus<E>* td = nullptr;
-    
+{    
 public:
+    typedef typename std::remove_const<T>::type E; // E for Erratic
     typedef typename std::remove_const<T>::type EVEC_T;
+private:
+    Nexus<E>* td = nullptr;
+public:
 
     inline ~val_xvector();
     inline val_xvector() {};
@@ -99,6 +100,8 @@ public:
     T back(size_t value = 1) const;
     T* back_ptr(size_t value = 1) const;
 
+    inline std::pair<T, T> pair() const;
+
     template<typename C>
     inline xvector<C> convert() const;
 
@@ -126,8 +129,14 @@ public:
 
     template<typename N = E, typename F, typename ...A>
     inline xvector<N> render(F&& function, A&& ...Args);
+    template<typename K, typename V, typename F, typename ...A>
+    inline std::unordered_map<K, V> render(F&& function, A&& ...Args);
+
+
     template<typename N = E, typename F, typename... A>
     inline xvector<N> xrender(F&& function, A&& ...Args);
+    template<typename K, typename V, typename F, typename ...A>
+    inline std::unordered_map<K, V> xrender(F&& function, A&& ...Args);
 
     template<typename N = E, typename F, typename... A>
     inline void start(F&& function, A&& ...Args);
@@ -387,6 +396,12 @@ inline T* val_xvector<T>::back_ptr(size_t value) const {
 // ------------------------------------------------------------------------------------------------
 
 template<typename T>
+inline std::pair<T, T> val_xvector<T>::pair() const
+{
+    return std::pair<E, E>(this->at(0), this->at(1));
+}
+
+template<typename T>
 template<typename C>
 inline xvector<C> val_xvector<T>::convert() const
 {
@@ -530,6 +545,16 @@ inline xvector<N> val_xvector<T>::render(F&& function, A&& ...Args)
 }
 
 template<typename T>
+template<typename K, typename V, typename F, typename ...A>
+inline std::unordered_map<K, V> val_xvector<T>::render(F&& function, A&& ...Args)
+{
+    std::unordered_map<K, V> rmap;
+    for (typename xvector<E>::iterator it = this->begin(); it != this->end(); it++)
+        rmap.insert(function(*it, Args...));
+    return rmap;
+}
+
+template<typename T>
 template<typename N, typename F, typename ...A>
 inline xvector<N> val_xvector<T>::xrender(F&& function, A&& ...Args)
 {
@@ -538,15 +563,35 @@ inline xvector<N> val_xvector<T>::xrender(F&& function, A&& ...Args)
     for (typename xvector<E>::iterator it = this->begin(); it != this->end(); it++)
         trd->add_job_val(function, *it, Args...);
 
-    trd->wait_all();
     xvector<N> vret;
     vret.reserve(trd->size());
+    trd->wait_all();
 
     for (size_t i = 0; i < trd->size(); i++)
         vret << trd->get_fast(i).value();
 
     delete trd;
     return vret;
+}
+
+template<typename T>
+template<typename K, typename V, typename F, typename ...A>
+inline std::unordered_map<K, V> val_xvector<T>::xrender(F&& function, A&& ...Args)
+{
+    Nexus<std::pair<K,V>>* trd = new Nexus<std::pair<K, V>>;
+
+    for (typename xvector<E>::iterator it = this->begin(); it != this->end(); it++)
+        trd->add_job_val(function, *it, Args...);
+
+    std::unordered_map<K, V> rmap;
+    rmap.reserve(trd->size());
+    trd->wait_all();
+
+    for (size_t i = 0; i < trd->size(); i++)
+        rmap.insert(trd->get_fast(i).value());
+
+    delete trd;
+    return rmap;
 }
 
 template<typename T>

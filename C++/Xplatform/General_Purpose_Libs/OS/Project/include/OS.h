@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 // Lib: OS.h
 // Version 1.4.1
@@ -39,6 +39,7 @@
 #include<direct.h>
 #include<stdlib.h>
 #include<streambuf>
+#include<cstdarg>
 #else
 #define NIX_BASE
 #include<sys/types.h>
@@ -131,14 +132,6 @@ public:
     // Console Command and Return
     OS& popen(const xstring& command, char leave = 'd'); 
     xstring operator()(const xstring& command, const char leave = 'd');
-
-    // ============================================================================================
-    // Below are methods for short-hand printing;
-    template<typename T>
-    static void P(const T& input);
-
-    template <typename First, typename... Rest>
-    static void P(const First& input1, const Rest&&... input2);
 
     // ============================================================================================
     // Filesystem Managment (use "Bash style OS commands" above for shorthand)

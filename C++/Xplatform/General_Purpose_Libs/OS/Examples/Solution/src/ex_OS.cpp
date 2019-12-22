@@ -17,7 +17,6 @@ using std::endl;
 int main() {
 
     // all static OS functions start with an Upper_Case
-
     ex_open_n_delete();
     ex_file_managment();
     ex_bash_style();

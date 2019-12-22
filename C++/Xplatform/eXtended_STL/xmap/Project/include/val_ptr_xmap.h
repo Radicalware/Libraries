@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 /*
 * Copyright[2019][Joel Leagues aka Scourge]
@@ -76,6 +76,9 @@ public:
     inline void operator=(O&& other);
 
     inline V* operator[](const K& key) const;
+
+    inline void operator+=(const xmap<K, V*>& other);
+    inline xmap<K, V*> operator+(const xmap<K, V*>& other) const;
 
     // ======== BOOLS ================================================================================
     // ======== Functional ===========================================================================
@@ -289,6 +292,21 @@ template<typename K, typename V>
 inline V* xmap<K, V*>::operator[](const K& key) const
 {
     return this->at(key);
+}
+
+template<typename K, typename V>
+inline void xmap<K, V*>::operator+=(const xmap<K, V*>& other)
+{
+    this->insert(other.begin(), other.end());
+}
+
+template<typename K, typename V>
+inline xmap<K, V*> xmap<K, V*>::operator+(const xmap<K, V*>& other) const
+{
+    xmap<K, V> rmap = *this;
+    rmap += other;
+    return rmap;
+
 }
 
 // ======== BOOLS ================================================================================

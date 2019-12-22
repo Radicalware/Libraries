@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "xstring.h"
 
 #if defined(__unix__)

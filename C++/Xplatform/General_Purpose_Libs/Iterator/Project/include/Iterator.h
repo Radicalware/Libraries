@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 /*
 *|| Copyright[2018][Joel Leagues aka Scourge]

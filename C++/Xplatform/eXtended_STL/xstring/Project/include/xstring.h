@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #pragma warning (disable : 26444) // allow anynomous objects
 
 /*
@@ -19,6 +19,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
 #include<string>
 #include<vector>
 #include<utility>
@@ -32,6 +33,7 @@
 #include<string.h>
 #include<ctype.h>
 
+#include "Color.h"
 #include "xvector.h"
 
 namespace rxm {
@@ -81,8 +83,10 @@ public:
     xstring upper() const;
     xstring lower() const;
 
-    xstring operator*(int total);
-    xstring operator*=(int total);
+    xstring operator*(int total) const;
+    void operator*=(int total);
+
+    xstring remove(const char val) const;
 
     // =================================================================================================================================
     
@@ -106,6 +110,9 @@ public:
     bool scan(const xstring& in_pattern, rxm::type mod = rxm::ECMAScript) const;
     bool scan_line(const xstring& in_pattern, rxm::type mod = rxm::ECMAScript) const;
     bool scan_lines(const xstring& in_pattern, rxm::type mod = rxm::ECMAScript) const;
+
+    bool scan_list(const xvector<xstring>& lst, rxm::type mod = rxm::ECMAScript) const;
+    bool scan_list(const xvector<xstring*>& lst, rxm::type mod = rxm::ECMAScript) const;
 
     // exact match (no regex)
     bool is(const xstring& other) const;
@@ -135,7 +142,8 @@ public:
     // =================================================================================================================================
 
     xstring sub(const std::string& in_pattern, const std::string& replacement, rxm::type mod = rxm::ECMAScript) const;
-    xstring strip(); // this updates *this as well as return *this
+    xstring& trim();
+    xstring& trim(const xstring& trim);
 
     // =================================================================================================================================
 
@@ -150,6 +158,32 @@ public:
     double to_double() const;
     float  to_float() const;
 
+    // =================================================================================================================================
+
+    xstring black() const;
+    xstring red() const;
+    xstring green() const;
+    xstring yellow() const;
+    xstring blue() const;
+    xstring megenta() const;
+    xstring cyan() const;
+    xstring grey() const;
+    xstring white() const;
+
+    xstring on_black() const;
+    xstring on_red() const;
+    xstring on_green() const;
+    xstring on_yellow() const;
+    xstring on_blue() const;
+    xstring on_megenta() const;
+    xstring on_cyan() const;
+    xstring on_grey() const;
+    xstring on_white() const;
+
+    xstring reset() const;
+    xstring bold() const;
+    xstring underline() const;
+    xstring reverse() const;
     // =================================================================================================================================
 };
 

@@ -1,29 +1,14 @@
-﻿#pragma once
+#pragma once
 
-#include<iostream>
-#include<initializer_list>
-#include<utility>
-
-#include<future>
-#include<thread>
-#include<mutex>
-#include<condition_variable>
-
-#include<deque>
-#include<functional>
-#include<type_traits>
-
-#include "Nexus_T.h"
-#include "NX_Threads.h"
-#include "Task.h"
-#include "Job.h"
 
 #if (defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64))
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
 #include<Windows.h>
 #else 
 #include<unistd.h>
 #endif
-
 
 #include<iostream>
 #include<initializer_list>
@@ -39,15 +24,13 @@
 #include<functional>
 #include<type_traits>
 
+#include "Nexus_T.h"
 #include "NX_Threads.h"
 #include "NX_Mutex.h"
 #include "Task.h"
+#include "Job.h"
 
-#if (defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64))
-#include<Windows.h>
-#else 
-#include<unistd.h>
-#endif
+
 
 // =========================================================================================
 
@@ -84,8 +67,8 @@ private:
 public:
     Nexus();
     ~Nexus();
-    static void Construct();
-    static void Dispose();
+    static void Start();
+    static void Stop();
 
     static void Set_Mutex_On(size_t nx_mutex); 
     static void Set_Mutex_Off(size_t nx_mutex);
@@ -160,16 +143,16 @@ inline void Nexus<void>::Task_Looper(int thread_idx)
 }
 
 inline Nexus<void>::Nexus(){
-    Nexus<void>::Construct();
+    Nexus<void>::Start();
 }
 
 inline Nexus<void>::~Nexus(){
-    Nexus<void>::Dispose();
+    Nexus<void>::Stop();
 }
 
 
 
-inline void Nexus<void>::Construct()
+inline void Nexus<void>::Start()
 {
     m_lock_lst.clear();
     m_lock_lst.push_back(nullptr); // starts size at 1 and index at 0
@@ -185,7 +168,7 @@ inline void Nexus<void>::Construct()
     m_initialized = true;
 }
 
-inline void Nexus<void>::Dispose()
+inline void Nexus<void>::Stop()
 {
     {
         std::unique_lock <std::mutex> lock(m_mutex);
@@ -215,6 +198,7 @@ inline void Nexus<void>::Add_Job(F&& function, A&&... Args)
     m_task_queue.emplace(Task<void>(std::move(binded_function)), 0);
     m_sig_queue.notify_one();
 }
+
 
 template<typename F, typename ...A>
 inline void Nexus<void>::Add_Job(NX_Mutex& nx_mutex, F&& function, A&& ...Args)

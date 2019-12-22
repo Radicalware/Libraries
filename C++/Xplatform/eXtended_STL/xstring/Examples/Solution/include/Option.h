@@ -19,7 +19,7 @@ struct Option
     inline void split() {
         cout << "\n===(SPLIT)======================================================\n";
         xstring tester = "This is our test string!\nline one\nline two\nline three   \n\n\n  ";
-        cout << tester.strip();
+        cout << tester.trim();
         cout << "\n*****" << endl;
 
         // IMPORTANT!! Do not use '\s' for a space, use a literal space in the example below

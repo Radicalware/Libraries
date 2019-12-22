@@ -4,6 +4,20 @@
 
 ---------------------------------------------------------------------
 
+12/21/2019 >> Libs v13.0.0
+
+Big changes have been made to the build process. Before, you were
+almost required to use PowerShell to build your programs on 
+Win and Nix, now you can just use cmake normally but I still use
+the powershell scripts for convenience. 
+Socket.h has been released (hence going from 12 to 13). 
+It only works on windows, a linux version will come out soon along
+with improvments. 
+Colors have been added to the xstring and other misc adjustments 
+have been made.
+
+---------------------------------------------------------------------
+
 11/14/2019 >> Libs v12.5.0
 
 The biggest change is Nexus<void> aka Nexus<> is now a static class.

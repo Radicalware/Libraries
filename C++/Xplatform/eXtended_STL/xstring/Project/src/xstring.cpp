@@ -3,6 +3,37 @@
 
 #include "xstring.h"
 
+xstring Color::Black   = "\033[30m";
+xstring Color::Red     = "\033[31m";
+xstring Color::Green   = "\033[32m";
+xstring Color::Yellow  = "\033[33m";
+xstring Color::Blue    = "\033[34m";
+xstring Color::Magenta = "\033[35m";
+xstring Color::Cyan    = "\033[36m";
+xstring Color::Grey    = "\033[37m";
+xstring Color::White   = "\033[39m";
+
+xstring Color::On::Black   = "\033[40m";
+xstring Color::On::Red     = "\033[41m";
+xstring Color::On::Green   = "\033[42m";
+xstring Color::On::Yellow  = "\033[43m";
+xstring Color::On::Blue    = "\033[44m";
+xstring Color::On::Magenta = "\033[45m";
+xstring Color::On::Cyan    = "\033[46m";
+xstring Color::On::Grey    = "\033[47m";
+xstring Color::On::White   = "\033[49m";
+
+xstring Color::Mod::Reset     = "\033[00m";
+xstring Color::Mod::Bold      = "\033[01m";
+xstring Color::Mod::Underline = "\033[04m";
+xstring Color::Mod::Reverse   = "\033[07m";
+
+// Operates only on Linux 
+xstring Color::Mod::Dark  = "\033[02m";
+xstring Color::Mod::Blink = "\033[05m";
+xstring Color::Mod::Hide  = "\033[08m";
+
+
 xstring::xstring()
 {
 }
@@ -150,26 +181,32 @@ xstring xstring::lower() const
     return ret_str;
 }
 
-xstring xstring::operator*(int total)
+xstring xstring::operator*(int total) const
 {
-    xstring original = *this;
-    for (int i = 0; i < total; i++) {
-        this->insert(this->end(), original.begin(), original.end());
-    }
-    xstring ret_copy = *this;
-    *this = original;
-    return ret_copy;
+    xstring ret_str = *this;
+    for (int i = 0; i < total; i++) 
+        ret_str.insert(ret_str.end(), this->begin(), this->end());
+    return ret_str;
 }
 
-xstring xstring::operator*=(int total)
+void xstring::operator*=(int total)
 {
     xstring str_copy = *this;
-    for (int i = 0; i < total; i++) {
+    for (int i = 0; i < total; i++)
         this->insert(this->end(), str_copy.begin(), str_copy.end());
-    };
-    return *this;
 }
 
+xstring xstring::remove(const char val) const
+{
+    xstring str;
+    str.reserve(this->size());
+    for (xstring::const_iterator it = this->begin(); it != this->end(); it++)
+    {
+        if (val != *it)
+            str += *it;
+    }
+    return str;
+}
 
 // ---------------------------------------------------------------
 
@@ -216,7 +253,11 @@ xvector<xstring> xstring::inclusive_split(const xstring& splitter, rxm::type mod
 {
     xvector<xstring> retv;
     std::regex rpattern(splitter, rxm::ECMAScript | mod);
-    for (std::sregex_token_iterator iter(this->begin(), this->end(), rpattern, { -1, 1 }); iter != std::sregex_token_iterator(); ++iter)
+    // -1       grab NOT regex
+    //  0       grab regex
+    //  1       grab blank
+
+    for (std::sregex_token_iterator iter(this->begin(), this->end(), rpattern, { -1, 0 }); iter != std::sregex_token_iterator(); ++iter)
         retv << xstring(*iter);
 
     if (!aret) {
@@ -293,6 +334,30 @@ bool xstring::scan_lines(const xstring& in_pattern, rxm::type mod) const
         }
     }
     return true;
+}
+
+bool xstring::scan_list(const xvector<xstring>& lst, rxm::type mod) const
+{
+    for (std::vector<xstring>::const_iterator iter = lst.begin(); iter != lst.end(); iter++)
+    {
+        std::regex pattern(*iter, rxm::ECMAScript | mod);
+        if (std::regex_search(*this, pattern)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool xstring::scan_list(const xvector<xstring*>& lst, rxm::type mod) const
+{
+    for (std::vector<xstring*>::const_iterator iter = lst.begin(); iter != lst.end(); iter++)
+    {
+        std::regex pattern(**iter, rxm::ECMAScript | mod);
+        if (std::regex_search(*this, pattern)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 bool xstring::is(const xstring& other) const
@@ -434,11 +499,18 @@ xstring xstring::sub(const std::string& in_pattern, const std::string& replaceme
     return std::regex_replace(*this, std::regex(in_pattern, rxm::ECMAScript | mod), replacement);
 }
 
-xstring xstring::strip() {
-    this->erase(this->begin(), std::find_if(this->begin(), this->end(),
-        std::not1(std::ptr_fun<int, int>(std::isspace))));
-    this->erase(std::find_if(this->rbegin(), this->rend(),
-        std::not1(std::ptr_fun<int, int>(std::isspace))).base(), this->end());
+xstring& xstring::trim()
+{
+    this->erase(0, this->find_first_not_of(" \t\r\n"));
+    this->erase(this->find_last_not_of(" \t\r\n") + 1);
+
+    return *this;
+}
+
+xstring& xstring::trim(const xstring& trim)
+{
+    this->erase(0, this->find_first_not_of(trim));
+    this->erase(this->find_last_not_of(trim) + 1);
 
     return *this;
 }
@@ -578,3 +650,74 @@ float xstring::to_float() const
     return static_cast<float>(std::atof(this->c_str()));
 }
 
+// =================================================================================================================================
+
+xstring xstring::black() const {
+    return Color::Black + *this;
+}
+xstring xstring::red() const {
+    return Color::Red + *this;
+}
+xstring xstring::green() const {
+    return Color::Green + *this;
+}
+xstring xstring::yellow() const {
+    return Color::Yellow + *this;
+}
+xstring xstring::blue() const {
+    return Color::Blue + *this;
+}
+xstring xstring::megenta() const {
+    return Color::Magenta + *this;
+}
+xstring xstring::cyan() const {
+    return Color::Cyan + *this;
+}
+xstring xstring::grey() const {
+    return Color::Grey + *this;
+}
+xstring xstring::white() const {
+    return Color::White + *this;
+}
+// --------------------------------------
+xstring xstring::on_black() const {
+    return Color::On::Black + *this;
+}
+xstring xstring::on_red() const {
+    return Color::On::Red + *this;
+}
+xstring xstring::on_green() const {
+    return Color::On::Green + *this;
+}
+xstring xstring::on_yellow() const {
+    return Color::On::Yellow + *this;
+}
+xstring xstring::on_blue() const {
+    return Color::On::Blue + *this;
+}
+xstring xstring::on_megenta() const {
+    return Color::On::Magenta + *this;
+}
+xstring xstring::on_cyan() const {
+    return Color::On::Cyan + *this;
+}
+xstring xstring::on_grey() const {
+    return Color::On::Grey + *this;
+}
+xstring xstring::on_white() const {
+    return Color::On::White + *this;
+}
+// --------------------------------------
+xstring xstring::reset() const{
+    return *this + Color::Mod::Reset;
+}
+xstring xstring::bold() const {
+    return Color::Mod::Bold + *this;
+}
+xstring xstring::underline() const {
+    return Color::Mod::Underline + *this;
+}
+xstring xstring::reverse() const {
+    return Color::Mod::Reverse + *this;
+}
+// =================================================================================================================================

@@ -118,7 +118,7 @@ struct Bank
 
 int main() 
 {
-    Nexus<>::Construct(); // note: you could just make an instance of type void
+    Nexus<>::Start(); // note: you could just make an instance of type void
     // and it would do the same thing, then when it would go out of scope (the main function)
     // it would automatically get deleted. I did what is above because I like keeping
     // static classes static and instnace classes instance based to not confuse anyone. 
@@ -264,6 +264,6 @@ int main()
         });
     Nexus<>::Wait_All();
 
-    Nexus<>::Dispose();
+    Nexus<>::Stop();
     return 0;
 }

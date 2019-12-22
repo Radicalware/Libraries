@@ -1,122 +1,45 @@
-﻿
-cmake_minimum_required(VERSION 3.10)
+﻿cmake_minimum_required(VERSION 3.12)
 
-set(LIB xstring)
-project (${LIB})
+set(THIS xstring)
 
-message("")
-message("--------------------------------------------------------------------------------")
-message("LIB:               ${LIB}")
-message("BUILD_TYPE:        ${BUILD_TYPE}")
-message("INSTALL_PREFIX:    ${INSTALL_PREFIX}")
-message("EXT_HEADER_PATH:   ${EXT_HEADER_PATH}")
-message("EXT_BIN_PATH:      ${EXT_BIN_PATH}")
-message("MODULE_PATH:       ${MODULE_PATH}")
-message("--------------------------------------------------------------------------------")
+# -------------------------- CONFIG -----------------------------------------------------
 
-# -------------------------- ARGUMENTS ----------------------------------------
-set(CMAKE_BUILD_TYPE "${BUILD_TYPE}")
-if(MSVC)
-    set(PF "")
-    set(SF ".lib")
-
-    if("${BUILD_TYPE}" STREQUAL "Release")
-        add_definitions( "-O2" )
-    endif()
-else() # NIX
-    set(PF "lib")
-    set(SF ".a")
-    set(LINUX_ARGS "-std=c++17 -Wfatal-errors -finput-charset=UTF-8 -fPIC -pthread")
-
-    if("${BUILD_TYPE}" STREQUAL "Release")
-        message("Buidling with -O2 ${BUILD_TYPE}")
-        set(CMAKE_CXX_FLAGS " ${CMAKE_CXX_FLAGS_INIT}  ${LINUX_ARGS} -O2")
-        set(CMAKE_C_FLAGS "-O2")
-    else()
-        set(CMAKE_CXX_FLAGS " ${CMAKE_CXX_FLAGS_INIT}  ${LINUX_ARGS} -g2")
-        set(CMAKE_C_FLAGS "-g2")
-    endif()
-endif()
-# -------------------------- ARGUMENTS ----------------------------------------
-# -------------------------- CONFIGURATION ------------------------------------
-set(BUILD_DIR ${CMAKE_SOURCE_DIR}/Project)
-set(INC       ${BUILD_DIR}/include)
-set(SRC       ${BUILD_DIR}/src)
-
-set(CMAKE_CONFIGURATION_TYPES ${BUILD_TYPE} CACHE STRING "" FORCE)
-include_directories(${CMAKE_CURRENT_BINARY_DIR} ${INC}) 
-
-if(EXISTS "${PROJECT_SOURCE_DIR}/Find${LIB}.cmake")
-    file(REMOVE ${MODULE_PATH}/Find${LIB}.cmake)
+if(WIN32)
+    set(RADICAL_PATH "C:/Source/CMake/Modules")
 else()
-    message(FATAL_ERROR "/n/n!!!! Find${LIB}.cmake NOT FOUND !!!!/n/n")
+    set(RADICAL_PATH "/opt/Radicalware/CMake_Modules")
 endif()
-# -------------------------- CONFIGURATION ------------------------------------
-# -------------------------- BUILD --------------------------------------------
-add_library(${LIB} STATIC 
 
-    ${INC}/${LIB}.h
-    ${SRC}/${LIB}.cpp
+include("${RADICAL_PATH}/Radical-Lib-Config.cmake")
+
+# -------------------------- BUILD ------------------------------------------------------
+
+project (${THIS})
+
+add_library(${THIS} STATIC 
+
+    ${INC}/${THIS}.h
+    ${SRC}/${THIS}.cpp
 
     ${INC}/std_xstring.h
     ${SRC}/std_xstring.cpp
-)
-add_library(radical::${LIB} ALIAS ${LIB})
 
-target_include_directories(${LIB}
+    ${INC}/Color.h
+    ${SRC}/Color.cpp
+)
+add_library(radical::${THIS} ALIAS ${THIS})
+
+target_include_directories(${THIS}
     PRIVATE
-         ${EXT_HEADER_PATH}
+        ${EXT_HEADER_PATH}
         ${INC}
 )
-# Required Libs ---------------------------------------------------------------
-target_link_libraries(${LIB} ${EXT_BIN_PATH}/${BUILD_TYPE}/lib/${PF}Nexus${SF})
-target_link_libraries(${LIB} ${EXT_BIN_PATH}/${BUILD_TYPE}/lib/${PF}xvector${SF})
-# -------------------------- BUILD --------------------------------------------
-# -------------------------- INSTALL ------------------------------------------
 
-# Binary File
-if(msvc)
-    install(TARGETS ${LIB}
-            RUNTIME DESTINATION Build/${BUILD_TYPE}/bin
-            LIBRARY DESTINATION Build/${BUILD_TYPE}/lib
-            ARCHIVE DESTINATION Build/${BUILD_TYPE}/lib
-    )
-else()
-    install(TARGETS ${LIB}
-            RUNTIME DESTINATION Build/${BUILD_TYPE}/bin
-            LIBRARY DESTINATION Build/${BUILD_TYPE}/bin
-            ARCHIVE DESTINATION Build/${BUILD_TYPE}/lib
-    )
-endif()
+# Required Libs -------------------------------------------------------------------------
+target_link_libraries(${THIS} ${EXT_BIN_PATH}/lib/${PF}Nexus${SF})
+target_link_libraries(${THIS} ${EXT_BIN_PATH}/lib/${PF}xvector${SF})
+# -------------------------- INSTALL ----------------------------------------------------
 
-# Include file
-install (   
-    DIRECTORY           ${BUILD_DIR}/include/
-    DESTINATION         ${EXT_HEADER_PATH}/
-)
+include("${RADICAL_PATH}/Radical-Lib-Install.cmake")
 
-# Header/Src Files
-install (   
-    DIRECTORY           ${BUILD_DIR}/include 
-    DESTINATION         Projects/${LIB}
-)
-install (   
-    DIRECTORY           ${BUILD_DIR}/src 
-    DESTINATION         Projects/${LIB}
-)
-
-# CMake Module
-if(UNIX)
-    install (   
-        FILES           Find${LIB}.cmake 
-        DESTINATION     /${PART_MODULE_PATH}
-    ) 
-else() 
-    install (   
-        FILES           Find${LIB}.cmake 
-        DESTINATION     C:/${PART_MODULE_PATH}
-    )
-endif()
-
-# -------------------------- INSTALL ------------------------------------------
-# -------------------------- END ----------------------------------------------
+# -------------------------- END --------------------------------------------------------

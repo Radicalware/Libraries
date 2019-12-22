@@ -2,13 +2,14 @@
 #include<iostream>
 #include "xvector.h"
 #include "xstring.h"
+#include "xmap.h"
 
 using std::cout;
 using std::endl;
 
 int main(int argc, char** argv) 
 {
-    Nexus<>::Construct();
+    Nexus<>::Start();
 
     xvector<xstring> vec_str{ "zero","one","two","three","four","five" };
 
@@ -123,11 +124,11 @@ int main(int argc, char** argv)
 
     cout << "============================================\n";
 
-    xvector<xstring> four_five_six = { "seven","eight","nine","nine" };
+    xvector<xstring> seven_eight_nine_nine = { "seven","eight","nine","nine" };
     cout << "vec 1: " << vec_str.join(' ') << endl;
-    cout << "vec 2: " << four_five_six.join(' ') << endl;
+    cout << "vec 2: " << seven_eight_nine_nine.join(' ') << endl;
 
-    xvector<xstring> vec_common_values = vec_str.common(four_five_six);
+    xvector<xstring> vec_common_values = vec_str.common(seven_eight_nine_nine);
     cout << "common values: " << vec_common_values.join(' ') << endl;
 
 
@@ -137,9 +138,19 @@ int main(int argc, char** argv)
     xvector<xvector<xstring>> nested_vecs = { first, second };
     xvector<xvector<xstring>*> nested_vec_ptrs = nested_vecs.ptrs();
     xvector<xstring*> un_nested_vec_ptrs = nested_vec_ptrs.expand();
-    cout << "ptrs: " << un_nested_vec_ptrs.join(' ') << endl;
+    cout << "ptrs: " << un_nested_vec_ptrs.join(", ") << "\n\n";
     
 
-    Nexus<>::Dispose();
+    int counter = 0;
+    xmap<xstring*, xstring> xmp_ptr = un_nested_vec_ptrs.render<xstring*, xstring>(
+        [&counter](xstring* item)
+    {
+        counter++;
+        return std::pair<xstring*, xstring>(item, to_xstring(counter));
+    });
+    xmp_ptr.print();
+
+
+    Nexus<>::Stop();
     return 0;
 }

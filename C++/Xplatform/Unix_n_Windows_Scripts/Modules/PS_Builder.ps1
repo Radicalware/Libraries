@@ -16,9 +16,10 @@ Class PS_Builder
     [string] $module_path;
     [string] $part_module_path;
     [string] $install_prefix;
-    [string] $vcpkg_path;
     [string] $vcvars;
     [string] $cmake_command
+    [string] $win_ver;
+    [string] $comp_args;
 
     PS_Builder($ArgStruct){
         
@@ -27,21 +28,23 @@ Class PS_Builder
 
         # Modify the paths below if they are not what you want.
         if($this.ArgStruct.is_unix){
-            $this.part_module_path  = 'usr/share/cmake/Modules'  
-            $this.install_prefix = '/opt/Radicalware/Libraries'
-            $this.vcpkg_path = "$global:HOME/lp/vcpkg/scripts/buildsystems/vcpkg.cmake"
-            $this.vcvars = ''
-            $this.module_path   = '/'+$this.part_module_path;
             $this.cmake_command = "cmake"
+            $this.win_ver = ''
 
-        }else{
-            $this.part_module_path  = 'Source/CMake/Modules'  
-            $this.install_prefix = 'C:/Source/CMake/Radicalware/Libraries'
-            $this.vcpkg_path = "C:/Source/lp/vcpkg/scripts/buildsystems/vcpkg.cmake"
-            $this.vcvars = 'C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Auxiliary/Build/vcvars64.bat'
-            $this.module_path   = 'C:/'+$this.part_module_path;
+            # $this.part_module_path  = 'opt/Radicalware/CMake_Modules' # no slash at start due to cmake issues  
+            # $this.install_prefix = '/opt/Radicalware/Libraries'
+            # $this.vcvars = ''
+            # $this.module_path   = '/'+$this.part_module_path;
+            # $this.comp_args = " -std=c++17 -Wfatal-errors -finput-charset=UTF-8 -fPIC -pthread"
+        }else{ # Windows
             $this.cmake_command = "cmake.exe"
+            $this.win_ver = '10.0.17763.0'
+            $this.vcvars = 'C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Auxiliary/Build/vcvars64.bat'
 
+            # $this.part_module_path  = 'Source/CMake/Modules'  
+            # $this.install_prefix = 'C:/Source/CMake/Radicalware/Libraries'
+            # $this.module_path   = 'C:/'+$this.part_module_path;
+            # $this.comp_args = " /EHsc"
         }
         # build_dir = "Build \ <Windows/Nix> \ <Debug/Release>
     }
@@ -86,25 +89,7 @@ Class PS_Builder
         Set-Location $this.ArgStruct.build_dir
         Write-Host -ForegroundColor Green "[+] Running CMake to configure a" $this.ArgStruct.build_type "Build"
         
-        $this.cmake_command += " --config -Wno-unused-variable " + $this.ArgStruct.build_type `
-            + " -DBUILD_TYPE=" + $this.ArgStruct.build_type `
-            + " -DCMAKE_INSTALL_PREFIX=" + $this.install_prefix `
-            + " -DINSTALL_PREFIX=" + $this.install_prefix `
-            + " -DEXT_HEADER_PATH=" + $this.install_prefix + "/Headers" `
-            + " -DEXT_BIN_PATH=" + $this.install_prefix + "/Build/$($this.build_type)" `
-            + " -DMODULE_PATH=" + $this.module_path 
-            # + " -DCMAKE_TOOLCHAIN_FILE=" + $this.vcpkg_path
-
-
-        if(!$this.ArgStruct.is_unix){
-            $this.cmake_command += " -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE"
-        }
-        if($this.ArgStruct.shared_lib -or $this.ArgStruct.executable){
-            $this.cmake_command += " -DBUILD_SHARED_LIBS=TRUE";
-        }
-        if(!$this.ArgStruct.executable){
-            $this.cmake_command += " -DPART_MODULE_PATH=" + $this.part_module_path `
-        }
+        $this.cmake_command += " -DBUILD_TYPE=" + $this.ArgStruct.build_type.ToString()
 
         $this.cmake_command += " ../../../";
         Write-Host $this.cmake_command;
@@ -125,7 +110,7 @@ Class PS_Builder
 
     [void] Compile_and_Link_Project(){
         if($this.ArgStruct.is_unix){ # I know, dumb that the -eq is required
-            Write-Host -ForegroundColor Green "[+] Make is Building the Project" 
+            Write-Host -ForegroundColor Green "[+] Make is Building the Project " $this.ArgStruct.name
             $make_txt_out = $(make 2>&1)
             Write-Host $this.Hide_Clock_Skew($make_txt_out);
         }else{
@@ -142,7 +127,7 @@ Class PS_Builder
             }else{
                 Write-Host -ForegroundColor Green "[+] CL.exe Is Already Configured for x86_64 Compiling"
             }
-            Write-Host -ForegroundColor Green "[+] CL.exe is the Building Project"
+            Write-Host -ForegroundColor Green "[+] CL.exe is the Building Project " $this.ArgStruct.name
             devenv $($this.ArgStruct.name + '.sln') /Build $this.ArgStruct.build_type | Write-Host
         }
     }

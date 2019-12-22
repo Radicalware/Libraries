@@ -1,4 +1,4 @@
-﻿#include "Nexus_void.h"
+#include "Nexus_void.h"
 
 
 bool   Nexus<void>::m_initialized     = false;

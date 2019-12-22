@@ -1,4 +1,4 @@
-﻿#include "NX_Threads.h"
+#include "NX_Threads.h"
 
 const int NX_Threads::CPU_THREADS_COUNT = std::thread::hardware_concurrency();
 std::atomic<int> NX_Threads::s_Thread_Count = std::thread::hardware_concurrency();

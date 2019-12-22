@@ -12,7 +12,7 @@ will use PowerShell on Unix.
 
 Version <Lib Count>.<New Addition Push Count>.<Hotfix>
 
-Version = 12.X.X
+Version = 13.X.X
 
 eXtended_STL
 	 1. xvector   - eXtended std::vector
@@ -26,11 +26,12 @@ General_Purpose_Libs
 	 7. SYS       - Key/Value Pair Argument Parsing
 	 8. OS        - Operating System handling
 	 9. Nexus     - Thread Pool with Indexing & Exception Handling
-	10. Timer     - Used for tracking the duration of a processes
+	10. Socket    - This makes client/server protocols very easy to use
+	11. Timer     - Used for tracking the duration of a processes
 Mods
-	11. cc        - A modified version of termcolor by Ihor Kalnytskyi
+	12. cc        - A modified version of termcolor by Ihor Kalnytskyi
 Modules	
-	12. QtImage   - A module that handles images on Qt Objects
+	13. QtImage   - A module that handles images on Qt Objects
 
 
 --------------------------------------------------------------------------------------------

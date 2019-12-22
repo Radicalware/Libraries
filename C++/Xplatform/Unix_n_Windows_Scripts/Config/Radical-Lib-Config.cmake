@@ -1,0 +1,31 @@
+
+include("${RADICAL_PATH}/Radical-Static-Vars.cmake")
+include("${RADICAL_PATH}/Radical-Header.cmake")
+
+# -------------------------- CONFIGURATION ------------------------------------
+
+set(INSTALL_PREFIX "${INSTALL_PREFIX}/Libraries")
+
+if(WIN32)
+    set(PF "")
+    set(SF ".lib")
+else() # NIX
+    set(PF "lib")
+    set(SF ".a")
+endif()
+
+set(BUILD_DIR ${CMAKE_SOURCE_DIR}/Project)
+set(INC       ${BUILD_DIR}/include)
+set(SRC       ${BUILD_DIR}/src)
+
+set(cmake_configuration_types ${build_type} cache string "" force)
+include_directories(${CMAKE_CURRENT_BINARY_DIR} ${INC}) 
+set(BUILD_SHARED_LIBS ON)
+
+if(EXISTS "${CMAKE_SOURCE_DIR}/Find${THIS}.cmake")
+    file(REMOVE ${CMAKE_MODULE_PATH}/Find${THIS}.cmake)
+else()
+    message(FATAL_ERROR "Cannot Find: '${CMAKE_SOURCE_DIR}/Find${THIS}.cmake'")
+endif()
+
+# -------------------------- CONFIGURATION ------------------------------------
