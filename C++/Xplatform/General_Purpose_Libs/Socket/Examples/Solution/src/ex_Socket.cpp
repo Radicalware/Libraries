@@ -7,9 +7,9 @@
 using std::cout;
 using std::endl;
 
-// In this example, the client will send the server a name "Joel Leagues"
-// Then the server will use a function (lambda) to create a welcome message for the name
-// then the server will send that welcome message back to the client
+// In this example, the client will send the server a string, "Joel Leagues"
+// Then the server will use a function (lambda) to create a welcome message for the username
+// After processing the server will send that welcome message back to the client
 // lastly we will have the client print out the servers welcome message after running a copy
 
 int main(int argc, char** argv)
