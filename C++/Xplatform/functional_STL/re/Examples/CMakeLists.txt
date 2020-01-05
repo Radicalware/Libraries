@@ -2,7 +2,7 @@
 
 SET(THIS ex_re)
 
-# -------------------------- CONFIGURATION ------------------------------------
+# -------------------------- PRE-CONFIG ---------------------------------------
 
 if(WIN32)
     set(RADICAL_PATH "C:/Source/CMake/Modules")
@@ -28,5 +28,10 @@ target_link_libraries( ${THIS}
         radical::re
         radical::ac
 )
+
+# -------------------------- POST-CONFIG --------------------------------------
+
+CONFIGURE_VISUAL_STUDIO(${PROJECT_FILES})
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # -------------------------- END ----------------------------------------------

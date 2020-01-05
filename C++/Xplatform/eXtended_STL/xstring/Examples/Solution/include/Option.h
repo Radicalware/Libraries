@@ -1,5 +1,6 @@
-#pragma once
+﻿#pragma once
 
+// Copyright[2019][Joel Leagues aka Scourge] under the Apache V2 Licence
 
 #include<iostream>
 
@@ -19,7 +20,7 @@ struct Option
     inline void split() {
         cout << "\n===(SPLIT)======================================================\n";
         xstring tester = "This is our test string!\nline one\nline two\nline three   \n\n\n  ";
-        cout << tester.trim();
+        cout << (tester.trim());
         cout << "\n*****" << endl;
 
         // IMPORTANT!! Do not use '\s' for a space, use a literal space in the example below

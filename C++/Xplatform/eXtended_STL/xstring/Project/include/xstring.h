@@ -91,27 +91,36 @@ public:
     // =================================================================================================================================
     
     xvector<xstring> split(size_t loc) const;
-    xvector<xstring> split(const xstring& in_pattern, rxm::type mod = rxm::ECMAScript) const;
-    xvector<xstring> split(xstring&& in_pattern, rxm::type mod = rxm::ECMAScript) const;
+    xvector<xstring> split(const std::regex& rex) const;
+    xvector<xstring> split(const xstring& pattern, rxm::type mod = rxm::ECMAScript) const;
     xvector<xstring> split(const char splitter, rxm::type mod = rxm::ECMAScript) const;
 
     xvector<xstring> inclusive_split(const char splitter, rxm::type mod = rxm::ECMAScript, bool aret = true) const;
     xvector<xstring> inclusive_split(const char* splitter, rxm::type mod = rxm::ECMAScript, bool aret = true) const;
-    xvector<xstring> inclusive_split(const xstring& splitter, rxm::type mod = rxm::ECMAScript, bool aret = true) const;
+    xvector<xstring> inclusive_split(const std::regex& rex, bool single = true) const;
+    xvector<xstring> inclusive_split(const xstring& splitter, rxm::type mod = rxm::ECMAScript, bool single = true) const;
 
     //// =================================================================================================================================
     //   match is based on regex_match
-    bool match(const xstring& in_pattern, rxm::type mod = rxm::ECMAScript) const;
-    bool match_line(const xstring& in_pattern, rxm::type mod = rxm::ECMAScript) const;
-    bool match_lines(const xstring& in_pattern, rxm::type mod = rxm::ECMAScript) const;
+    bool match(const std::regex& rex) const;
+    bool match(const xstring& pattern, rxm::type mod = rxm::ECMAScript) const;
+    bool match_line(const std::regex& rex) const;
+    bool match_line(const xstring& pattern, rxm::type mod = rxm::ECMAScript) const;
+    bool match_lines(const std::regex& rex) const;
+    bool match_lines(const xstring& pattern, rxm::type mod = rxm::ECMAScript) const;
 
     //   scan is based on regex_search
-    bool scan(const char in_pattern, rxm::type mod = rxm::ECMAScript) const;
-    bool scan(const xstring& in_pattern, rxm::type mod = rxm::ECMAScript) const;
-    bool scan_line(const xstring& in_pattern, rxm::type mod = rxm::ECMAScript) const;
-    bool scan_lines(const xstring& in_pattern, rxm::type mod = rxm::ECMAScript) const;
+    bool scan(const std::regex& rex) const;
+    bool scan(const char pattern, rxm::type mod = rxm::ECMAScript) const;
+    bool scan(const xstring& pattern, rxm::type mod = rxm::ECMAScript) const;
+    bool scan_line(const std::regex& rex) const;
+    bool scan_line(const xstring& pattern, rxm::type mod = rxm::ECMAScript) const;
+    bool scan_lines(const std::regex& rex) const;
+    bool scan_lines(const xstring& pattern, rxm::type mod = rxm::ECMAScript) const;
 
+    bool scan_list(const xvector<std::regex>& rex_lst) const;
     bool scan_list(const xvector<xstring>& lst, rxm::type mod = rxm::ECMAScript) const;
+    bool scan_list(const xvector<std::regex*>& rex_lst) const;
     bool scan_list(const xvector<xstring*>& lst, rxm::type mod = rxm::ECMAScript) const;
 
     // exact match (no regex)
@@ -126,24 +135,32 @@ public:
     xstring remove_non_ascii() const;
 
     // =================================================================================================================================
-    
-    xvector<xstring> findall(const xstring& in_pattern, rxm::type mod = rxm::ECMAScript, const bool group = false) const;
-    xvector<xstring> findwalk(const xstring& in_pattern, rxm::type mod = rxm::ECMAScript, const bool group = false) const;
-    
-    xvector<xstring> search(const xstring& in_pattern, int depth, rxm::type mod = rxm::ECMAScript, const bool group = false) const;
+
+    xvector<xstring> findall(const std::regex& rex) const;
+    xvector<xstring> findall(const xstring& pattern, rxm::type mod = rxm::ECMAScript) const;
+    xvector<xstring> findwalk(const std::regex& rex) const;
+    xvector<xstring> findwalk(const xstring& pattern, rxm::type mod = rxm::ECMAScript) const;
+    xvector<xstring> search(const std::regex& rex) const;
+    xvector<xstring> search(const xstring& pattern, int depth, rxm::type mod = rxm::ECMAScript) const;
 
     // =================================================================================================================================
 
-    bool has(const char var_char, rxm::type mod = rxm::ECMAScript) const;
-    bool lacks(const char var_char, rxm::type mod = rxm::ECMAScript) const;
-    size_t count(const char var_char, rxm::type mod = rxm::ECMAScript) const;
-    size_t count(const xstring& in_pattern, rxm::type mod = rxm::ECMAScript) const;
+    bool has(const char var_char) const;
+    bool lacks(const char var_char) const;
+    size_t count(const char var_char) const;
+    size_t count(const xstring& pattern) const;
 
     // =================================================================================================================================
 
-    xstring sub(const std::string& in_pattern, const std::string& replacement, rxm::type mod = rxm::ECMAScript) const;
+    xstring sub(const std::regex& rex, const std::string& replacement) const;
+    xstring sub(const std::string& pattern, const std::string& replacement, rxm::type mod = rxm::ECMAScript) const;
+
     xstring& trim();
+    xstring& ltrim();
+    xstring& rtrim();
     xstring& trim(const xstring& trim);
+    xstring& ltrim(const xstring& trim);
+    xstring& rtrim(const xstring& trim);
 
     // =================================================================================================================================
 
@@ -151,12 +168,12 @@ public:
 
     // =================================================================================================================================
 
-    int    to_int() const;
-    long   to_long() const;
-    long long to_ll() const;
-    size_t to_64() const;
-    double to_double() const;
-    float  to_float() const;
+    int         to_int() const;
+    long        to_long() const;
+    long long   to_ll() const;
+    size_t      to_64() const;
+    double      to_double() const;
+    float       to_float() const;
 
     // =================================================================================================================================
 
@@ -195,6 +212,5 @@ xstring to_xstring(const T& obj)
     ostr << obj;
     return xstring(ostr.str().c_str());
 }
-
 
 #include "std_xstring.h"

@@ -45,10 +45,15 @@ class Run_CMake
         if($this.ArgStruct.clean){
             $build.Configure_Build_Folder();
         }
-        $build.Execute_CMake_Build_Config();
-        $build.Compile_and_Link_Project();
-        $build.Install_Files();
-        $build.Return_Home();
+        if(!$this.ArgStruct.noCmake){
+            $build.Execute_CMake_Build_Config();
+        }
+        if(!$this.ArgStruct.noMake){
+            $build.Compile_and_Link_Project();
+        }
+        if(!$this.ArgStruct.noInstall){
+            $build.Install_Files();
+        }
 
         return $this;
     }
@@ -58,10 +63,10 @@ class Run_CMake
         if($this.ArgStruct.debug -eq $false){
             
             if($this.ArgStruct.is_unix){
-                $exe_path = $PWD.ToString()+'/'+$this.ArgStruct.build_dir.ToString() + '/' +$this.ArgStruct.build_type.ToString() + '/' + $this.ArgStruct.name.ToString()
+                $exe_path = $this.ArgStruct.build_dir.ToString() + '/' +$this.ArgStruct.build_type.ToString() + '/' + $this.ArgStruct.name.ToString()
                 Write-Host "$(/usr/bin/time -p $($exe_path) )";
             }else{
-                $exe_path = $PWD.ToString()+'/'+$this.ArgStruct.build_dir.ToString() +'/'+$this.ArgStruct.build_type.ToString() + '/bin/'+ $this.ArgStruct.name.ToString()
+                $exe_path = $this.ArgStruct.build_dir.ToString() +'/'+$this.ArgStruct.build_type.ToString() + '/bin/'+ $this.ArgStruct.name.ToString()
                 Write-Host "`nMilliseconds to Execute = " $(Measure-Command { &"$($exe_path).exe" | Write-Host }).Milliseconds;
             }
         }

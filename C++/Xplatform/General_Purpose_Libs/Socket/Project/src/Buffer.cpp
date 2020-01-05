@@ -1,4 +1,6 @@
 
+// Copyright[2019][Joel Leagues aka Scourge] under the Apache V2 Licence
+
 #include "Buffer.h"
 
 Buffer::Buffer()

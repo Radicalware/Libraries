@@ -3,8 +3,14 @@
 param (
     [switch] $Debug,
     [switch] $Clean, 
-    [switch] $No_Exec,
-    [switch] $Exec
+    [switch] $Overwrite,
+
+    [switch] $NoMake,
+    [switch] $NoCmake,
+    [switch] $NoInstall,
+
+    [switch] $Exec,  # only execute
+    [switch] $NoExec # don't execute
 )
 
 # -----------------------------------
@@ -22,14 +28,13 @@ Import-Module "$module_path\Arg_Struct.ps1" -Force;
 Import-Module "$module_path\Run_CMake.ps1" -Force;
 Set-Location $(Split-Path -parent $PSCommandPath);
 
-if($Exec){
-    $argStruct = [Arg_Struct]::new($proj_name, [bool[]]($executable, $Debug, $Clean, $true));
-    [Run_CMake]::new($argStruct).execute();
-}else{
-    $argStruct = [Arg_Struct]::new($proj_name, [bool[]]($executable, $Debug, $Clean, $true));
-    $run = [Run_CMake]::new($argStruct).Print_Config().Link_n_Compile();
 
-    if(!$No_Exec){ $run.execute(); }
+$ArgStruct = [Arg_Struct]::new($proj_name, $PSScriptRoot, [bool[]]($executable, $Debug, $Clean, $Overwrite, $noCmake, $noMake, $noInstall));
+if($Exec){
+    [Run_CMake]::new($ArgStruct).execute();
+}else{
+    $run = [Run_CMake]::new($ArgStruct).Print_Config().Link_n_Compile();
+    if((!$NoMake) -and (!$NoExec)){ $run.execute(); }
 }
 
 

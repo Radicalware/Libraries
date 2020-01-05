@@ -1,6 +1,6 @@
 ﻿If you are on Unix, you must run
 
-	snap install powershell --classic
+    snap install powershell --classic
 
 If you want to easily use the CMake build script on Unix.
 
@@ -15,23 +15,24 @@ Version <Lib Count>.<New Addition Push Count>.<Hotfix>
 Version = 13.X.X
 
 eXtended_STL
-	 1. xvector   - eXtended std::vector
-	 2. xstring   - eXtended std::string
-	 3. xmap      - eXtended std::map
+     1. xvector   - eXtended std::vector
+     2. xstring   - eXtended std::string
+     3. xmap      - eXtended std::map
 funcitonal_STL
-	 4. ac        - array controller
-	 5. re        - regex (string controller)
-	 6. mc        - map controller
+     4. ac        - array controller
+     5. re        - regex (string controller)
+     6. mc        - map controller
 General_Purpose_Libs
-	 7. SYS       - Key/Value Pair Argument Parsing
-	 8. OS        - Operating System handling
-	 9. Nexus     - Thread Pool with Indexing & Exception Handling
-	10. Socket    - This makes client/server protocols very easy to use
-	11. Timer     - Used for tracking the duration of a processes
+     7. SYS       - Key/Value Pair Argument Parsing
+     8. OS        - Operating System handling
+     9. Nexus     - Thread Pool with Indexing & Exception Handling
+    10. Socket    - This makes client/server protocols very easy to use
+    11. Timer     - Used for tracking the duration of a processes
 Mods
-	12. cc        - A modified version of termcolor by Ihor Kalnytskyi
-Modules	
-	13. QtImage   - A module that handles images on Qt Objects
+    12. cc        - A modified version of termcolor by Ihor Kalnytskyi
+    13. re2       - Google's regular expression lib kit
+Modules 
+    14. QtImage   - A module that handles images on Qt Objects
 
 
 --------------------------------------------------------------------------------------------

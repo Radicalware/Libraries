@@ -1,5 +1,7 @@
 #pragma once
 
+// Copyright[2019][Joel Leagues aka Scourge] under the Apache V2 Licence
+
 #if (defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64))
 
 #include "Client.h"
@@ -32,9 +34,9 @@ class Win_Client : public Client
     int m_result = 0;
 
 public:
-    Win_Client(int* mtu);
-    Win_Client(const Win_Client& client);
-    Win_Client(const Client& client);
+    Win_Client(int* mtu, bool* verbose, int pro);
+    Win_Client(const Win_Client& other);
+    Win_Client(const Client& other);
 
     virtual Client& connect();
     virtual Client& connect(const xstring& ip, const xstring& port);

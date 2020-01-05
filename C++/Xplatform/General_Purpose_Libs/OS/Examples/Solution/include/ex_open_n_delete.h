@@ -1,6 +1,8 @@
 #pragma once
 #pragma warning ( disable : 26444) // Allow un-named objects
 
+// Copyright[2019][Joel Leagues aka Scourge] under the Apache V2 Licence
+
 #include<iostream>
 using std::cout;
 using std::endl;

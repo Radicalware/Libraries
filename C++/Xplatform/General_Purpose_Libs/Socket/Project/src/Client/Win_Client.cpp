@@ -1,26 +1,23 @@
+
+// Copyright[2019][Joel Leagues aka Scourge] under the Apache V2 Licence
+
+
 #include "Client/Win_Client.h"
 
+#if (defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64))
 
-Win_Client::Win_Client(int* mtu) : Client(mtu)
+Win_Client::Win_Client(int* mtu, bool* verbose, int pro) : Client(mtu, verbose, pro)
 {
-    m_socket = INVALID_SOCKET;
 }
 
-Win_Client::Win_Client(const Win_Client& client) : Client(&client.mtu)
+Win_Client::Win_Client(const Win_Client& other) : Client(other)
 {
-    m_socket = client.m_socket;
-    m_result = client.m_result;
-    
-    m_ip = client.m_ip;
-    m_port = client.m_port;
-    buffer = client.buffer;
+    m_socket = other.m_socket;
+    m_result = other.m_result;
 }
 
-Win_Client::Win_Client(const Client& client) : Client(&client.mtu)
+Win_Client::Win_Client(const Client& other) : Client(other)
 {
-    m_ip = client.ip();
-    m_port = client.port();
-    buffer = client.buffer;
 }
 
 Client& Win_Client::connect()
@@ -32,20 +29,27 @@ Client& Win_Client::connect()
     m_result = WSAStartup(MAKEWORD(2, 2), &wsaData);
     if (m_result != 0)
     {
-        xstring err_str = "WSAStartup failed with error: " + std::to_string(m_result) + '\n';
+        xstring err_str = "! (WSAStartup) Failed with Error: " + std::to_string(m_result) + '\n';
         throw std::runtime_error(err_str);
     }
 
     ZeroMemory(&addr, sizeof(addr));
     addr.ai_family = AF_UNSPEC;
-    addr.ai_socktype = SOCK_STREAM;
+
+    if (m_pro == 1)
+        addr.ai_socktype = SOCK_STREAM;
+    else if (m_pro == 2)
+        addr.ai_socktype = SOCK_DGRAM;
+    else
+        throw std::runtime_error("! Windows RAW Ports not Programmed yet\n");
+
     addr.ai_protocol = IPPROTO_TCP;
 
     // Resolve the server address and port
     m_result = getaddrinfo(m_ip.c_str(), m_port.c_str(), &addr, &result);
     if (m_result != 0)
     {
-        xstring err_str = "getaddrinfo(ip, port, addr, result) failed with error: " + std::to_string(m_result) + '\n';
+        xstring err_str = "! (getaddrinfo) Failed with Error: " + std::to_string(m_result) + '\n';
         WSACleanup();
         throw std::runtime_error(err_str);
     }
@@ -57,7 +61,7 @@ Client& Win_Client::connect()
         m_socket = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
         if (m_socket == INVALID_SOCKET)
         {
-            xstring err_str = "socket(ai_family, ai_socktype, ai_protocol) failed with error: " + std::to_string(WSAGetLastError()) + '\n';
+            xstring err_str = "! (socket) Failed with Error: " + std::to_string(WSAGetLastError()) + '\n';
             WSACleanup();
             throw std::runtime_error(err_str);
         }
@@ -76,7 +80,7 @@ Client& Win_Client::connect()
 
     if (m_socket == INVALID_SOCKET)
     {
-        xstring err_str = "Unable to connect to server!\n";
+        xstring err_str = "! Unable to connect to server!\n";
         WSACleanup();
         throw std::runtime_error(err_str);
     }
@@ -96,7 +100,7 @@ Client& Win_Client::send(const xstring& buff)
 {
     buffer.send += buff;
     
-    if (mtu < buffer.send.size())
+    if (m_mtu < buffer.send.size())
     {
         size_t count = 0;
         size_t max = buffer.send.size();
@@ -104,35 +108,38 @@ Client& Win_Client::send(const xstring& buff)
         std::string_view view(buffer.send.c_str(), max);
         while (max > count)
         {
-            if (mtu + count < max)
-                m_send_result = ::send(m_socket, view.substr(count, count + mtu).data(), mtu, 0);
+            if (m_mtu + count < max)
+                m_send_result = ::send(m_socket, view.substr(count, count + m_mtu).data(), m_mtu, 0);
             else {
                 m_send_result = ::send(m_socket, view.substr(count, max - count).data(), max - count, 0);
             }
-            count += mtu;
-            xstring("Client >> Bytes sent: " + to_xstring(m_send_result)).bold().yellow().reset().print();
+            count += m_mtu;
+            if(m_verbose)
+                xstring("Client >> Bytes sent: " + to_xstring(m_send_result)).bold().yellow().reset().print();
         }
     }
     else
     {
         m_send_result = ::send(m_socket, buffer.send.c_str(), buffer.send.size(), 0);
-        xstring("Client >> Bytes sent: " + to_xstring(m_send_result) + '\n').print();
+        if(m_verbose)
+            xstring("Client >> Bytes sent: " + to_xstring(m_send_result) + '\n').bold().yellow().reset().print();
     }
 
     if (m_result == SOCKET_ERROR)
     {
-        xstring err_str = "send failed with error: " + std::to_string(WSAGetLastError()) + '\n';
+        xstring err_str = "! (send) Failed with Error: " + std::to_string(WSAGetLastError()) + '\n';
         closesocket(m_socket);
         WSACleanup();
         throw std::runtime_error(err_str);
     }
-    printf("Client >> Bytes Sent: %ld\n", m_result);
+    if(m_verbose)
+        xstring("Client >> Bytes sent: " + to_xstring(m_send_result)).bold().yellow().reset().print();
     
     // shutdown the connection since no more data will be sent
     m_result = shutdown(m_socket, SD_SEND);
     if (m_result == SOCKET_ERROR)
     {
-        xstring err_str = "shutdown failed with error: " + std::to_string(WSAGetLastError()) + '\n';
+        xstring err_str = "! (shutdown) Failed with Error: " + std::to_string(WSAGetLastError()) + '\n';
         closesocket(m_socket);
         WSACleanup();
         throw std::runtime_error(err_str);
@@ -150,10 +157,24 @@ Client& Win_Client::recv(int size)
     bool full = false;
     do {
         m_relay.clear();
-        m_relay.resize(mtu);
-        m_result = ::recv(m_socket, &m_relay[0], mtu, 0);
+        m_relay.resize(m_mtu);
+        m_result = ::recv(m_socket, &m_relay[0], m_mtu, 0);
 
-        counter += mtu;
+        if (m_result < 0)
+        {
+            xstring err_str = "! (recv) Failed with Error: " + std::to_string(WSAGetLastError()) + '\n';
+            throw std::runtime_error(err_str);
+        }
+
+        if (m_verbose)
+        {
+            if (m_result > 0)
+                xstring("Client >> Bytes received: " + to_xstring(m_result)).bold().yellow().reset().print();
+            else if (m_result == 0)
+                xstring("Client >> Connection closed\n").bold().yellow().reset().print();
+        }
+
+        counter += m_mtu;
         if (!full) 
         {
             if ((!this->buffer.max_recv) || (buffer.max_recv > counter))
@@ -164,16 +185,6 @@ Client& Win_Client::recv(int size)
             }
         }
 
-
-        if (m_result > 0)
-            xstring("Client >> Bytes received: " + to_xstring(m_send_result)).bold().yellow().reset().print();
-
-        else if (m_result == 0)
-            xstring("Client >> Connection closed\n").bold().yellow().reset().print();
-        else {
-            xstring err_str = "recv failed with error: " + std::to_string(WSAGetLastError()) + '\n';
-            throw std::runtime_error(err_str);
-        }
     } while (m_result > 0);
     return *this;
 }
@@ -187,4 +198,4 @@ Client& Win_Client::close()
     return *this;
 }
 
-
+#endif

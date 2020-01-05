@@ -2,7 +2,7 @@
 
 set(THIS ex_xstring)
 
-# -------------------------- CONFIGURATION ------------------------------------
+# -------------------------- PRE-CONFIG ---------------------------------------
 
 if(WIN32)
     set(RADICAL_PATH "C:/Source/CMake/Modules")
@@ -29,6 +29,7 @@ add_executable(${THIS}
 find_package(Nexus)
 find_package(xvector)
 find_package(xstring)
+find_package(pcre)
 
 target_link_libraries( ${THIS}
     PRIVATE
@@ -36,5 +37,10 @@ target_link_libraries( ${THIS}
         radical::xvector
         radical::xstring
 )
+
+# -------------------------- POST-CONFIG --------------------------------------
+
+CONFIGURE_VISUAL_STUDIO(${PROJECT_FILES})
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # -------------------------- END ----------------------------------------------

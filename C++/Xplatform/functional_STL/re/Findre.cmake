@@ -1,6 +1,7 @@
 ﻿cmake_minimum_required(VERSION 3.12)
 
 set(LIB re)
+list(APPEND SHARED_LIB_LST ${LIB})
 
 # -------------------------- CONFIGURATION ------------------------------------
 set(RE_DIR  ${PROJECT_DIR}/${LIB})

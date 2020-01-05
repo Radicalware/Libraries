@@ -78,7 +78,9 @@ Class PS_Builder
     # ----------------------------------------------------------------------------------------------------------------------------------------------------
     # Class Usage (Would be Public Functions) 
 
-    [void] Execute_CMake_Build_Config(){
+    [void] Execute_CMake_Build_Config()
+    {
+        Set-Location $this.ArgStruct.build_dir
 
         if($this.ArgStruct.executable){
             $this.Normalize_Encoding("./Solution");
@@ -106,9 +108,12 @@ Class PS_Builder
         $cmake_out = "$(((Invoke-Expression "$($this.cmake_command) 2>&1" ) | Out-String).Split([Environment]::NewLine).Where({ $_ -ne `"`" -and !$([regex]::match($_, '^(('+$([string]::join(")|(",$ps_error_strings))+'))' )).Success }))".split("`n");
         
         Write-Host ([string]::Join("`n",$cmake_out));
+        Set-Location $this.ArgStruct.base_dir
     }
 
     [void] Compile_and_Link_Project(){
+        Set-Location $this.ArgStruct.build_dir
+
         if($this.ArgStruct.is_unix){ # I know, dumb that the -eq is required
             Write-Host -ForegroundColor Green "[+] Make is Building the Project " $this.ArgStruct.name
             $make_txt_out = $(make 2>&1)
@@ -130,15 +135,18 @@ Class PS_Builder
             Write-Host -ForegroundColor Green "[+] CL.exe is the Building Project " $this.ArgStruct.name
             devenv $($this.ArgStruct.name + '.sln') /Build $this.ArgStruct.build_type | Write-Host
         }
+        Set-Location $this.ArgStruct.base_dir
     }
 
     [void] Install_Files(){
+        Set-Location $this.ArgStruct.build_dir
         Write-Host -ForegroundColor Green "[+] CMake is Installing Projct" $this.ArgStruct.name
         cmake -P ./cmake_install.cmake | Write-Host
+        Set-Location $this.ArgStruct.base_dir
     }
 
     [void] Return_Home(){
         Write-Host -ForegroundColor Green "[+] Returing Back to Home Folder"
-        Set-Location ../../../
+        Set-Location $this.ArgStruct.base_dir
     }
 };

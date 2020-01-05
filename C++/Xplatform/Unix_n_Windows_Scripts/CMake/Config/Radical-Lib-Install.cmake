@@ -19,13 +19,13 @@ endif()
 
 # Include file
 install (   
-    DIRECTORY       ${BUILD_DIR}/include
+    DIRECTORY       ${BUILD_DIR}/include/
     DESTINATION     ${EXT_HEADER_PATH}
 )
 
 # Header/Src Files
 install (   
-    DIRECTORY       ${BUILD_DIR}/include 
+    DIRECTORY       ${BUILD_DIR}/include
     DESTINATION     ${INSTALL_PREFIX}/Projects/${THIS}
 )
 install (   

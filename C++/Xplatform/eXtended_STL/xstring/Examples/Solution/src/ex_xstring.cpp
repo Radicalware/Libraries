@@ -1,27 +1,29 @@
+﻿
+// Copyright[2019][Joel Leagues aka Scourge] under the Apache V2 Licence
 
 #include "Full.h"
 #include "Option.h"
 
-int main()
-{
-    Nexus<>::Start();
+ int main()
+ {
+     Nexus<>::Start();
 
-    // NOTE: All test functions are inline to make example reading easier.
-    Full full;
-    full.Basics();
-    full.add_n_join();
+     // NOTE: All test functions are inline to make example reading easier.
+     Full full;
+     full.Basics();
+     full.add_n_join();
 
-    // NOTE: All test functions are inline to make example reading easier.
-    Option option;
-    option.split();
-    option.findall();
-    option.search(); 
-    option.match();
-    option.sub();
-    option.char_count();
-    option.str_count();
+     // NOTE: All test functions are inline to make example reading easier.
+     Option option;
+     option.split();
+     option.findall();
+     option.search(); 
+     option.match();
+     option.sub();
+     option.char_count();
+     option.str_count();
 
 
-    Nexus<>::Stop();
-    return 0;
-}
+     Nexus<>::Stop();
+     return 0;
+ }

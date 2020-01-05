@@ -2,7 +2,7 @@
 
 SET(THIS ex_OS)
 
-# -------------------------- CONFIGURATION ------------------------------------
+# -------------------------- PRE-CONFIG ---------------------------------------
 
 if(WIN32)
     set(RADICAL_PATH "C:/Source/CMake/Modules")
@@ -38,5 +38,10 @@ target_link_libraries( ${THIS}
         radical::xmap
         radical::OS
 )
+
+# -------------------------- POST-CONFIG --------------------------------------
+
+CONFIGURE_VISUAL_STUDIO(${PROJECT_FILES})
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # -------------------------- END ----------------------------------------------

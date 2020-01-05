@@ -1,6 +1,7 @@
 ﻿cmake_minimum_required(VERSION 3.12)
 
 set(LIB Socket)
+list(APPEND STATIC_LIB_LST ${LIB})
 
 # -------------------------- CONFIGURATION ------------------------------------
 set(SOCKET_DIR  ${PROJECT_DIR}/${LIB})
@@ -17,6 +18,9 @@ add_library(${LIB} STATIC
 
     ${INC}/Buffer.h
     ${SRC}/Buffer.cpp
+    
+    ${INC}/NixNet.h 
+    ${SRC}/NixNet.cpp
     # --------------------------------
     ${INC}/Server.h
     ${SRC}/Server.cpp

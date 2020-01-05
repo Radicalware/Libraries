@@ -7,7 +7,6 @@ set(THIS Socket)
 if(WIN32)
     set(RADICAL_PATH "C:/Source/CMake/Modules")
 else()
-	message( FATAL_ERROR "This has only been built for Windows, a Nix version is on its way")
     set(RADICAL_PATH "/opt/Radicalware/CMake_Modules")
 endif()
 
@@ -25,6 +24,9 @@ add_library(${THIS} STATIC
 
     ${INC}/Buffer.h
     ${SRC}/Buffer.cpp
+
+    ${INC}/NixNet.h 
+    ${SRC}/NixNet.cpp
     # --------------------------------
     ${INC}/Server.h
     ${SRC}/Server.cpp

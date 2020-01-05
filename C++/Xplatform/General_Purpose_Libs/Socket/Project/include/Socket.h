@@ -3,7 +3,7 @@
 /*
 * Copyright[2019][Joel Leagues aka Scourge]
 * Scourge /at\ protonmail /dot\ com
-* www.Radicalware.com
+* www.radicalware.net
 * https://www.youtube.com/channel/UCivwmYxoOdDT3GmDnD0CfQA/playlists
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,11 +26,7 @@
 // Project Libs
 #include "Buffer.h"
 #include "Server.h"
-#include "Server/Win_Server.h"
-#include "Server/Nix_Server.h"
 #include "Client.h"
-#include "Client/Win_Client.h"
-#include "Server/Nix_Server.h"
 // -----------------------------
 // STD Libs
 #include<string>
@@ -41,6 +37,8 @@
 #ifndef WIN_BASE
 #define WIN_BASE
 #endif
+#include "Client/Win_Client.h"
+#include "Server/Win_Server.h"
 #include <windows.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -50,6 +48,11 @@
 #ifndef NIX_BASE
 #define NIX_BASE
 #endif
+#ifndef __unix__
+#define __unix__
+#endif
+#include "Client/Nix_Client.h"
+#include "Server/Nix_Server.h"
 #include<sys/socket.h>
 #include<sys/wait.h>
 #include<sys/types.h>
@@ -69,9 +72,9 @@ class Socket
 public:
     enum class Protocol
     {
-        TCP
-        // UDP,
-        // RAW
+        RAW, // Not Built Yet
+        TCP,
+        UDP  // Not Build Yet
     };
     enum class Start
     {
@@ -84,8 +87,11 @@ private:
     Socket& self;
     Protocol m_pro = Protocol::TCP;
 
+    // --------------------------------
+    short int m_offset_count = 2;
     size_t m_offset_client = 0;
     size_t m_offset_server = 0;
+    // --------------------------------
 
     void init_sockets(Start start);
 
@@ -93,6 +99,7 @@ public:
     Client& client;
     Server& server;
 
+    bool verbose = false;
     static int MTU;
 
     Socket(Start start = Start::Client, Protocol protocol = Protocol::TCP);

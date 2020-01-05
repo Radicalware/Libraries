@@ -1,4 +1,6 @@
 
+// Copyright[2019][Joel Leagues aka Scourge] under the Apache V2 Licence
+
 #include<iostream>
 #include "xvector.h"
 #include "xstring.h"
@@ -7,8 +9,28 @@
 using std::cout;
 using std::endl;
 
+class Abs
+{
+public:
+    typedef Abs value_type; // this is required on Nix
+    Abs(){};
+    virtual void print(){}
+};
+
+class Der : public Abs
+{
+public:
+    Der(){}
+    virtual void print(){ cout << "Derived" << endl; }
+};
+
+
 int main(int argc, char** argv) 
 {
+    xvector<Abs*> abs = { new Der };
+    //abs[0]->print();
+    //delete abs[0];
+
     Nexus<>::Start();
 
     xvector<xstring> vec_str{ "zero","one","two","three","four","five" };

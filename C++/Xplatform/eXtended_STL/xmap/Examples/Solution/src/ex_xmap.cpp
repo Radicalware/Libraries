@@ -1,5 +1,6 @@
 #include <iostream>
 
+// Copyright[2019][Joel Leagues aka Scourge] under the Apache V2 Licence
 
 #include "xvector.h"
 #include "xstring.h"

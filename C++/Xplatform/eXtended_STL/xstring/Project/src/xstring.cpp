@@ -220,19 +220,19 @@ xvector<xstring> xstring::split(size_t loc) const
     return ret_vec;
 }
 
-xvector<xstring> xstring::split(const xstring& in_pattern, rxm::type mod) const
+xvector<xstring> xstring::split(const std::regex& rex) const
 {
     xvector<xstring> split_content;
-    std::regex rpattern(in_pattern, rxm::ECMAScript | mod);
-    for (std::sregex_token_iterator iter(this->begin(), this->end(), rpattern, -1); iter != std::sregex_token_iterator(); ++iter)
+    for (std::sregex_token_iterator iter(this->begin(), this->end(), rex, -1); iter != std::sregex_token_iterator(); ++iter)
         split_content << xstring(*iter);
 
     return split_content;
 }
 
-xvector<xstring> xstring::split(xstring&& in_pattern, rxm::type mod) const
+xvector<xstring> xstring::split(const xstring& pattern, rxm::type mod) const
 {
-    return this->split(in_pattern, mod);
+    std::regex rex(pattern, rxm::ECMAScript | mod);
+    return this->split(rex);
 }
 
 xvector<xstring> xstring::split(const char splitter, rxm::type mod) const
@@ -248,19 +248,13 @@ xvector<xstring> xstring::inclusive_split(const char* splitter, rxm::type mod, b
     return this->inclusive_split(xstring(splitter), mod, aret);
 }
 
-
-xvector<xstring> xstring::inclusive_split(const xstring& splitter, rxm::type mod, bool aret) const
+xvector<xstring> xstring::inclusive_split(const std::regex& rex, bool single) const
 {
     xvector<xstring> retv;
-    std::regex rpattern(splitter, rxm::ECMAScript | mod);
-    // -1       grab NOT regex
-    //  0       grab regex
-    //  1       grab blank
-
-    for (std::sregex_token_iterator iter(this->begin(), this->end(), rpattern, { -1, 0 }); iter != std::sregex_token_iterator(); ++iter)
+    for (std::sregex_token_iterator iter(this->begin(), this->end(), rex, { -1, 0 }); iter != std::sregex_token_iterator(); ++iter)
         retv << xstring(*iter);
 
-    if (!aret) {
+    if (!single) {
         if (retv.size() == 1)
             return xvector<xstring>();
     }
@@ -268,80 +262,145 @@ xvector<xstring> xstring::inclusive_split(const xstring& splitter, rxm::type mod
 }
 
 
-// =========================================================================================================================
-
-bool xstring::match(const xstring& in_pattern, rxm::type mod) const
+xvector<xstring> xstring::inclusive_split(const xstring& splitter, rxm::type mod, bool single) const
 {
-    std::regex pattern(in_pattern.c_str(), rxm::ECMAScript | mod);
-    return bool(std::regex_match(*this, pattern));
+    std::regex rex(splitter, rxm::ECMAScript | mod);
+    // -1       grab NOT regex
+    //  0       grab regex
+    //  1       grab blank
+    return this->inclusive_split(rex, single);
 }
 
-bool xstring::match_line(const xstring& in_pattern, rxm::type mod) const
+
+// =========================================================================================================================
+
+bool xstring::match(const std::regex& rex) const
+{
+    return bool(std::regex_match(*this, rex));
+}
+
+bool xstring::match(const xstring& pattern, rxm::type mod) const
+{
+    std::regex rex(pattern.c_str(), rxm::ECMAScript | mod);
+    return bool(std::regex_match(*this, rex));
+}
+
+bool xstring::match_line(const std::regex& rex) const
 {
     std::vector<xstring> lines = this->split('\n');
-    std::regex pattern(in_pattern.c_str(), rxm::ECMAScript | mod);
     for (std::vector<xstring>::iterator iter = lines.begin(); iter != lines.end(); iter++) {
-        if (std::regex_match(*iter, pattern)) {
+        if (std::regex_match(*iter, rex)) {
             return true;
         }
     }
     return false;
 }
 
-bool xstring::match_lines(const xstring& in_pattern, rxm::type mod) const
+bool xstring::match_line(const xstring& pattern, rxm::type mod) const
+{
+    std::regex rex(pattern.c_str(), rxm::ECMAScript | mod);
+    return this->match_line(rex);
+}
+
+bool xstring::match_lines(const std::regex& rex) const
 {
     std::vector<xstring> lines = this->split('\n');
-    std::regex pattern(in_pattern, rxm::ECMAScript | mod);
     for (std::vector<xstring>::iterator iter = lines.begin(); iter != lines.end(); iter++) {
-        if (!std::regex_match(*iter, pattern)) {
+        if (!std::regex_match(*iter, rex)) {
             return false;
         }
     }
     return true;
+}
+
+bool xstring::match_lines(const xstring& pattern, rxm::type mod) const
+{
+    std::regex rex(pattern, rxm::ECMAScript | mod);
+    return this->match_lines(rex);
 }
 
 // =========================================================================================================================
 
-bool xstring::scan(const char in_pattern, rxm::type mod) const
+bool xstring::scan(const std::regex& rex) const
 {
-    return (std::find(this->begin(), this->end(), in_pattern) != this->end());
+    return bool(std::regex_search(*this, rex));
 }
 
-bool xstring::scan(const xstring& in_pattern, rxm::type mod) const
+bool xstring::scan(const char pattern, rxm::type mod) const
 {
-    return bool(std::regex_search(*this, std::regex(in_pattern, rxm::ECMAScript | mod)));
+    return (std::find(this->begin(), this->end(), pattern) != this->end());
 }
 
-bool xstring::scan_line(const xstring& in_pattern, rxm::type mod) const
+bool xstring::scan(const xstring& pattern, rxm::type mod) const
+{
+    return bool(std::regex_search(*this, std::regex(pattern, rxm::ECMAScript | mod)));
+}
+
+bool xstring::scan_line(const std::regex& rex) const
 {
     std::vector<xstring> lines = this->split('\n');
-    std::regex pattern(in_pattern, rxm::ECMAScript | mod);
-    for (std::vector<xstring>::iterator iter = lines.begin(); iter != lines.end(); iter++) {
-        if (std::regex_search(*iter, pattern)) {
+    for (std::vector<xstring>::iterator iter = lines.begin(); iter != lines.end(); iter++) 
+    {
+        if (std::regex_search(*iter, rex)) 
             return true;
-        }
     }
     return false;
 }
 
-bool xstring::scan_lines(const xstring& in_pattern, rxm::type mod) const
+bool xstring::scan_line(const xstring& pattern, rxm::type mod) const
+{
+    std::regex rex(pattern, rxm::ECMAScript | mod);
+    return this->scan_line(rex);
+}
+
+bool xstring::scan_lines(const std::regex& rex) const
 {
     std::vector<xstring> lines = this->split('\n');
-    std::regex pattern(in_pattern, rxm::ECMAScript | mod);
     for (std::vector<xstring>::iterator iter = lines.begin(); iter != lines.end(); iter++) {
-        if (!std::regex_search(*iter, pattern)) {
+        if (!std::regex_search(*iter, rex)) {
             return false;
         }
     }
     return true;
+}
+
+bool xstring::scan_lines(const xstring& pattern, rxm::type mod) const
+{
+    std::regex rex(pattern, rxm::ECMAScript | mod);
+    return this->scan_lines(rex);
+}
+// =========================================================================================================================
+
+
+bool xstring::scan_list(const xvector<std::regex>& rex_lst) const
+{
+    for (std::vector<std::regex>::const_iterator iter = rex_lst.begin(); iter != rex_lst.end(); iter++)
+    {
+        if (std::regex_search(*this, *iter)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 bool xstring::scan_list(const xvector<xstring>& lst, rxm::type mod) const
 {
     for (std::vector<xstring>::const_iterator iter = lst.begin(); iter != lst.end(); iter++)
     {
-        std::regex pattern(*iter, rxm::ECMAScript | mod);
-        if (std::regex_search(*this, pattern)) {
+        std::regex rex(*iter, rxm::ECMAScript | mod);
+        if (std::regex_search(*this, rex)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+bool xstring::scan_list(const xvector<std::regex*>& rex_lst) const
+{
+    for (std::vector<std::regex*>::const_iterator iter = rex_lst.begin(); iter != rex_lst.end(); iter++)
+    {
+        if (std::regex_search(*this, **iter)) {
             return true;
         }
     }
@@ -352,13 +411,14 @@ bool xstring::scan_list(const xvector<xstring*>& lst, rxm::type mod) const
 {
     for (std::vector<xstring*>::const_iterator iter = lst.begin(); iter != lst.end(); iter++)
     {
-        std::regex pattern(**iter, rxm::ECMAScript | mod);
-        if (std::regex_search(*this, pattern)) {
+        std::regex rex(**iter, rxm::ECMAScript | mod);
+        if (std::regex_search(*this, rex))
             return true;
-        }
     }
     return false;
 }
+
+// =========================================================================================================================
 
 bool xstring::is(const xstring& other) const
 {
@@ -428,82 +488,107 @@ xstring xstring::remove_non_ascii() const
 
 // =========================================================================================================================
 
-xvector<xstring> xstring::findall(const xstring& in_pattern, rxm::type mod, const bool group /*false*/) const
+xvector<xstring> xstring::findall(const std::regex& rex) const
 {
     xvector<xstring> retv;
-    std::regex rpattern(in_pattern, rxm::ECMAScript | mod);
-
-    for (std::sregex_token_iterator iter(this->begin(), this->end(), rpattern, 1); iter != std::sregex_token_iterator(); ++iter) 
+    for (std::sregex_token_iterator iter(this->begin(), this->end(), rex, 1); iter != std::sregex_token_iterator(); ++iter)
         retv << xstring(*iter);
-
     return retv;
 }
 
-xvector<xstring> xstring::findwalk(const xstring& in_pattern, rxm::type mod, const bool group) const
+xvector<xstring> xstring::findall(const xstring& pattern, rxm::type mod) const
+{
+    std::regex rex(pattern, rxm::ECMAScript | mod);
+    return this->findall(rex);
+}
+
+xvector<xstring> xstring::findwalk(const std::regex& rex) const
 {
     xvector<xstring> retv;
-    std::regex rpattern(in_pattern, rxm::ECMAScript | mod);
-
     xvector<xstring> lines = this->split('\n');
     for (const auto& line : lines) {
-        for (std::sregex_token_iterator iter(line.begin(), line.end(), rpattern, 1); iter != std::sregex_token_iterator(); ++iter)
+        for (std::sregex_token_iterator iter(line.begin(), line.end(), rex, 1); iter != std::sregex_token_iterator(); ++iter)
             retv << xstring(*iter);
     }
-
     return retv;
 }
 
-xvector<xstring> xstring::search(const xstring& in_pattern, int depth, rxm::type mod, const bool group) const
+xvector<xstring> xstring::findwalk(const xstring& pattern, rxm::type mod) const
+{
+    std::regex rex(pattern, rxm::ECMAScript | mod);
+    return this->findwalk(rex);
+}
+
+xvector<xstring> xstring::search(const std::regex& rex) const
 {
     xvector<xstring> retv;
-    std::regex rpattern(in_pattern, rxm::ECMAScript | mod);
-
     std::smatch matcher;
-    if (std::regex_search(*this, matcher, rpattern)) {
+    if (std::regex_search(*this, matcher, rex)) {
         size_t sz = matcher.size();
-        for (std::smatch::const_iterator it = matcher.begin()+1; it != matcher.end(); it++)
+        for (std::smatch::const_iterator it = matcher.begin() + 1; it != matcher.end(); it++)
             retv << xstring(*it);
     }
-
     return retv;
+}
+
+xvector<xstring> xstring::search(const xstring& pattern, int depth, rxm::type mod) const
+{
+    std::regex rex(pattern, rxm::ECMAScript | mod);
+    return this->search(rex);
 }
 
 // =========================================================================================================================
 
-bool xstring::has(const char var_char, rxm::type mod) const {
+bool xstring::has(const char var_char) const {
     if ((std::find(this->begin(), this->end(), var_char) != this->end()))
         return true;
     return false;
 }
 
-bool xstring::lacks(const char var_char, rxm::type mod) const {
+bool xstring::lacks(const char var_char) const {
 
     if ((std::find(this->begin(), this->end(), var_char) != this->end()))
         return false;
     return true;
 }
 
-size_t xstring::count(const char var_char, rxm::type mod) const {
+size_t xstring::count(const char var_char) const {
     size_t n = std::count(this->begin(), this->end(), var_char);
     return n;
 }
 
-size_t xstring::count(const xstring& in_pattern, rxm::type mod) const {
-    size_t n = this->split(in_pattern).size();
+size_t xstring::count(const xstring& pattern) const {
+    size_t n = this->split(pattern).size();
     return n;
 }
 
 // =========================================================================================================================
 
-xstring xstring::sub(const std::string& in_pattern, const std::string& replacement, rxm::type mod) const {
-    return std::regex_replace(*this, std::regex(in_pattern, rxm::ECMAScript | mod), replacement);
+xstring xstring::sub(const std::regex& rex, const std::string& replacement) const
+{
+    return std::regex_replace(*this, rex, replacement);
+}
+
+xstring xstring::sub(const std::string& pattern, const std::string& replacement, rxm::type mod) const {
+    return std::regex_replace(*this, std::regex(pattern, rxm::ECMAScript | mod), replacement);
 }
 
 xstring& xstring::trim()
 {
     this->erase(0, this->find_first_not_of(" \t\r\n"));
     this->erase(this->find_last_not_of(" \t\r\n") + 1);
+    return *this;
+}
 
+xstring& xstring::ltrim()
+{
+    this->erase(0, this->find_first_not_of(" \t\r\n"));
+    return *this;
+}
+
+xstring& xstring::rtrim()
+{
+    this->erase(this->find_last_not_of(" \t\r\n") + 1);
     return *this;
 }
 
@@ -511,7 +596,18 @@ xstring& xstring::trim(const xstring& trim)
 {
     this->erase(0, this->find_first_not_of(trim));
     this->erase(this->find_last_not_of(trim) + 1);
+    return *this;
+}
 
+xstring& xstring::ltrim(const xstring& trim)
+{
+    this->erase(0, this->find_first_not_of(trim));
+    return *this;
+}
+
+xstring& xstring::rtrim(const xstring& trim)
+{
+    this->erase(this->find_last_not_of(trim) + 1);
     return *this;
 }
 

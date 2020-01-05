@@ -21,11 +21,12 @@ set(SRC       ${BUILD_DIR}/src)
 set(cmake_configuration_types ${build_type} cache string "" force)
 include_directories(${CMAKE_CURRENT_BINARY_DIR} ${INC}) 
 set(BUILD_SHARED_LIBS ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-if(EXISTS "${CMAKE_SOURCE_DIR}/Find${THIS}.cmake")
-    file(REMOVE ${CMAKE_MODULE_PATH}/Find${THIS}.cmake)
-else()
-    message(FATAL_ERROR "Cannot Find: '${CMAKE_SOURCE_DIR}/Find${THIS}.cmake'")
-endif()
+#if(EXISTS "${CMAKE_SOURCE_DIR}/Find${THIS}.cmake")
+#    file(REMOVE ${CMAKE_MODULE_PATH}/Find${THIS}.cmake)
+#else()
+#    message(FATAL_ERROR "Cannot Find: '${CMAKE_SOURCE_DIR}/Find${THIS}.cmake'")
+#endif()
 
 # -------------------------- CONFIGURATION ------------------------------------

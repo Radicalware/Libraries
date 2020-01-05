@@ -53,6 +53,7 @@
 #include<map>
 #include<assert.h>
 #include<errno.h>
+#include<regex>
 
 #include<stdio.h>      // defines FILENAME_MAX or PATH_MAX
 #include<fstream>      // file-handling
@@ -78,6 +79,9 @@ private:
         const bool folders, const bool files, const bool recursive);
 
 public:
+    static std::regex s_multi_backslash;
+    static std::regex s_forward_slash;
+
     OS_O::File file; // .name()   .data()     
     OS_O::CMD  cmd;  // .cmd()    .in()     .out().   .err()    .err_message()
 

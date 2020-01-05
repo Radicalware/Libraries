@@ -1,6 +1,7 @@
 ﻿cmake_minimum_required(VERSION 3.12)
 
 set(LIB xvector)
+list(APPEND STATIC_LIB_LST ${LIB})
 
 # -------------------------- CONFIGURATION ------------------------------------
 set(XVECTOR_DIR  ${PROJECT_DIR}/${LIB})

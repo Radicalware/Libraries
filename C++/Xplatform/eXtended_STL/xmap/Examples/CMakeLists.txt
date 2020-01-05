@@ -2,7 +2,7 @@
 
 set(THIS ex_xmap)
 
-# -------------------------- CONFIGURATION ------------------------------------
+# -------------------------- PRE-CONFIG ---------------------------------------
 
 if(WIN32)
     set(RADICAL_PATH "C:/Source/CMake/Modules")
@@ -13,6 +13,7 @@ endif()
 include("${RADICAL_PATH}/Radical-App-Config.cmake")
 
 # -------------------------- BUILD --------------------------------------------
+# -------------------------- POST-CONFIG --------------------------------------
 
 project (${THIS})
 
@@ -32,5 +33,10 @@ target_link_libraries( ${THIS}
         radical::xstring
         radical::xmap
 )
+
+# -------------------------- POST-CONFIG --------------------------------------
+
+CONFIGURE_VISUAL_STUDIO(${PROJECT_FILES})
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # -------------------------- END ----------------------------------------------

@@ -1,6 +1,7 @@
 ﻿cmake_minimum_required(VERSION 3.12)
 
 set(LIB SYS)
+list(APPEND SHARED_LIB_LST ${LIB})
 
 # -------------------------- CONFIGURATION ------------------------------------
 set(SYS_DIR  ${PROJECT_DIR}/${LIB})

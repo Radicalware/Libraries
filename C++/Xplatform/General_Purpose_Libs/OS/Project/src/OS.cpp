@@ -27,6 +27,9 @@
 
 #include "OS.h"
 
+std::regex OS::s_multi_backslash(R"([\\]+)", rxm::ECMAScript);
+std::regex OS::s_forward_slash(R"(/)", rxm::ECMAScript);
+
 // -------------------------------------------------------------------------------------------
 #if defined(NIX_BASE)
 void OS::Dir_Continued(const xstring scan_start, xvector<xstring>& track_vec, \
@@ -117,14 +120,14 @@ void OS::Dir_Continued(const xstring folder_start, xvector<xstring>& track_vec, 
                     continue;
                 xstring Full_Path = folder_start + "\\" + file_path_str;
                 if (folders)
-                    track_vec.push_back(Full_Path.sub(R"([\\]+)", "\\"));
+                    track_vec.push_back(Full_Path);
                 if (recursive)
                     Dir_Continued(Full_Path, track_vec, folders, files, recursive);
             }
             else {
                 if (files) {
                     xstring rfolder = folder_start + "\\" + t_path_to_str_path();
-                    track_vec.push_back(rfolder.sub(R"([\\]+)", "\\"));
+                    track_vec.push_back(rfolder);
                 }
             }
             //} while (FindNextFile(hFind, &find_data) != 0);
@@ -189,7 +192,7 @@ xstring OS::Full_Path(const xstring& file)
     char full[PATH_MAX];
 #endif
 #if defined(WIN_BASE)
-    const char* unused = _fullpath(full, file.sub("/", "\\\\").c_str(), _MAX_PATH);
+    const char* unused = _fullpath(full, file.sub(s_forward_slash, "\\\\").c_str(), _MAX_PATH);
 #elif defined(NIX_BASE)
     const char* unused = realpath(file.sub("\\\\", "/").c_str(), full);
 #endif

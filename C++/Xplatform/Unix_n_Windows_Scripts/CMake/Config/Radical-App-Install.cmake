@@ -4,11 +4,11 @@
 install(TARGETS ${THIS} DESTINATION ${INSTALL_PREFIX}/../Applications/Build/${BUILD_TYPE})
 
 install( 
-    TARGETS       OS cc 
+    TARGETS       ${SHARED_LIB_LST} 
     DESTINATION   ${INSTALL_PREFIX}/../Applications/Build/${BUILD_TYPE}/bin
 )
 install(
-    TARGETS       Nexus xvector xstring xmap 
+    TARGETS       ${STATIC_LIB_LST}  
     DESTINATION   ${INSTALL_PREFIX}/../Applications/Build/${BUILD_TYPE}/lib
 )
 
@@ -23,3 +23,5 @@ install (
 )
 
 # -------------------------- INSTALL ------------------------------------------
+
+
