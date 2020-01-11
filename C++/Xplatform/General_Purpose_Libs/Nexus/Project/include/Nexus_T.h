@@ -315,8 +315,7 @@ inline Job<T> Nexus<T>::get(const char* input) {
 }
 
 template<typename T>
-inline Job<T> Nexus<T>::get_fast(const size_t val) noexcept
-{
+inline Job<T> Nexus<T>::get_fast(const size_t val) noexcept{
     return (*m_inst_job_mp)[val];
 }
 

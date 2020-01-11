@@ -7,9 +7,10 @@ cmake_minimum_required(VERSION 3.5.1)
 
 
 set(LIB re2)
-list(APPEND SHARED_LIB_LST ${LIB})
 
-# -------------------------- CONFIGURATION ------------------------------------
+# -------------------------- PRE-CONFIG ---------------------------------------
+list(APPEND PRIVATE_LIB_LST ${LIB})
+
 set(RE2_DIR ${PROJECT_DIR}/${LIB})
 set(INC     ${RE2_DIR}/include)
 set(SRC     ${RE2_DIR}/src)
@@ -58,17 +59,20 @@ if(USEPCRE)
     list(APPEND EXTRA_TARGET_LINK_LIBRARIES pcre)
 endif()
 
-SUBDIRLIST(PROJECT_FILES "${CMAKE_CURRENT_SOURCE_DIR}/Project")
+UNSET(PROJECT_FILES)
+SUBDIRLIST(PROJECT_FILES "${PROJECT_DIR}/${LIB}")
 
-add_library(re2 ${RE2_HEADERS} ${RE2_SOURCES})
-add_library(radical_mod::re2 ALIAS re2)
+add_library(${LIB} STATIC ${PROJECT_FILES})
+add_library(radical_mod::${LIB} ALIAS ${LIB})
 
-include_directories(
+include_directories(${THIS} PRIVATE
+
     ${RE2_DIR}/include
 )
 
-# -------------------------- BUILD --------------------------------------------
-list(APPEND PROJECT_FILES ${RE2_HEADERS} ${RE2_SOURCES})
-CONFIGURE_VISUAL_STUDIO(${PROJECT_FILES})
+target_link_libraries(${THIS} PRIVATE radical_mod::${LIB})
+
+# -------------------------- POST-CONFIG --------------------------------------
+CONFIGURE_VISUAL_STUDIO_PROJECT(${PROJECT_FILES})
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # -------------------------- END ----------------------------------------------

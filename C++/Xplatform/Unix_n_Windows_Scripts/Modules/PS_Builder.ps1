@@ -91,7 +91,8 @@ Class PS_Builder
         Set-Location $this.ArgStruct.build_dir
         Write-Host -ForegroundColor Green "[+] Running CMake to configure a" $this.ArgStruct.build_type "Build"
         
-        $this.cmake_command += " -DBUILD_TYPE=" + $this.ArgStruct.build_type.ToString()
+        $this.cmake_command += " -DBUILD_TYPE=" + $this.ArgStruct.build_type.ToString() `
+        + " --config " + $this.ArgStruct.build_type.ToString() 
 
         $this.cmake_command += " ../../../";
         Write-Host $this.cmake_command;
@@ -116,7 +117,7 @@ Class PS_Builder
 
         if($this.ArgStruct.is_unix){ # I know, dumb that the -eq is required
             Write-Host -ForegroundColor Green "[+] Make is Building the Project " $this.ArgStruct.name
-            $make_txt_out = $(make 2>&1)
+            $make_txt_out = $(make -j 2>&1)
             Write-Host $this.Hide_Clock_Skew($make_txt_out);
         }else{
             if($env:__DOTNET_ADD_64BIT -ne 1){
@@ -133,7 +134,10 @@ Class PS_Builder
                 Write-Host -ForegroundColor Green "[+] CL.exe Is Already Configured for x86_64 Compiling"
             }
             Write-Host -ForegroundColor Green "[+] CL.exe is the Building Project " $this.ArgStruct.name
-            devenv $($this.ArgStruct.name + '.sln') /Build $this.ArgStruct.build_type | Write-Host
+            # uncomment if you can't use the Incredibuild by atlassian
+            #devenv $($this.ArgStruct.name + '.sln') /Build $this.ArgStruct.build_type | Write-Host
+            BuildConsole.exe $($this.ArgStruct.name + '.sln') /cfg="$($this.ArgStruct.build_type)|x64" /NoLogo  | `
+                Select-String -pattern "^\s|IncrediBuildAlwaysCreate|Temporary license|^\d+\>(Target|(\s+ (Deleting|Touching|Creating|All outputs are up-to-date|Building Custom Rule)))|^\d build system warnings|IncrediBuild|--------------------" -NotMatch | Write-Host
         }
         Set-Location $this.ArgStruct.base_dir
     }
@@ -141,7 +145,7 @@ Class PS_Builder
     [void] Install_Files(){
         Set-Location $this.ArgStruct.build_dir
         Write-Host -ForegroundColor Green "[+] CMake is Installing Projct" $this.ArgStruct.name
-        cmake -P ./cmake_install.cmake | Write-Host
+        cmake "-DBUILD_TYPE=$($this.ArgStruct.build_type)" -P ./cmake_install.cmake | Write-Host
         Set-Location $this.ArgStruct.base_dir
     }
 

@@ -3,23 +3,28 @@
 set(LIB Iterator)
 list(APPEND SHARED_LIB_LST ${LIB})
 
-# -------------------------- CONFIGURATION ------------------------------------
-set(RE_DIR  ${PROJECT_DIR}/${LIB})
-set(INC     ${RE_DIR}/include)
-set(SRC     ${RE_DIR}/src)
-# -------------------------- CONFIGURATION ------------------------------------
-# -------------------------- BUILD --------------------------------------------
-add_library(${LIB} SHARED
-	
-    ${INC}/${LIB}.h
-    ${SRC}/${LIB}.cpp
-)
+# -------------------------- PRE-CONFIG ---------------------------------------
+list(APPEND PUBLIC_LIB_LST ${LIB})
 
+set(ITER_DIR ${PROJECT_DIR}/${LIB})
+set(INC      ${ITER_DIR}/include)
+set(SRC      ${ITER_DIR}/src)
+# -------------------------- BUILD --------------------------------------------
+
+UNSET(PROJECT_FILES)
+SUBDIRLIST(PROJECT_FILES "${PROJECT_DIR}/${LIB}")
+
+add_library(${LIB} SHARED ${PROJECT_FILES})
 add_library(radical::${LIB} ALIAS ${LIB})
 
-target_include_directories(${LIB}
-    PUBLIC
-        ${RE_DIR}/include
+target_include_directories(${LIB} PUBLIC
+    
+    ${ITER_DIR}/include
 )
-# -------------------------- BUILD --------------------------------------------
+
+target_link_libraries(${THIS} PRIVATE radical::${LIB})
+
+# -------------------------- POST-CONFIG --------------------------------------
+CONFIGURE_VISUAL_STUDIO_PROJECT(${PROJECT_FILES})
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # -------------------------- END ----------------------------------------------

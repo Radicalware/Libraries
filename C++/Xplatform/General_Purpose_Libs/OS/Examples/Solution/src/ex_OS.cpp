@@ -16,8 +16,8 @@ using std::endl;
 #endif
 
 
-int main() {
-
+int main() 
+{
     // all static OS functions start with an Upper_Case
     ex_open_n_delete();
     ex_file_managment();

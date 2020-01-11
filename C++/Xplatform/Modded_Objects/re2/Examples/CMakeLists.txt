@@ -16,27 +16,18 @@ include("${RADICAL_PATH}/Radical-App-Config.cmake")
 
 project (${THIS})
 
-SUBDIRLIST(PROJECT_FILES "${CMAKE_CURRENT_SOURCE_DIR}/Solution")
+SUBDIRLIST(SOLUTION_FILES "${CMAKE_CURRENT_SOURCE_DIR}/Solution")
 
-add_executable(${THIS}
-    ${PROJECT_FILES}
-)
+add_executable(${THIS} ${SOLUTION_FILES})
 
-find_package(re2)
 find_package(Nexus)
+find_package(re2)
 find_package(xvector)
 find_package(xstring)
 
-target_link_libraries( ${THIS} PRIVATE
-    radical::Nexus
-    radical::xvector
-    radical::xstring
-    radical_mod::re2
-)
-
 # -------------------------- POST-CONFIG --------------------------------------
 
-CONFIGURE_VISUAL_STUDIO(${PROJECT_FILES})
+CONFIGURE_VISUAL_STUDIO_SOLUTION(${SOLUTION_FILES})
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # -------------------------- END ----------------------------------------------

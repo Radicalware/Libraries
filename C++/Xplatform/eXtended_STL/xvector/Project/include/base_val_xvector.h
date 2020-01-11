@@ -568,7 +568,7 @@ inline xvector<N> val_xvector<T>::xrender(F&& function, A&& ...Args)
     trd->wait_all();
 
     for (size_t i = 0; i < trd->size(); i++)
-        vret << trd->get_fast(i).value();
+        vret << trd->get_fast(i).move();
 
     delete trd;
     return vret;
@@ -588,7 +588,7 @@ inline std::unordered_map<K, V> val_xvector<T>::xrender(F&& function, A&& ...Arg
     trd->wait_all();
 
     for (size_t i = 0; i < trd->size(); i++)
-        rmap.insert(trd->get_fast(i).value());
+        rmap.insert(trd->get_fast(i).move());
 
     delete trd;
     return rmap;
@@ -616,7 +616,7 @@ inline typename std::enable_if<!std::is_same<N, void>::value, xvector<N>>::type 
     xvector<N> vret;
     td->wait_all();
     for (size_t i = 0; i < td->size(); i++)
-        vret << td->get_fast(i).value();
+        vret << td->get_fast(i).move();
     return vret;
 }
 // template<typename T>
@@ -626,7 +626,7 @@ inline typename std::enable_if<!std::is_same<N, void>::value, xvector<N>>::type 
 //  xvector<N> vret;
 //     td->wait_all();
 //     for (size_t i = 0; i < td->size(); i++)
-//         vret << td->get_fast(i).value();
+//         vret << td->get_fast(i).move();
 //     return vret;
 // }
 
@@ -637,7 +637,7 @@ inline typename std::enable_if<!std::is_same<N, void>::value, xvector<T>>::type 
     xvector<N> vret;
     td->wait_all();
     for (size_t i = 0; i < td->size(); i++)
-        vret << td->get_fast(i).value();
+        vret << td->get_fast(i).move();
 
     td->clear();
     return vret;

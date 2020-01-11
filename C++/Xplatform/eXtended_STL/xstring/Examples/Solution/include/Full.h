@@ -44,11 +44,7 @@ struct Full
         xvector<xstring> vec1copy = vec1;
         print(vec1.join(" "));
 
-        xvector<xstring> vec2;
-        vec2 << "five";
-        vec2 << "six";
-        vec2 << "seven";
-        vec2 << "eight";
+        xvector<xstring> vec2{ "five", "six", "seven", "eight" };
         xvector<xstring> vec2copy = vec2;
 
         vec1 += vec2;

@@ -79,8 +79,8 @@ private:
         const bool folders, const bool files, const bool recursive);
 
 public:
-    static std::regex s_multi_backslash;
-    static std::regex s_forward_slash;
+    static RE2 s_backslash;
+    static RE2 s_forwardslash;
 
     OS_O::File file; // .name()   .data()     
     OS_O::CMD  cmd;  // .cmd()    .in()     .out().   .err()    .err_message()

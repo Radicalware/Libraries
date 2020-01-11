@@ -6,6 +6,7 @@
 #include<functional>
 #include<future>
 #include<thread>
+#include<utility>
 
 #include "NX_Threads.h"
 #include "Task.h"
@@ -20,7 +21,9 @@ class Job : protected NX_Threads
     
     size_t m_index = 0;
     bool m_done = false;
+    bool m_removed = false;
     static std::string Default_STR;
+
 public:
     Job(); // required by Linux
     Job(      Task<T>&& task, size_t index);
@@ -28,6 +31,7 @@ public:
     void init();
     Task<T> task() const;
     const Task<T>* task_ptr() const;
+    T move();
     T value() const;
     T* value_ptr() const;
     std::exception_ptr exception() const;
@@ -83,18 +87,32 @@ inline Task<T> Job<T>::task() const
 template<typename T>
 inline const Task<T>* Job<T>::task_ptr() const
 {
+    if (m_removed)
+        throw std::runtime_error("The Task Object Has Been Moved!\n");
     return &m_task;
 }
 
 template<typename T>
-inline T Job<T>::value() const
+inline T Job<T>::value() const 
 {
+    if (m_removed)
+        throw std::runtime_error("The Task Object Has Been Moved!\n");
     return m_value;
+}
+
+
+template<typename T>
+inline T Job<T>::move() 
+{
+    m_removed = true;
+    return std::move(m_value);
 }
 
 template<typename T>
 inline T* Job<T>::value_ptr() const
 {
+    if (m_removed)
+        throw std::runtime_error("The Task Object Has Been Moved!\n");
     return &m_value;
 }
 

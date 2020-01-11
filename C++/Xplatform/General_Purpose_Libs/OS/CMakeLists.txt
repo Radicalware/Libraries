@@ -16,21 +16,11 @@ include("${RADICAL_PATH}/Radical-Lib-Config.cmake")
 
 project (${THIS})
 
-add_library(${THIS} SHARED
+UNSET(PROJECT_FILES)
+SUBDIRLIST(PROJECT_FILES "${CMAKE_CURRENT_SOURCE_DIR}/Project")
 
-    ${INC}/${THIS}.h
-    ${SRC}/${THIS}.cpp
 
-    ${INC}/dir_support/Dir_Type.h
-    ${SRC}/dir_support/Dir_Type.cpp
-
-    ${INC}/handlers/File.h
-    ${SRC}/handlers/File.cpp
-
-    ${INC}/handlers/CMD.h
-    ${SRC}/handlers/CMD.cpp
-
-)
+add_library(${THIS} STATIC ${PROJECT_FILES})
 add_library(radical::${THIS} ALIAS ${THIS})
 
 target_include_directories(${THIS}
@@ -40,12 +30,17 @@ target_include_directories(${THIS}
         ${INC}/dir_support
 )
 
-# Required Libs -------------------------------------------------------------------------
-target_link_libraries(${THIS} ${EXT_BIN_PATH}/lib/${PF}Nexus${SF})
-target_link_libraries(${THIS} ${EXT_BIN_PATH}/lib/${PF}xvector${SF})
-target_link_libraries(${THIS} ${EXT_BIN_PATH}/lib/${PF}xstring${SF})
-# -------------------------- INSTALL ----------------------------------------------------
 
+# Required Libs -------------------------------------------------------------------------
+
+find_package(re2)
+find_package(Nexus)
+find_package(xvector)
+find_package(xstring)
+
+# -------------------------- INSTALL ----------------------------------------------------
 include("${RADICAL_PATH}/Radical-Lib-Install.cmake")
+CONFIGURE_VISUAL_STUDIO_STANDALONE_PROJECT(${PROJECT_FILES})
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # -------------------------- END --------------------------------------------------------

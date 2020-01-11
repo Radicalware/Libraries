@@ -8,7 +8,8 @@ param (
     [switch] $Examples  # only install Examples
 )
 
-Set-Location "$PSScriptRoot"
+$current_location = "$PSScriptRoot"
+Set-Location $current_location
 
 #&".\clean.ps1"
 
@@ -36,7 +37,7 @@ if($modify){
             Set-Location "$PSScriptRoot"
 
             Write-Host $install
-            &"$install" -Overwrite -No_Exec
+            &"$install" -Overwrite
         }
     }
     if($Examples -eq $true){
@@ -44,10 +45,12 @@ if($modify){
             Set-Location "$PSScriptRoot"
 
             Write-Host $install
-            &"$install" -Overwrite -No_Exec
+            &"$install" -Overwrite -NoExec
         }
     }
 }
 
 
 Write-Host "`n`nAll Libs Installed!!"
+
+cd $current_location

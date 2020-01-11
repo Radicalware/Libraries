@@ -60,6 +60,7 @@ $handler.copy("mc")
 
 $handler.dir = $Modded_Objects
 $handler.copy("cc")
+$handler.copy("re2")
 
 
 Write-Host "All Lib Folders Updated!!"

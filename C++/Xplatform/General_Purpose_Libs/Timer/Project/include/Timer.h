@@ -1,8 +1,10 @@
 #pragma once
+
 #include<chrono>
 
 #include "xvector.h"
 #include "xstring.h"
+#include "re2/re2.h"
 #include "xmap.h"
 
 class Timer
@@ -35,6 +37,5 @@ public:
 
     static void Sleep(unsigned long extent);
 };
-
 
 std::ostream& operator<<(std::ostream& out, const Timer& time);

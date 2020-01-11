@@ -16,24 +16,11 @@ include("${RADICAL_PATH}/Radical-Lib-Config.cmake")
 
 project (${THIS})
 
-add_library(${THIS} STATIC 
+UNSET(PROJECT_FILES)
+SUBDIRLIST(PROJECT_FILES "${CMAKE_CURRENT_SOURCE_DIR}/Project")
 
-    ${INC}/${THIS}.h
-    ${SRC}/${THIS}.cpp
 
-    ${INC}/val2_xmap.h
-    ${SRC}/val2_xmap.cpp
-
-    ${INC}/ptr2_xmap.h
-    ${SRC}/ptr2_xmap.cpp
-
-    ${INC}/ptr_val_xmap.h
-    ${SRC}/ptr_val_xmap.cpp
-    
-    ${INC}/val_ptr_xmap.h
-    ${SRC}/val_ptr_xmap.cpp
-
-)
+add_library(${THIS} STATIC ${PROJECT_FILES})
 add_library(radical::${THIS} ALIAS ${THIS})
 
 target_include_directories(${THIS}
@@ -43,11 +30,14 @@ target_include_directories(${THIS}
 )
 
 # Required Libs -------------------------------------------------------------------------
-target_link_libraries(${THIS} ${EXT_BIN_PATH}/lib/${PF}Nexus${SF})
-target_link_libraries(${THIS} ${EXT_BIN_PATH}/lib/${PF}xvector${SF})
-target_link_libraries(${THIS} ${EXT_BIN_PATH}/lib/${PF}xstring${SF})
+target_link_libraries(${THIS} ${EXT_BIN_PATH}/lib/${PF}re2${ST})
+target_link_libraries(${THIS} ${EXT_BIN_PATH}/lib/${PF}Nexus${ST})
+target_link_libraries(${THIS} ${EXT_BIN_PATH}/lib/${PF}xvector${ST})
+target_link_libraries(${THIS} ${EXT_BIN_PATH}/lib/${PF}xstring${ST})
 # -------------------------- INSTALL ----------------------------------------------------
 
 include("${RADICAL_PATH}/Radical-Lib-Install.cmake")
+CONFIGURE_VISUAL_STUDIO_STANDALONE_PROJECT(${PROJECT_FILES})
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # -------------------------- END --------------------------------------------------------

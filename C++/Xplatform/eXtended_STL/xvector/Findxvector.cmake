@@ -1,51 +1,30 @@
 ﻿cmake_minimum_required(VERSION 3.12)
 
 set(LIB xvector)
-list(APPEND STATIC_LIB_LST ${LIB})
 
-# -------------------------- CONFIGURATION ------------------------------------
+# -------------------------- PRE-CONFIG ---------------------------------------
+list(APPEND PRIVATE_LIB_LST ${LIB})
+
 set(XVECTOR_DIR  ${PROJECT_DIR}/${LIB})
 set(INC          ${XVECTOR_DIR}/include)
 set(SRC          ${XVECTOR_DIR}/src)
-# -------------------------- CONFIGURATION ------------------------------------
 # -------------------------- BUILD --------------------------------------------
-add_library(${LIB}  STATIC
-	
-        ${INC}/${LIB}.h
-        ${SRC}/${LIB}.cpp
 
-        # -------------------------------
-        
-        ${INC}/base_val_${LIB}.h
-        ${SRC}/base_val_${LIB}.cpp
+UNSET(PROJECT_FILES)
+SUBDIRLIST(PROJECT_FILES "${PROJECT_DIR}/${LIB}")
 
-        ${INC}/base_ptr_${LIB}.h
-        ${SRC}/base_ptr_${LIB}.cpp
-
-        # -------------------------------
-
-        ${INC}/val_obj_xvector.h
-        ${SRC}/val_obj_xvector.cpp
-
-        ${INC}/val_prim_xvector.h
-        ${SRC}/val_prim_xvector.cpp
-
-        ${INC}/ptr_obj_xvector.h
-        ${SRC}/ptr_obj_xvector.cpp
-
-        ${INC}/ptr_prim_xvector.h
-        ${SRC}/ptr_prim_xvector.cpp
-)
-
+add_library(${LIB} STATIC ${PROJECT_FILES})
 add_library(radical::${LIB} ALIAS ${LIB})
 
-include_directories(${LIB}
-    PRIVATE
-        ${NEXUS_DIR}/include
-        ${XVECTOR_DIR}
-        ${XVECTOR_DIR}/include
+include_directories(${LIB} PRIVATE
+
+    ${NEXUS_DIR}/include
+    ${XVECTOR_DIR}/include
 )
 
-target_link_libraries(${LIB} radical::Nexus)
+target_link_libraries(${THIS} PRIVATE radical::${LIB})
+
 # -------------------------- BUILD --------------------------------------------
+CONFIGURE_VISUAL_STUDIO_PROJECT(${PROJECT_FILES})
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # -------------------------- END ----------------------------------------------

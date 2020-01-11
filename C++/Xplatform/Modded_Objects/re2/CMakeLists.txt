@@ -65,17 +65,26 @@ if(USEPCRE)
     list(APPEND EXTRA_TARGET_LINK_LIBRARIES pcre)
 endif()
 
+UNSET(PROJECT_FILES)
 SUBDIRLIST(PROJECT_FILES "${CMAKE_CURRENT_SOURCE_DIR}/Project")
 
-add_library(${THIS} ${PROJECT_FILES})
-add_library(radical_mod::${THIS} ALIAS ${THIS})
+add_library(${THIS} STATIC ${PROJECT_FILES})
+add_library(radical::${THIS} ALIAS ${THIS})
+
+target_include_directories(${THIS} PRIVATE
+
+    ${EXT_HEADER_PATH}
+    ${INC}
+)
+
 
 # Required Libs -------------------------------------------------------------------------
-message ("No Required Libs Needed")
+# No Required Libs Needed
 # -------------------------- INSTALL ----------------------------------------------------
 
-CONFIGURE_VISUAL_STUDIO(${PROJECT_FILES})
 include("${RADICAL_PATH}/Radical-Lib-Install.cmake")
+CONFIGURE_VISUAL_STUDIO_STANDALONE_PROJECT(${PROJECT_FILES})
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # -------------------------- END --------------------------------------------------------
 

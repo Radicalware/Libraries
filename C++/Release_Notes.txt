@@ -4,6 +4,13 @@
 
 ---------------------------------------------------------------------
 
+01/11/2020 >> Libs v14.0.1
+
+CMake build scripts updated
+xstring now has more re2 functionality
+
+---------------------------------------------------------------------
+
 01/05/2020 >> Libs v14.0.0
 
 Google's re2 has been added to the modded objcts folder.

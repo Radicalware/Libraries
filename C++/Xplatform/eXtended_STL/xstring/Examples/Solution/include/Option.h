@@ -51,9 +51,14 @@ more junk text vice.crusade.ctr@us.underground.nil   junk
         xvector<xstring> finder;
         xstring header;
 
+        cout << "------------ FIND WALK FULL EMAIL -----------------------------\n";
         header = "\nFindall 1 = "; 
         header.print(0);
         emails.findwalk(R"(([^\s]*\@[^\s]*))").join(header).print(2);
+        cout << "----\n";
+        header.print(0);
+        emails.findwalk(RE2(R"(([^\s]*\@[^\s]*))")).join(header).print(2);
+
         // return the whole email
         // first  '(' is for string literal indicated by the 'R'
         // second '(' is for our primary capture group (anything outside will be omitted) from the capture returned
@@ -65,9 +70,13 @@ more junk text vice.crusade.ctr@us.underground.nil   junk
         //Findall 1 = vice.crusade.ctr@us.underground.nil
         // -----------------------------------------------------------
 
+        cout << "------------ FIND WALK EMAIL DOMAIN ---------------------------\n";
         header = "\nFindall 2 = "; 
         header.print(0);
-        emails.findwalk(R"rex((?:.*\@)(.+(\.?).+?)(?=\.))rex").join(header).print(2);
+        emails.findwalk(R"rex((?:.*\@)(.+(\.?).+?)(?:\.))rex").join(header).print(2);
+        cout << "----\n";
+        header.print(0);
+        emails.findwalk(RE2(R"rex((?:.*\@)(.+(\.?).+?)(?:\.))rex")).join(header).print(2);
 
         // a big advantage here is that look-ahead/behind is not a finite length like in python
         // lookahead  = (?:<regex>)
@@ -82,9 +91,13 @@ more junk text vice.crusade.ctr@us.underground.nil   junk
         // ---------------------------------
 
         // next we do the same thing but regex over the whole thing at once
+        cout << "------------ FIND ALL EMAIL DOMAIN ----------------------------\n";
         header = "\nFindall 3 = "; 
         header.print(0);
-        emails.findall(R"rex((?:(?:^|\n).*\@)(.+(\.?).+?)(?=\.))rex").join(header).print(2);
+        emails.findall(R"rex((?:(?:^|\n).*\@)(.+(\.?).+?)(?:\.))rex").join(header).print(2);
+        cout << "----\n";
+        header.print(0);
+        emails.findall(RE2(R"rex((?:(?:^|\n).*\@)(.+(\.?).+?)(?:\.))rex")).join(header).print(2);
 
         // ----- OUTPUT BELOW --------------
         // Findall 2 = gmail
@@ -99,8 +112,9 @@ more junk text vice.crusade.ctr@us.underground.nil   junk
         xstring emails = R"email(more junk text vice.crusade.ctr@us.underground.nil   junk)email";
 
         cout << "Found capture groups\n";
-        emails.search(R"((vice).(crusade).(ctr)@(us).(underground))", 5).join('\n').print(2);
+        emails.search(R"((vice).(crusade).(ctr)@(us).(underground))", rxm::ECMAScript, 5).join("==").print(2);
         // 5 idicates we want the first 5 on (opposed to off) capture groups
+
 
     }
     // ===================================================================================================
@@ -175,6 +189,5 @@ VVVVsentencePPPPP
         cout << "\n===(STR COUNT)==================================================\n";
         cout << "The string has \"" << string_to_search.count("(sentence)") << "\" str matches\n";
     }
-
 };
 

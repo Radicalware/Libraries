@@ -1,7 +1,7 @@
 // Copyright 2003-2009 The RE2 Authors.  All Rights Reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
-
+#pragma warning (disable:26812) // allow basic enums
 #ifndef RE2_RE2_H_
 #define RE2_RE2_H_
 
@@ -211,6 +211,7 @@ namespace re2 {
 class RE2 {
  public:
   // We convert user-passed pointers into special Arg objects
+  typedef RE2 value_type;
   class Arg;
   class Options;
 

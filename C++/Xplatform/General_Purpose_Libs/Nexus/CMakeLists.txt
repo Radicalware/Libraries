@@ -16,29 +16,11 @@ include("${RADICAL_PATH}/Radical-Lib-Config.cmake")
 
 project (${THIS})
 
-add_library(${THIS} STATIC
+UNSET(PROJECT_FILES)
+SUBDIRLIST(PROJECT_FILES "${CMAKE_CURRENT_SOURCE_DIR}/Project")
 
-    ${SRC}/NX_Threads.cpp
-    ${INC}/NX_Threads.h
 
-    ${SRC}/NX_Mutex.cpp
-    ${INC}/NX_Mutex.h
-
-    ${SRC}/Task.cpp
-    ${INC}/Task.h
-
-    ${SRC}/Job.cpp
-    ${INC}/Job.h
-
-    ${SRC}/${THIS}.cpp
-    ${INC}/${THIS}.h
-
-    ${SRC}/${THIS}_void.cpp
-    ${INC}/${THIS}_void.h
-
-    ${SRC}/${THIS}_T.cpp
-    ${INC}/${THIS}_T.h
-)
+add_library(${THIS} STATIC ${PROJECT_FILES})
 add_library(radical::${THIS} ALIAS ${THIS})
 
 target_include_directories(${THIS}
@@ -52,5 +34,7 @@ message ("No Required Libs Needed")
 # -------------------------- INSTALL ----------------------------------------------------
 
 include("${RADICAL_PATH}/Radical-Lib-Install.cmake")
+CONFIGURE_VISUAL_STUDIO_STANDALONE_PROJECT(${PROJECT_FILES})
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # -------------------------- END --------------------------------------------------------

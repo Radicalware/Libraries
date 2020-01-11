@@ -3,40 +3,28 @@ cmake_minimum_required(VERSION 3.12)
 set(LIB Nexus)
 list(APPEND STATIC_LIB_LST ${LIB})
 
-# -------------------------- CONFIGURATION ------------------------------------
+# -------------------------- PRE-CONFIG ---------------------------------------
+list(APPEND PRIVATE_LIB_LST ${LIB})
+
 set(NEXUS_DIR  ${PROJECT_DIR}/${LIB})
 set(INC        ${NEXUS_DIR}/include)
 set(SRC        ${NEXUS_DIR}/src)
-# -------------------------- CONFIGURATION ------------------------------------
 # -------------------------- BUILD --------------------------------------------
-add_library(${LIB} STATIC 
 
-    ${SRC}/NX_Threads.cpp
-    ${INC}/NX_Threads.h
+UNSET(PROJECT_FILES)
+SUBDIRLIST(PROJECT_FILES "${PROJECT_DIR}/${LIB}")
 
-    ${SRC}/NX_Mutex.cpp
-    ${INC}/NX_Mutex.h
-
-    ${SRC}/Task.cpp
-    ${INC}/Task.h
-
-    ${SRC}/Job.cpp
-    ${INC}/Job.h
-
-    ${SRC}/${LIB}.cpp
-    ${INC}/${LIB}.h
-
-    ${SRC}/${LIB}_void.cpp
-    ${INC}/${LIB}_void.h
-
-    ${SRC}/${LIB}_T.cpp
-    ${INC}/${LIB}_T.h
-)
+add_library(${LIB} STATIC ${PROJECT_FILES})
 add_library(radical::${LIB} ALIAS ${LIB})
 
-include_directories(${LIB}
-    PRIVATE        
-        ${NEXUS_DIR}/include
+include_directories(${LIB} PRIVATE
+
+    ${NEXUS_DIR}/include
 )
-# -------------------------- BUILD --------------------------------------------
+
+target_link_libraries(${THIS} PRIVATE radical::${LIB})
+
+# -------------------------- POST-CONFIG --------------------------------------
+CONFIGURE_VISUAL_STUDIO_PROJECT(${PROJECT_FILES})
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # -------------------------- END ----------------------------------------------

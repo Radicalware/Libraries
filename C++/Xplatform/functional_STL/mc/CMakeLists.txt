@@ -16,11 +16,11 @@ include("${RADICAL_PATH}/Radical-Lib-Config.cmake")
 
 project (${THIS})
 
-add_library(${THIS} STATIC 
-    
-    ${INC}/${THIS}.h
-    ${SRC}/${THIS}.cpp
-)
+UNSET(PROJECT_FILES)
+SUBDIRLIST(PROJECT_FILES "${CMAKE_CURRENT_SOURCE_DIR}/Project")
+
+
+add_library(${THIS} STATIC ${PROJECT_FILES})
 add_library(radical::${THIS} ALIAS ${THIS})
 
 target_include_directories(${THIS}
@@ -34,5 +34,7 @@ message ("No Required Libs Needed")
 # -------------------------- INSTALL ----------------------------------------------------
 
 include("${RADICAL_PATH}/Radical-Lib-Install.cmake")
+CONFIGURE_VISUAL_STUDIO_STANDALONE_PROJECT(${PROJECT_FILES})
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # -------------------------- END --------------------------------------------------------

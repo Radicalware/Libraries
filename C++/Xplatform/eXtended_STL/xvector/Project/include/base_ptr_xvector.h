@@ -524,7 +524,7 @@ inline xvector<N> ptr_xvector<T*>::xrender(F&& function, A&& ...Args)
     vret.reserve(trd->size());
 
     for (size_t i = 0; i < trd->size(); i++)
-        vret << trd->get_fast(i).value();
+        vret << trd->get_fast(i).move();
 
     delete trd;
     return vret;
@@ -544,7 +544,7 @@ inline std::unordered_map<K, V> ptr_xvector<T*>::xrender(F&& function, A&& ...Ar
     trd->wait_all();
 
     for (size_t i = 0; i < trd->size(); i++)
-        rmap.insert(trd->get_fast(i).value());
+        rmap.insert(trd->get_fast(i).move());
 
     delete trd;
     return rmap;
@@ -569,7 +569,7 @@ inline xvector<N> ptr_xvector<T*>::get() const
     xvector<N> vret;
     td->wait_all();
     for (size_t i = 0; i < td->size(); i++)
-        vret << td->get_fast(i).value();
+        vret << td->get_fast(i).move();
     return vret;
 }
 
@@ -580,7 +580,7 @@ inline xvector<N> ptr_xvector<T*>::get_wipe()
     xvector<N> vret;
     td->wait_all();
     for (size_t i = 0; i < td->size(); i++)
-        vret << td->get_fast(i).value();
+        vret << td->get_fast(i).move();
 
     td->clear();
     return vret;

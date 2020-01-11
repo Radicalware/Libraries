@@ -61,33 +61,6 @@ set(EXT_BIN_PATH    ${INSTALL_PREFIX}/Libraries/Build/${BUILD_TYPE})
 
 set(PROJECT_DIR ${INSTALL_PREFIX}/Libraries/Projects)
 
-
-MACRO(SUBDIRLIST result curdir)
-    FILE(GLOB children RELATIVE ${curdir} ${curdir}/*)
-    SET(dirlist "")
-    FOREACH(child ${children})
-        IF(IS_DIRECTORY "${curdir}/${child}")
-            SUBDIRLIST(NEXT_DIR "${curdir}/${child}")
-            LIST(APPEND ${result} ${NEXT_DIR})
-        ELSE()
-            LIST(APPEND ${result} ${curdir}/${child})
-        ENDIF()
-    ENDFOREACH()
-    list(REMOVE_DUPLICATES  ${result})
-ENDMACRO()
-
-
-function(CONFIGURE_VISUAL_STUDIO)
-    
-    foreach(SOURCE_FILE IN ITEMS ${ARGN})
-        get_filename_component(SOURCE_PATH "${SOURCE_FILE}" PATH)
-        string(REGEX REPLACE "${CMAKE_SOURCE_DIR}/[^/]+" "" RELATIVE_PATH "${SOURCE_PATH}")
-        string(REPLACE "/" "\\" RELATIVE_PATH "${RELATIVE_PATH}")
-        source_group("${RELATIVE_PATH}" FILES "${SOURCE_FILE}")
-    endforeach()
-    set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${THIS})
-endfunction(CONFIGURE_VISUAL_STUDIO)
-
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # --------------- DON'T MODIFY (CALCULATED) ------------------------------------------

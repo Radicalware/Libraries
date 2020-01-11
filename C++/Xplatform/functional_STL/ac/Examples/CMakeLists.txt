@@ -13,26 +13,19 @@ endif()
 include("${RADICAL_PATH}/Radical-App-Config.cmake")
 
 # -------------------------- BUILD --------------------------------------------
-# -------------------------- POST-CONFIG --------------------------------------
 
 project (${THIS})
 
-add_executable(${THIS}
-    ${SRC}/${THIS}.cpp
-)
+SUBDIRLIST(SOLUTION_FILES "${CMAKE_CURRENT_SOURCE_DIR}/Solution")
+
+add_executable(${THIS} ${SOLUTION_FILES})
 
 find_package(re)
 find_package(ac)
 
-target_link_libraries( ${THIS}
-    PRIVATE
-        radical::ac
-        radical::re
-)
-
 # -------------------------- POST-CONFIG --------------------------------------
 
-CONFIGURE_VISUAL_STUDIO(${PROJECT_FILES})
+CONFIGURE_VISUAL_STUDIO_SOLUTION(${SOLUTION_FILES})
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # -------------------------- END ----------------------------------------------

@@ -23,7 +23,7 @@ if($lib -eq $true){
         Set-Location "$PSScriptRoot"
 
         Write-Host $install
-        &"$install" -Overwrite -No_Exec
+        &"$install" -Overwrite -NoExec
     }
 }
 #if($Examples -eq $true){
@@ -31,7 +31,7 @@ if($lib -eq $true){
 #        Set-Location "$PSScriptRoot"
 #
 #        Write-Host $install
-#        &"$install" -Overwrite -No_Exec
+#        &"$install" -Overwrite -NoExec
 #    }
 #}
     

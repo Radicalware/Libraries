@@ -1,5 +1,6 @@
 
 include("${RADICAL_PATH}/Radical-Static-Vars.cmake")
+include("${RADICAL_PATH}/Radical-Functions.cmake")
 include("${RADICAL_PATH}/Radical-Header.cmake")
 
 # -------------------------- CONFIGURATION ------------------------------------
@@ -7,11 +8,13 @@ include("${RADICAL_PATH}/Radical-Header.cmake")
 set(INSTALL_PREFIX "${INSTALL_PREFIX}/Libraries")
 
 if(WIN32)
-    set(PF "")
-    set(SF ".lib")
+    set(PF "")     # Prefix
+    set(ST ".lib") # STatic
+    set(SH ".dll") # SHared
 else() # NIX
     set(PF "lib")
-    set(SF ".a")
+    set(ST ".a")
+    set(SH ".so")
 endif()
 
 set(BUILD_DIR ${CMAKE_SOURCE_DIR}/Project)

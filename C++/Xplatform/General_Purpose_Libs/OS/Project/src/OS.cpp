@@ -27,8 +27,8 @@
 
 #include "OS.h"
 
-std::regex OS::s_multi_backslash(R"([\\]+)", rxm::ECMAScript);
-std::regex OS::s_forward_slash(R"(/)", rxm::ECMAScript);
+RE2 OS::s_backslash(R"((\\\\))");
+RE2 OS::s_forwardslash(R"(/)");
 
 // -------------------------------------------------------------------------------------------
 #if defined(NIX_BASE)
@@ -69,7 +69,7 @@ void OS::Dir_Continued(const xstring folder_start, xvector<xstring>& track_vec, 
     const bool folders, const bool files, const bool recursive) 
 {
 
-    WIN32_FIND_DATA find_data;
+    WIN32_FIND_DATAA find_data;
     //LPWIN32_FIND_DATAA find_data = nullptr;
     //TCHAR dir_size_tchar[MAX_PATH];
     char dir_size_char[MAX_PATH];
@@ -111,6 +111,8 @@ void OS::Dir_Continued(const xstring folder_start, xvector<xstring>& track_vec, 
     if (INVALID_HANDLE_VALUE != hFind) {
         // List all the files in the directory with some info about them.
         xstring file_path_str;
+        std::string tmp_path;
+        xstring Full_Path;
         do
         {
             //if (find_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
@@ -118,7 +120,11 @@ void OS::Dir_Continued(const xstring folder_start, xvector<xstring>& track_vec, 
                 file_path_str = t_path_to_str_path() + "\\";
                 if (file_path_str == ".\\" || file_path_str == "..\\")
                     continue;
-                xstring Full_Path = folder_start + "\\" + file_path_str;
+                if (*(folder_start.end() - 1) == '\\')
+                    Full_Path = folder_start + file_path_str;
+                else
+                    Full_Path = folder_start + '\\' + file_path_str;
+
                 if (folders)
                     track_vec.push_back(Full_Path);
                 if (recursive)
@@ -126,8 +132,11 @@ void OS::Dir_Continued(const xstring folder_start, xvector<xstring>& track_vec, 
             }
             else {
                 if (files) {
-                    xstring rfolder = folder_start + "\\" + t_path_to_str_path();
-                    track_vec.push_back(rfolder);
+                    tmp_path = t_path_to_str_path();
+                    if(*(folder_start.end() - 1) == '\\' || tmp_path[0] == '\\')
+                        track_vec.push_back(folder_start + t_path_to_str_path());
+                    else
+                        track_vec.push_back(folder_start + '\\' + t_path_to_str_path());
                 }
             }
             //} while (FindNextFile(hFind, &find_data) != 0);
@@ -191,11 +200,13 @@ xstring OS::Full_Path(const xstring& file)
 #else
     char full[PATH_MAX];
 #endif
+
 #if defined(WIN_BASE)
-    const char* unused = _fullpath(full, file.sub(s_forward_slash, "\\\\").c_str(), _MAX_PATH);
+    const char* unused = _fullpath(full, file.sub(s_forwardslash, "\\\\").c_str(), _MAX_PATH);
 #elif defined(NIX_BASE)
-    const char* unused = realpath(file.sub("\\\\", "/").c_str(), full);
+    const char* unused = realpath(file.sub(s_backslash, "/").c_str(), full);
 #endif
+
     return xstring(full);
 }
 

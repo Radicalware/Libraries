@@ -6,16 +6,19 @@ Write-Host '--------------------------------------------------------------------
 Write-Host "Updating Find Files: "
 
 $find_cmake_path = ""
+$rex = ""
 if($($global:PSVersionTable.Platform -eq "Unix")){
-    $find_cmake_path = "/usr/share/cmake/Modules/"
+    $find_cmake_path = "/opt/Radicalware/CMake_Modules"
+    $rex = "^.*/(Find[\w\d_-]+\.cmake)$"
 }else{
+    $rex = "^.*\\(Find[\w\d_-]+\.cmake)$"
     $find_cmake_path = "C:\source\CMake\Modules"
 }
 
-$(Get-ChildItem -Path C:\Source\Libraries -Recurse -Force).foreach({ 
+$(Get-ChildItem -Path ../../ -Recurse -Force).foreach({ 
 	# -Force to find hidden files                
     $name = $_.FullName                                                                         
-    if($name -match "^.*\\(Find[\w\d_-]+\.cmake)$"){                    
+    if($name -match $rex){                    
         if(Test-Path -Path $name){                                                              
             Write-Host $name;      
             Copy-Item $name $find_cmake_path -Force
