@@ -56,9 +56,9 @@ RE2::Options::Options(RE2::CannedOptions opt)
 
 // static empty objects for use as const references.
 // To avoid global constructors, allocated in RE2::Init().
-static const std::string* empty_string;
-static const std::map<std::string, int>* empty_named_groups;
-static const std::map<int, std::string>* empty_group_names;
+static const std::unique_ptr<std::string> empty_string = std::unique_ptr<std::string>(new std::string);
+static const std::unique_ptr<std::map<std::string, int>> empty_named_groups = std::unique_ptr<std::map<std::string, int>>(new std::map<std::string, int>);
+static const std::unique_ptr<std::map<int, std::string>> empty_group_names = std::unique_ptr<std::map<int, std::string>>(new std::map<int, std::string>);
 
 // Converts from Regexp error code to RE2 error code.
 // Maybe some day they will diverge.  In any event, this
@@ -164,14 +164,8 @@ int RE2::Options::ParseFlags() const {
   return flags;
 }
 
-void RE2::Init(const StringPiece& pattern, const Options& options) {
-  static std::once_flag empty_once;
-  std::call_once(empty_once, []() {
-    empty_string = new std::string;
-    empty_named_groups = new std::map<std::string, int>;
-    empty_group_names = new std::map<int, std::string>;
-  });
-
+void RE2::Init(const StringPiece& pattern, const Options& options) 
+{
   pattern_ = std::string(pattern);
   options_.Copy(options);
   entire_regexp_ = NULL;
@@ -179,7 +173,7 @@ void RE2::Init(const StringPiece& pattern, const Options& options) {
   prog_ = NULL;
   num_captures_ = -1;
   rprog_ = NULL;
-  error_ = empty_string;
+  error_ = &*empty_string;
   error_code_ = NoError;
   named_groups_ = NULL;
   group_names_ = NULL;
@@ -248,18 +242,18 @@ re2::Prog* RE2::ReverseProg() const {
 }
 
 RE2::~RE2() {
-  if (suffix_regexp_)
-    suffix_regexp_->Decref();
-  if (entire_regexp_)
-    entire_regexp_->Decref();
-  delete prog_;
-  delete rprog_;
-  if (error_ != empty_string)
-    delete error_;
-  if (named_groups_ != NULL && named_groups_ != empty_named_groups)
-    delete named_groups_;
-  if (group_names_ != NULL &&  group_names_ != empty_group_names)
-    delete group_names_;
+    if (suffix_regexp_)
+        suffix_regexp_->Decref();
+    if (entire_regexp_)
+        entire_regexp_->Decref();
+    delete prog_;
+    delete rprog_;
+    if (error_ != &*empty_string)
+        delete error_;
+    if (named_groups_ != NULL && named_groups_ != &*empty_named_groups)
+        delete named_groups_;
+    if (group_names_ != NULL && group_names_ != &*empty_group_names)
+        delete group_names_;
 }
 
 int RE2::ProgramSize() const {
@@ -313,7 +307,7 @@ const std::map<std::string, int>& RE2::NamedCapturingGroups() const {
     if (re->suffix_regexp_ != NULL)
       re->named_groups_ = re->suffix_regexp_->NamedCaptures();
     if (re->named_groups_ == NULL)
-      re->named_groups_ = empty_named_groups;
+      re->named_groups_ = &*empty_named_groups;
   }, this);
   return *named_groups_;
 }
@@ -324,7 +318,7 @@ const std::map<int, std::string>& RE2::CapturingGroupNames() const {
     if (re->suffix_regexp_ != NULL)
       re->group_names_ = re->suffix_regexp_->CaptureNames();
     if (re->group_names_ == NULL)
-      re->group_names_ = empty_group_names;
+      re->group_names_ = &*empty_group_names;
   }, this);
   return *group_names_;
 }

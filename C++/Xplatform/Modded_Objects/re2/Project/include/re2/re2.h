@@ -262,6 +262,7 @@ class RE2 {
   RE2(const StringPiece& pattern);
   RE2(const StringPiece& pattern, const Options& options);
   ~RE2();
+  static void Clear();
 
   // Returns whether RE2 was created properly.
   bool ok() const { return error_code() == NoError; }
@@ -389,6 +390,7 @@ class RE2 {
   // the text.  That is, "re" need not start its match at the beginning
   // of "input".  For example, "FindAndConsume(s, "(\\w+)", &word)" finds
   // the next word in "s" and stores it in "word".
+
   template <typename... A>
   static bool FindAndConsume(StringPiece* input, const RE2& re, A&&... a) {
     return Apply(FindAndConsumeN, input, re, Arg(std::forward<A>(a))...);

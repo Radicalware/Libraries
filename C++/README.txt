@@ -50,3 +50,4 @@ export CPATH="/opt/Radicalware/Libraries/Projects":$CPATH
 
 export LD_LIBRARY_PATH="/opt/Radicalware/Libraries/Build/Release/bin":$LD_LIBRARY_PATH
 export LD_RUN_PATH="/opt/Radicalware/Libraries/Build/Release/bin":$LD_RUN_PATH
+

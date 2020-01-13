@@ -22,7 +22,7 @@ else() # -----------------------------------------------------------------------
     SET(INSTALL_PREFIX "/opt/Radicalware")
 
     set(CPP_ARGS " -Wfatal-errors -finput-charset=UTF-8 -fPIC -pthread")
-    set(CPP_ARGS "${CPP_ARGS} -Wno-unused-variable")
+    set(CPP_ARGS "${CPP_ARGS} -Wno-unused-result")
     set(C_ARGS   CPP_ARGS)
     set(CPP_ARGS "${CPP_ARGS} -std=c++17")
 
@@ -42,13 +42,17 @@ else()
     set(CMAKE_BUILD_TYPE ${BUILD_TYPE})
 endif()
 
-if(BUILD_TYPE STREQUAL "Release")
-    set(${CPP_ARGS} " ${CPP_ARGS} -O2")
-    set(C_ARGS      " ${C_ARGS}   -O2")
-
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    if(WIN32)
+        set(${CPP_ARGS} " ${CPP_ARGS} /O2")
+        set(C_ARGS      " ${C_ARGS}   /O2")
+    else()
+        set(${CPP_ARGS} " ${CPP_ARGS} -O2")
+        set(C_ARGS      " ${C_ARGS}   -O2")
+    endif()
 elseif(NOT WIN32) # and debug
-    set(${CPP_ARGS} " ${CPP_ARGS} -g3 -ggdb ")
-    set(${C_ARGS}   " ${C_ARGS}   -g3 -ggdb ")
+    #set(${CPP_ARGS} " ${CPP_ARGS} -g3 -ggdb")
+    #set(${C_ARGS}   " ${C_ARGS}   -g3 -ggdb")
 endif()
 
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)

@@ -16,6 +16,9 @@ include("${RADICAL_PATH}/Radical-App-Config.cmake")
 
 project (${THIS})
 
+set(CC "gcc")
+set(CXX "g++")
+
 SUBDIRLIST(SOLUTION_FILES "${CMAKE_CURRENT_SOURCE_DIR}/Solution")
 
 add_executable(${THIS} ${SOLUTION_FILES})

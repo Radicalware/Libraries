@@ -9,9 +9,8 @@
 using std::cout;
 using std::endl;
 
-int main()
+void test1()
 {
-
     cout << "===================================\n";
     std::string str;
     std::string data = "XXoneZZ XXtwoZZ";
@@ -26,9 +25,49 @@ int main()
     cout << "orig:  " << data << endl;
     cout << "peice: " << pc << endl;
     cout << "data:  " << data << endl;
+}
 
+void test2()
+{
+    cout << "===================================\n";
+    std::string str;
+    std::string data = "XXoneZZ XXtwoZZ";
+    re2::RE2::Options ops;
+    re2::RE2 rex(R"((XX|ZZ))", ops);
+    re2::RE2 rex2(R"((XX|ZZ|YY))", ops);
+    re2::StringPiece pc = data;
+    int value = 0;
+
+
+    auto test = [&](int i) {
+        size_t loc = RE2::FindAndConsume(&pc, rex, &str);
+        cout << "data: " << data << endl;
+        cout << "pc:   " << pc << endl;
+        cout << "str:  " << str << endl;
+        cout << "-------------------\n";
+    };
+    for (int i = 0; i < 5; i++)
+        test(i);
+
+    cout << "orig:  " << data << endl;
+    cout << "peice: " << pc << endl;
+    cout << "data:  " << data << endl;
+
+}
+
+
+void test3()
+{
+    std::string data = "XXoneZZ XXtwoZZ";
     xstring xdata = data;
-    xdata.findall(RE2(R"((?:XX)(\w+)(?:ZZ))")).join('\n').print();
+    xdata.findall(RE2(R"((?:XX)(\w+)(?:ZZ))")).join('-').print(2);
+}
+
+int main()
+{
+    //test1();
+    test2();
+    //test3();
 
     // notes: 
     // re2 = slower to create regex object
