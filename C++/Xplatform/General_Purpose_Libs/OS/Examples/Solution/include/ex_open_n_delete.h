@@ -18,10 +18,10 @@ void ex_open_n_delete()
     os.RM("./test_folder1");
     os.RM("./test_folder2");
 
+    os.MKDIR("./test_folder1/nested_folder_a");
+    os.MKDIR("./test_folder1/nested_folder_b");
     os.MKDIR("./test_folder1/nested_folder/double_nested_folder");
-    os.MKDIR("./test_folder1/nested_folder_a/");
-    os.MKDIR("./test_folder1/nested_folder_b/");
-    
+
     os.open("./test_folder1/nested_folder/double_nested_folder/file1", 'w').write("test data");
     os.open("./test_folder1/nested_folder/double_nested_folder/file2", 'w').write("test data");
     os.open("./test_folder1/nested_folder/double_nested_folder/file3", 'w').write("test data");

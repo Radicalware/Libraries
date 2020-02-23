@@ -27,9 +27,6 @@
 
 #include "OS.h"
 
-RE2 OS::s_backslash(R"((\\\\))");
-RE2 OS::s_forwardslash(R"(/)");
-
 // -------------------------------------------------------------------------------------------
 #if defined(NIX_BASE)
 void OS::Dir_Continued(const xstring scan_start, xvector<xstring>& track_vec, \
@@ -193,22 +190,6 @@ bool OS::File_List_Syntax(const xvector<xstring>& i_files)
     }return true;
 }
 
-xstring OS::Full_Path(const xstring& file)
-{
-#ifdef WIN_BASE
-    char full[_MAX_PATH];
-#else
-    char full[PATH_MAX];
-#endif
-
-#if defined(WIN_BASE)
-    const char* unused = _fullpath(full, file.sub(s_forwardslash, "\\\\").c_str(), _MAX_PATH);
-#elif defined(NIX_BASE)
-    const char* unused = realpath(file.sub(s_backslash, "/").c_str(), full);
-#endif
-
-    return xstring(full);
-}
 
 // ---------------------------------------------------------------------------------------------
 
@@ -230,19 +211,26 @@ void OS::MKDIR(const xstring& folder) {
 
     xstring new_folder = OS::Full_Path(folder);
 
-    xstring additional_dirs = new_folder.substr(OS::PWD().size(), new_folder.size() - OS::PWD().size());
-
-    xvector<xstring> folder_names = additional_dirs.split(R"([\\/](?=[^\s]))");
-
-    xstring folder_path = OS::PWD();
+    xvector<xstring> folder_names = new_folder.split(R"([\\/](?=[^\\/]|$))");
+    //std::cout << '\n';
+    //std::cout << "orig:  " << folder << '\n';
+    //std::cout << "path:  " << new_folder << '\n';
+    //std::cout << "split: " << folder_names.join('-') << '\n';
+    xstring folder_path;
     for (xvector<xstring>::iterator iter = folder_names.begin(); iter < folder_names.end(); ++iter)
     {
         if (!iter->size()) continue;
+       // std::cout << "iter = " << folder_path << '\n';
 #if defined(NIX_BASE)
         folder_path += '/' + *iter;
         ::mkdir(folder_path.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 
 #elif defined(WIN_BASE)
+        if ((*iter)[1] == ':')
+        {
+            folder_path += *iter;
+            continue;
+        }
         folder_path += '\\' + *iter;
         CreateDirectoryA(folder_path.c_str(), NULL);
 #endif

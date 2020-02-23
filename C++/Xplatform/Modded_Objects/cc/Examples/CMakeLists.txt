@@ -1,4 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.12)
+﻿cmake_minimum_required(VERSION 3.16)
 
 SET(THIS ex_cc)
 
@@ -21,6 +21,9 @@ SUBDIRLIST(SOLUTION_FILES "${CMAKE_CURRENT_SOURCE_DIR}/Solution")
 add_executable(${THIS} ${SOLUTION_FILES})
 
 find_package(cc)
+target_link_libraries(${THIS} 
+    Radical_Mod::cc
+)
 
 # -------------------------- POST-CONFIG --------------------------------------
 

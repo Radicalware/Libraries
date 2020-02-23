@@ -24,6 +24,10 @@ namespace OS_O // OS Object
         static const unsigned char IsFile;
         static const unsigned char IsFolder;
 
+        static re2::RE2 s_backslash;
+        static re2::RE2 s_back_n_forward_slashes;
+        static re2::RE2 s_forwardslash;
+
     public:
         Dir_Type();
         ~Dir_Type();
@@ -40,5 +44,7 @@ namespace OS_O // OS Object
         static xstring BWD(); // binary pwd
         static xstring PWD();  // user pwd
         static xstring Home(); // home dir
+
+        static xstring Full_Path(const xstring& file);
     };
 };

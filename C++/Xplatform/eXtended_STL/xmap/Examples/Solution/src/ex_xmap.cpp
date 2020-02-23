@@ -6,6 +6,10 @@
 #include "xstring.h"
 #include "xmap.h"
 
+
+#include <map>
+#include <unordered_map>
+
 #include <utility>
 
 using std::cout;
@@ -20,8 +24,27 @@ using std::string;
 // because of that, xrender default return type is string due to .join
 
 int main()
-{
+{   
     Nexus<>::Start();
+
+    std::map<xstring, int> smap1 = { { "one", 1}, { "two", 2 }, { "Three", 3 } };
+    std::unordered_map<xstring, int> sumap1 = { { "one", 1}, { "two", 2 }, { "Three", 3 } };
+    xmap<xstring, int> xxmap = { { "one", 1}, { "two", 2 }, { "Three", 3 } };
+
+    cout << "xxmap.size()  = " << xxmap.size() << '\n';
+    xmap<xstring, int> xmap1 = std::move(xxmap);
+    cout << "xxmap.size()  = " << xxmap.size() << '\n';
+    cout << "xmap1.size()  = " << xmap1.size() << "\n\n";
+
+    cout << "smap1.size()  = " << smap1.size() << '\n';
+    xmap<xstring, int> xmap2 = std::move(smap1); 
+    cout << "smap1.size()  = " << smap1.size() << '\n';
+    cout << "xmap2.size()  = " << xmap2.size() << "\n\n";
+
+    cout << "sumap1.size() = " << sumap1.size() << '\n';
+    xmap<xstring, int> xmap3  = std::move(sumap1);
+    cout << "sumap1.size() = " << sumap1.size() << '\n';
+    cout << "xmap3.size()  = " << xmap3.size() << "\n\n";
 
     xvector<xstring> single_vec{ "one","two","three","four","five","six" };
     xvector<xvector<xstring>> double_vec = single_vec.split(3);

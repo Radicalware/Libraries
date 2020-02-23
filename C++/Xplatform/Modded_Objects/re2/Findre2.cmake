@@ -63,14 +63,12 @@ UNSET(PROJECT_FILES)
 SUBDIRLIST(PROJECT_FILES "${PROJECT_DIR}/${LIB}")
 
 add_library(${LIB} STATIC ${PROJECT_FILES})
-add_library(radical_mod::${LIB} ALIAS ${LIB})
+add_library(Radical_Mod::${LIB} ALIAS ${LIB})
 
 include_directories(${THIS} PRIVATE
 
     ${RE2_DIR}/include
 )
-
-target_link_libraries(${THIS} PRIVATE radical_mod::${LIB})
 
 # -------------------------- POST-CONFIG --------------------------------------
 CONFIGURE_VISUAL_STUDIO_PROJECT(${PROJECT_FILES})

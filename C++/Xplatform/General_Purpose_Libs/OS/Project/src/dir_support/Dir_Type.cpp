@@ -16,6 +16,10 @@
 const unsigned char OS_O::Dir_Type::IsFile   = 0x8;
 const unsigned char OS_O::Dir_Type::IsFolder = 0x4;
 
+RE2 OS_O::Dir_Type::s_backslash(R"((\\\\))");
+RE2 OS_O::Dir_Type::s_back_n_forward_slashes(R"([\\\\/]+)");
+RE2 OS_O::Dir_Type::s_forwardslash(R"(/)");
+
 OS_O::Dir_Type::Dir_Type() {}
 OS_O::Dir_Type::~Dir_Type() {}
 
@@ -144,5 +148,35 @@ xstring OS_O::Dir_Type::Home() {
     free(path_str);
     return ret_str;
     // _dupenv_s( &path_str, &len, "pathext" ); TODO ADD THIS
+#endif
+}
+
+xstring OS_O::Dir_Type::Full_Path(const xstring& file)
+{
+    if (file[0] != '.')// no path traversal
+        return file;
+    else if (file[0] == '.' && (file[1] == '/' || file[1] == '\\')) 
+    {
+#if defined(WIN_BASE)
+        return PWD() + file(1).sub(s_forwardslash, "\\\\");
+#elif defined(NIX_BASE)
+        return PWD() + file(1).sub(s_backslash, "/");
+#endif
+    }
+
+
+#ifdef WIN_BASE
+    char full[_MAX_PATH];
+#else
+    char full[PATH_MAX];
+#endif
+
+#if defined(WIN_BASE)
+    const char* unused = _fullpath(full, file.sub(s_forwardslash, "\\\\").c_str(), _MAX_PATH);
+    return xstring(full);
+#elif defined(NIX_BASE)
+    xstring awkward_path = PWD() + '/' + file;
+    const char* unused = realpath(awkward_path.sub(s_forwardslash, "/").c_str(), full);
+    return xstring(full);
 #endif
 }

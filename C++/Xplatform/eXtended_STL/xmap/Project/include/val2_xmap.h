@@ -30,20 +30,19 @@ private:
     xmap<const V*, const K*>* m_rev_map = nullptr;   // go from KVPs to VKPs
 
 public:
+    using std::unordered_map<K, V>::unordered_map;
     // ======== INITALIZATION ========================================================================
     inline xmap();
     inline ~xmap();
 
-    inline xmap(std::initializer_list<std::pair<K, V>> init);
+    inline xmap(const xmap<K, V>& other);
+    inline xmap(xmap<K, V>&& other) noexcept;
 
     inline xmap(const std::unordered_map<K, V>& other);
-    inline xmap(std::unordered_map<K, V>&& other);
+    inline xmap(std::unordered_map<K, V>&& other) noexcept;
 
     inline xmap(const std::map<K, V>& other);
-    inline xmap(std::map<K, V>&& other);
-
-    inline xmap(const xmap<K, V>& other);
-    inline xmap(xmap<K, V>&& other);
+    inline xmap(std::map<K, V>&& other) noexcept;
 
     inline void add_pair(K one, const V& two);
     // ======== INITALIZATION ========================================================================
@@ -73,8 +72,8 @@ public:
     template<typename O>
     inline void operator=(O&& other);
 
-    inline const V& operator[](const K& key) const;
-    inline V& operator[](const K& key);
+    //inline const V& operator[](const K& key) const;
+    //inline V& operator[](const K& key);
 
     inline void operator+=(const xmap<K, V>& other);
     inline xmap<K, V> operator+(const xmap<K, V>& other) const;
@@ -110,6 +109,7 @@ public:
 };
 
 // ======== INITALIZATION ========================================================================
+
 template<typename K, typename V>
 inline xmap<K, V>::xmap()
 {
@@ -126,32 +126,25 @@ inline xmap<K, V>::~xmap()
 }
 
 template<typename K, typename V>
-inline xmap<K, V>::xmap(std::initializer_list<std::pair<K, V>> init)
-{
-    this->insert(init.begin(), init.end());
-}
+inline xmap<K, V>::xmap(const xmap<K, V>& other) :
+    std::unordered_map<K, V>(other.begin(), other.end()) {}
+template<typename K, typename V>
+inline xmap<K, V>::xmap(xmap<K, V>&& other) noexcept :
+    std::unordered_map<K, V>(std::move(other)) { }
 
 template<typename K, typename V>
-inline xmap<K, V>::xmap(const std::unordered_map<K, V>& other)
-    : std::unordered_map<K, V>(other.begin(), other.end()){}
+inline xmap<K, V>::xmap(const std::unordered_map<K, V>& other) :
+    std::unordered_map<K, V>(other.begin(), other.end()) {}
 template<typename K, typename V>
-inline xmap<K, V>::xmap(std::unordered_map<K, V>&& other)
-    : std::unordered_map<K, V>(other.begin(), other.end()){}
+inline xmap<K, V>::xmap(std::unordered_map<K, V>&& other) noexcept :
+    std::unordered_map<K, V>(std::move(other)) { }
 
 template<typename K, typename V>
-inline xmap<K, V>::xmap(const std::map<K, V>& other)
-    : std::unordered_map<K, V>(other.begin(), other.end()){}
+inline xmap<K, V>::xmap(const std::map<K, V>& other) :
+    std::unordered_map<K, V>(other.begin(), other.end()){}
 template<typename K, typename V>
-inline xmap<K, V>::xmap(std::map<K, V>&& other)
-    : std::unordered_map<K, V>(other.begin(), other.end()){}
-
-template<typename K, typename V>
-inline xmap<K, V>::xmap(const xmap<K, V>& other)
-    : std::unordered_map<K, V>(other.begin(), other.end()){}
-template<typename K, typename V>
-inline xmap<K, V>::xmap(xmap<K, V>&& other)
-    : std::unordered_map<K, V>(other.begin(), other.end()){}
-
+inline xmap<K, V>::xmap(std::map<K, V>&& other) noexcept :
+    std::unordered_map<K, V>(std::make_move_iterator(other.begin()), std::make_move_iterator(other.end())) { }
 
 template<typename K, typename V>
 inline void xmap<K, V>::add_pair(K one, const V& two){
@@ -285,17 +278,17 @@ inline void xmap<K, V>::operator=(O&& other)
     this->insert(other.begin(), other.end());
 }
 
-template<typename K, typename V>
-inline const V& xmap<K, V>::operator[](const K& key) const
-{
-    return this->at(key);
-}
+//template<typename K, typename V>
+//inline const V& xmap<K, V>::operator[](const K& key) const
+//{
+//    return this->at(key);
+//}
 
-template<typename K, typename V>
-inline V& xmap<K, V>::operator[](const K& key)
-{
-    return this->at(key);
-}
+//template<typename K, typename V>
+//inline V& xmap<K, V>::operator[](const K& key)
+//{
+//    return this->at(key);
+//}
 
 template<typename K, typename V>
 inline void xmap<K, V>::operator+=(const xmap<K, V>& other)

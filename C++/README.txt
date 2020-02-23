@@ -1,6 +1,6 @@
 ﻿If you are on Unix, you must run
 
-    snap install powershell --classic
+    snap install PowerShell --classic
 
 If you want to easily use the CMake build script on Unix.
 
@@ -9,6 +9,8 @@ I only wanted to make the build scripts once and it is much easier
 to run the command above than to install Python on windows, so I 
 will use PowerShell on Unix.
 
+Also, to use the PowerShell scripts, you must run "prep_modules.ps1"
+which will add the modules to your PowerShell $PATH
 
 Version <Lib Count>.<New Addition Push Count>.<Hotfix>
 

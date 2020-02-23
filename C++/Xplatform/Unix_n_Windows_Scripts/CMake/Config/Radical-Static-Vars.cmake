@@ -9,7 +9,8 @@ if(WIN32) # --------------------------------------------------------------------
     set(CMAKE_SYSTEM_VERSION ${WINDOWS_SDK})
     set(CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION ${WINDOWS_SDK})
 
-    SET(INSTALL_PREFIX "C:/Source/CMake/Radicalware")
+    SET(RADICAL_BASE   "C:/Source/CMake/Radicalware")
+    SET(INSTALL_PREFIX "${RADICAL_BASE}")
 
     set(CPP_ARGS " /EHsc")
     set(C_ARGS   CPP_ARGS)
@@ -19,7 +20,8 @@ if(WIN32) # --------------------------------------------------------------------
     list(APPEND CMAKE_MODULE_PATH ${CMAKE_PATH})
     list(APPEND CMAKE_MODULE_PATH ${RADICAL_PATH})
 else() # -----------------------------------------------------------------------------
-    SET(INSTALL_PREFIX "/opt/Radicalware")
+    SET(RADICAL_BASE   "/opt/Radicalware")
+    SET(INSTALL_PREFIX "${RADICAL_BASE}")
 
     set(CPP_ARGS " -Wfatal-errors -finput-charset=UTF-8 -fPIC -pthread")
     set(CPP_ARGS "${CPP_ARGS} -Wno-unused-result")

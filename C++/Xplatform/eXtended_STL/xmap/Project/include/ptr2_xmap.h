@@ -32,20 +32,19 @@ private:
     xmap<const V*, const K*>* m_rev_map = nullptr;   // go from KVPs to VKPs
 
 public:
+    using std::unordered_map<K*, V*>::unordered_map;
     // ======== INITALIZATION ========================================================================
     inline xmap();
     inline ~xmap();
 
-    inline xmap(std::initializer_list<std::pair<K*, V*>> init);
+    inline xmap(const xmap<K*, V*>& other);
+    inline xmap(xmap<K*, V*>&& other) noexcept;
 
     inline xmap(const std::unordered_map<K*, V*>& other);
-    inline xmap(std::unordered_map<K*, V*>&& other);
+    inline xmap(std::unordered_map<K*, V*>&& other) noexcept;
 
     inline xmap(const std::map<K*, V*>& other);
-    inline xmap(std::map<K*, V*>&& other);
-
-    inline xmap(const xmap<K*, V*>& other);
-    inline xmap(xmap<K*, V*>&& other);
+    inline xmap(std::map<K*, V*>&& other) noexcept;
 
     inline void add_pair(const K* one, const V* two);
     // ======== INITALIZATION ========================================================================
@@ -112,6 +111,7 @@ public:
 };
 
 // ======== INITALIZATION ========================================================================
+
 template<typename K, typename V>
 inline xmap<K*, V*>::xmap()
 {
@@ -128,37 +128,26 @@ inline xmap<K*, V*>::~xmap()
 }
 
 template<typename K, typename V>
-inline xmap<K*, V*>::xmap(std::initializer_list<std::pair<K*, V*>> init)
-{
-    //for (const std::pair<K*, V*>& val : init) // for std::map
-    //    this->insert(val);
-    this->insert(init.begin(), init.end());
-
-}
+inline xmap<K*, V*>::xmap(const xmap<K*, V*>& other) :
+    std::unordered_map<K*, V*>(other.begin(), other.end()) {}
+template<typename K, typename V>
+inline xmap<K*, V*>::xmap(xmap<K*, V*>&& other) noexcept :
+    std::unordered_map<K*, V*>(std::move(other)) { }
 
 template<typename K, typename V>
-inline xmap<K*, V*>::xmap(const std::unordered_map<K*, V*>& other)
-    : std::unordered_map<K*, V*>(other.begin(), other.end()){}
+inline xmap<K*, V*>::xmap(const std::unordered_map<K*, V*>& other) :
+    std::unordered_map<K*, V*>(other.begin(), other.end()) {}
+template<typename K, typename V>
+inline xmap<K*, V*>::xmap(std::unordered_map<K*, V*>&& other) noexcept :
+    std::unordered_map<K*, V*>(std::move(other)) { }
 
 template<typename K, typename V>
-inline xmap<K*, V*>::xmap(std::unordered_map<K*, V*>&& other)
-    : std::unordered_map<K*, V*>(other.begin(), other.end()){}
-
-
+inline xmap<K*, V*>::xmap(const std::map<K*, V*>& other) :
+    std::unordered_map<K*, V*>(other.begin(), other.end()) {}
 template<typename K, typename V>
-inline xmap<K*, V*>::xmap(const std::map<K*, V*>& other)
-    : std::unordered_map<K*, V*>(other.begin(), other.end()) {}
-template<typename K, typename V>
-inline xmap<K*, V*>::xmap(std::map<K*, V*>&& other)
-    : std::unordered_map<K*, V*>(other.begin(), other.end()) {}
+inline xmap<K*, V*>::xmap(std::map<K*, V*>&& other) noexcept :
+    std::unordered_map<K*, V*>(std::make_move_iterator(other.begin()), std::make_move_iterator(other.end())) { }
 
-
-template<typename K, typename V>
-inline xmap<K*, V*>::xmap(const xmap<K*, V*>& other)
-    : std::unordered_map<K*, V*>(other.begin(), other.end()){}
-template<typename K, typename V>
-inline xmap<K*, V*>::xmap(xmap<K*, V*>&& other)
-    : std::unordered_map<K*, V*>(other.begin(), other.end()){}
 
 template<typename K, typename V>
 inline void xmap<K*, V*>::add_pair(const K* one, const V* two)

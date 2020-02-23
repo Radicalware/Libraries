@@ -1,4 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.12)
+﻿cmake_minimum_required(VERSION 3.16)
 
 set(LIB xvector)
 
@@ -14,7 +14,7 @@ UNSET(PROJECT_FILES)
 SUBDIRLIST(PROJECT_FILES "${PROJECT_DIR}/${LIB}")
 
 add_library(${LIB} STATIC ${PROJECT_FILES})
-add_library(radical::${LIB} ALIAS ${LIB})
+add_library(Radical::${LIB} ALIAS ${LIB})
 
 include_directories(${LIB} PRIVATE
 
@@ -22,7 +22,7 @@ include_directories(${LIB} PRIVATE
     ${XVECTOR_DIR}/include
 )
 
-target_link_libraries(${THIS} PRIVATE radical::${LIB})
+target_link_libraries(${LIB} Radical::Nexus)
 
 # -------------------------- BUILD --------------------------------------------
 CONFIGURE_VISUAL_STUDIO_PROJECT(${PROJECT_FILES})

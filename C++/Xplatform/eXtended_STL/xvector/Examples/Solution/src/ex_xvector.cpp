@@ -25,19 +25,47 @@ public:
 };
 
 
+void move_vec()
+{
+    cout << "testing std::vector\n";
+    std::vector<xstring> vec1{ "zero","one","two","three","four","five" };
+    cout << "vec1.size() = " << vec1.size() << endl;
+    xvector<xstring> vec2 = std::move(vec1);
+    cout << "vec1.size() = " << vec1.size() << endl;
+    cout << "vec2.size() = " << vec2.size() << endl;
+}
+
+void move_xvec()
+{
+    cout << "\ntesting xvector\n";
+    xvector<xstring> vec1{ "zero","one","two","three","four","five" };
+    cout << "vec1.size() = " << vec1.size() << endl;
+    xvector<xstring> vec2 = std::move(vec1);
+    cout << "vec1.size() = " << vec1.size() << endl;
+    cout << "vec2.size() = " << vec2.size() << endl;
+}
+
+
 int main(int argc, char** argv) 
 {
-    xvector<Abs*> abs = { new Der };
-    //abs[0]->print();
-    //delete abs[0];
 
     Nexus<>::Start();
 
-    xvector<xstring> vec_str{ "zero","one","two","three","four","five" };
+    xvector<Abs*> abs = { new Der };
+    abs[0]->print();
+    delete abs[0];
 
+    cout << "-----------------------------------------" << endl;
+    move_vec();
+    move_xvec();
+    cout << "-----------------------------------------" << endl;
+
+    // test r-val ref    
+    // std::vector<std::string>
+    // xvector<xstring>
+    xvector<xstring> vec_str({ "zero","one","two","three","four","five" });
     vec_str.add("six", "seven", "eight"); // as many as you want.
-
-    vec_str.join(' ').print('\n','\n');
+    vec_str.join(' ').print('\n', '\n');
 
     cout << "========================================\n";
     cout << "testing xvector discovery\n\n";

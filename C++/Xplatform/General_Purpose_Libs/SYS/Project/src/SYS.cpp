@@ -211,22 +211,25 @@ bool SYS::operator()(const char key) const {
 }
 
 bool SYS::operator()(const char key, const xstring& value) const {
-    return m_values[m_chr_kvps[key]].has(value);
+    return m_values[m_chr_kvps.at(key)].has(value);
 
 }
 
 // -------------------------------------------------------------------------------------------------------------------
-bool SYS::help() 
-{    
-    if (!m_args_set) 
+bool SYS::help()
+{
+    if (m_str_kvps.keys().match_one(R"(^[-]{1,2}[hH]((elp)?)$)") || m_argc == 1){
+        return true;
+    }
+    else if (!m_args_set)
     {
-        xstring error = "\n\nSet args first!!\n\n";
+        xstring error = "\n\nRemember set_args(int argc, char** argv) !!\n\n";
         error.print();
         throw std::runtime_error(error.c_str());
     }
-    if (m_str_kvps.keys().match_one(R"(^[-]{1,2}[hH]((elp)?)$)") || m_argc == 1)
-        return true;
-    return false;
+    else {
+        return false;
+    }
 }
 // ======================================================================================================================
 

@@ -21,6 +21,7 @@ public:
     ~Task();
 
     void operator=(const Task& task);
+    void operator=(Task&& task);
 
     void add_method(const std::function<T()>& i_method);
 
@@ -41,7 +42,7 @@ inline Task<T>::Task()
 
 template<typename T>
 inline Task<T>::Task(Task&& task) noexcept{
-    this->operator=(task);
+    this->operator=(std::move(task));
 }
 
 template<typename T>
@@ -50,16 +51,16 @@ inline Task<T>::Task(const Task& task){
 }
 // ----------------------------------------------------------------------------------------------------
 template<typename T>
-inline Task<T>::Task(std::function<T()>&& i_method) : m_method(i_method)
+inline Task<T>::Task(std::function<T()>&& i_method) : m_method(std::move(i_method))
 {   }
 template<typename T>
 inline Task<T>::Task(const std::function<T()>& i_method) : m_method(i_method)
 {   }
 // ----------------------------------------------------------------------------------------------------
 template<typename T>
-inline Task<T>::Task(std::function<T()>&& i_method, std::string&& i_name): m_method(i_method)
+inline Task<T>::Task(std::function<T()>&& i_method, std::string&& i_name): m_method(std::move(i_method))
 {
-    m_name = new std::string(i_name);
+    m_name = new std::string(std::move(i_name));
 }
 template<typename T>
 inline Task<T>::Task(const std::function<T()>& i_method, const std::string& i_name): m_method(i_method)
@@ -79,6 +80,17 @@ inline void Task<T>::operator=(const Task& task)
     m_blank = false;
 }
 
+template<typename T>
+inline void Task<T>::operator=(Task&& task)
+{
+    if (task.m_name != nullptr) {
+        if (m_name != nullptr)
+            delete m_name;
+        m_name = new std::string(std::move(*task.m_name));
+    }
+    m_method = std::move(task.m_method);
+    m_blank = false;
+}
 
 // ----------------------------------------------------------------------------------------------------
 

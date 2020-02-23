@@ -92,7 +92,7 @@ more junk text vice.crusade.ctr@us.underground.nil   junk
 
         // next we do the same thing but regex over the whole thing at once
         cout << "------------ FIND ALL EMAIL DOMAIN ----------------------------\n";
-        header = "\nFindall 3 = "; 
+        header = "\nFindall 3 = ";
         header.print(0);
         emails.findall(R"rex((?:(?:^|\n).*\@)(.+(\.?).+?)(?:\.))rex").join(header).print(2);
         cout << "----\n";
@@ -114,8 +114,6 @@ more junk text vice.crusade.ctr@us.underground.nil   junk
         cout << "Found capture groups\n";
         emails.search(R"((vice).(crusade).(ctr)@(us).(underground))", rxm::ECMAScript, 5).join("==").print(2);
         // 5 idicates we want the first 5 on (opposed to off) capture groups
-
-
     }
     // ===================================================================================================
 

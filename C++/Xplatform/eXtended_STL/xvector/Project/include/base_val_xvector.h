@@ -47,14 +47,21 @@ public:
 private:
     Nexus<E>* td = nullptr;
 public:
+    using std::vector<T, std::allocator<T>>::vector;
 
-    inline ~val_xvector();
     inline val_xvector() {};
-    inline val_xvector(size_t sz)                    : std::vector<T>(sz) {};
-    inline val_xvector(const std::vector<T>& vec)    : std::vector<T>(vec) {};
-    inline val_xvector(std::vector<T>&& vec)         : std::vector<T>(vec) {};
-    inline val_xvector(std::initializer_list<T> lst) : std::vector<T>(lst) {};
-    inline void operator=(const xvector<T>& other);
+    inline ~val_xvector();
+    inline val_xvector(std::initializer_list<T> lst): std::vector<T>(std::move(lst)) { };
+    inline val_xvector(const std::vector<T>& vec) : std::vector<T>(vec) { };
+    inline val_xvector(std::vector<T>&& vec) noexcept : std::vector<T>(std::move(vec)) { };
+    inline val_xvector(const xvector<T>& vec) : std::vector<T>(vec) { };
+    inline val_xvector(xvector<T>&& vec) noexcept : std::vector<T>(std::move(vec)) { };
+
+    inline void operator=(const xvector<T>& vec);
+    inline void operator=(const std::vector<T>& vec);
+
+    inline void operator=(xvector<T>&& vec);
+    inline void operator=(std::vector<T>&& vec);
 
     template<typename P = T> 
     inline bool has(const P* item) const;
@@ -200,21 +207,6 @@ public:
 };
 // =============================================================================================================
 
-template<typename T>
-inline val_xvector<T>::~val_xvector()
-{
-    if (td != nullptr)
-        delete td;
-}
-
-template<typename T>
-void val_xvector<T>::operator=(const xvector<T>& other) {
-    this->clear();
-    this->reserve(other.size());
-    this->insert(this->begin(), other.begin(), other.end());
-}
-
-// ------------------------------------------------------------------------------------------------
 
 template<typename T>
 template<typename P>
@@ -225,6 +217,44 @@ inline bool val_xvector<T>::has(const P* item) const
             return true;
     }
     return false;
+}
+
+template<typename T>
+inline val_xvector<T>::~val_xvector()
+{
+    if (td) delete td;
+}
+
+template<typename T>
+inline void val_xvector<T>::operator=(const xvector<T>& vec)
+{
+    this->clear();
+    this->reserve(vec.size());
+    this->insert(this->begin(), vec.begin(), vec.end());
+}
+
+template<typename T>
+inline void val_xvector<T>::operator=(const std::vector<T>& vec)
+{
+    this->clear();
+    this->reserve(vec.size());
+    this->insert(this->begin(), vec.begin(), vec.end());
+}
+
+template<typename T>
+inline void val_xvector<T>::operator=(xvector<T>&& vec)
+{
+    this->clear();
+    this->reserve(vec.size());
+    this->insert(this->begin(), std::make_move_iterator(vec.begin()), std::make_move_iterator(vec.end()));
+}
+
+template<typename T>
+inline void val_xvector<T>::operator=(std::vector<T>&& vec)
+{
+    this->clear();
+    this->reserve(vec.size());
+    this->insert(this->begin(), std::make_move_iterator(vec.begin()), std::make_move_iterator(vec.end()));
 }
 
 template<typename T>
@@ -288,15 +318,15 @@ inline void val_xvector<T>::operator<<(const T& item){
 
 template<typename T>
 inline void val_xvector<T>::operator<<(const T&& item){
-    this->emplace_back(item);
+    this->emplace_back(std::move(item));
 }
 
 template<typename T>
 inline void val_xvector<T>::operator*=(const size_t count)
 {
-    xvector<T>* tmp = new xvector<T>;
+    xvector<E>* tmp = new xvector<E>;
     tmp->reserve(this->size() + 1);
-    *tmp = *this;
+    (*tmp).insert(tmp->begin(), this->begin(), this->end());
     
     this->reserve(this->size() * count + 1);
     for (int i = 0; i < count - 1; i++)
@@ -426,10 +456,19 @@ template<typename T>
 template<typename N>
 inline xvector<xvector<T>> val_xvector<T>::split(N count) const
 {
-    if (count < 2)
-        return xvector<xvector<T>>{ *this };
 
     xvector<xvector<T>> ret_vec;
+    if (count < 2) {
+        if (count == 1 && this->size() == 1) {
+            ret_vec[0].reserve(this->size());
+            for (typename val_xvector<T>::const_iterator it = this->begin(); it != this->end(); it++) {
+                ret_vec[0].push_back(*it);
+            }
+        }
+        else
+            return ret_vec;
+    }
+
     ret_vec.reserve(static_cast<size_t>(count) + 1);
     if (!this->size())
         return ret_vec;
@@ -460,9 +499,11 @@ void val_xvector<T>::operator+=(const xvector<T>& other)
 }
 
 template<typename T>
-xvector<T> val_xvector<T>::operator+(const xvector<T>& other) const {
-    size_t sz = this->size();
-    xvector<E> vret = *this;
+xvector<T> val_xvector<T>::operator+(const xvector<T>& other) const 
+{
+    xvector<T> vret;
+    vret.reserve(this->size());
+    vret.insert(vret.end(),  this->begin(), this->end());
     vret += other;
     return vret;
 }

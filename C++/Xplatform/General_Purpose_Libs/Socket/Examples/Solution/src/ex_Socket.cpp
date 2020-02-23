@@ -29,15 +29,15 @@ int main(int argc, char** argv)
 
             socket.server.set_function([](const xstring* client_data) -> xstring { return xstring("Welcome: '") + *client_data + "'\n"; });
 
-            socket.server.listen("5555").accept().recv(50).respond().close();
+            ///socket.server.listen("5555").accept().recv(50).respond().close();
             // accept(4) allows the first 4 chars so "Joel" out of "Joel Leagues"
             // accept()  allows an infinite amount
 
-            // socket.server.listen("5555");
-            // socket.server.accept();
-            // socket.server.recv(50);
-            // socket.server.respond();
-            // socket.server.close();
+             socket.server.listen("5555");
+             socket.server.accept();
+             socket.server.recv(50);
+             socket.server.respond();
+             socket.server.close();
         }
         catch (const std::runtime_error & err) {
             cout << err.what() << endl;
@@ -50,14 +50,14 @@ int main(int argc, char** argv)
         socket.verbose = true;
 
         try {
-            socket.client.connect("127.0.0.1", "5555").send("Joel Leagues").recv(50).close();
+            ///socket.client.connect("127.0.0.1", "5555").send("Joel Leagues").recv(50).close();
             // recv() >> will continue to recieve all the bytes
             // recv(6) >> will gather 6 bytes so we will get "welcom" from the message
 
-             //socket.client.connect("127.0.0.1", "5555");
-             //socket.client.send("Joel Leagues");
-             //socket.client.recv(50);
-             //socket.client.close();
+             socket.client.connect("127.0.0.1", "5555");
+             socket.client.send("Joel Leagues");
+             socket.client.recv(50);
+             socket.client.close();
 
         }
         catch (const std::runtime_error& err) {

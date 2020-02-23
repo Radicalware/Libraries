@@ -79,8 +79,6 @@ private:
         const bool folders, const bool files, const bool recursive);
 
 public:
-    static RE2 s_backslash;
-    static RE2 s_forwardslash;
 
     OS_O::File file; // .name()   .data()     
     OS_O::CMD  cmd;  // .cmd()    .in()     .out().   .err()    .err_message()
@@ -92,7 +90,6 @@ public:
 
     static bool File_Syntax(const xstring& file);
     static bool File_List_Syntax(const xvector<xstring>& files);
-    static xstring Full_Path(const xstring& file);
 
     // ---------------------------------------------------------------------------------------------
     // Bash Style OS Commands

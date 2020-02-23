@@ -29,10 +29,23 @@ class xvector<T, typename std::enable_if<!std::is_class<T>::value && !std::is_po
 {
 private:
     typedef typename std::remove_const<T>::type E;// E for Erratic
-    using val_xvector<T>::val_xvector;
 
 public:
+    using val_xvector<T>::val_xvector;
+    using val_xvector<T>::operator=;
+
     typedef T value_type;
+    inline xvector(std::initializer_list<T> lst) : val_xvector<T>(std::move(lst)) { };
+    inline xvector(const std::vector<T>& vec) : val_xvector<T>(vec) { };
+    inline xvector(std::vector<T>&& vec) noexcept : val_xvector<T>(std::move(vec)) { };
+    inline xvector(const xvector<T>& vec) : val_xvector<T>(vec) { };
+    inline xvector(xvector<T>&& vec) noexcept : val_xvector<T>(std::move(vec)) { };
+
+    inline void operator=(const xvector<T>& vec) { val_xvector<T>::operator=(vec); };
+    inline void operator=(const std::vector<T>& vec) { val_xvector<T>::operator=(vec); };
+
+    inline void operator=(xvector<T>&& vec) { val_xvector<T>::operator=(std::move(vec)); };
+    inline void operator=(std::vector<T>&& vec) { val_xvector<T>::operator=(std::move(vec)); };
 
     inline T common(char const* item);
     template<typename S = std::string>

@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <climits>
 
-#include "../dir_support/Dir_Type.h"
+#include "dir_support/Dir_Type.h"
 #include "xstring.h"
 
 #if (defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64))
@@ -15,7 +15,7 @@
 class OS;
 namespace OS_O // OS Object
 {
-    class File
+    class File : public Dir_Type
     {
         friend class ::OS;
 
@@ -24,6 +24,9 @@ namespace OS_O // OS Object
         std::ofstream m_out_stream; // output new file data
         std::ifstream m_in_stream;  // intake file data to var
         char m_handler = 'n'; // 'r' = read    'w' = write    'a' = append
+
+        static RE2 s_get_file;
+        static RE2 s_forwardslash;
 
         void set_file(const xstring& iname);
 
@@ -51,7 +54,5 @@ namespace OS_O // OS Object
 
         void move(const xstring& location);
         void mv(const xstring& location);
-
-        static xstring full_path(const xstring& ipath);
     };
 };

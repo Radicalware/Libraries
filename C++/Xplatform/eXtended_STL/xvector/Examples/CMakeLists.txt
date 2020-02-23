@@ -1,4 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.12)
+﻿cmake_minimum_required(VERSION 3.16)
 
 set(THIS ex_xvector)
 
@@ -21,10 +21,20 @@ SUBDIRLIST(SOLUTION_FILES "${CMAKE_CURRENT_SOURCE_DIR}/Solution")
 add_executable(${THIS} ${SOLUTION_FILES})
 
 find_package(Nexus)
-find_package(re2)
 find_package(xvector)
 find_package(xstring)
 find_package(xmap)
+find_package(re2)
+
+target_link_libraries(${THIS} 
+    Radical_Mod::re2
+    Radical::Nexus
+    Radical::xvector
+    Radical::xstring
+    Radical::xmap
+
+    Radical_Mod::re2
+)
 
 # -------------------------- POST-CONFIG --------------------------------------
 

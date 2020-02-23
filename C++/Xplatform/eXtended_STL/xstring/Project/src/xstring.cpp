@@ -34,106 +34,93 @@ xstring Color::Mod::Blink = "\033[05m";
 xstring Color::Mod::Hide  = "\033[08m";
 
 
-xstring::xstring()
+xstring::xstring(const char chr)
 {
+    this->insert(this->begin(), chr);
 }
 
-
-xstring::xstring(std::string&& str) noexcept : std::string(str)
+xstring::xstring(const char* chrs)
 {
+    size_t len = strlen(chrs);
+    this->reserve(len);
+    this->insert(this->begin(), chrs, &chrs[len]);
 }
 
-xstring::xstring(const std::string& str): std::string(str)
+xstring::xstring(const unsigned char* chrs)
 {
-    
+    size_t len = strlen(reinterpret_cast<const char*>(chrs));
+    this->reserve(len);
+    this->insert(this->begin(), chrs, &chrs[len]);
 }
 
-xstring::xstring(xstring&& str) noexcept
+void xstring::operator+=(const char chr)
 {
-    this->insert(this->begin(), str.begin(), str.end());
+    this->insert(this->end(), chr);
 }
 
-xstring::xstring(const xstring& str)
-{
-    this->insert(this->begin(),str.begin(), str.end());
-}
-
-xstring::xstring(const char* str): std::string(str)
-{
-}
-
-xstring::xstring(const unsigned char* str): std::string((char*)str)
-{
-}
-
-xstring::xstring(const char i_char, const size_t i_int) :
-    std::string(i_int, i_char)
-{
-}
-
-xstring::xstring(const int i_int, const char i_char) :
-    std::string(i_int, i_char)
-{
-}
-
-xstring::xstring(std::initializer_list<char> lst) : std::string(lst)
-{
-}
-
-
-void xstring::operator=(const xstring& other)
-{
-    this->clear();
-    if (other.size()) {
-        this->reserve(other.size());
-        this->insert(this->begin(), other.begin(), other.end());
-    }
-}
-
-void xstring::operator=(xstring&& other) noexcept
-{
-    this->clear();
-    if (other.size()) {
-        this->reserve(other.size());
-        this->insert(this->begin(), other.begin(), other.end());
-    }
-}
-
-void xstring::operator=(const char* other)
-{
-    *this = std::string(other);
-}
-
-//void xstring::operator+=(const size_t& num)
-//{
-//    xstring val = to_xstring(num);
-//    (*this).insert(this->end(), val.begin(), val.end());
-//}
-
-xstring xstring::operator+(const char* str) const
+xstring xstring::operator+(const char chr)
 {
     xstring rstr = *this;
+    rstr.insert(rstr.end(), chr);
+    return rstr;
+}
+
+void xstring::operator+=(const char* chr)
+{
+    *this += xstring(chr);
+}
+
+xstring xstring::operator+(const char* chr)
+{
+    xstring retr;
+    retr.reserve(this->size() + strlen(chr));
+    retr += *this;
+    retr += chr;
+    return retr;
+}
+
+void xstring::operator+=(const unsigned char* chr)
+{
+    *this += xstring(chr);
+}
+
+xstring xstring::operator+(const unsigned char* chr)
+{
+    xstring retr;
+    retr.reserve(this->size() + strlen(reinterpret_cast<const char*>(chr)));
+    retr += *this;
+    retr += chr;
+    return retr;
+}
+
+void xstring::operator+=(const std::string& str){
+    this->insert(this->end(), str.begin(), str.end());
+}
+
+xstring xstring::operator+(const std::string& str)
+{
+    xstring rstr;
+    rstr.reserve(this->size() + str.size());
+    rstr += *this;
     rstr += str;
     return rstr;
 }
 
-void xstring::operator+=(const char* str)
+void xstring::operator+=(std::string&& str)
 {
-    //this->insert(this->end(), &str, &str+str[strlen(str)]);
-    *this += xstring(str);
+    this->insert(this->end(), std::make_move_iterator(str.begin()), std::make_move_iterator(str.end()));
 }
 
-void xstring::operator+=(const xstring& str) {
-    this->insert(this->end(), str.begin(), str.end());
+xstring xstring::operator+(std::string&& str)
+{
+    xstring rstr;
+    rstr.reserve(this->size() + str.size());
+    rstr += *this;
+    rstr += std::move(str);
+    return rstr;
 }
 
-bool xstring::operator==(const char* str) const
-{
-    if (strcmp(this->c_str(), str) == 0)
-        return true;
-    else
-        return false;
-}
+
 
 void xstring::print() const
 {
@@ -154,6 +141,16 @@ void xstring::print(int num) const
 
 void xstring::print(const xstring& front, const xstring& end) const {
     std::cout << front << *this << end << '\n';
+}
+
+void xstring::print(const char chr1, const char chr2) const
+{
+    std::cout << chr1 << *this << chr2 << '\n';
+}
+
+void xstring::print(const char* chr1, const char* chr2) const
+{
+    std::cout << chr1 << *this << chr2 << '\n';
 }
 
 std::string xstring::to_string() const {
@@ -205,6 +202,23 @@ xstring xstring::remove(const char val) const
     return str;
 }
 
+xstring xstring::reverse() const
+{
+    xstring str;
+    str.resize(this->size());
+
+    xstring::const_reverse_iterator from_it = this->rbegin();
+    xstring::iterator to_it = str.begin();
+
+    for (; from_it != this->rend();)
+    {
+        *to_it = *from_it;
+        from_it++;
+        to_it++;
+    }
+    return str;
+}
+
 // ---------------------------------------------------------------
 
 xvector<xstring> xstring::split(size_t loc) const
@@ -231,7 +245,7 @@ xvector<xstring> xstring::split(const xstring& pattern, rxm::type mod) const {
 }
 
 xvector<xstring> xstring::split(const char splitter, rxm::type mod) const {
-    return this->split(xstring(splitter), mod);
+    return this->split(xstring({ splitter }), mod);
 }
 
 xvector<xstring> xstring::inclusive_split(const std::regex& rex, bool single) const
@@ -262,7 +276,7 @@ xvector<xstring> xstring::inclusive_split(const char* splitter, rxm::type mod, b
 }
 
 xvector<xstring> xstring::inclusive_split(const char splitter, rxm::type mod, bool aret) const {
-    return this->inclusive_split(xstring(splitter), mod, aret);
+    return this->inclusive_split(xstring({ splitter }), mod, aret);
 }
 
 // =========================================================================================================================
@@ -627,11 +641,12 @@ xvector<xstring> xstring::search(const std::regex& rex, int count) const
     if (std::regex_search(*this, matcher, rex)) 
     {
         size_t sz = matcher.size();
-        std::smatch::const_iterator it = matcher.begin() + 1;
+        std::smatch::iterator it = matcher.begin() + 1;
         while(it != matcher.end() && count != 0)
         {
             retv << xstring(*it);
-            count--;
+            ++it;
+            --count;
         }
     }
     return retv;
@@ -953,7 +968,7 @@ xstring xstring::bold() const {
 xstring xstring::underline() const {
     return Color::Mod::Underline + *this;
 }
-xstring xstring::reverse() const {
+xstring xstring::invert_color() const {
     return Color::Mod::Reverse + *this;
 }
 // =================================================================================================================================

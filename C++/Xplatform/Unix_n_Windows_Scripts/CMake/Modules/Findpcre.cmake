@@ -34,6 +34,4 @@ if(WIN32)
 else()
     find_package(PCREPOSIX)
     target_include_directories(${THIS} PRIVATE ${PCRE_INCLUDE_DIR})
-    target_link_libraries(${THIS} PRIVATE ${PCRE_LIBRARIES})
-
 endif()

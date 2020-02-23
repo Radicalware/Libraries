@@ -33,7 +33,9 @@ class Lib_Handler
     [void] copy([string] $lib)
     {    
         Copy-Item  "$($this.cmake_install_dir)\$lib\*"  "$($this.build_dir)\$($this.dir)\$lib\Project" -Recurse -Force
-        Copy-Item  "$($this.cmake_install_dir)\$lib\$($this.inc)"  "$($this.cmake_header_dir)" -Recurse -Force
+        
+        # It is better to use soft links
+        # Copy-Item  "$($this.cmake_install_dir)\$lib\$($this.inc)"  "$($this.cmake_header_dir)" -Recurse -Force
 
     }
 }

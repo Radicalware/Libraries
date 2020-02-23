@@ -1,4 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.12)
+﻿cmake_minimum_required(VERSION 3.16)
 
 set(THIS OS)
 
@@ -33,10 +33,18 @@ target_include_directories(${THIS}
 
 # Required Libs -------------------------------------------------------------------------
 
-find_package(re2)
 find_package(Nexus)
 find_package(xvector)
 find_package(xstring)
+find_package(re2)
+
+target_link_libraries(${THIS} 
+    Radical::Nexus
+    Radical::xvector
+    Radical::xstring
+
+    Radical_Mod::re2
+)
 
 # -------------------------- INSTALL ----------------------------------------------------
 include("${RADICAL_PATH}/Radical-Lib-Install.cmake")

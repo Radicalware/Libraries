@@ -1,4 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.12)
+﻿cmake_minimum_required(VERSION 3.16)
 
 SET(THIS ex_re)
 
@@ -23,6 +23,10 @@ add_executable(${THIS} ${SOLUTION_FILES})
 find_package(re)
 find_package(ac)
 
+target_link_libraries(${THIS} 
+    Radical::re
+    Radical::ac
+)
 # -------------------------- POST-CONFIG --------------------------------------
 
 CONFIGURE_VISUAL_STUDIO_SOLUTION(${SOLUTION_FILES})

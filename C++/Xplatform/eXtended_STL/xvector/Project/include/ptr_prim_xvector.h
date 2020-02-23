@@ -30,10 +30,23 @@ class xvector<T*, typename std::enable_if<!std::is_class<std::remove_pointer_t<T
 {
 private:
     typedef typename std::remove_const<T>::type E;// E for Erratic
-    using ptr_xvector<T*>::ptr_xvector;
 
 public:
+    using ptr_xvector<T*>::ptr_xvector;
+    using ptr_xvector<T*>::operator=;
+
     typedef T value_type;
+    inline xvector(std::initializer_list<T*> lst): ptr_xvector<T*>(std::move(lst)) { };
+    inline xvector(const std::vector<T*>& vec) : ptr_xvector<T*>(vec) { };
+    inline xvector(std::vector<T*>&& vec) noexcept : ptr_xvector<T*>(std::move(vec)) { };
+    inline xvector(const xvector<T*>& vec) : ptr_xvector<T*>(vec) { };
+    inline xvector(xvector<T*>&& vec) noexcept : ptr_xvector<T*>(std::move(vec)) { };
+
+    inline void operator=(const xvector<T*>& vec) { ptr_xvector<T*>::operator=(vec); };
+    inline void operator=(const std::vector<T*>& vec) { ptr_xvector<T*>::operator=(vec); };
+
+    inline void operator=(xvector<T*>&& vec) { ptr_xvector<T*>::operator=(std::move(vec)); };
+    inline void operator=(std::vector<T*>&& vec) { ptr_xvector<T*>::operator=(std::move(vec)); };
 
     template<typename S>
     inline auto join(const S& str)->std::enable_if_t<!std::is_same_v<S, char>, S>;

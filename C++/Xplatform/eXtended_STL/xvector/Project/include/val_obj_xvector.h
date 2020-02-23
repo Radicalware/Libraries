@@ -29,11 +29,24 @@ template<typename T>
 class xvector<T, typename std::enable_if<std::is_class<T>::value && !std::is_pointer<T>::value>::type> : public val_xvector<T>
 {
 private:
-    typedef typename std::remove_const<T>::type E;// E for Erratic
-    using val_xvector<T>::val_xvector;
+    typedef typename std::remove_const<T>::type E; // E for Erratic
     
 public:
+    using val_xvector<T>::val_xvector;
+    using val_xvector<T>::operator=;
+
     typedef T value_type;
+    inline xvector(std::initializer_list<T> lst) : val_xvector<T>(std::move(lst)) { };
+    inline xvector(const std::vector<T>& vec) : val_xvector<T>(vec) { };
+    inline xvector(std::vector<T>&& vec) noexcept : val_xvector<T>(std::move(vec)) { };
+    inline xvector(const xvector<T>& vec) : val_xvector<T>(vec) { };
+    inline xvector(xvector<T>&& vec) noexcept : val_xvector<T>(std::move(vec)) { };
+
+    inline void operator=(const xvector<T>& vec) { val_xvector<T>::operator=(vec); };
+    inline void operator=(const std::vector<T>& vec) { val_xvector<T>::operator=(vec); };
+
+    inline void operator=(xvector<T>&& vec) { val_xvector<T>::operator=(std::move(vec)); };
+    inline void operator=(std::vector<T>&& vec) { val_xvector<T>::operator=(std::move(vec)); };
 
     // go from xvector<xvector<xstring>> to xvector<xstring>
     inline T expand() const;
@@ -69,7 +82,7 @@ template<typename T>
 inline T xvector<T, typename std::enable_if<std::is_class<T>::value && !std::is_pointer<T>::value>::type>::join(const char str) const
 {
     E ret;
-    for (typename xvector<T>::const_iterator it = this->begin(); it != this->end(); it++)
+    for (typename xvector<E>::const_iterator it = this->begin(); it != this->end(); it++)
         ret += *it + str;
 
     return ret.substr(0, ret.size() - 1);

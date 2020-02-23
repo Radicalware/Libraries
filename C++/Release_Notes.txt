@@ -4,6 +4,17 @@
 
 ---------------------------------------------------------------------
 
+02/22/2020 >> Libs v14.0.2
+
+Various hotfixes and updates, no new functionality
+One change to build process though; I created a powershell script...
+Unix_n_Windows_Scripts/Install/copy_headers.ps1
+that will copy your headers links to your headers dir after
+installing your libs. This is not required if you don't intend to
+modify the Radicalware libs. It requires admin rights on Windows.
+
+---------------------------------------------------------------------
+
 01/11/2020 >> Libs v14.0.1
 
 CMake build scripts updated

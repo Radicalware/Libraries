@@ -52,7 +52,7 @@ inline Job<T>::Job()
 
 template<typename T>
 inline Job<T>::Job(Task<T>&& task, size_t index) : 
-    m_task(task), m_index(index)
+    m_task(std::move(task)), m_index(std::move(index))
 {
 }
 

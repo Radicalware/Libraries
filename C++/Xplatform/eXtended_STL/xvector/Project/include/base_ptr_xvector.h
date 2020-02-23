@@ -28,6 +28,7 @@
 #endif
 
 #include<vector>
+#include<utility>
 #include<type_traits>
 #include<initializer_list>
 #include<string>
@@ -47,14 +48,21 @@ public:
 private:
     Nexus<E>* td = nullptr;
 public:
+    using std::vector<T*, std::allocator<T*>>::vector;
 
-    inline ~ptr_xvector();
     inline ptr_xvector() {};
-    inline ptr_xvector(size_t sz)                        : std::vector<T*>(sz) {};
-    inline ptr_xvector(const std::vector<T*>& vec)       : std::vector<T*>(vec) {};
-    inline ptr_xvector(std::vector<T*>&& vec)            : std::vector<T*>(vec) {};
-    inline ptr_xvector(std::initializer_list<T*> lst)    : std::vector<T*>(lst) {};
-    inline void operator=(const xvector<T*>& other);
+    inline ~ptr_xvector();
+    inline ptr_xvector(std::initializer_list<T*> lst) : std::vector<T*>(std::move(lst)) { };
+    inline ptr_xvector(const std::vector<T*>& vec) : std::vector<T*>(vec) { };
+    inline ptr_xvector(std::vector<T*>&& vec) noexcept : std::vector<T*>(std::move(vec)) { };
+    inline ptr_xvector(const xvector<T*>& vec) : std::vector<T*>(vec) { };
+    inline ptr_xvector(xvector<T*>&& vec) noexcept : std::vector<T*>(std::move(vec)) { };
+
+    inline void operator=(const xvector<T*>& vec);
+    inline void operator=(const std::vector<T*>& vec);
+
+    inline void operator=(xvector<T*>&& vec);
+    inline void operator=(std::vector<T*>&& vec);
 
     inline bool has(const T& item) const;
     inline bool has(T&& item) const;
@@ -180,21 +188,67 @@ public:
 };
 // =============================================================================================================
 
+//template<typename T>
+//inline ptr_xvector<T*>::~ptr_xvector()
+//{
+//    if (td != nullptr)
+//        delete td;
+//}
+
+//template<typename T>
+//void ptr_xvector<T*>::operator=(const xvector<T*>& other) {
+//    this->clear();
+//    this->reserve(other.size());
+//    this->insert(this->begin(), other.begin(), other.end());
+//}
+//
+//template<typename T>
+//inline void ptr_xvector<T*>::operator=(xvector<T*>&& other)
+//{
+//    this->clear();
+//    this->reserve(other.size());
+//    &(*this)[0] = (&other[0]);
+//}
+
+// ------------------------------------------------------------------------------------------------
+
 template<typename T>
 inline ptr_xvector<T*>::~ptr_xvector()
 {
-    if (td != nullptr)
-        delete td;
+    if (td) delete td;
 }
 
 template<typename T>
-void ptr_xvector<T*>::operator=(const xvector<T*>& other) {
+inline void ptr_xvector<T*>::operator=(const xvector<T*>& vec)
+{
     this->clear();
-    this->reserve(other.size());
-    this->insert(this->begin(), other.begin(), other.end());
+    this->reserve(vec.size());
+    this->insert(this->begin(), vec.begin(), vec.end());
 }
 
-// ------------------------------------------------------------------------------------------------
+template<typename T>
+inline void ptr_xvector<T*>::operator=(const std::vector<T*>& vec)
+{
+    this->clear();
+    this->reserve(vec.size());
+    this->insert(this->begin(), vec.begin(), vec.end());
+}
+
+template<typename T>
+inline void ptr_xvector<T*>::operator=(xvector<T*>&& vec)
+{
+    this->clear();
+    this->reserve(vec.size());
+    this->insert(this->begin(), std::make_move_iterator(vec.begin()), std::make_move_iterator(vec.end()));
+}
+
+template<typename T>
+inline void ptr_xvector<T*>::operator=(std::vector<T*>&& vec)
+{
+    this->clear();
+    this->reserve(vec.size());
+    this->insert(this->begin(), std::make_move_iterator(vec.begin()), std::make_move_iterator(vec.end()));
+}
 
 template<typename T>
 bool ptr_xvector<T*>::has(const T& item)  const {

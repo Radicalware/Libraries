@@ -1,12 +1,15 @@
 #include "handlers/File.h"
 
 
+RE2 OS_O::File::s_get_file(R"(^.*[\\/])");
+RE2 OS_O::File::s_forwardslash(R"(/)");
+
 OS_O::File::File()
 {
 }
 
 void OS_O::File::set_file(const xstring& iname) {
-    m_name = File::full_path(iname);
+    m_name = File::Full_Path(iname);
 }
 
 
@@ -127,7 +130,7 @@ void OS_O::File::copy(const xstring& location){
 
 void OS_O::File::cp(const xstring& location)
 {
-    xstring new_path = OS_O::File::full_path(location);
+    xstring new_path = Full_Path(location);
     try {
         this->set_read();
         std::ofstream out_stream(new_path, std::ios::out | std::ios::binary);
@@ -149,17 +152,3 @@ void OS_O::File::mv(const xstring& location)
     this->rm();
 }
 
-xstring OS_O::File::full_path(const xstring& ipath)
-{
-#ifdef WIN_BASE
-    char full[_MAX_PATH];
-#else
-    char full[PATH_MAX];
-#endif
-#if defined(WIN_BASE)
-    const char* unused = _fullpath(full, ipath.sub("/", "\\\\").c_str(), _MAX_PATH);
-#elif defined(NIX_BASE)
-    const char* unused = realpath(ipath.sub("\\\\", "/").c_str(), full);
-#endif
-    return xstring(full);
-}

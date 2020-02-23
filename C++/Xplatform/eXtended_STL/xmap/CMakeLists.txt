@@ -1,4 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.12)
+﻿cmake_minimum_required(VERSION 3.16)
 
 set(THIS xmap)
 
@@ -30,10 +30,11 @@ target_include_directories(${THIS}
 )
 
 # Required Libs -------------------------------------------------------------------------
-target_link_libraries(${THIS} ${EXT_BIN_PATH}/lib/${PF}re2${ST})
 target_link_libraries(${THIS} ${EXT_BIN_PATH}/lib/${PF}Nexus${ST})
 target_link_libraries(${THIS} ${EXT_BIN_PATH}/lib/${PF}xvector${ST})
 target_link_libraries(${THIS} ${EXT_BIN_PATH}/lib/${PF}xstring${ST})
+
+target_link_libraries(${THIS} ${EXT_BIN_PATH}/lib/${PF}re2${ST})
 # -------------------------- INSTALL ----------------------------------------------------
 
 include("${RADICAL_PATH}/Radical-Lib-Install.cmake")

@@ -1,4 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.12)
+﻿cmake_minimum_required(VERSION 3.16)
 
 set(LIB cc)
 list(APPEND SHARED_LIB_LST ${LIB})
@@ -15,14 +15,12 @@ UNSET(PROJECT_FILES)
 SUBDIRLIST(PROJECT_FILES "${PROJECT_DIR}/${LIB}")
 
 add_library(${LIB} SHARED ${PROJECT_FILES})
-add_library(radical_mod::${LIB} ALIAS ${LIB})
+add_library(Radical_Mod::${LIB} ALIAS ${LIB})
 
 target_include_directories(${LIB} PUBLIC
     
     ${CC_DIR}/include
 )
-
-target_link_libraries(${THIS} PRIVATE radical_mod::${LIB})
 
 # -------------------------- POST-CONFIG --------------------------------------
 CONFIGURE_VISUAL_STUDIO_PROJECT(${PROJECT_FILES})

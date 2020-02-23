@@ -29,7 +29,30 @@ struct Full
         throwback2 = saved2;
     }
 
-    inline int Basics() {
+    void move_std_string()
+    {
+        std::string std_string = "test std::string";
+        cout << "std_string.size() = " << std_string.size() << '\n';
+        xstring x_string = std::move(std_string);
+        cout << "std_string.size() = " << std_string.size() << '\n';
+        cout << "x_string.size()   = " << x_string.size() << "\n\n";
+
+    }
+
+    void move_xstring()
+    {
+        xstring x1_string = "test xstring";
+        cout << "x1_string.size()   = " << x1_string.size() << '\n';
+        xstring x2_string = std::move(x1_string);
+        cout << "x1_string.size()   = " << x1_string.size() << '\n';
+        cout << "x2_string.size()   = " << x2_string.size() << "\n\n";
+    }
+
+    inline int Basics() 
+    {
+        move_std_string();
+        move_xstring();
+
         xstring hello_world("Hello World");
         print(hello_world.split(' ').join(" ** "));
 

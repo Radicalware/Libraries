@@ -48,37 +48,37 @@ xstring to_xstring(const T& obj);
 
 class xstring : public std::string
 {
-public:
     using ull = unsigned long long;
+public:
+    using std::string::basic_string;
 
-    xstring();
+    xstring(std::initializer_list<char> lst) : std::string(std::move(lst)) {};
+    xstring(const std::string& str) : std::string(str) {};
+    xstring(std::string&& str) noexcept : std::string(std::move(str)) {};
+    xstring(size_t repeat, const char chr) : std::string(repeat, chr) {};
+    xstring(const char chr);
+    xstring(const char* chrs);
+    xstring(const unsigned char* chrs);
 
-    xstring(std::string&& str) noexcept;
-    xstring(const std::string& str);
+    // operator=(&&) tests positive for moving in the examples
 
-    xstring(xstring&& str) noexcept;
-    xstring(const xstring& str);
+    void operator+=(const char chr);
+    xstring operator+(const char chr);
+    void operator+=(const char* chr);
+    xstring operator+(const char* chr);
+    void operator+=(const unsigned char* chr);
+    xstring operator+(const unsigned char* chr);
 
-    xstring(const char* str);
-    xstring(const unsigned char* str);
-    xstring(const char i_char, const size_t i_int = 1);
-    xstring(const int i_int, const char i_char);
-    xstring(std::initializer_list<char> lst);
-
-    void operator=(const xstring& other);
-    void operator=(xstring&& other) noexcept;
-    void operator=(const char* other);
-
-    //void operator+=(const size_t& val);
-    xstring operator+(const char* str) const;
-    void operator+=(const char* str);
-    void operator+=(const xstring& str);
-
-    bool operator==(const char* other) const;
+    void operator+=(const std::string& str);
+    xstring operator+(const std::string& str);
+    void operator+=(std::string&& str);
+    xstring operator+(std::string&& str);
 
     void print() const;
     void print(int num) const;
     void print(const xstring& front, const xstring& end = "") const;
+    void print(const char chr1, const char chr2 = ' ') const;
+    void print(const char* chr1, const char* chr2 = "") const;
 
     std::string to_string() const;
 
@@ -90,6 +90,7 @@ public:
 
     xstring remove(const char val) const;
 
+    xstring reverse() const;
     // =================================================================================================================================
     
     xvector<xstring> split(size_t loc) const;
@@ -234,7 +235,7 @@ public:
     xstring reset() const;
     xstring bold() const;
     xstring underline() const;
-    xstring reverse() const;
+    xstring invert_color() const;
     // =================================================================================================================================
 };
 
