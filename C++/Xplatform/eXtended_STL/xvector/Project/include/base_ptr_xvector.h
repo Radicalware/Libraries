@@ -113,7 +113,7 @@ public:
     inline void remove_dups();
 
     template<typename F>
-    inline void sort(F func);
+    inline xvector<T*> sort(F func);
 
     inline xvector<T> vals() const;
     inline T* at(const size_t idx) const;
@@ -502,9 +502,10 @@ inline void ptr_xvector<T*>::remove_dups()
 
 template<typename T>
 template<typename F>
-inline void ptr_xvector<T*>::sort(F func)
+inline xvector<T*> ptr_xvector<T*>::sort(F func)
 {
     std::sort(this->begin(), this->end(), func);
+    return *this;
 }
 
 template<typename T>

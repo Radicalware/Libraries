@@ -21,7 +21,7 @@ public:
     ~Task();
 
     void operator=(const Task& task);
-    void operator=(Task&& task);
+    void operator=(Task&& task) noexcept;
 
     void add_method(const std::function<T()>& i_method);
 
@@ -81,7 +81,7 @@ inline void Task<T>::operator=(const Task& task)
 }
 
 template<typename T>
-inline void Task<T>::operator=(Task&& task)
+inline void Task<T>::operator=(Task&& task) noexcept
 {
     if (task.m_name != nullptr) {
         if (m_name != nullptr)
