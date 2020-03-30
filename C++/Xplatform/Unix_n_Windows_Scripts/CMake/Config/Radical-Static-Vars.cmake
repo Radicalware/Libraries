@@ -5,9 +5,9 @@ set(CPP_ARGS "")
 set(C_ARGS   "")
 
 if(WIN32) # ----------------------------------------------------------------------------
-    set(WINDOWS_SDK "10.0.17763.0")
-    set(CMAKE_SYSTEM_VERSION ${WINDOWS_SDK})
-    set(CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION ${WINDOWS_SDK})
+    #set(WINDOWS_SDK "10.0.17763.0")
+    #set(CMAKE_SYSTEM_VERSION ${WINDOWS_SDK})
+    #set(CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION ${WINDOWS_SDK})
 
     SET(RADICAL_BASE   "C:/Source/CMake/Radicalware")
     SET(INSTALL_PREFIX "${RADICAL_BASE}")

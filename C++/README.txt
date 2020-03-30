@@ -14,7 +14,7 @@ which will add the modules to your PowerShell $PATH
 
 Version <Lib Count>.<New Addition Push Count>.<Hotfix>
 
-Version = 14.X.X
+Version = 15.X.X
 
 eXtended_STL
      1. xvector   - eXtended std::vector
@@ -30,11 +30,12 @@ General_Purpose_Libs
      9. Nexus     - Thread Pool with Indexing & Exception Handling
     10. Socket    - This makes client/server protocols very easy to use
     11. Timer     - Used for tracking the duration of a processes
+    12. Date      - Converts dates to ints and vice verca
 Mods
-    12. cc        - A modified version of termcolor by Ihor Kalnytskyi
-    13. re2       - Google's regular expression lib kit
+    13. cc        - A modified version of termcolor by Ihor Kalnytskyi
+    14. re2       - Google's regular expression lib kit
 Modules 
-    14. QtImage   - A module that handles images on Qt Objects
+    15. QtImage   - A module that handles images on Qt Objects
 
 
 --------------------------------------------------------------------------------------------

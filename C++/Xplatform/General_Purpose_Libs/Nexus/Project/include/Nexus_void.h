@@ -14,7 +14,6 @@
 #include<initializer_list>
 #include<utility>
 
-#include<future>
 #include<thread>
 #include<mutex>
 #include<condition_variable>
@@ -76,8 +75,8 @@ public:
     template <typename F, typename... A>
     static void Add_Job(F&& function, A&& ... Args);
 
-    template <typename F, typename... A>
-    static void Add_Job(NX_Mutex& nx_mutex, F&& function, A&& ... Args);
+    template <typename F, typename O, typename... A>
+    static void Add_Job(NX_Mutex& nx_mutex, O&& object, F&& function, A&& ... Args);
 
     template <typename F, typename V, typename... A>
     static void Add_Job_Val(F&& function, V& element, A&&... Args);
@@ -203,10 +202,10 @@ inline void Nexus<void>::Add_Job(F&& function, A&&... Args)
 }
 
 
-template<typename F, typename ...A>
-inline void Nexus<void>::Add_Job(NX_Mutex& nx_mutex, F&& function, A&& ...Args)
+template<typename F, typename O, typename ...A>
+inline void Nexus<void>::Add_Job(NX_Mutex& nx_mutex, O&& object, F&& function, A&& ...Args)
 {
-    auto binded_function = std::bind(function, std::ref(Args)...);
+    auto binded_function = std::bind(function, std::ref(object), std::ref(Args)...);
     std::lock_guard <std::mutex>lock(s_mutex);
 
     if(s_lock_lst.size() <= nx_mutex.id) // id should never be 'gt' size

@@ -4,6 +4,17 @@
 
 ---------------------------------------------------------------------
 
+03/30/2020 >> Libs v15.0.0
+
+Date Object added (hence the new version), and as always, this is 
+pretty beta, it is likely to have many changes comming to it.
+Nexus object update changed
+Nexus<>::Add_Job(Nexus_Mutex, Object, &Function, Args...);
+This reads much more easily than swapping the location of the 
+object and Function. Object used to be a part of Args...
+
+---------------------------------------------------------------------
+
 02/22/2020 >> Libs v14.0.2
 
 Various hotfixes and updates, no new functionality

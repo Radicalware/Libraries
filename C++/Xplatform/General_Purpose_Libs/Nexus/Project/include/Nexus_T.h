@@ -1,22 +1,5 @@
 #pragma once
 
-#include<iostream>
-#include<initializer_list>
-#include<utility>
-
-#include<future>
-#include<thread>
-#include<mutex>
-#include<condition_variable>
-
-#include<deque>
-#include<functional>
-#include<type_traits>
-
-#include "NX_Threads.h"
-#include "Task.h"
-#include "Job.h"
-
 #if (defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64))
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
@@ -25,7 +8,6 @@
 #else 
 #include<unistd.h>
 #endif
-
 
 #include<iostream>
 #include<vector>
@@ -33,7 +15,6 @@
 #include<initializer_list>
 #include<utility>
 
-#include<future>
 #include<thread>
 #include<mutex>
 #include<condition_variable>
@@ -41,6 +22,10 @@
 #include<deque>
 #include<functional>
 #include<type_traits>
+
+#include "NX_Threads.h"
+#include "Task.h"
+#include "Job.h"
 
 #include "NX_Threads.h"
 #include "Task.h"
@@ -55,9 +40,7 @@
 #include<unistd.h>
 #endif
 
-
 // =========================================================================================
-
 
 template<typename T = void>
 class Nexus : public NX_Threads

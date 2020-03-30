@@ -139,12 +139,12 @@ int main()
     Timer t;
     for (int i = 0; i < bank.looper; i++) {
         if (i % 3 == 0) { // occurs 1/3 of the time
-            Nexus<>::Add_Job(bank.account1.nx_mutex, &Bank::dec_account1, bank, 2);
-            Nexus<>::Add_Job(bank.account2.nx_mutex, &Bank::inc_account2, bank, 2);
+            Nexus<>::Add_Job(bank.account1.nx_mutex, bank, &Bank::dec_account1, 2);
+            Nexus<>::Add_Job(bank.account2.nx_mutex, bank, &Bank::inc_account2, 2);
         }
         else {            // occurs 2/3 of the time
-            Nexus<>::Add_Job(bank.account1.nx_mutex, &Bank::inc_account1, bank, 2);
-            Nexus<>::Add_Job(bank.account2.nx_mutex, &Bank::dec_account2, bank, 2);
+            Nexus<>::Add_Job(bank.account1.nx_mutex, bank, &Bank::inc_account1, 2);
+            Nexus<>::Add_Job(bank.account2.nx_mutex, bank, &Bank::dec_account2, 2);
         }
     }
     Nexus<>::Wait_All();
@@ -159,12 +159,12 @@ int main()
     NX_Mutex nx_mutex;
     for (int i = 0; i < bank.looper; i++) {
         if (i % 3 == 0) { // occurs 1/3 of the time
-            Nexus<>::Add_Job(nx_mutex, &Bank::dec_account1, bank, 2);
-            Nexus<>::Add_Job(nx_mutex, &Bank::inc_account2, bank, 2);
+            Nexus<>::Add_Job(nx_mutex, bank, &Bank::dec_account1, 2);
+            Nexus<>::Add_Job(nx_mutex, bank, &Bank::inc_account2, 2);
         }
         else {            // occurs 2/3 of the time
-            Nexus<>::Add_Job(nx_mutex, &Bank::inc_account1, bank, 2);
-            Nexus<>::Add_Job(nx_mutex, &Bank::dec_account2, bank, 2);
+            Nexus<>::Add_Job(nx_mutex, bank, &Bank::inc_account1, 2);
+            Nexus<>::Add_Job(nx_mutex, bank, &Bank::dec_account2, 2);
         }
     }
     Nexus<>::Wait_All();
