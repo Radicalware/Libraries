@@ -8,35 +8,29 @@
 
 
 // ----- Radicalware Libs -------------------
-// ----- eXtended STL Functionality ---------
 #include "xstring.h"
 #include "xvector.h"
 #include "xmap.h"
-// ----- eXtended STL Functionality ---------
+#include "SYS.h"
 // ----- Radicalware Libs -------------------
 
-#include "SYS.h"   // Found on "https://github.com/Radicalware"
 
 SYS sys;
 
 using std::cout;
 using std::endl;
-using std::string;
-using std::vector;
 
 
+int main(int argc, char** argv) 
+{
+    sys.AddAlias('a', "--key-A");
+    sys.AddAlias('b', "--key-B");
+    sys.AddAlias('f', "--key-F");
+    sys.AddAlias('x', "--key-X");
 
-int main(int argc, char** argv) {
+    sys.AddAlias('p', "--port");
 
-
-    sys.alias('a', "--key-A");
-    sys.alias('b', "--key-B");
-    sys.alias('f', "--key-F");
-    sys.alias('x', "--key-X");
-
-    sys.alias('p', "--port");
-
-    sys.set_args(argc, argv);
+    sys.SetArgs(argc, argv);
 
     // based on the folowing arguments you pass
     //  --key-A sub-A-1 sub-A-2 sub-A-3 --key-X --key-B sub-B-1 sub-B-2 --key-C sub-C-1 sub-C-2 --key-Y --key-Z -n -wxyp 8080  9090 -ze -f 
@@ -64,32 +58,32 @@ int main(int argc, char** argv) {
     // they were both used which in most cases is not intended
     // this is to show you that even if the user does that, the program still works fine.
     
-    cout << "\n\n all args = " << sys.argv()(1).join(' ');
+    cout << "\n\n all args = " << sys.ArgV()(1).Join(' ');
     // we skipped the first arg (which is the program) using a slice
 
     //// and see the count via
-    cout << "\n\n argv count = " << sys.argc();
+    cout << "\n\n argv count = " << sys.ArgC();
     cout << "\n true argc  = " << argc;
     cout << "\n program start the count at 1, then add 1 for every arg.";
 
     // if we are using a small script use the [] operator
     cout << "\n\n sys[5]      = " << sys[5];
 
-    cout << "\n sys values for key '--key-B' = " << sys["--key-B"].join(' ');
+    cout << "\n sys values for key '--key-B' = " << sys["--key-B"].Join(' ');
 
-    cout << "\n full path   = " << sys.full_path();
-    cout << "\n path        = " << sys.path();
-    cout << "\n file        = " << sys.file() << "\n\n\n";
+    cout << "\n full path   = " << sys.FullPath();
+    cout << "\n path        = " << sys.Path();
+    cout << "\n file        = " << sys.File() << "\n\n\n";
 
     // ----------------------------------------------------------------
-    if ( sys.has("--key-B") && sys("--key-B")) {  // both methods are the same
+    if ( sys.Has("--key-B") && sys("--key-B")) {  // both methods are the same
         cout << "--key-B exists\n"; 
     }
     else {
         cout << "error: --key-B does not exists\n"; exit(1);
     }
     // ----------------------------------------------------------------
-    if (sys.has("--key-D") || sys("--key-D")) { // both methods are the same
+    if (sys.Has("--key-D") || sys("--key-D")) { // both methods are the same
         cout << "error: --key-D exists\n"; exit(1);
     }
     else {
@@ -129,7 +123,7 @@ int main(int argc, char** argv) {
     if (sys('p') && sys("--port")){
         cout << "we have the port key\n";
         if (*sys['p'][0] == "8080" && *sys["--port"][0] == "8080") {
-            cout << "port designated by -p is on " << sys['p'].join(' ') << endl;
+            cout << "port designated by -p is on " << sys['p'].Join(' ') << endl;
             pass = true;
         }
     }
@@ -137,14 +131,14 @@ int main(int argc, char** argv) {
         cout << "error: -p is not set" << endl; exit(1);
     }
     // ----------------------------------------------------------------
-    if (sys.key("--key-A").has("sub-B-2") || sys("--key-A", "sub-B-2")) {
+    if (sys.Key("--key-A").Has("sub-B-2") || sys("--key-A", "sub-B-2")) {
         cout << "error: value sub-B-2 exist in --key-A\n"; exit(1);
     }
     else {
         cout << "value sub-B-2 does not exist in --key-A\n";
     }
     // ----------------------------------------------------------------
-    if (sys.key("--key-A").has("sub-A-2") && sys("--key-A", "sub-A-3") ) {
+    if (sys.Key("--key-A").Has("sub-A-2") && sys("--key-A", "sub-A-3") ) {
         cout << "value sub-A-2 and sub-A-3 exist under --key-A\n";
     }
     else {
@@ -164,7 +158,7 @@ int main(int argc, char** argv) {
     // 1. returning  key-values
     // 2. validating key-values
     cout << "\n\n";
-    cout << R"(sys["--key-A"].join(' ')  ==  )" << sys["--key-A"].join(' ') << endl;
+    cout << R"(sys["--key-A"].Join(' ')  ==  )" << sys["--key-A"].Join(' ') << endl;
     cout << R"(sys("--key-A", "sub-A-1") ==  )" << sys("--key-A", "sub-A-1") << endl;
     cout << R"(sys("--key-A", "sub-A-5") ==  )" << sys("--key-A", "sub-A-5") << "\n\n";
 

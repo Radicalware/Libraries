@@ -61,7 +61,7 @@ private:
     static std::vector<std::thread> s_threads; // these threads start in the constructor and don't stop until Nexus is over
     static std::queue<Nexus<void>::tsk_st> s_task_queue; // This is where tasks are held before being run
 
-    static void Task_Looper(int thread_idx);
+    static void TaskLooper(int thread_idx);
 
 public:
     Nexus();
@@ -69,27 +69,28 @@ public:
     static void Start();
     static int Stop();
 
-    static void Set_Mutex_On(size_t nx_mutex); 
-    static void Set_Mutex_Off(size_t nx_mutex);
+    static void SetMutexOn(size_t nx_mutex); 
+    static void SetMutexOff(size_t nx_mutex);
 
     template <typename F, typename... A>
-    static void Add_Job(F&& function, A&& ... Args);
+    static void AddJob(F&& function, A&& ... Args);
 
     template <typename F, typename O, typename... A>
-    static void Add_Job(NX_Mutex& nx_mutex, O&& object, F&& function, A&& ... Args);
+    static void AddJob(NX_Mutex& nx_mutex, O&& object, F&& function, A&& ... Args);
 
     template <typename F, typename V, typename... A>
-    static void Add_Job_Val(F&& function, V& element, A&&... Args);
+    static void AddJobVal(F&& function, V& element, A&&... Args);
 
     template <typename K, typename V, typename F, typename... A>
-    static void Add_Job_Pair(F&& function, K key, V& value, A&& ... Args);
+    static void AddJobPair(F&& function, K key, V& value, A&& ... Args);
 
     // Required due to Linux not Windows (returns void Job<T>)
-    static Job<short int> Get_Fast(size_t dummy) noexcept;
+    static Job<short int> GetWithoutProtection(size_t dummy) noexcept;
 
     static size_t Size();
 
-    static void Wait_All();
+    static void WaitAll();
+    static bool TaskCompleted();
     static void Clear();
 
     static void Sleep(unsigned int extent);
@@ -97,7 +98,7 @@ public:
 
 // =========================================================================================
 
-inline void Nexus<void>::Task_Looper(int thread_idx)
+inline void Nexus<void>::TaskLooper(int thread_idx)
 {
     while (true) {
         size_t mutex_idx = 0;
@@ -105,7 +106,7 @@ inline void Nexus<void>::Task_Looper(int thread_idx)
         {
             std::unique_lock<std::mutex> lock(s_mutex);
             s_sig_queue.wait(lock, []() {
-                return ((Nexus<void>::s_finish_tasks || Nexus<void>::s_task_queue.size()) && NX_Threads::Threads_Are_Available());
+                return ((Nexus<void>::s_finish_tasks || Nexus<void>::s_task_queue.size()) && NX_Threads::ThreadsAreAvailable());
             });
 
             if (s_task_queue.empty())
@@ -158,7 +159,7 @@ inline void Nexus<void>::Start()
         NX_Threads::s_Inst_Count++;
         s_threads.reserve(NX_Threads::s_Thread_Count);
         for (int i = 0; i < NX_Threads::s_Thread_Count; ++i)
-            s_threads.emplace_back(std::bind((void(*)(int)) & Nexus<void>::Task_Looper, i)); // static member function, don't use "this"
+            s_threads.emplace_back(std::bind((void(*)(int)) & Nexus<void>::TaskLooper, i)); // static member function, don't use "this"
 
         NX_Threads::s_Threads_Used = 0;
     }
@@ -169,7 +170,7 @@ inline int Nexus<void>::Stop()
 {
     if (s_initialized)
     {
-        Nexus<>::Wait_All();
+        Nexus<>::WaitAll();
         {
             std::unique_lock <std::mutex> lock(s_mutex);
             s_finish_tasks = true;
@@ -182,18 +183,18 @@ inline int Nexus<void>::Stop()
     return 0;
 }
 
-inline void Nexus<void>::Set_Mutex_On(size_t nx_mutex)
+inline void Nexus<void>::SetMutexOn(size_t nx_mutex)
 {
     s_lock_lst.at(nx_mutex)->use_mutex = true;
 }
 
-inline void Nexus<void>::Set_Mutex_Off(size_t nx_mutex)
+inline void Nexus<void>::SetMutexOff(size_t nx_mutex)
 {
     s_lock_lst.at(nx_mutex)->use_mutex = false;
 }
 
 template <typename F, typename... A>
-inline void Nexus<void>::Add_Job(F&& function, A&&... Args)
+inline void Nexus<void>::AddJob(F&& function, A&&... Args)
 {
     auto binded_function = std::bind(function, std::ref(Args)...);
     std::lock_guard <std::mutex>lock(s_mutex);
@@ -203,7 +204,7 @@ inline void Nexus<void>::Add_Job(F&& function, A&&... Args)
 
 
 template<typename F, typename O, typename ...A>
-inline void Nexus<void>::Add_Job(NX_Mutex& nx_mutex, O&& object, F&& function, A&& ...Args)
+inline void Nexus<void>::AddJob(NX_Mutex& nx_mutex, O&& object, F&& function, A&& ...Args)
 {
     auto binded_function = std::bind(function, std::ref(object), std::ref(Args)...);
     std::lock_guard <std::mutex>lock(s_mutex);
@@ -217,7 +218,7 @@ inline void Nexus<void>::Add_Job(NX_Mutex& nx_mutex, O&& object, F&& function, A
 }
 
 template <typename F, typename V, typename... A>
-void Nexus<void>::Add_Job_Val(F&& function, V& element, A&&... Args)
+void Nexus<void>::AddJobVal(F&& function, V& element, A&&... Args)
 {
     auto binded_function = std::bind(function, std::ref(element), std::ref(Args)...);
     std::lock_guard <std::mutex> lock(s_mutex);
@@ -226,7 +227,7 @@ void Nexus<void>::Add_Job_Val(F&& function, V& element, A&&... Args)
 }
 
 template<typename K, typename V, typename F, typename ...A>
-inline void Nexus<void>::Add_Job_Pair(F&& function, K key, V& value, A&& ...Args)
+inline void Nexus<void>::AddJobPair(F&& function, K key, V& value, A&& ...Args)
 {
     auto binded_function = std::bind(function, std::ref(key), std::ref(value), std::ref(Args)...);
     std::lock_guard <std::mutex> lock(s_mutex);
@@ -235,22 +236,28 @@ inline void Nexus<void>::Add_Job_Pair(F&& function, K key, V& value, A&& ...Args
 }
 
 // Class required due to Linux (not Windows)
-inline Job<short int> Nexus<void>::Get_Fast(size_t dummy) noexcept { return Job<short int>(); }
+inline Job<short int> Nexus<void>::GetWithoutProtection(size_t dummy) noexcept { return Job<short int>(); }
 
-inline size_t Nexus<void>::Size() {
+inline size_t Nexus<void>::Size(){
     return s_inst_task_count;
 }
 
-inline void Nexus<void>::Wait_All()
+inline void Nexus<void>::WaitAll()
 {
     while (s_task_queue.size()) Nexus<void>::Sleep(1);
     while (NX_Threads::s_Threads_Used > 0) Nexus<void>::Sleep(1);
 }
 
-inline void Nexus<void>::Clear() {
+inline bool Nexus<void>::TaskCompleted()
+{
+    return !s_task_queue.size();
+}
+
+inline void Nexus<void>::Clear() 
+{
     s_inst_task_count = 0;
 
-    Nexus<void>::Wait_All();
+    Nexus<void>::WaitAll();
     s_lock_lst.clear();
     NX_Mutex::Mutex_Total = 0;
 }

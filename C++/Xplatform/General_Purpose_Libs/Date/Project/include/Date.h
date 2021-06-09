@@ -15,8 +15,18 @@
 
 // 31 + 29 + 29 = 89 days
 
+#if (defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64))
+    #ifdef DLL_EXPORT
+       #define EXI __declspec(dllexport)
+    #else
+       #define EXI __declspec(dllimport)
+    #endif
+#else
+    #define EXI
+#endif
 
-class Date
+
+class EXI Date
 {
 
     bool mUpdated_str  = false;
@@ -31,7 +41,7 @@ class Date
 
     bool mNeat = false;
 
-    void update_total_days();
+    void UpdateTotalDays();
 
 public:
     const static xvector<int> StandardMonthDays;
@@ -47,15 +57,15 @@ public:
     void operator=(Date&& date) noexcept;
     ~Date();
 
-    Date& update_ints();
-    Date& update_str();
+    Date& UpdateInts();
+    Date& UpdateStr();
 
-    bool is_leap_year() const;
-    const xvector<int>& month_days() const;
+    bool IsLeapYear() const;
+    const xvector<int>& MonthDays() const;
 
-    xstring str();
-    size_t total_days() const;
-    Date& set_neat(bool neat);
+    xstring ToStr();
+    size_t GetTotalDays() const;
+    Date& SetNeat(bool neat);
 
     std::ostream& operator<<(std::ostream& out);
 
@@ -66,4 +76,4 @@ public:
     Date operator-(int val) const;
 };
 
-std::ostream& operator<<(std::ostream& out, Date& obj);
+EXI std::ostream& operator<<(std::ostream& out, Date& obj);

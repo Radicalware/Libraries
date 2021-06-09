@@ -88,11 +88,15 @@ Class PS_Builder
             $this.Normalize_Encoding("./lib");
         }
 
-        Set-Location $this.ArgStruct.build_dir
-        Write-Host -ForegroundColor Green "[+] Running CMake to configure a" $this.ArgStruct.build_type "Build"
+        Set-Location $this.ArgStruct.build_dir;
+        Write-Host -ForegroundColor Green "[+] Running CMake to configure a" $this.ArgStruct.build_type "Build";
         
-        $this.cmake_command += " -DBUILD_TYPE=" + $this.ArgStruct.build_type.ToString() `
-        + " --config " + $this.ArgStruct.build_type.ToString() 
+        $this.cmake_command += " -DBUILD_TYPE=" + $this.ArgStruct.build_type.ToString();
+        if($this.ArgStruct.BuildAll){
+            $this.cmake_command += " -DBUILD_ALL_PROJECTS=ON";
+        }else{
+            $this.cmake_command += " -DBUILD_ALL_PROJECTS=OFF";
+        }
 
         $this.cmake_command += " ../../../";
         Write-Host $this.cmake_command;
@@ -134,10 +138,13 @@ Class PS_Builder
                 Write-Host -ForegroundColor Green "[+] CL.exe Is Already Configured for x86_64 Compiling"
             }
             Write-Host -ForegroundColor Green "[+] CL.exe is the Building Project " $this.ArgStruct.name
-            # uncomment if you can't use the Incredibuild by atlassian
-            #devenv $($this.ArgStruct.name + '.sln') /Build $this.ArgStruct.build_type | Write-Host
-            BuildConsole.exe $($this.ArgStruct.name + '.sln') /cfg="$($this.ArgStruct.build_type)|x64" /NoLogo  | `
-                Select-String -pattern "^\s|IncrediBuildAlwaysCreate|Temporary license|^\d+\>(Target|(\s+ (Deleting|Touching|Creating|All outputs are up-to-date|Building Custom Rule)))|^\d build system warnings|IncrediBuild|--------------------" -NotMatch | Write-Host
+            
+            # Use this for fast small builds
+            devenv $($this.ArgStruct.name + '.sln') /Build $this.ArgStruct.build_type | Write-Host
+            
+            # Use this for big large builds
+            #BuildConsole.exe $($this.ArgStruct.name + '.sln') /cfg="$($this.ArgStruct.build_type)|x64" /NoLogo  | `
+            #    Select-String -pattern "^\s|IncrediBuildAlwaysCreate|Temporary license|^\d+\>(Target|(\s+ (Deleting|Touching|Creating|All outputs are up-to-date|Building Custom Rule)))|^\d build system warnings|IncrediBuild|--------------------" -NotMatch | Write-Host
         }
         Set-Location $this.ArgStruct.base_dir
     }

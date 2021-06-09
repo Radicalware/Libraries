@@ -66,16 +66,82 @@ if(USEPCRE)
 endif()
 
 UNSET(PROJECT_FILES)
-SUBDIRLIST(PROJECT_FILES "${CMAKE_CURRENT_SOURCE_DIR}/Project")
+#find_program_files(PROJECT_FILES "${CMAKE_CURRENT_SOURCE_DIR}/Project")
+#add_library(${THIS} STATIC ${PROJECT_FILES})
 
-add_library(${THIS} STATIC ${PROJECT_FILES})
-add_library(radical::${THIS} ALIAS ${THIS})
-
-target_include_directories(${THIS} PRIVATE
-
-    ${EXT_HEADER_PATH}
-    ${INC}
+add_library(${THIS} STATIC
+    ./Project/include/re2/bitmap256.h
+    ./Project/include/re2/filtered_re2.h
+    ./Project/include/re2/pod_array.h
+    ./Project/include/re2/prefilter.h
+    ./Project/include/re2/prefilter_tree.h
+    ./Project/include/re2/prog.h
+    ./Project/include/re2/re2.h
+    ./Project/include/re2/regexp.h
+    ./Project/include/re2/set.h
+    ./Project/include/re2/sparse_array.h
+    ./Project/include/re2/sparse_set.h
+    ./Project/include/re2/stringpiece.h
+    ./Project/include/re2/unicode_casefold.h
+    ./Project/include/re2/unicode_groups.h
+    ./Project/include/re2/walker-inl.h
+    ./Project/include/util/benchmark.h
+    ./Project/include/util/flags.h
+    ./Project/include/util/logging.h
+    ./Project/include/util/malloc_counter.h
+    ./Project/include/util/mix.h
+    ./Project/include/util/mutex.h
+    ./Project/include/util/pcre.h
+    ./Project/include/util/strutil.h
+    ./Project/include/util/test.h
+    ./Project/include/util/utf.h
+    ./Project/include/util/util.h
+    ./Project/src/re2/bitstate.cpp
+    ./Project/src/re2/compile.cpp
+    ./Project/src/re2/dfa.cpp
+    ./Project/src/re2/filtered_re2.cpp
+    ./Project/src/re2/mimics_pcre.cpp
+    ./Project/src/re2/nfa.cpp
+    ./Project/src/re2/onepass.cpp
+    ./Project/src/re2/parse.cpp
+    ./Project/src/re2/perl_groups.cpp
+    ./Project/src/re2/prefilter.cpp
+    ./Project/src/re2/prefilter_tree.cpp
+    ./Project/src/re2/prog.cpp
+    ./Project/src/re2/re2.cpp
+    ./Project/src/re2/regexp.cpp
+    ./Project/src/re2/set.cpp
+    ./Project/src/re2/simplify.cpp
+    ./Project/src/re2/stringpiece.cpp
+    ./Project/src/re2/tostring.cpp
+    ./Project/src/re2/unicode_casefold.cpp
+    ./Project/src/re2/unicode_groups.cpp
+    ./Project/src/util/pcre.cpp
+    ./Project/src/util/rune.cpp
+    ./Project/src/util/strutil.cpp
 )
+
+add_library(Radical::${THIS} ALIAS ${THIS})
+
+target_include_directories(${THIS}
+    PRIVATE
+        ${installed_projects}
+)
+
+if(WIN32)
+    # Windows is auto-installed later; no mod installs needed
+else()
+    set(RE2_OBJ_FILE_PATH "${CMAKE_SOURCE_DIR}/Build/${OS_TYPE}/${BUILD_TYPE}/CMakeFiles/${THIS}.dir/Project/src/re2/${THIS}.${OBJ}")
+    
+    install(
+        FILES ${RE2_OBJ_FILE_PATH}
+        CONFIGURATIONS  ${BUILD_TYPE}
+        DESTINATION "${INSTALL_PREFIX}/Build/${BUILD_TYPE}/lib"
+        OPTIONAL
+    )
+endif()
+
+
 
 
 # Required Libs -------------------------------------------------------------------------
@@ -83,8 +149,7 @@ target_include_directories(${THIS} PRIVATE
 # -------------------------- INSTALL ----------------------------------------------------
 
 include("${RADICAL_PATH}/Radical-Lib-Install.cmake")
-CONFIGURE_VISUAL_STUDIO_STANDALONE_PROJECT(${PROJECT_FILES})
+INSTALL_VISUAL_STUDIO_PROJECT(${PROJECT_FILES})
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # -------------------------- END --------------------------------------------------------
-

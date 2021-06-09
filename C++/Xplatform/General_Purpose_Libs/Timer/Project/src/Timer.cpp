@@ -1,76 +1,82 @@
 
 #include "Timer.h"
+#include "xstring.h"
 
 #include <chrono>
 
 Timer::Timer() : m_beg(Timer_clock_t::now()) {   }
 
-void Timer::reset() {
+void Timer::Reset() {
     m_beg = Timer_clock_t::now();
 }
 
-double Timer::elapsed() const {
-    return std::chrono::duration_cast<Timer_second_t>(Timer_clock_t::now() - m_beg).count();
+double Timer::GetElapsedTime() const {
+    return static_cast<double>(std::chrono::duration_cast<Timer_second_t>(Timer_clock_t::now() - m_beg).count());
 }
 
-void Timer::wait_seconds(double extent) const
+void Timer::WaitSeconds(double extent) const
 {
-    while (this->elapsed() < extent)
+    while (this->GetElapsedTime() < extent)
         Timer::Sleep(1);
 }
 
-void Timer::wait_milliseconds(unsigned long extent) const
+void Timer::WaitMilliseconds(unsigned long extent) const
 {
-    while (this->elapsed() < extent / static_cast<double>(1000))
+    while (this->GetElapsedTime() < extent / static_cast<double>(1000))
         Timer::Sleep(1);
 }
 
-void Timer::wait(unsigned long extent) const
+void Timer::Wait(unsigned long extent) const
 {
-    this->wait_milliseconds(extent);
+    this->WaitMilliseconds(extent);
 }
 
-void Timer::lap()
+void Timer::Lap()
 {
-    m_laps_xv << this->elapsed();
+    m_laps_xv << this->GetElapsedTime();
 }
 
-void Timer::lap(const xstring& key)
+void Timer::Lap(const xstring& key)
 {
-    double val = this->elapsed();
-    m_laps_xm.add_pair(key, val);
+    double val = this->GetElapsedTime();
+    m_laps_xm.AddPair(key, val);
     m_laps_xv.push_back(val);
 }
 
-void Timer::clear()
+void Timer::Lap(xstring&& key)
+{
+    Lap(key);
+}
+
+void Timer::Clear()
 {
     m_laps_xv.clear();
     m_laps_xm.clear();
 }
 
-double Timer::get(size_t idx) const
+double Timer::Get(size_t idx) const
 {
     return m_laps_xv[idx];
 }
 
-double Timer::get(const xstring& key) const
+double Timer::Get(const xstring& key) const
 {
     return m_laps_xm.at(key);
 }
 
-xvector<double> Timer::get_xvector() const
+xvector<double> Timer::GetVector() const
 {
     return m_laps_xv;
 }
 
-xmap<xstring, double> Timer::get_xmap() const
+xmap<xstring, double> Timer::GetMap() const
 {
     return m_laps_xm;
 }
 
 std::ostream& operator<<(std::ostream& out, const Timer& time)
 {
-    out << time.elapsed();
+    out << time.GetElapsedTime();
     return out;
 }
 

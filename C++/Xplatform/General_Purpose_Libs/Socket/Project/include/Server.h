@@ -47,19 +47,19 @@ public:
     Buffer buffer;
 
     template<typename F, typename... A>
-    void set_function(F&& Function, A&&... Args);
+    void SetFunction(F&& Function, A&&... Args);
 
     Server(int* mtu, bool* verbose, int pro);
-    virtual Server& listen(const xstring& port) = 0;
-    virtual Server& accept() = 0;
-    virtual Server& recv(int size = 0) = 0; // derrived
-    virtual Server& respond() = 0; // derrived
-    virtual Server& close() = 0; 
+    virtual Server& Listen(const xstring& port) = 0;
+    virtual Server& Accept() = 0;
+    virtual Server& Recv(int size = 0) = 0; // derrived
+    virtual Server& Respond() = 0; // derrived
+    virtual Server& Close() = 0; 
 };
 
 
 template<typename F, typename ...A>
-inline void Server::set_function(F&& Function, A&& ...Args)
+inline void Server::SetFunction(F&& Function, A&& ...Args)
 {
     //m_method = Function(&this->buffer.recv, Args...);
     m_method = std::bind(Function, &this->buffer.recv, Args...);

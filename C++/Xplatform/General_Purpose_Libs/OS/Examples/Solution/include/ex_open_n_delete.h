@@ -22,21 +22,21 @@ void ex_open_n_delete()
     os.MKDIR("./test_folder1/nested_folder_b");
     os.MKDIR("./test_folder1/nested_folder/double_nested_folder");
 
-    os.open("./test_folder1/nested_folder/double_nested_folder/file1", 'w').write("test data");
-    os.open("./test_folder1/nested_folder/double_nested_folder/file2", 'w').write("test data");
-    os.open("./test_folder1/nested_folder/double_nested_folder/file3", 'w').write("test data");
+    os.Open("./test_folder1/nested_folder/double_nested_folder/file1", 'w').Write("test data");
+    os.Open("./test_folder1/nested_folder/double_nested_folder/file2", 'w').Write("test data");
+    os.Open("./test_folder1/nested_folder/double_nested_folder/file3", 'w').Write("test data");
 
-    os.open("./test_folder1/nested_folder_a//file1", 'w').write("test data");
-    os.open("./test_folder1/nested_folder_a//file2", 'w').write("test data");
-    os.open("./test_folder1/nested_folder_a//file3", 'w').write("test data");
+    os.Open("./test_folder1/nested_folder_a//file1", 'w').Write("test data");
+    os.Open("./test_folder1/nested_folder_a//file2", 'w').Write("test data");
+    os.Open("./test_folder1/nested_folder_a//file3", 'w').Write("test data");
 
-    os.open("./test_folder1/nested_folder_b//file1", 'w').write("test data");
-    os.open("./test_folder1/nested_folder_b//file2", 'w').write("test data");
-    os.open("./test_folder1/nested_folder_b//file3", 'w').write("test data");
+    os.Open("./test_folder1/nested_folder_b//file1", 'w').Write("test data");
+    os.Open("./test_folder1/nested_folder_b//file2", 'w').Write("test data");
+    os.Open("./test_folder1/nested_folder_b//file3", 'w').Write("test data");
 
-    os.open("./test_folder1///file1", 'w').write("test data");
-    os.open("./test_folder1///file2", 'w').write("test data");
-    os.open("./test_folder1///file3", 'w').write("test data");
+    os.Open("./test_folder1///file1", 'w').Write("test data");
+    os.Open("./test_folder1///file2", 'w').Write("test data");
+    os.Open("./test_folder1///file3", 'w').Write("test data");
     
     cout << "******************************************************" << endl;
     cout << "file   = " << os.Has("./test_folder1///file3") << endl; // true
@@ -48,14 +48,14 @@ void ex_open_n_delete()
     for (auto&i : os.Dir("./test_folder1", 'r', 'd', 'f'))
         cout << "item = " << i << endl;
 
-    os.close();
-    os.Move_Dir("./test_folder1", "./test_folder2");
+    os.Close();
+    os.MoveDir("./test_folder1", "./test_folder2");
     
     cout << "\n------------------ Moved Dirs -------------------------\n";
     for (auto&i : os.Dir("./test_folder2", 'r', 'd', 'f'))
         cout << "item = " << i << endl;
 
-    os.Remove_Dir("./test_folder2");
+    os.RemoveDir("./test_folder2");
 
     cout << "\n------------------ Removed Dirs 1 ---------------------\n";
     for (auto&i : os.Dir("./test_folder1", 'r', 'd', 'f'))

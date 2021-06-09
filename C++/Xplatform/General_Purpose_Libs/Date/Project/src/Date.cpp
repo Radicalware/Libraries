@@ -14,7 +14,7 @@ const xvector<int> Date::LeapMonthDays
 };
 
 
-void Date::update_total_days()
+void Date::UpdateTotalDays()
 {
     switch (mYear)
     {
@@ -28,7 +28,7 @@ void Date::update_total_days()
 
     mTotal_days += mDay;
 
-    auto month_day_vec = self.month_days();
+    auto month_day_vec = self.MonthDays();
     for (xvector<int>::const_iterator it = month_day_vec.begin(); it != month_day_vec.begin() + mMonth - 1; it++)
         mTotal_days += *it;
     mTotal_days++;
@@ -45,7 +45,7 @@ Date::Date(size_t days)
 
 Date::Date(const xstring& str)
 {
-    xvector<int> ints = str.findall(R"((\d+))").render<int>([](const xstring& rend_str) { return rend_str.to_int(); });
+    xvector<int> ints = str.Findall(R"((\d+))").ForEach<int>([](const xstring& rend_str) { return rend_str.ToInt(); });
     if (ints.size() < 3) 
     {
         xstring err("Three ints not found for date: ");
@@ -56,7 +56,7 @@ Date::Date(const xstring& str)
     mDay     = ints[1];
     mYear    = ints[2];
 
-    self.update_total_days();
+    self.UpdateTotalDays();
 }
 
 Date::Date(int month, int day, int year)
@@ -65,7 +65,7 @@ Date::Date(int month, int day, int year)
     mMonth  = month;
     mYear   = year;
 
-    self.update_total_days();
+    self.UpdateTotalDays();
 }
 
 Date::Date(const Date& date)
@@ -96,7 +96,7 @@ Date::~Date()
     // used unique ptrs
 }
 
-Date& Date::update_ints()
+Date& Date::UpdateInts()
 {
     mUpdated_ints = true;
 
@@ -104,7 +104,7 @@ Date& Date::update_ints()
 
     int this_year_days = static_cast<int>(std::remainder(mTotal_days, 365.2425));
 
-    xvector<int> month_day_vec = self.month_days();
+    xvector<int> month_day_vec = self.MonthDays();
     int month = 0;
     xvector<int>::const_iterator month_itr = month_day_vec.begin();
     for (;month_itr != month_day_vec.end() && this_year_days > 1; month_itr++)
@@ -119,7 +119,7 @@ Date& Date::update_ints()
     return self;
 }
 
-Date& Date::update_str()
+Date& Date::UpdateStr()
 {
     // insert 0 locations 0M/0D/0YYY
     // 1.) idx = 0
@@ -128,7 +128,7 @@ Date& Date::update_str()
     // pass if size = 10
 
     if (mUpdated_ints == false)
-        self.update_ints();
+        self.UpdateInts();
 
     mUpdated_str = true;
 
@@ -152,32 +152,32 @@ Date& Date::update_str()
     return self;
 }
 
-bool Date::is_leap_year() const
+bool Date::IsLeapYear() const
 {
     return ((mYear % 4) == 0);
 }
 
-const xvector<int>& Date::month_days() const
+const xvector<int>& Date::MonthDays() const
 {
-    if (self.is_leap_year())
+    if (self.IsLeapYear())
         return Date::LeapMonthDays;
     else
         return Date::StandardMonthDays;
 }
 
-xstring Date::str()
+xstring Date::ToStr()
 {
     if (!mUpdated_str)
-        self.update_str();
+        self.UpdateStr();
 
     return mStr;
 }
 
-size_t Date::total_days() const{
+size_t Date::GetTotalDays() const{
     return mTotal_days;
 }
 
-Date& Date::set_neat(bool neat)
+Date& Date::SetNeat(bool neat)
 {
     mNeat = neat;
     return self;
@@ -185,7 +185,7 @@ Date& Date::set_neat(bool neat)
 
 std::ostream& Date::operator<<(std::ostream& out)
 {
-    out << self.str();
+    out << self.ToStr();
     return out;
 }
 
@@ -213,6 +213,6 @@ Date Date::operator-(int val) const
 
 std::ostream& operator<<(std::ostream& out, Date& obj)
 {
-    out << obj.str() << " : " << obj.total_days();
+    out << obj.ToStr() << " : " << obj.GetTotalDays();
     return out;
 }

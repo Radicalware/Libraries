@@ -21,14 +21,14 @@ Nix_Client::Nix_Client(const Client& other) : Client(other)
 {
 }
 
-Client& Nix_Client::connect()
+Client& Nix_Client::Connect()
 {
     // Initialize Socket
     m_net.connect = socket(AF_INET, SOCK_STREAM, 0);
     
     if (m_net.connect < 0)
     {
-        xstring err_str = "! Client: Creating Socket Failed with Error: " + std::to_string(m_result) + '\n';
+        xstring err_str = "! Client: Creating Socket Failed with Error: " + ToXString(m_result) + '\n';
         throw std::runtime_error(err_str);
     }
 
@@ -42,22 +42,22 @@ Client& Nix_Client::connect()
     m_result = ::connect(m_net.connect, (struct sockaddr*) &m_net.addr, sizeof(m_net.addr));
     if (m_result != 0)
     {
-        xstring err_str = "! Client: Connecting the Socket Failed with Error: " + std::to_string(m_result) + '\n';
+        xstring err_str = "! Client: Connecting the Socket Failed with Error: " + ToXString(m_result) + '\n';
         throw std::runtime_error(err_str);
     }    
     m_net.connected = true;
     return *this;
 }
 
-Client& Nix_Client::connect(const xstring& ip, const xstring& port)
+Client& Nix_Client::Connect(const xstring& ip, const xstring& port)
 {
     m_ip = ip;
     m_port = port;
-    this->connect();
+    this->Connect();
     return *this;
 }
 
-Client& Nix_Client::send(const xstring& buff)
+Client& Nix_Client::Send(const xstring& buff)
 {
     buffer.send += buff;
     
@@ -79,25 +79,25 @@ Client& Nix_Client::send(const xstring& buff)
             {
                 inc = max - low_seg;                
             }
-            m_result = m_net.send(view.substr(low_seg, inc).data());
+            m_result = m_net.Send(view.substr(low_seg, inc).data());
 
             if (m_verbose)
-                xstring(xstring("Client >> Bytes sent: ") + to_xstring(inc)).bold().yellow().reset().print();
+                xstring(xstring("Client >> Bytes sent: ") + ToXString(inc)).ToBold().ToYellow().Reset().Print();
             low_seg += m_mtu;
         }
     }
     else
     {
-        m_result = m_net.send(buffer.send.c_str());
+        m_result = m_net.Send(buffer.send.c_str());
 
         if (m_verbose)
-            xstring("Client >> Bytes sent: " + to_xstring(buffer.send.size()) + '\n').bold().yellow().reset().print();
+            xstring("Client >> Bytes sent: " + ToXString(buffer.send.size()) + '\n').ToBold().ToYellow().Reset().Print();
     }
-    m_net.send(""); // ensures that at least one packet will be less than the m_mtu to break the recv loop
+    m_net.Send(""); // ensures that at least one packet will be less than the m_mtu to break the recv loop
     return *this;
 }
 
-Client& Nix_Client::recv(int size)
+Client& Nix_Client::Recv(int size)
 {
     if (size)
         buffer.max_recv = size;
@@ -106,20 +106,20 @@ Client& Nix_Client::recv(int size)
     // Receive until the peer closes the connection
     bool full = false;
     do {       
-        m_result = m_net.recv(m_relay);
+        m_result = m_net.Recv(m_relay);
         
         if (m_result < 0)
         {
-            xstring err_str = "! Client: Recv Failed with Error: " + std::to_string(m_relay.size()) + '\n';
+            xstring err_str = "! Client: Recv Failed with Error: " + ToXString(m_relay.size()) + '\n';
             throw std::runtime_error(err_str);
         }
 
         if (m_verbose)
         {
             if (m_result > 0)
-                xstring("Client >> Bytes received: " + to_xstring(m_result)).bold().yellow().reset().print();
+                xstring("Client >> Bytes received: " + ToXString(m_result)).ToBold().ToYellow().Reset().Print();
             else if (m_result == 0)
-                xstring("Client >> Connection closed\n").bold().yellow().reset().print();
+                xstring("Client >> Connection closed\n").ToBold().ToYellow().Reset().Print();
         }
 
         counter += m_mtu;
@@ -137,12 +137,12 @@ Client& Nix_Client::recv(int size)
     return *this;
 }
 
-Client& Nix_Client::close()
+Client& Nix_Client::Close()
 {
     m_result = ::close(m_net.connect);
     if (m_result < 0)
     {
-        xstring err_str("! Client: Failed to close 'm_net.connect' with Error: " + to_xstring(m_result) + '\n');
+        xstring err_str("! Client: Failed to close 'm_net.connect' with Error: " + ToXString(m_result) + '\n');
         throw std::runtime_error(err_str);
     }
     

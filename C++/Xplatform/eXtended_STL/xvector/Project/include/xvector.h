@@ -35,6 +35,7 @@
 #include<regex>
 #include<sstream>
 #include<set>
+#include<type_traits>
 
 #include "Nexus.h"
 

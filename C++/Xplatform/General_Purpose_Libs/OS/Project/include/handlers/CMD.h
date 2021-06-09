@@ -1,9 +1,21 @@
+#pragma once
+
 #include "xstring.h"
 
-class OS;
+#if (defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64))
+    #ifdef DLL_EXPORT
+       #define EXI __declspec(dllexport)
+    #else
+       #define EXI __declspec(dllimport)
+    #endif
+#else
+    #define EXI
+#endif
+
+class EXI OS;
 namespace OS_O // OS Object
 {
-    class CMD
+    class EXI CMD
     {
         friend class ::OS;
 
@@ -16,9 +28,9 @@ namespace OS_O // OS Object
         CMD();
         CMD(const CMD& cmd);
         void operator=(const CMD& cmd);
-        xstring cmd() const;
-        xstring out() const;
-        xstring err() const;
-        xstring err_message() const;
+        xstring GetCommand() const;
+        xstring GetOutput() const;
+        xstring GetError() const;
+        xstring GetErrorMessage() const;
     };
 };

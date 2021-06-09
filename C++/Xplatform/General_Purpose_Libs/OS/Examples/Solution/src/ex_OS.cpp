@@ -11,9 +11,9 @@ using std::endl;
 #include "ex_file_managment.h"
 #include "ex_bash_style.h"
 
-#if (defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64))
-    #include<vld.h>
-#endif
+//#if (defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64))
+//    #include<vld.h>
+//#endif
 
 
 int main() 

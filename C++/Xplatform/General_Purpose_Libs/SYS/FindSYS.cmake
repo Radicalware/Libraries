@@ -1,39 +1,37 @@
-﻿cmake_minimum_required(VERSION 3.16)
+﻿cmake_minimum_required(VERSION 3.17)
 
 set(LIB SYS)
 
 # -------------------------- PRE-CONFIG ---------------------------------------
-list(APPEND PUBLIC_LIB_LST ${LIB})
+list(APPEND SHARED_LIB_LST ${LIB})
 
-set(SYS_DIR  ${PROJECT_DIR}/${LIB})
-set(INC      ${SYS_DIR}/include)
-set(SRC      ${SYS_DIR}/src)
+if(${release} AND NOT ${build_all})
+    link_dynamic(${THIS} ${LIB})
+    return()
+endif()
 # -------------------------- BUILD --------------------------------------------
-add_library(${LIB} SHARED 
-    
-    ${INC}/${LIB}.h
-    ${SRC}/${LIB}.cpp
-)
+
+UNSET(PROJECT_FILES)
+find_program_files(PROJECT_FILES "${PROJECT_DIR}/${LIB}")
+
+add_library(${LIB} MODULE ${PROJECT_FILES})
 add_library(Radical::${LIB} ALIAS ${LIB})
 
 target_include_directories(${LIB} PUBLIC
-
-    ${NEXUS_DIR}/include
-    ${RE2_DIR}/include
-    ${XVECTOR_DIR}/include
-    ${XSTRING_DIR}/include
-    ${XMAP_DIR}/include
-    ${SYS_DIR}/include
+    ${installed_projects}
 )
 
-target_link_libraries(${LIB} Radical::Nexus)
-target_link_libraries(${LIB} Radical::xvector)
-target_link_libraries(${LIB} Radical::xstring)
-target_link_libraries(${LIB} Radical::xmap)
+link_static(${LIB} xmap)
+link_static(${LIB} xstring)
+link_static(${LIB} xvector)
+link_static(${LIB} Nexus)
+link_static(${LIB} re2)
 
-target_link_libraries(${LIB} Radical_Mod::re2)
+link_dynamic(${THIS} ${LIB})
+set_target_properties(${LIB} PROPERTIES COMPILE_DEFINITIONS DLL_EXPORT=1)
 
 # -------------------------- POST-CONFIG --------------------------------------
 CONFIGURE_VISUAL_STUDIO_PROJECT(${PROJECT_FILES})
+install_dynamic_lib(${LIB})
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # -------------------------- END ----------------------------------------------

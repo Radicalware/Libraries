@@ -17,10 +17,10 @@ NX_Mutex::NX_Mutex(const NX_Mutex& other)
     id = other.id;
 }
 
-void NX_Mutex::mutex_on(){
+void NX_Mutex::SetMutexOn(){
         use_mutex = true;
 }
 
-void NX_Mutex::mutex_off(){
+void NX_Mutex::SetMutexOff(){
         use_mutex = false;
 }

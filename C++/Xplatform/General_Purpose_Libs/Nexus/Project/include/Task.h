@@ -23,12 +23,12 @@ public:
     void operator=(const Task& task);
     void operator=(Task&& task) noexcept;
 
-    void add_method(const std::function<T()>& i_method);
+    void AddMethod(const std::function<T()>& i_method);
 
-    bool blank() const;
-    bool has_name() const;
-    const std::string* name_ptr() const;
-    const std::string name() const;
+    bool IsBlank() const;
+    bool HasName() const;
+    const std::string* GetNamePtr() const;
+    const std::string GetName() const;
     T operator()();
 };
 
@@ -102,32 +102,32 @@ inline Task<T>::~Task()
 }
 
 template<typename T>
-inline void Task<T>::add_method(const std::function<T()>& i_method)
+inline void Task<T>::AddMethod(const std::function<T()>& i_method)
 {
     m_method = i_method;
     m_blank = false;
 }
 
 template<typename T>
-inline bool Task<T>::blank() const
+inline bool Task<T>::IsBlank() const
 {
     return m_blank;
 }
 
 template<typename T>
-inline bool Task<T>::has_name() const
+inline bool Task<T>::HasName() const
 {
     return (m_name != nullptr) ? true : false;
 }
 
 template<typename T>
-inline const std::string* Task<T>::name_ptr() const
+inline const std::string* Task<T>::GetNamePtr() const
 {
     return m_name;
 }
 
 template<typename T>
-inline const std::string Task<T>::name() const
+inline const std::string Task<T>::GetName() const
 {
     return *m_name;
 }

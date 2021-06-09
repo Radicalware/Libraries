@@ -21,12 +21,13 @@
 */
 
 #include "base_ptr_xvector.h"
+#include <type_traits>
 
 template<typename T> class ptr_xvector;
 template<typename T, typename enabler_t> class xvector;
 
 template<typename T>
-class xvector<T*, typename std::enable_if<!std::is_class<std::remove_pointer_t<T*>>::value>::type> : public ptr_xvector<T*>
+class xvector<T*, typename std::enable_if_t<!std::is_class<std::remove_pointer_t<T*>>::value>> : public ptr_xvector<T*>
 {
 private:
     typedef typename std::remove_const<T>::type E;// E for Erratic
@@ -49,15 +50,15 @@ public:
     inline void operator=(std::vector<T*>&& vec) { ptr_xvector<T*>::operator=(std::move(vec)); };
 
     template<typename S>
-    inline auto join(const S& str)->std::enable_if_t<!std::is_same_v<S, char>, S>;
-    inline std::string join(const char str) const;
-    inline std::string join(const char* str) const;
+    inline auto Join(const S& str)->std::enable_if_t<!std::is_same_v<S, char>, S>;
+    inline std::string Join(const char str) const;
+    inline std::string Join(const char* str) const;
 };
 
 
 template<typename T>
 template<typename S>
-inline auto xvector<T*, typename std::enable_if<!std::is_class<std::remove_pointer_t<T*>>::value>::type>::join(const S& str)
+inline auto xvector<T*, typename std::enable_if_t<!std::is_class<std::remove_pointer_t<T*>>::value>>::Join(const S& str)
     ->std::enable_if_t<!std::is_same_v<S, char>, S>
 {
     std::string ret;
@@ -67,7 +68,7 @@ inline auto xvector<T*, typename std::enable_if<!std::is_class<std::remove_point
 }
 
 template<typename T>
-inline std::string xvector<T*, typename std::enable_if<!std::is_class<std::remove_pointer_t<T*>>::value>::type>::join(const char str) const
+inline std::string xvector<T*, typename std::enable_if_t<!std::is_class<std::remove_pointer_t<T*>>::value>>::Join(const char str) const
 {
     std::ostringstream ostr;
     for (typename xvector<T*>::const_iterator it = this->begin(); it != this->end(); it++) 
@@ -80,7 +81,7 @@ inline std::string xvector<T*, typename std::enable_if<!std::is_class<std::remov
 }
 
 template<typename T>
-inline std::string xvector<T*, typename std::enable_if<!std::is_class<std::remove_pointer_t<T*>>::value>::type>::join(const char* str) const
+inline std::string xvector<T*, typename std::enable_if_t<!std::is_class<std::remove_pointer_t<T*>>::value>>::Join(const char* str) const
 {
     std::string retstr;
     for (typename xvector<T*>::const_iterator it = this->begin(); it != this->end(); it++)

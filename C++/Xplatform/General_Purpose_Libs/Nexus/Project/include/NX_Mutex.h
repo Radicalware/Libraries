@@ -22,6 +22,6 @@ public:
     NX_Mutex();
     NX_Mutex(const NX_Mutex& other);  
 
-    void mutex_on();
-    void mutex_off();
+    void SetMutexOn();
+    void SetMutexOff();
 };

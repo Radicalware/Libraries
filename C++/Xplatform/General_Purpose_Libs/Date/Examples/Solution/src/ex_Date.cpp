@@ -29,7 +29,7 @@ int main()
         cout << date << endl;
 
     for (auto& date : dates)
-        date.set_neat(true);
+        date.SetNeat(true);
 
     cout << '\n';
     for (auto date : dates)

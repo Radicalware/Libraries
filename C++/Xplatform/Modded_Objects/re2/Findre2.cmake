@@ -5,16 +5,23 @@
 # Old enough to support Ubuntu Xenial.
 cmake_minimum_required(VERSION 3.5.1)
 
-
 set(LIB re2)
 
 # -------------------------- PRE-CONFIG ---------------------------------------
-list(APPEND PRIVATE_LIB_LST ${LIB})
+list(APPEND STATIC_LIB_LST ${LIB})
+
+if(${release} AND NOT ${build_all})
+    link_static(${THIS} ${LIB})
+    return()
+endif()
 
 set(RE2_DIR ${PROJECT_DIR}/${LIB})
-set(INC     ${RE2_DIR}/include)
-set(SRC     ${RE2_DIR}/src)
 # -------------------------- BUILD --------------------------------------------
+
+if(${release} AND NOT ${build_all})
+    link_static(${THIS} ${LIB})
+    return()
+endif()
 
 if(POLICY CMP0048)
     cmake_policy(SET CMP0048 NEW)
@@ -60,17 +67,79 @@ if(USEPCRE)
 endif()
 
 UNSET(PROJECT_FILES)
-SUBDIRLIST(PROJECT_FILES "${PROJECT_DIR}/${LIB}")
+add_library(${LIB} STATIC
+    ${RE2_DIR}/include/re2/bitmap256.h
+    ${RE2_DIR}/include/re2/filtered_re2.h
+    ${RE2_DIR}/include/re2/pod_array.h
+    ${RE2_DIR}/include/re2/prefilter.h
+    ${RE2_DIR}/include/re2/prefilter_tree.h
+    ${RE2_DIR}/include/re2/prog.h
+    ${RE2_DIR}/include/re2/re2.h
+    ${RE2_DIR}/include/re2/regexp.h
+    ${RE2_DIR}/include/re2/set.h
+    ${RE2_DIR}/include/re2/sparse_array.h
+    ${RE2_DIR}/include/re2/sparse_set.h
+    ${RE2_DIR}/include/re2/stringpiece.h
+    ${RE2_DIR}/include/re2/unicode_casefold.h
+    ${RE2_DIR}/include/re2/unicode_groups.h
+    ${RE2_DIR}/include/re2/walker-inl.h
+    ${RE2_DIR}/include/util/benchmark.h
+    ${RE2_DIR}/include/util/flags.h
+    ${RE2_DIR}/include/util/logging.h
+    ${RE2_DIR}/include/util/malloc_counter.h
+    ${RE2_DIR}/include/util/mix.h
+    ${RE2_DIR}/include/util/mutex.h
+    ${RE2_DIR}/include/util/pcre.h
+    ${RE2_DIR}/include/util/strutil.h
+    ${RE2_DIR}/include/util/test.h
+    ${RE2_DIR}/include/util/utf.h
+    ${RE2_DIR}/include/util/util.h
+    ${RE2_DIR}/src/re2/bitstate.cpp
+    ${RE2_DIR}/src/re2/compile.cpp
+    ${RE2_DIR}/src/re2/dfa.cpp
+    ${RE2_DIR}/src/re2/filtered_re2.cpp
+    ${RE2_DIR}/src/re2/mimics_pcre.cpp
+    ${RE2_DIR}/src/re2/nfa.cpp
+    ${RE2_DIR}/src/re2/onepass.cpp
+    ${RE2_DIR}/src/re2/parse.cpp
+    ${RE2_DIR}/src/re2/perl_groups.cpp
+    ${RE2_DIR}/src/re2/prefilter.cpp
+    ${RE2_DIR}/src/re2/prefilter_tree.cpp
+    ${RE2_DIR}/src/re2/prog.cpp
+    ${RE2_DIR}/src/re2/re2.cpp
+    ${RE2_DIR}/src/re2/regexp.cpp
+    ${RE2_DIR}/src/re2/set.cpp
+    ${RE2_DIR}/src/re2/simplify.cpp
+    ${RE2_DIR}/src/re2/stringpiece.cpp
+    ${RE2_DIR}/src/re2/tostring.cpp
+    ${RE2_DIR}/src/re2/unicode_casefold.cpp
+    ${RE2_DIR}/src/re2/unicode_groups.cpp
+    ${RE2_DIR}/src/util/pcre.cpp
+    ${RE2_DIR}/src/util/rune.cpp
+    ${RE2_DIR}/src/util/strutil.cpp
+)
 
-add_library(${LIB} STATIC ${PROJECT_FILES})
 add_library(Radical_Mod::${LIB} ALIAS ${LIB})
 
-include_directories(${THIS} PRIVATE
-
-    ${RE2_DIR}/include
+target_include_directories(${LIB} PRIVATE
+    ${installed_projects}
 )
 
 # -------------------------- POST-CONFIG --------------------------------------
 CONFIGURE_VISUAL_STUDIO_PROJECT(${PROJECT_FILES})
+
+if(WIN32)
+    install_static_lib(${LIB})
+else()
+    set(RE2_OBJ_FILE_PATH "${CMAKE_SOURCE_DIR}/Build/${OS_TYPE}/${BUILD_TYPE}/CMakeFiles/${LIB}.dir/Project/src/re2/${LIB}.cpp${OBJ}")
+    
+    install(
+        FILES ${RE2_OBJ_FILE_PATH}
+        CONFIGURATIONS  ${BUILD_TYPE}
+        DESTINATION "${INSTALL_PREFIX}/Build/${BUILD_TYPE}/lib"
+        OPTIONAL
+    )
+endif()
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # -------------------------- END ----------------------------------------------

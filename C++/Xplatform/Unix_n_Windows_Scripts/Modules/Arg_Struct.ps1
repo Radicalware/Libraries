@@ -5,13 +5,15 @@ class Arg_Struct
     # --------- user defined ---------
     [string] $name; 
     [bool]   $executable;
+
     [bool]   $debug;
     [bool]   $clean;
-    [bool]   $Overwrite
+    [bool]   $Overwrite;
+    [bool]   $BuildAll;
 
-    [bool]   $noCmake
-    [bool]   $noMake
-    [bool]   $noInstall
+    [bool]   $noCmake;
+    [bool]   $noMake;
+    [bool]   $noInstall;
     # ---------------------------------
     [string] $build_type;
     [bool]   $is_unix;
@@ -33,13 +35,15 @@ class Arg_Struct
         # exe, debug, clean, overwrite, nCmake, noMake, noInstall
 
         $this.executable =  $bool_args[0];
+
         $this.debug =       $bool_args[1];
         $this.clean =       $bool_args[2];
         $this.Overwrite =   $bool_args[3];
+        $this.BuildAll =     $bool_args[4];
 
-        $this.noCmake =     $bool_args[4];
-        $this.noMake =      $bool_args[5];
-        $this.noInstall =   $bool_args[6];
+        $this.noCmake =     $bool_args[5];
+        $this.noMake =      $bool_args[6];
+        $this.noInstall =   $bool_args[7];
 
         $this.is_unix =  $($global:PSVersionTable.Platform -eq "Unix");
 

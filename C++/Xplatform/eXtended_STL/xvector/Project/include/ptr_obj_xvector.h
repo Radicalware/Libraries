@@ -21,12 +21,13 @@
 */
 
 #include "base_ptr_xvector.h"
+#include <type_traits>
 
 template<typename T> class ptr_xvector;
 template<typename T, typename enabler_t> class xvector;
 
 template<typename T>
-class xvector<T*, typename std::enable_if<std::is_class<std::remove_pointer_t<T*>>::value>::type> : public ptr_xvector<T*>
+class xvector<T*, typename std::enable_if_t<std::is_class<std::remove_pointer_t<T*>>::value>> : public ptr_xvector<T*>
 {
 private:
     typedef typename std::remove_const<T>::type E;// E for Erratic
@@ -51,17 +52,17 @@ public:
     // Go from xvector<xvector<N>*> to xvector<N*>
     //         xvector<T*>          to xvector<N*>
     template<typename N = typename E::value_type> // Nested Type
-    inline xvector<N*> expand() const;
+    inline xvector<N*> Expand() const;
 
-    T join(const T& str = "") const;
-    T join(const char str) const;
-    T join(const char* str) const;
+    T Join(const T& str = "") const;
+    T Join(const char str) const;
+    T Join(const char* str) const;
 };
 
 
 template<typename T>
 template<typename N /* = typename E::value_type*/>
-inline xvector<N*> xvector<T*, typename std::enable_if<std::is_class<std::remove_pointer_t<T*>>::value>::type>::expand() const
+inline xvector<N*> xvector<T*, typename std::enable_if_t<std::is_class<std::remove_pointer_t<T*>>::value>>::Expand() const
 {
     // Go from xvector<xvector<N>*> to xvector<N*>
     xvector<N*> expanded_vec;
@@ -73,7 +74,7 @@ inline xvector<N*> xvector<T*, typename std::enable_if<std::is_class<std::remove
 }
 
 template<typename T>
-inline T xvector<T*, typename std::enable_if<std::is_class<std::remove_pointer_t<T*>>::value>::type>::join(const T& str) const
+inline T xvector<T*, typename std::enable_if_t<std::is_class<std::remove_pointer_t<T*>>::value>>::Join(const T& str) const
 {
     E ret;
     for (typename xvector<T*>::const_iterator it = this->begin(); it != this->end(); it++)
@@ -82,7 +83,7 @@ inline T xvector<T*, typename std::enable_if<std::is_class<std::remove_pointer_t
 }
 
 template<typename T>
-inline T xvector<T*, typename std::enable_if<std::is_class<std::remove_pointer_t<T*>>::value>::type>::join(const char str) const
+inline T xvector<T*, typename std::enable_if_t<std::is_class<std::remove_pointer_t<T*>>::value>>::Join(const char str) const
 {
     E ret;
     for (typename xvector<T*>::const_iterator it = this->begin(); it != this->end(); it++)
@@ -92,7 +93,7 @@ inline T xvector<T*, typename std::enable_if<std::is_class<std::remove_pointer_t
 }
 
 template<typename T>
-inline T xvector<T*, typename std::enable_if<std::is_class<std::remove_pointer_t<T*>>::value>::type>::join(const char* str) const
+inline T xvector<T*, typename std::enable_if_t<std::is_class<std::remove_pointer_t<T*>>::value>>::Join(const char* str) const
 {
     E ret;
     for (typename xvector<T*>::const_iterator it = this->begin(); it != this->end(); it++)

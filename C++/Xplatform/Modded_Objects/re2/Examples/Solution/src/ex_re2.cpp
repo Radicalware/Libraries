@@ -60,7 +60,7 @@ void test3()
 {
     std::string data = "XXoneZZ XXtwoZZ";
     xstring xdata = data;
-    xdata.findall(RE2(R"((?:XX)(\w+)(?:ZZ))")).join('-').print(2);
+    xdata.Findall(RE2(R"((?:XX)(\w+)(?:ZZ))")).Join('-').Print(2);
 }
 
 int main()

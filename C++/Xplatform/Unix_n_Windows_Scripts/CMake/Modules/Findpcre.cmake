@@ -11,6 +11,8 @@ if(WIN32)
     set(PCRE_BIN_DIR "C:/Program Files (x86)/PCRE/bin")
     set(PCRE_LIB_DIR "C:/Program Files (x86)/PCRE/lib")
 
+    list(APPEND CMAKE_MODULE_PATH ${PCRE_INCLUDE_DIR})
+
     FIND_PATH(${PCRE_INCLUDE_DIR} NAMES pcre.h)
     FIND_LIBRARY(${PCRE_LIB_DIR} NAMES pcre)
 

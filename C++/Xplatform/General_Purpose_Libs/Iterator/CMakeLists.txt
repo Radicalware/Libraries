@@ -1,4 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.16)
+﻿cmake_minimum_required(VERSION 3.17)
 
 set(THIS Iterator)
 
@@ -16,21 +16,20 @@ include("${RADICAL_PATH}/Radical-Lib-Config.cmake")
 
 project (${THIS})
 
-SUBDIRLIST(PROJECT_FILES "${CMAKE_CURRENT_SOURCE_DIR}/Project")
+find_program_files(project_files "${BUILD_DIR}")
 
-add_library(${THIS} SHARED ${PROJECT_FILES})
-add_library(radical::${THIS} ALIAS ${THIS})
+add_library(${THIS} STATIC ${project_files})
+add_library(Radical::${THIS} ALIAS ${THIS})
 
 target_include_directories(${THIS}
-    PUBLIC
-        ${EXT_HEADER_PATH}
-        ${INC}
+    PRIVATE
+        ${installed_projects}
 )
 
-# Required Libs -------------------------------------------------------------------------
-message ("No Required Libs Needed")
 # -------------------------- INSTALL ----------------------------------------------------
 
 include("${RADICAL_PATH}/Radical-Lib-Install.cmake")
+INSTALL_VISUAL_STUDIO_PROJECT(${PROJECT_FILES})
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # -------------------------- END --------------------------------------------------------

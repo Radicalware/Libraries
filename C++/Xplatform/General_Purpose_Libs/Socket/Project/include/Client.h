@@ -43,15 +43,15 @@ public:
 
     Client(int* mtu, bool* verbose, int pro);
     Client(const Client& other);
-    virtual Client& connect() = 0;
-    virtual Client& connect(const xstring& ip, const xstring& port) = 0;
-    virtual Client& send(const xstring& buff = "") = 0;
-    virtual Client& recv(int size = 0) = 0;
-    virtual Client& close() = 0;
+    virtual Client& Connect() = 0;
+    virtual Client& Connect(const xstring& ip, const xstring& port) = 0;
+    virtual Client& Send(const xstring& buff = "") = 0;
+    virtual Client& Recv(int size = 0) = 0;
+    virtual Client& Close() = 0;
 
     virtual void operator<<(const xstring& buff);
     virtual void operator=(const Client& other);
 
-    xstring ip() const;
-    xstring port() const;
+    xstring GetIP() const;
+    xstring GetPort() const;
 };

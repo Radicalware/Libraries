@@ -28,16 +28,16 @@ public:
     Job(); // required by Linux
     Job(      Task<T>&& task, size_t index);
     Job(const Task<T>&  task, size_t index);
-    void init();
-    Task<T> task() const;
-    const Task<T>* task_ptr() const;
-    T move();
-    T value() const;
-    T* value_ptr() const;
-    std::exception_ptr exception() const;
-    void rethrow_exception() const;
-    bool done() const;
-    size_t index() const;
+    void Init();
+    Task<T> GetTask() const;
+    const Task<T>* TaskPtr() const;
+    T Move();
+    T GetValue() const;
+    T* GetValuePtr() const;
+    std::exception_ptr Exception() const;
+    void ThrowException() const;
+    bool IsDone() const;
+    size_t GetIndex() const;
 
     bool operator> (const Job<T> other) const;
     bool operator< (const Job<T> other) const;
@@ -63,7 +63,7 @@ inline Job<T>::Job(const Task<T>& task, size_t index) :
 }
 
 template<typename T>
-inline void Job<T>::init()
+inline void Job<T>::Init()
 {
     try {
         m_value = m_task();
@@ -79,13 +79,13 @@ inline void Job<T>::init()
 }
 
 template<typename T>
-inline Task<T> Job<T>::task() const
+inline Task<T> Job<T>::GetTask() const
 {
     return m_task;
 }
 
 template<typename T>
-inline const Task<T>* Job<T>::task_ptr() const
+inline const Task<T>* Job<T>::TaskPtr() const
 {
     if (m_removed)
         throw std::runtime_error("The Task Object Has Been Moved!\n");
@@ -93,7 +93,7 @@ inline const Task<T>* Job<T>::task_ptr() const
 }
 
 template<typename T>
-inline T Job<T>::value() const 
+inline T Job<T>::GetValue() const 
 {
     if (m_removed)
         throw std::runtime_error("The Task Object Has Been Moved!\n");
@@ -102,14 +102,14 @@ inline T Job<T>::value() const
 
 
 template<typename T>
-inline T Job<T>::move() 
+inline T Job<T>::Move() 
 {
     m_removed = true;
     return std::move(m_value);
 }
 
 template<typename T>
-inline T* Job<T>::value_ptr() const
+inline T* Job<T>::GetValuePtr() const
 {
     if (m_removed)
         throw std::runtime_error("The Task Object Has Been Moved!\n");
@@ -117,26 +117,26 @@ inline T* Job<T>::value_ptr() const
 }
 
 template<typename T>
-inline std::exception_ptr Job<T>::exception() const
+inline std::exception_ptr Job<T>::Exception() const
 {
     return m_exc_ptr;
 }
 
 template<typename T>
-inline void Job<T>::rethrow_exception() const
+inline void Job<T>::ThrowException() const
 {
     if(m_exc_ptr != nullptr)
         std::rethrow_exception(m_exc_ptr);
 }
 
 template<typename T>
-inline bool Job<T>::done() const
+inline bool Job<T>::IsDone() const
 {
     return m_done;
 }
 
 template<typename T>
-inline size_t Job<T>::index() const
+inline size_t Job<T>::GetIndex() const
 {
     return m_index;
 }
@@ -163,6 +163,6 @@ inline bool Job<T>::operator==(const Job<T> other) const
 template<typename T>
 std::ostream& operator<<(std::ostream& out, const Job<T>& job)
 {
-    out << job.value();
+    out << job.GetValue();
     return out;
 }

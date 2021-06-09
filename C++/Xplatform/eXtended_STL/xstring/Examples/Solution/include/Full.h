@@ -18,11 +18,11 @@ struct Full
     // NOTE: All test functions are inline to make example reading easier.
 
     template<typename T>
-    inline void print(T val) {
+    inline void Print(T val) {
         cout << val << endl;
     }
 
-    inline void reset(const xvector<xstring>& saved1, const xvector<xstring>& saved2,
+    inline void Reset(const xvector<xstring>& saved1, const xvector<xstring>& saved2,
         xvector<xstring>& throwback1, xvector<xstring>& throwback2)
     {
         throwback1 = saved1;
@@ -54,10 +54,10 @@ struct Full
         move_xstring();
 
         xstring hello_world("Hello World");
-        print(hello_world.split(' ').join(" ** "));
+        Print(hello_world.Split(' ').Join(" ** "));
 
-        print(xstring("Result 'World' Found: ") + to_xstring(hello_world.scan("[wW][0oO]rld$")));
-        print(xstring("Result 'World' Found: ") + to_xstring(hello_world.match("^.*[wW][0oO]rld$")));
+        Print(xstring("Result 'World' Found: ") + ToXString(hello_world.Scan("[wW][0oO]rld$")));
+        Print(xstring("Result 'World' Found: ") + ToXString(hello_world.Match("^.*[wW][0oO]rld$")));
 
         xvector<xstring> vec1;
         vec1 << "one";
@@ -65,31 +65,31 @@ struct Full
         vec1 << "three";
         vec1 << "four";
         xvector<xstring> vec1copy = vec1;
-        print(vec1.join(" "));
+        Print(vec1.Join(" "));
 
         xvector<xstring> vec2{ "five", "six", "seven", "eight" };
         xvector<xstring> vec2copy = vec2;
 
         vec1 += vec2;
 
-        print(vec1.join(" "));
+        Print(vec1.Join(" "));
 
-        reset(vec1copy, vec2copy, vec1, vec2);
+        Reset(vec1copy, vec2copy, vec1, vec2);
 
         xvector<xstring> joined_vec = vec1 + vec2;
-        print(joined_vec.join(" "));
+        Print(joined_vec.Join(" "));
 
         xvector<int> vec{ 0,1,2,3,4,5,6,7,8,9,10 };
-        print(vec(3, 9, 2).join(' ')); // stream join
+        Print(vec(3, 9, 2).Join(' ')); // stream join
         // start at the 3rd element, end at the 9th element, skipping every other element
 
-        xstring nums = joined_vec.join(' ');
-        print(xstring("nums = ") + nums.split(R"(\s)").join('*'));
+        xstring nums = joined_vec.Join(' ');
+        Print(xstring("nums = ") + nums.Split(R"(\s)").Join('*'));
         cout << '\n';
 
 
-        cout << "Match insensitive case: " << xstring("Ryan").match("rYaN", rxm::icase) << endl;
-        cout << "Match sensitive   case: " << xstring("Ryan").match("rYaN") << endl;
+        cout << "Match insensitive case: " << xstring("Ryan").Match("rYaN", rxm::icase) << endl;
+        cout << "Match sensitive   case: " << xstring("Ryan").Match("rYaN") << endl;
 
         return 0;
     }
@@ -111,14 +111,14 @@ struct Full
         for (const char* five_cp = five; five_cp != &five[strlen(five)]; five_cp++)
             str = str + *five_cp;
 
-        str.print(2);
+        str.Print(2);
         // ---------------------------------------------------------------------
         xstring xstr = "aaa ";
         xstr += string(" bbb ");
         xstr = xstr + string(" ccc ");
         xstr += xstring(" ddd ");
         xstr = xstr + xstring(" eee ");
-        xstr.print();
+        xstr.Print();
     }
 
 };

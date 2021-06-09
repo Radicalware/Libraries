@@ -1,4 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.16)
+﻿cmake_minimum_required(VERSION 3.17)
 
 SET(THIS ex_Nexus)
 
@@ -16,30 +16,33 @@ include("${RADICAL_PATH}/Radical-App-Config.cmake")
 
 project (${THIS})
 
-SUBDIRLIST(SOLUTION_FILES "${CMAKE_CURRENT_SOURCE_DIR}/Solution")
-
+find_program_files(SOLUTION_FILES "${CMAKE_CURRENT_SOURCE_DIR}/Solution")
 add_executable(${THIS} ${SOLUTION_FILES})
 
 find_package(Nexus)
 find_package(xvector)
 find_package(xstring)
 find_package(xmap)
-find_package(Timer)
 find_package(re2)
+find_package(Timer)
 
-target_link_libraries(${THIS} 
-    Radical::Nexus
-    Radical::xvector
-    Radical::xstring
-    Radical::xmap
-    Radical::Timer
-    
-    Radical_Mod::re2
+target_include_directories(${THIS} PRIVATE
+        ${installed_projects}
 )
+
+if(${debug} OR ${build_all})
+    target_link_libraries(${THIS}
+
+        Radical::Nexus
+        Radical::xvector
+        Radical::xstring
+        Radical::xmap
+    )
+endif()
 
 # -------------------------- POST-CONFIG --------------------------------------
 
-CONFIGURE_VISUAL_STUDIO_SOLUTION(${SOLUTION_FILES})
+INSTALL_VISUAL_STUDIO_SOLUTION(${SOLUTION_FILES})
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # -------------------------- END ----------------------------------------------

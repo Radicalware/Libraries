@@ -24,14 +24,14 @@ OS_O::Dir_Type::Dir_Type() {}
 OS_O::Dir_Type::~Dir_Type() {}
 
 
-OS_O::Dir_Type::DT OS_O::Dir_Type::Get_Dir_Type(const xstring& input) {
+OS_O::Dir_Type::DT OS_O::Dir_Type::GetDirType(const xstring& input) {
 
 #if defined(NIX_BASE)
 
     struct stat path_st;
     char dt = 'n';
 
-    stat(input.sub("\\\\", "/").c_str(), &path_st);
+    stat(input.Sub("\\\\", "/").c_str(), &path_st);
     if(S_ISREG(path_st.st_mode) ) {
         dt = 'f' ;
     }
@@ -49,7 +49,7 @@ OS_O::Dir_Type::DT OS_O::Dir_Type::Get_Dir_Type(const xstring& input) {
 #elif defined(WIN_BASE)
 
     struct stat st;
-    if (stat(input.sub("\\\\", "/").c_str(), &st) == 0) {
+    if (stat(input.Sub("\\\\", "/").c_str(), &st) == 0) {
         if (st.st_mode & S_IFDIR) {
             return DT::directory;
         } else if (st.st_mode & S_IFREG) {
@@ -64,30 +64,29 @@ OS_O::Dir_Type::DT OS_O::Dir_Type::Get_Dir_Type(const xstring& input) {
 
 bool OS_O::Dir_Type::Has(const xstring& item)
 {
-    return (Dir_Type::Has_File(item) || Dir_Type::Has_Dir(item));
+    return (Dir_Type::HasFile(item) || Dir_Type::HasDir(item));
 }
 
-bool OS_O::Dir_Type::Has_File(const xstring& file) {
-    return (Dir_Type::Get_Dir_Type(file) == DT::file);
+bool OS_O::Dir_Type::HasFile(const xstring& file) {
+    return (Dir_Type::GetDirType(file) == DT::file);
 }
 
-bool OS_O::Dir_Type::Has_Dir(const xstring& folder) {
-    return (Dir_Type::Get_Dir_Type(folder) == DT::directory);
+bool OS_O::Dir_Type::HasDir(const xstring& folder) {
+    return (Dir_Type::GetDirType(folder) == DT::directory);
 }
 
-bool OS_O::Dir_Type::Has_File(xstring&& file) {
-    return (Dir_Type::Get_Dir_Type(file) == DT::file);
+bool OS_O::Dir_Type::HasFile(xstring&& file) {
+    return (Dir_Type::GetDirType(file) == DT::file);
 }
 
-bool OS_O::Dir_Type::Has_Dir(xstring&& folder) {
-    return (Dir_Type::Get_Dir_Type(folder) == DT::directory);
+bool OS_O::Dir_Type::HasDir(xstring&& folder) {
+    return (Dir_Type::GetDirType(folder) == DT::directory);
 }
 
-
-xstring OS_O::Dir_Type::Dir_Item_Str(const xstring& input) {
+xstring OS_O::Dir_Type::GetDirItem(const xstring& input) {
 
     DT dt = DT::none;
-    dt = Dir_Type::Get_Dir_Type(input);
+    dt = Dir_Type::GetDirType(input);
 
     switch(dt){
         case DT::file:      return "file";break;
@@ -99,68 +98,80 @@ xstring OS_O::Dir_Type::Dir_Item_Str(const xstring& input) {
 
 
 xstring OS_O::Dir_Type::BWD() {
+    xstring bwd;
 #if defined(NIX_BASE)
     char result[FILENAME_MAX];
     ssize_t count = readlink("/proc/self/exe", result, FILENAME_MAX);
-    return xstring(result).sub("/[^/]*$", "");
+    bwd = xstring(result).Sub("/[^/]*$", "");
 
 #elif defined(WIN_BASE)
     char buf[256];
     GetCurrentDirectoryA(256, buf);
-    return xstring(buf);
+    bwd = buf;
 #endif
+    bwd.RemoveNulls();
+    return bwd;
 }
 
 xstring OS_O::Dir_Type::PWD() {
+    xstring pwd;
 #if defined(NIX_BASE)
     char c_pwd[256];
     if (NULL == getcwd(c_pwd, sizeof(c_pwd))) {
         perror("can't get current dir\n");
         throw;
     }
-    return xstring(c_pwd);
+    pwd = c_pwd;
 
 #elif defined(WIN_BASE)
     char* buffer; 
-    xstring pwd;
     if ((buffer = _getcwd(NULL, 0)) == NULL) {
         perror("can't get current dir\n"); throw;
     } else{
         pwd = buffer;
         free(buffer);
     }
-    return pwd;
 #endif
+    pwd.RemoveNulls();
+    return pwd;
 }
 
 
 xstring OS_O::Dir_Type::Home() {
+    xstring home_str;
 #if defined(NIX_BASE)
     struct passwd *pw = getpwuid(getuid());
-    const char *char_home_dir = pw->pw_dir;
-    return xstring(char_home_dir);
+    home_str = pw->pw_dir;
 
 #elif defined(WIN_BASE)
     char* path_str;
     size_t len;
     _dupenv_s( &path_str, &len, "USERPROFILE" );
-    xstring ret_str = path_str;
+    home_str = path_str;
     free(path_str);
-    return ret_str;
     // _dupenv_s( &path_str, &len, "pathext" ); TODO ADD THIS
 #endif
+    home_str.RemoveNulls();
+    return home_str;
 }
 
-xstring OS_O::Dir_Type::Full_Path(const xstring& file)
+xstring OS_O::Dir_Type::FullPath(const xstring& file)
 {
-    if (file[0] != '.')// no path traversal
+    if (file[0] != '.') // no path traversal
         return file;
-    else if (file[0] == '.' && (file[1] == '/' || file[1] == '\\')) 
+
+    if (!file.size()) // no input
+        return PWD();
+        
+    if(file[0] == '.' && file.size() == 1) // present working directory
+        return PWD();
+
+    else if (file[0] == '.' && (file[1] == '/' || file[1] == '\\')) // continued directory
     {
 #if defined(WIN_BASE)
-        return PWD() + file(1).sub(s_forwardslash, "\\\\");
+        return PWD() + file(1).Sub(s_forwardslash, "\\\\");
 #elif defined(NIX_BASE)
-        return PWD() + file(1).sub(s_backslash, "/");
+        return PWD() + file(1).Sub(s_backslash, "/");
 #endif
     }
 
@@ -170,13 +181,14 @@ xstring OS_O::Dir_Type::Full_Path(const xstring& file)
 #else
     char full[PATH_MAX];
 #endif
-
+    xstring full_path;
 #if defined(WIN_BASE)
-    const char* unused = _fullpath(full, file.sub(s_forwardslash, "\\\\").c_str(), _MAX_PATH);
-    return xstring(full);
+    const char* unused = _fullpath(full, file.Sub(s_forwardslash, "\\\\").c_str(), _MAX_PATH);
 #elif defined(NIX_BASE)
     xstring awkward_path = PWD() + '/' + file;
-    const char* unused = realpath(awkward_path.sub(s_forwardslash, "/").c_str(), full);
-    return xstring(full);
+    const char* unused = realpath(awkward_path.Sub(s_forwardslash, "/").c_str(), full);
 #endif
+    full_path = full;
+    full_path.RemoveNulls();
+    return full_path;
 }

@@ -7,11 +7,21 @@
 #define NIX_BASE
 #endif
 
+#if (defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64))
+    #ifdef DLL_EXPORT
+       #define EXI __declspec(dllexport)
+    #else
+       #define EXI __declspec(dllimport)
+    #endif
+#else
+    #define EXI
+#endif
+
 #include "xstring.h"
 
 namespace OS_O // OS Object
 {
-    class Dir_Type
+    class EXI Dir_Type
     {
     protected:
         enum class DT // dir type
@@ -32,19 +42,19 @@ namespace OS_O // OS Object
         Dir_Type();
         ~Dir_Type();
 
-        static DT Get_Dir_Type(const xstring& item);
+        static DT GetDirType(const xstring& item);
         static bool Has(const xstring& item);
-        static bool Has_File(const xstring& file);
-        static bool Has_Dir(const xstring& folder);
-        static bool Has_File(xstring&& file);
-        static bool Has_Dir(xstring&& folder);
-        static xstring Dir_Item_Str(const xstring& item);
+        static bool HasFile(const xstring& file);
+        static bool HasDir(const xstring& folder);
+        static bool HasFile(xstring&& file);
+        static bool HasDir(xstring&& folder);
+        static xstring GetDirItem(const xstring& item);
 
 
         static xstring BWD(); // binary pwd
         static xstring PWD();  // user pwd
         static xstring Home(); // home dir
 
-        static xstring Full_Path(const xstring& file);
+        static xstring FullPath(const xstring& file);
     };
 };

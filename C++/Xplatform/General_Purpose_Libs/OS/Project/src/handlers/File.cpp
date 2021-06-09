@@ -8,8 +8,8 @@ OS_O::File::File()
 {
 }
 
-void OS_O::File::set_file(const xstring& iname) {
-    m_name = File::Full_Path(iname);
+void OS_O::File::SetFile(const xstring& iname) {
+    m_name = File::FullPath(iname);
 }
 
 
@@ -25,24 +25,24 @@ OS_O::File::File(const xstring& iname)
 
 void OS_O::File::operator=(const File& file)
 {
-    this->close();
+    this->Close();
     m_name = file.m_name;
     m_data = file.m_data;
 }
 
-xstring OS_O::File::name() const
+xstring OS_O::File::GetName() const
 {
     return m_name;
 }
 
-xstring OS_O::File::data() const
+xstring OS_O::File::GetData() const
 {
     return m_data;
 }
 
-void OS_O::File::set_read()
+void OS_O::File::SetRead()
 {
-    this->close();
+    this->Close();
     m_handler = 'r';
     try {
         m_in_stream.open(m_name.c_str(), std::ios::binary | std::ios::in);
@@ -53,9 +53,9 @@ void OS_O::File::set_read()
     }
 }
 
-void OS_O::File::set_write()
+void OS_O::File::SetWrite()
 {
-    close();
+    Close();
     m_handler = 'w';
     try {
         m_out_stream.open(
@@ -69,9 +69,9 @@ void OS_O::File::set_write()
     }
 }
 
-void OS_O::File::set_append()
+void OS_O::File::SetAppend()
 {
-    this->close();
+    this->Close();
     m_handler = 'a';
     try {
         m_out_stream.open(
@@ -85,7 +85,7 @@ void OS_O::File::set_append()
     }
 }
 
-void OS_O::File::close()
+void OS_O::File::Close()
 {
     if (m_in_stream.is_open())
         m_in_stream.close();
@@ -94,24 +94,24 @@ void OS_O::File::close()
         m_out_stream.close();
 }
 
-void OS_O::File::clear(){
-    this->set_write();
+void OS_O::File::Clear(){
+    this->SetWrite();
 }
 
-void OS_O::File::remove(){
-    this->rm();
+void OS_O::File::Remove(){
+    this->RM();
 }
 
-void OS_O::File::rm()
+void OS_O::File::RM()
 {
-    this->close();
+    this->Close();
     errno = 0;
-    if(!OS_O::Dir_Type::Has_File(m_name))
+    if(!OS_O::Dir_Type::HasFile(m_name))
         throw std::runtime_error(std::string("Error Filename: ") + m_name + " Does Not Exist!\n");
     try {
 
 #if   defined(NIX_BASE)
-        ::remove(m_name.c_str());
+        remove(m_name.c_str());
 #elif defined(WIN_BASE)
         DeleteFileA(m_name.c_str());
 #endif
@@ -119,20 +119,20 @@ void OS_O::File::rm()
             throw;
     }
     catch (...) {
-        xstring err = "Failed (" + to_xstring(errno) + "): Failed to delete file: '" + m_name + "'\n";
+        xstring err = "Failed (" + ToXString(errno) + "): Failed to delete file: '" + m_name + "'\n";
         throw std::runtime_error(err);
     }
 }
 
-void OS_O::File::copy(const xstring& location){
-    this->cp(location);
+void OS_O::File::Copy(const xstring& location){
+    this->CP(location);
 }
 
-void OS_O::File::cp(const xstring& location)
+void OS_O::File::CP(const xstring& location)
 {
-    xstring new_path = Full_Path(location);
+    xstring new_path = FullPath(location);
     try {
-        this->set_read();
+        this->SetRead();
         std::ofstream out_stream(new_path, std::ios::out | std::ios::binary);
         out_stream << m_in_stream.rdbuf();
         if (out_stream.is_open()) out_stream.close();
@@ -142,13 +142,13 @@ void OS_O::File::cp(const xstring& location)
     }
 }
 
-void OS_O::File::move(const xstring& location){
-    this->mv(location);
+void OS_O::File::Move(const xstring& location){
+    this->MV(location);
 }
 
-void OS_O::File::mv(const xstring& location)
+void OS_O::File::MV(const xstring& location)
 {
-    this->cp(location);
-    this->rm();
+    this->CP(location);
+    this->RM();
 }
 

@@ -4,6 +4,7 @@ param (
     [switch] $Debug,
     [switch] $Clean, 
     [switch] $Overwrite,
+    [switch] $BuildAllProjects,
 
     [switch] $NoMake,
     [switch] $NoCmake,
@@ -29,12 +30,12 @@ Import-Module "$module_path\Run_CMake.ps1" -Force;
 Set-Location $(Split-Path -parent $PSCommandPath);
 
 
-$ArgStruct = [Arg_Struct]::new($proj_name, $PSScriptRoot, [bool[]]($executable, $Debug, $Clean, $Overwrite, $noCmake, $noMake, $noInstall));
+$ArgStruct = [Arg_Struct]::new($proj_name, $PSScriptRoot, [bool[]](
+    $executable, $Debug, $Clean, $Overwrite, $BuildAllProjects, $noCmake, $noMake, $noInstall));
+
 if($Exec){
     [Run_CMake]::new($ArgStruct).execute();
 }else{
     $run = [Run_CMake]::new($ArgStruct).Print_Config().Link_n_Compile();
     if((!$NoMake) -and (!$NoExec)){ $run.execute(); }
 }
-
-

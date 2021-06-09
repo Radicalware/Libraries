@@ -44,25 +44,25 @@ public:
     inline xmap(const std::map<K, V>& other);
     inline xmap(std::map<K, V>&& other) noexcept;
 
-    inline void add_pair(K one, const V& two);
+    inline void AddPair(const K& one, const V& two);
     // ======== INITALIZATION ========================================================================
     // ======== RETREVAL =============================================================================
 
-    inline constexpr xvector<K> keys() const;
-    inline constexpr xvector<V> values() const;
-    inline constexpr K key_for_value(const V& input) const; // for Key-Value-Pairs
-    inline constexpr xvector<const K*> cache() const;       // remember to allocate 
+    inline constexpr xvector<K> GetKeys() const;
+    inline constexpr xvector<V> GetValues() const;
+    inline constexpr K GetKeyFromValue(const V& input) const; // for Key-Value-Pairs
+    inline constexpr xvector<const K*> GetCache() const;       // remember to allocate 
 
-    inline constexpr V key(const K& input) const; // ------|
-    inline constexpr V value_for(const K& input) const;//--|--all 3 are the same
+    inline constexpr V Key(const K& input) const; // ------|
+    inline constexpr V GetValueFrom(const K& input) const;//--|--all 3 are the same
 
     // ======== RETREVAL =============================================================================
     // ======== BOOLS ================================================================================
 
-    inline constexpr bool has(const K& input) const; // has implies key
+    inline constexpr bool Has(const K& input) const; // has implies key
 
-    inline constexpr bool has_value(const V& input) const;          // for Key-Value-Pairs
-    inline constexpr bool has_value_in_lists(const V& input) const; // for Key-list-Pairs
+    inline constexpr bool HasValue(const V& input) const;          // for Key-Value-Pairs
+    inline constexpr bool HasValueInLists(const V& input) const; // for Key-list-Pairs
 
     inline constexpr bool operator()(const K& iKey) const;
     inline constexpr bool operator()(const K& iKey, const V& iValue) const;
@@ -72,39 +72,41 @@ public:
     template<typename O>
     inline void operator=(O&& other);
 
-    //inline constexpr const V& operator[](const K& key) const;
-    //inline constexpr V& operator[](const K& key);
+    inline const V& operator[](const K& key) const;
+    inline V& operator[](const K& key);
 
     inline void operator+=(const xmap<K, V>& other);
     inline constexpr xmap<K, V> operator+(const xmap<K, V>& other) const;
 
+    inline size_t Size() const;
+
     // ======== BOOLS ================================================================================
     // ======== Functional ===========================================================================
-    inline constexpr xvector<const K*>* allocate_keys();
-    inline constexpr xmap<const V*, const K*>* allocate_reverse_map();
+    inline constexpr xvector<const K*>* AllocateKeys();
+    inline constexpr xmap<const V*, const K*>* AllocateReverseMap();
 
-    inline constexpr xvector<const K*> cached_keys() const; // remember to allocate 
-    inline constexpr xmap<const V*, const K*> cached_rev_map() const; // remember to allocate 
+    inline constexpr xvector<const K*> GetCachedKeys() const; // remember to allocate 
+    inline constexpr xmap<const V*, const K*> GetCachedRevMap() const; // remember to allocate 
 
     template<typename F>
-    inline void sort(F func);
+    inline void Sort(F func);
 
     template<typename F, typename... A>
-    inline void proc(F&& function, A&& ...Args);
+    inline void Proc(F&& function, A&& ...Args);
     template<typename F, typename... A>
-    inline void xproc(F&& function, A&& ...Args);
+    inline void ThreadProc(F&& function, A&& ...Args);
 
     // R = Return Type  ||  T = Nexus Type
     template<typename R = K, typename F, typename ...A>
-    inline constexpr xvector<R> render(F&& function, A&& ...Args);
+    inline constexpr xvector<R> ForEach(F&& function, A&& ...Args);
     template<typename T = K, typename R = T, typename F, typename ...A>
-    inline xvector<R> xrender(F&& function, A&& ...Args);
+    inline xvector<R> ForEachThread(F&& function, A&& ...Args);
 
-    inline constexpr std::map<K, V> to_std_map() const;
-    inline constexpr std::unordered_map<K, V> to_std_unordered_map() const;
+    inline constexpr std::map<K, V> ToStdMap() const;
+    inline constexpr std::unordered_map<K, V> ToStdUnorderedMap() const;
     
-    inline void print() const;
-    inline void print(int num) const;
+    inline void Print() const;
+    inline void Print(int num) const;
     // ======== Functional ===========================================================================
 };
 
@@ -147,14 +149,14 @@ inline xmap<K, V>::xmap(std::map<K, V>&& other) noexcept :
     std::unordered_map<K, V>(std::make_move_iterator(other.begin()), std::make_move_iterator(other.end())) { }
 
 template<typename K, typename V>
-inline void xmap<K, V>::add_pair(K one, const V& two){
+inline void xmap<K, V>::AddPair(const K& one, const V& two){
     this->insert(std::make_pair(one, two));
 }
 // ======== INITALIZATION ========================================================================
 // ======== RETREVAL =============================================================================
 
 template<typename K, typename V>
-inline constexpr xvector<K> xmap<K, V>::keys() const
+inline constexpr xvector<K> xmap<K, V>::GetKeys() const
 {
     xvector<K> vec;
     for (typename std::unordered_map<K, V>::const_iterator iter = this->begin(); iter != this->end(); ++iter)
@@ -163,7 +165,7 @@ inline constexpr xvector<K> xmap<K, V>::keys() const
 }
 
 template<typename K, typename V>
-inline constexpr xvector<V> xmap<K, V>::values() const
+inline constexpr xvector<V> xmap<K, V>::GetValues() const
 {
     xvector<V> vec;
     for (typename std::unordered_map<K, V>::const_iterator iter = this->begin(); iter != this->end(); ++iter)
@@ -172,7 +174,7 @@ inline constexpr xvector<V> xmap<K, V>::values() const
 }
 
 template<typename K, typename V>
-inline constexpr K xmap<K, V>::key_for_value(const V& input) const
+inline constexpr K xmap<K, V>::GetKeyFromValue(const V& input) const
 {
     for (typename std::unordered_map<K, V>::const_iterator iter = this->begin(); iter != this->end(); ++iter) {
         if (iter->second == input)
@@ -183,7 +185,7 @@ inline constexpr K xmap<K, V>::key_for_value(const V& input) const
 
 
 template<typename K, typename V>
-inline constexpr xvector<const K*> xmap<K, V>::cache() const
+inline constexpr xvector<const K*> xmap<K, V>::GetCache() const
 {
     if (m_keys == nullptr)
         return xvector<const K*>();
@@ -191,7 +193,7 @@ inline constexpr xvector<const K*> xmap<K, V>::cache() const
 }
 
 template<typename K, typename V>
-inline constexpr V xmap<K, V>::key(const K& input) const
+inline constexpr V xmap<K, V>::Key(const K& input) const
 {
     auto it = this->find(input);
     if (it == this->end())
@@ -200,7 +202,7 @@ inline constexpr V xmap<K, V>::key(const K& input) const
         return it->second;
 }
 template<typename K, typename V>
-inline constexpr V xmap<K, V>::value_for(const K& input) const
+inline constexpr V xmap<K, V>::GetValueFrom(const K& input) const
 {
     auto it = this->find(input);
     if (it == this->end())
@@ -213,7 +215,7 @@ inline constexpr V xmap<K, V>::value_for(const K& input) const
 // ======== BOOLS ================================================================================
 
 template<typename K, typename V>
-inline constexpr bool xmap<K, V>::has(const K& input) const
+inline constexpr bool xmap<K, V>::Has(const K& input) const
 {
     auto it = this->find(input);
     if (it == this->end())
@@ -223,7 +225,7 @@ inline constexpr bool xmap<K, V>::has(const K& input) const
 }
 
 template<typename K, typename V>
-inline constexpr bool xmap<K, V>::has_value(const V& input) const
+inline constexpr bool xmap<K, V>::HasValue(const V& input) const
 {
     for (typename std::unordered_map<K, V>::const_iterator iter = this->begin(); iter != this->end(); ++iter) {
         if (iter->second == input)
@@ -233,7 +235,7 @@ inline constexpr bool xmap<K, V>::has_value(const V& input) const
 }
 
 template<typename K, typename V>
-inline constexpr bool xmap<K, V>::has_value_in_lists(const V& input) const
+inline constexpr bool xmap<K, V>::HasValueInLists(const V& input) const
 {
     for (typename std::unordered_map<K, V>::const_iterator map_iter = this->begin(); map_iter != this->end(); ++map_iter) {
         for (typename V::iterator val_iter = map_iter->second->begin(); val_iter != map_iter->second->end(); val_iter++) {
@@ -248,7 +250,7 @@ inline constexpr bool xmap<K, V>::has_value_in_lists(const V& input) const
 template<typename K, typename V>
 inline constexpr bool xmap<K, V>::operator()(const K& iKey) const
 {
-    if (this->has(iKey))
+    if (this->Has(iKey))
         return true;
     else
         return false;
@@ -257,7 +259,7 @@ inline constexpr bool xmap<K, V>::operator()(const K& iKey) const
 template<typename K, typename V>
 inline constexpr bool xmap<K, V>::operator()(const K& iKey, const V& iValue) const
 {
-    if (this->key(iKey) == iValue)
+    if (this->Key(iKey) == iValue)
         return true;
     else
         return false;
@@ -278,17 +280,17 @@ inline void xmap<K, V>::operator=(O&& other)
     this->insert(other.begin(), other.end());
 }
 
-//template<typename K, typename V>
-//inline constexpr const V& xmap<K, V>::operator[](const K& key) const
-//{
-//    return this->at(key);
-//}
+template<typename K, typename V>
+inline const V& xmap<K, V>::operator[](const K& key) const
+{
+    return this->at(key);
+}
 
-//template<typename K, typename V>
-//inline constexpr V& xmap<K, V>::operator[](const K& key)
-//{
-//    return this->at(key);
-//}
+template<typename K, typename V>
+inline V& xmap<K, V>::operator[](const K& key)
+{
+    return this->at(key);
+}
 
 template<typename K, typename V>
 inline void xmap<K, V>::operator+=(const xmap<K, V>& other)
@@ -304,10 +306,16 @@ inline constexpr xmap<K, V> xmap<K, V>::operator+(const xmap<K, V>& other) const
     return rmap;
 }
 
+template<typename K, typename V>
+inline size_t xmap<K, V>::Size() const
+{
+    return this->size();
+}
+
 // ======== BOOLS ================================================================================
 // ======== Functional ===========================================================================
 template<typename K, typename V>
-inline constexpr xvector<const K*>* xmap<K, V>::allocate_keys()
+inline constexpr xvector<const K*>* xmap<K, V>::AllocateKeys()
 {
     if (m_keys == nullptr)
         m_keys = new xvector<const K*>;
@@ -321,7 +329,7 @@ inline constexpr xvector<const K*>* xmap<K, V>::allocate_keys()
 
 
 template<typename K, typename V>
-inline constexpr xmap<const V*, const K*>* xmap<K, V>::allocate_reverse_map()
+inline constexpr xmap<const V*, const K*>* xmap<K, V>::AllocateReverseMap()
 {
     if (m_rev_map == nullptr)
         m_rev_map = new xmap<const V*, const K*>;
@@ -329,13 +337,13 @@ inline constexpr xmap<const V*, const K*>* xmap<K, V>::allocate_reverse_map()
         m_rev_map->clear();
 
     for (typename std::unordered_map<K, V>::iterator iter = this->begin(); iter != this->end(); ++iter)
-        m_rev_map->add_pair(&iter->second, &iter->first);
+        m_rev_map->AddPair(&iter->second, &iter->first);
 
     return m_rev_map;
 }
 
 template<typename K, typename V>
-inline constexpr xvector<const K*> xmap<K, V>::cached_keys() const
+inline constexpr xvector<const K*> xmap<K, V>::GetCachedKeys() const
 {
     if (m_keys == nullptr)
         return xvector<const K*>();
@@ -344,21 +352,21 @@ inline constexpr xvector<const K*> xmap<K, V>::cached_keys() const
 }
 
 template<typename K, typename V>
-inline constexpr xmap<const V*, const K*> xmap<K, V>::cached_rev_map() const
+inline constexpr xmap<const V*, const K*> xmap<K, V>::GetCachedRevMap() const
 {
     return *m_rev_map;
 }
 
 template<typename K, typename V>
 template<typename F>
-inline void xmap<K, V>::sort(F func)
+inline void xmap<K, V>::Sort(F func)
 {
     std::sort(m_keys->begin(), m_keys->end(), func);
 }
 
 template<typename K, typename V>
 template<typename F, typename... A>
-inline void xmap<K, V>::proc(F&& function, A&& ...Args)
+inline void xmap<K, V>::Proc(F&& function, A&& ...Args)
 {
     for (typename xmap<K, V>::iterator iter = this->begin(); iter != this->end(); ++iter) {
         if(function(iter->first, iter->second, Args...))
@@ -368,15 +376,15 @@ inline void xmap<K, V>::proc(F&& function, A&& ...Args)
 
 template<typename K, typename V>
 template<typename F, typename... A>
-inline void xmap<K, V>::xproc(F&& function, A&& ...Args)
+inline void xmap<K, V>::ThreadProc(F&& function, A&& ...Args)
 {
     for (typename xmap<K, V>::iterator iter = this->begin(); iter != this->end(); ++iter)
-        Nexus<>::Add_Job_Pair(function, iter->first, iter->second, Args...);
+        Nexus<>::AddJobPair(function, iter->first, iter->second, Args...);
 }
 
 template<typename K, typename V>
 template<typename R, typename F, typename ...A>
-inline constexpr xvector<R> xmap<K, V>::render(F&& function, A&& ...Args)
+inline constexpr xvector<R> xmap<K, V>::ForEach(F&& function, A&& ...Args)
 {
     xvector<R> vret;
     for (typename std::unordered_map<K, V>::iterator iter = this->begin(); iter != this->end(); ++iter)
@@ -386,25 +394,25 @@ inline constexpr xvector<R> xmap<K, V>::render(F&& function, A&& ...Args)
 
 template<typename K, typename V>
 template<typename T, typename R, typename F, typename ...A>
-inline xvector<R> xmap<K, V>::xrender(F&& function, A&& ...Args)
+inline xvector<R> xmap<K, V>::ForEachThread(F&& function, A&& ...Args)
 {
     Nexus<T> td;
     for (typename std::unordered_map<K, V>::iterator iter = this->begin(); iter != this->end(); ++iter)
-        td.add_job_pair(function, iter->first, iter->second, Args...);
+        td.AddJobPair(function, iter->first, iter->second, Args...);
 
-    td.wait_all();
+    td.WaitAll();
     xvector<R> vret;
-    vret.reserve(td.size());
+    vret.reserve(td.Size());
 
-    for (size_t i = 0; i < td.size(); i++)
-        vret << td.get_fast(i).value();
+    for (size_t i = 0; i < td.Size(); i++)
+        vret << td.GetWithoutProtection(i).GetValue();
 
-    td.clear();
+    td.Clear();
     return vret;
 }
 
 template<typename K, typename V>
-inline constexpr std::map<K, V> xmap<K, V>::to_std_map() const
+inline constexpr std::map<K, V> xmap<K, V>::ToStdMap() const
 {
     std::map<K, V> stdmap;
     stdmap.insert(this->begin(), this->end());
@@ -412,13 +420,13 @@ inline constexpr std::map<K, V> xmap<K, V>::to_std_map() const
 }
 
 template<typename K, typename V>
-inline constexpr std::unordered_map<K, V> xmap<K, V>::to_std_unordered_map() const
+inline constexpr std::unordered_map<K, V> xmap<K, V>::ToStdUnorderedMap() const
 {
     return *this;
 }
 
 template<typename K, typename V>
-inline void xmap<K, V>::print() const
+inline void xmap<K, V>::Print() const
 {
     typename std::unordered_map<K, V>::const_iterator iter;
     size_t max_size = 0;
@@ -432,9 +440,9 @@ inline void xmap<K, V>::print() const
 }
 
 template<typename K, typename V>
-inline void xmap<K, V>::print(int num) const
+inline void xmap<K, V>::Print(int num) const
 {
-    this->print();
+    this->Print();
     char* new_lines = static_cast<char*>(calloc(static_cast<size_t>(num) + 1, sizeof(char)));
     // calloc was used instead of "new" because "new" would give un-wanted after-effects.
     for (int i = 0; i < num; i++)

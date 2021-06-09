@@ -93,7 +93,7 @@ private:
     size_t m_offset_server = 0;
     // --------------------------------
 
-    void init_sockets(Start start);
+    void InitSockets(Start start);
 
 public:
     Client& client;
@@ -106,10 +106,10 @@ public:
     Socket(const Socket& other);
     ~Socket();
 
-    void set_protocol(Socket::Protocol pro);
+    void SetProtocol(Socket::Protocol pro);
 
-    Socket& init_server();
-    Socket& init_client();
+    Socket& InitServer();
+    Socket& Initclient();
 
     void operator=(const Socket& other);
     void operator=(Client& other);

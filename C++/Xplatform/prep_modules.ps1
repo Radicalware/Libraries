@@ -9,10 +9,13 @@ if($($global:PSVersionTable.Platform -eq "Unix")){
 }else{
     $module_path = "$HOME\Documents\WindowsPowerShell\Modules"
     $config_path = "C:\Source\CMake\Modules"
-}
 
-if(!$(Test-Path $module_path)){
-    mkdir $module_path
+    if($(Test-Path $config_path) -eq $false)
+    {
+        mkdir C:\Source
+        mkdir C:\Source\CMake
+        mkdir C:\Source\CMake\Modules
+    }
 }
 
 Get-Module | Remove-Module
@@ -22,3 +25,5 @@ Copy-Item $PSScriptRoot\Unix_n_Windows_Scripts\Manage\*  $module_path -Force
 
 Copy-Item ./Unix_n_Windows_Scripts/CMake/Config/*  $config_path -Force
 Copy-Item ./Unix_n_Windows_Scripts/CMake/Modules/* $config_path -Force
+
+.\Unix_n_Windows_Scripts\Manage\copy_cmake_files.ps1

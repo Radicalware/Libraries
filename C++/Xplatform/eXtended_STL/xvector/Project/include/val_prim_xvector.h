@@ -20,12 +20,13 @@
 * limitations under the License.
 */
 #include "base_val_xvector.h"
+#include <type_traits>
 
 template<typename T> class val_xvector;
 template<typename T, typename enabler_t> class xvector;
 
 template<typename T>
-class xvector<T, typename std::enable_if<!std::is_class<T>::value && !std::is_pointer<T>::value>::type> : public val_xvector<T>
+class xvector<T, typename std::enable_if_t<!std::is_class<T>::value && !std::is_pointer<T>::value>> : public val_xvector<T>
 {
 private:
     typedef typename std::remove_const<T>::type E;// E for Erratic
@@ -47,16 +48,16 @@ public:
     inline void operator=(xvector<T>&& vec) { val_xvector<T>::operator=(std::move(vec)); };
     inline void operator=(std::vector<T>&& vec) { val_xvector<T>::operator=(std::move(vec)); };
 
-    inline T common(char const* item);
+    inline T GetCommonItems(char const* item);
     template<typename S = std::string>
-    inline S join(const S& str = "") const;
-    inline std::string join(const char str) const;
-    inline std::string join(const char* str) const;
+    inline S Join(const S& str = "") const;
+    inline std::string Join(const char str) const;
+    inline std::string Join(const char* str) const;
 };
 
 
 template<typename T>
-inline T xvector<T, typename std::enable_if<!std::is_class<T>::value && !std::is_pointer<T>::value>::type>::common(char const* item)
+inline T xvector<T, typename std::enable_if_t<!std::is_class<T>::value && !std::is_pointer<T>::value>>::GetCommonItems(char const* item)
 {
     size_t size = strlen(item);
     xvector<T> c_vec(size);
@@ -64,12 +65,12 @@ inline T xvector<T, typename std::enable_if<!std::is_class<T>::value && !std::is
     for (int i = 0; i < size; i++)
         c_vec << item[i];
 
-    return this->common(c_vec);
+    return this->GetCommonItems(c_vec);
 }
 
 template<typename T>
 template<typename S>
-inline S xvector<T, typename std::enable_if<!std::is_class<T>::value && !std::is_pointer<T>::value>::type>::join(const S& str) const
+inline S xvector<T, typename std::enable_if_t<!std::is_class<T>::value && !std::is_pointer<T>::value>>::Join(const S& str) const
 {
     std::ostringstream ostr;
     for (const auto& i : *this) {
@@ -80,16 +81,16 @@ inline S xvector<T, typename std::enable_if<!std::is_class<T>::value && !std::is
 }
 
 template<typename T>
-inline std::string xvector<T, typename std::enable_if<!std::is_class<T>::value && !std::is_pointer<T>::value>::type>::join(const char str) const
+inline std::string xvector<T, typename std::enable_if_t<!std::is_class<T>::value && !std::is_pointer<T>::value>>::Join(const char str) const
 {
     std::string val;
     val.insert(val.begin(), str);
-    return this->join(val);
+    return this->Join(val);
 }
 
 template<typename T>
-inline std::string xvector<T, typename std::enable_if<!std::is_class<T>::value && !std::is_pointer<T>::value>::type>::join(const char* str) const
+inline std::string xvector<T, typename std::enable_if_t<!std::is_class<T>::value && !std::is_pointer<T>::value>>::Join(const char* str) const
 {
-    return this->join(std::string(str));
+    return this->Join(std::string(str));
 }
 

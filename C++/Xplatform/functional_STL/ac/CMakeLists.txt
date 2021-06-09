@@ -21,7 +21,7 @@ SUBDIRLIST(PROJECT_FILES "${CMAKE_CURRENT_SOURCE_DIR}/Project")
 
 
 add_library(${THIS} STATIC ${PROJECT_FILES})
-add_library(radical::${THIS} ALIAS ${THIS})
+add_library(Radical::${THIS} ALIAS ${THIS})
 
 target_include_directories(${THIS}
     PRIVATE

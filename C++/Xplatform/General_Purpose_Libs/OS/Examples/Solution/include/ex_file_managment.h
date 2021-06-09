@@ -18,90 +18,90 @@ void ex_file_managment()
     cout << "Binary Working Directory  = " << os.BWD() << endl;
     cout << "users home dir            = " << os.Home() << endl;
 
-    cout << os.popen("echo testing popen").read() << endl;
+    cout << os.RunConsoleCommand("echo testing popen").Read() << endl;
 
     cout << os("echo testing popen SHORTHAND") << endl;
 
-    os.MKDIR("./os_test");
+    OS::MKDIR("./os_test");
 
-    os.open("./os_test/tmp.txt", 'w').write("hello world\n");
+    os.Open("./os_test/tmp.txt", 'w').Write("hello world\n");
     auto& file = os.file;
 
 #if defined(NIX_BASE)
-    cout << "1st time write >> " << os.popen("cat ./os_test/tmp.txt").read() << endl;
-    os.cmd.out().print();
+    cout << "1st time write >> " << os.RunConsoleCommand("cat ./os_test/tmp.txt").Read() << endl;
+    os.cmd.GetOutput().Print();
 #elif defined(WIN_BASE)
-    cout << "1st time write >> " << os.popen("TYPE .\\os_test\\tmp.txt").read() << endl;
-    os.cmd.out().print();
+    cout << "1st time write >> " << os.RunConsoleCommand("TYPE .\\os_test\\tmp.txt").Read() << endl;
+    os.cmd.GetOutput().Print();
 #endif
 
-    file.clear();
+    file.Clear();
     try {
         cout << "after clear() >> "; 
-        cout << os.open("./os_test/tmp.txt").read() << endl;
+        cout << os.Open("./os_test/tmp.txt").Read() << endl;
     }
     catch (std::runtime_error&) {
         cout << "File was deleted\n"; 
         exit(1);
     }
     cout << '\n';
-    os.open("./os_test/tmp.txt", 'w').write("hello world\n");
+    os.Open("./os_test/tmp.txt", 'w').Write("hello world\n");
 
-    file.close(); // same as os.close();
-    file.move("./os_test/tmp2.txt");
+    file.Close(); // same as os.Close();
+    file.Move("./os_test/tmp2.txt");
     try {
-        cout << "move_file() print from >> " << os.open("./os_test/tmp.txt").read();
+        cout << "MoveFile() print from >> " << os.Open("./os_test/tmp.txt").Read();
     }
     catch (std::runtime_error&) {
         cout << ": file does not exist!\n";
     }
 
-     cout << "move_file() print to   >> " << os.open("./os_test/tmp2.txt").read() << endl;
+     cout << "MoveFile() print to   >> " << os.Open("./os_test/tmp2.txt").Read() << endl;
 
-     file.remove();
+     file.Remove();
     try {
-        cout << "remove() >> "; 
-        cout << os.open(file.name()).read();
+        cout << "Remove() >> "; 
+        cout << os.Open(file.GetName()).Read();
     }
     catch (std::runtime_error&) {
         cout << ": file does not exist!\n";
     }
     try {
-        file.remove();
+        file.Remove();
     }
     catch (std::runtime_error& err) {
         cout << err.what() << endl;
     }
 
-     os.open("./os_test/tmp.txt", 'w').write("hello world\n");
-     file.copy("./os_test/tmp2.txt");
-     cout << "copy_file() print from >> " << os.open("./os_test/tmp.txt").read();
-     cout << "copy_file() print to   >> " << os.open("./os_test/tmp2.txt").read() << endl;
+     os.Open("./os_test/tmp.txt", 'w').Write("hello world\n");
+     file.Copy("./os_test/tmp2.txt");
+     cout << "CopyFile() print from >> " << os.Open("./os_test/tmp.txt").Read();
+     cout << "CopyFile() print to   >> " << os.Open("./os_test/tmp2.txt").Read() << endl;
 
      os.MKDIR("./os_test/os_test2/os_test3");
      xvector<xstring> paths = os.Dir("./os_test", 'r', 'd', 'f');
      // Tthe order of the followinig does not matter >> "recursive", "files", "directories"
 
      cout << "-----------------\n";
-     paths.join('\n').print();
+     paths.Join('\n').Print();
      cout << "-----------------\n";
 
-     file.close();
-     os.Move_Dir("./os_test", "./test");
+     file.Close();
+     os.MoveDir("./os_test", "./test");
 
 
      // note to be more cross platform you could have used "os.dir()"
      // I did the following for demonstrative purposes
  #if defined (NIX_BASE)
      cout << os("tree ./test") << endl;
-     os.file.close();
-     os.Remove_Dir("./test");
+     os.file.Close();
+     os.RemoveDir("./test");
      cout << "\n\n";
      cout << os("tree ./test") << endl;
  #elif defined (WIN_BASE)
      cout << os("tree /F .\\test") << endl;
-     os.file.close();
-     os.Remove_Dir("./test");
+     os.file.Close();
+     os.RemoveDir("./test");
      cout << "\n\n"; 
      cout << os("tree /F .\\test") << endl;
  #endif

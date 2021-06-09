@@ -24,7 +24,7 @@ class Lib_Handler
 {
     [string] $dir;
     
-    [string] $build_dir         = 'C:\Source\Libraries'
+    [string] $build_dir         = 'C:\Source\Radicalware\Libraries'
     [string] $cmake_install_dir = 'C:\Source\CMake\Radicalware\Libraries\Projects'
     [string] $cmake_header_dir  = 'C:\Source\CMake\Radicalware\Libraries\Headers'
 

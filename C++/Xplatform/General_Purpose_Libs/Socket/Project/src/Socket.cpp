@@ -6,17 +6,17 @@
 
 int Socket::MTU = 1400;
 
-void Socket::init_sockets(Start start)
+void Socket::InitSockets(Start start)
 {
     switch (start)
     {
     case Start::Client:
-        this->init_client();
+        this->Initclient();
     case Start::Server:
-        this->init_server();
+        this->InitServer();
     case Start::Both:
-        this->init_client();
-        this->init_server();
+        this->Initclient();
+        this->InitServer();
     }
 }
 
@@ -26,10 +26,10 @@ Socket::Socket(Start start, Protocol protocol)
 {
     if (m_pro != Protocol::TCP) {
         xstring err = "Only TCP Protocol is Supported at this Time\n";
-        err.bold().red().reset().print();
+        err.ToBold().ToRed().Reset().Print();
         throw std::runtime_error(err);
     }
-    this->init_sockets(start);
+    this->InitSockets(start);
 }
 
 Socket::Socket(const Socket& other)
@@ -44,11 +44,11 @@ Socket::~Socket()
     if(&client != nullptr) delete &client;
 }
 
-void Socket::set_protocol(Socket::Protocol pro){
+void Socket::SetProtocol(Socket::Protocol pro){
     m_pro = pro;
 }
 
-Socket& Socket::init_server()
+Socket& Socket::InitServer()
 {
     if (&server != nullptr)
         delete& server;
@@ -62,7 +62,7 @@ Socket& Socket::init_server()
     return *this;
 }
 
-Socket& Socket::init_client()
+Socket& Socket::Initclient()
 {
     if (&client != nullptr)
         delete &client;
@@ -85,7 +85,7 @@ void Socket::operator=(const Socket& other)
 
 void Socket::operator=(Client& other)
 {
-    this->init_client();
+    this->Initclient();
     
     if (&other == nullptr) return;
 
@@ -96,7 +96,7 @@ void Socket::operator=(Client& other)
 
 void Socket::operator=(Server& other)
 {
-    this->init_server();
+    this->InitServer();
 
     if (&other == nullptr) return;
 

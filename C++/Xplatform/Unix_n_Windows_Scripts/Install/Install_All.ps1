@@ -5,7 +5,8 @@ using module "./files.psm1"
 param (
     [switch] $modify,   # you shouldn't use this, look at code if you really want to
     [switch] $lib,      # only install libs
-    [switch] $Examples  # only install Examples
+    [switch] $Examples, # only install Examples
+    [switch] $Debug
 )
 
 $current_location = "$PSScriptRoot"
@@ -23,7 +24,11 @@ if($modify){
     foreach($script in [string[]]("install.ps1","run.ps1")){
         $(Get-ChildItem -Path ../../ -Filter $script -Recurse).foreach({
             Write-Host "Installing: " $_.FullName
-            &"$($_.FullName)" -Overwrite -No_Exec
+            if($Debug -eq $true){
+                &"$($_.FullName)" -Overwrite -No_Exec -Debug
+            }else{
+                &"$($_.FullName)" -Overwrite -No_Exec
+            }
         });
     };
 }else{
@@ -37,7 +42,11 @@ if($modify){
             Set-Location "$PSScriptRoot"
 
             Write-Host $install
-            &"$install" -Overwrite
+            if($Debug -eq $true){
+                &"$install" -Overwrite -No_Exec -Debug
+            }else{
+                &"$install" -Overwrite -No_Exec
+            }
         }
     }
     if($Examples -eq $true){
@@ -45,7 +54,11 @@ if($modify){
             Set-Location "$PSScriptRoot"
 
             Write-Host $install
-            &"$install" -Overwrite -NoExec
+            if($Debug -eq $true){
+                &"$install" -Overwrite -No_Exec -Debug
+            }else{
+                &"$install" -Overwrite -No_Exec
+            }
         }
     }
 }

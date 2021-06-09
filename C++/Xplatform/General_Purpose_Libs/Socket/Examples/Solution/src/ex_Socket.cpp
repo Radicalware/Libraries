@@ -27,17 +27,17 @@ int main(int argc, char** argv)
             Socket socket(Socket::Start::Server);
             socket.verbose = true;
 
-            socket.server.set_function([](const xstring* client_data) -> xstring { return xstring("Welcome: '") + *client_data + "'\n"; });
+            socket.server.SetFunction([](const xstring* client_data) -> xstring { return xstring("Welcome: '") + *client_data + "'\n"; });
 
-            ///socket.server.listen("5555").accept().recv(50).respond().close();
+            ///socket.server.listen("5555").accept().recv(50).respond().Close();
             // accept(4) allows the first 4 chars so "Joel" out of "Joel Leagues"
             // accept()  allows an infinite amount
 
-             socket.server.listen("5555");
-             socket.server.accept();
-             socket.server.recv(50);
-             socket.server.respond();
-             socket.server.close();
+             socket.server.Listen("5555");
+             socket.server.Accept();
+             socket.server.Recv(50);
+             socket.server.Respond();
+             socket.server.Close();
         }
         catch (const std::runtime_error & err) {
             cout << err.what() << endl;
@@ -50,14 +50,14 @@ int main(int argc, char** argv)
         socket.verbose = true;
 
         try {
-            ///socket.client.connect("127.0.0.1", "5555").send("Joel Leagues").recv(50).close();
+            ///socket.client.Connect("127.0.0.1", "5555").send("Joel Leagues").recv(50).Close();
             // recv() >> will continue to recieve all the bytes
             // recv(6) >> will gather 6 bytes so we will get "welcom" from the message
 
-             socket.client.connect("127.0.0.1", "5555");
-             socket.client.send("Joel Leagues");
-             socket.client.recv(50);
-             socket.client.close();
+             socket.client.Connect("127.0.0.1", "5555");
+             socket.client.Send("Joel Leagues");
+             socket.client.Recv(50);
+             socket.client.Close();
 
         }
         catch (const std::runtime_error& err) {
@@ -65,7 +65,7 @@ int main(int argc, char** argv)
         }
         return socket;
     };
-    Nexus<>::Add_Job(listen);
+    Nexus<>::AddJob(listen);
     Nexus<>::Sleep(555);
 
     Socket socket = send();

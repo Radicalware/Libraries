@@ -30,11 +30,11 @@ void Client::operator=(const Client& other)
     buffer = other.buffer;
 }
 
-xstring Client::ip() const{
+xstring Client::GetIP() const{
     return m_ip;
 }
 
-xstring Client::port() const{
+xstring Client::GetPort() const{
     return m_port;
 }
 

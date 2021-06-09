@@ -4,6 +4,17 @@
 
 ---------------------------------------------------------------------
 
+06/08/2021 >> Libs v15.0.0
+
+Cmake Upgrades. Also, I have started to change the naming scheme to
+pascal case. This is because more and more of C++ is going into
+that direction. Most of the frameworks I like to use are in pascal
+casing. If I was intending to use the stl/boost libs a lot, I may
+think otherwise but the whole point of this lib set was to be
+used as an alternative, hence to the start of changinge the casing.
+
+---------------------------------------------------------------------
+
 03/30/2020 >> Libs v15.0.0
 
 Date Object added (hence the new version), and as always, this is 

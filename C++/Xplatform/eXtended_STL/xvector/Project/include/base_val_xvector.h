@@ -34,6 +34,7 @@
 #include<regex>
 #include<sstream>
 #include<set>
+#include<type_traits>
 
 #include "Nexus.h"
 #include "xvector.h"
@@ -64,31 +65,31 @@ public:
     inline void operator=(std::vector<T>&& vec);
 
     template<typename P = T> 
-    inline bool has(const P* item) const;
-    inline bool has(const T& item) const;
-    inline bool has(T&& item) const;
-    inline bool has(char const* item) const;
+    inline bool Has(const P* item) const;
+    inline bool Has(const T& item) const;
+    inline bool Has(T&& item) const;
+    inline bool Has(char const* item) const;
 
-    inline bool lacks(const T& item) const;
-    inline bool lacks(T&& item) const;
-    inline bool lacks(char const* item) const;
+    inline bool Lacks(const T& item) const;
+    inline bool Lacks(T&& item) const;
+    inline bool Lacks(char const* item) const;
 
     template<typename L = xvector<T>>
-    inline xvector<T> common(L& item);
+    inline xvector<T> GetCommonItems(L& item);
     template<typename L = xvector<T>>
-    inline xvector<T> common(L&& item);
+    inline xvector<T> GetCommonItems(L&& item);
 
     inline void operator<<(const T& item);
     inline void operator<<(const T&& item);
 
     inline void operator*=(const size_t count);
 
-    inline void add();
-    inline void add(const T& val); 
+    inline void Add();
+    inline void Add(const T& val); 
     template <typename First, typename... Rest>
-    inline void add(const First& first, const Rest& ... rest);
+    inline void Add(const First& first, const Rest& ... rest);
 
-    inline void add_char_strings(int strC, char** strV);
+    inline void AddCharStrings(int strC, char** strV);
 
     template<typename O>
     inline bool operator>(const O& other) const;
@@ -104,98 +105,95 @@ public:
     inline bool operator==(const size_t value) const;
     inline bool operator!=(const size_t value) const;
 
-    T back(size_t value = 1) const;
-    T* back_ptr(size_t value = 1) const;
+    T& Back(size_t value = 1);
+    T* GetBackPtr(size_t value = 1);
 
-    inline std::pair<T, T> pair() const;
+    inline std::pair<T, T> GetPair() const;
 
     template<typename C>
-    inline xvector<C> convert() const;
+    inline xvector<C> Convert() const;
 
     template<typename C, typename F>
-    inline xvector<C> convert(F function) const;
+    inline xvector<C> Convert(F function) const;
 
     template<typename N = unsigned int>
-    inline xvector<xvector<T>> split(N count = 1) const;
+    inline xvector<xvector<T>> Split(N count = 1) const;
 
     inline void operator+=(const xvector<T>& other);
     inline xvector<T> operator+(const xvector<T>& other) const;
 
-    inline void organize();
-    inline void remove_dups();
+    size_t Size() const;
+
+    inline void Organize();
+    inline void RemoveDups();
 
     template<typename F>
-    inline xvector<T> sort(F func);
+    inline xvector<T> Sort(F func);
 
-    inline xvector<T*> ptrs();
+    inline xvector<T*> GetPtrs();
 
     template<typename F, typename... A>
-    inline void proc(F&& function, A&& ...Args);
+    inline void Proc(F&& function, A&& ...Args);
     template<typename F, typename... A>
-    inline void xproc(F&& function, A&& ...Args);
+    inline void ThreadProc(F&& function, A&& ...Args);
 
     template<typename N = E, typename F, typename ...A>
-    inline xvector<N> render(F&& function, A&& ...Args);
+    inline xvector<N> ForEach(F&& function, A&& ...Args);
     template<typename K, typename V, typename F, typename ...A>
-    inline std::unordered_map<K, V> render(F&& function, A&& ...Args);
+    inline std::unordered_map<K, V> ForEach(F&& function, A&& ...Args);
 
 
     template<typename N = E, typename F, typename... A>
-    inline xvector<N> xrender(F&& function, A&& ...Args);
+    inline xvector<N> ForEachThread(F&& function, A&& ...Args);
     template<typename K, typename V, typename F, typename ...A>
-    inline std::unordered_map<K, V> xrender(F&& function, A&& ...Args);
+    inline std::unordered_map<K, V> ForEachThread(F&& function, A&& ...Args);
 
     template<typename N = E, typename F, typename... A>
-    inline void start(F&& function, A&& ...Args);
+    inline void StartTasks(F&& function, A&& ...Args);
 
     template<typename N = E>
-    inline typename std::enable_if<!std::is_same<N, void>::value, xvector<N>>::type get() const;
+    inline typename std::enable_if<!std::is_same<N, void>::value, xvector<N>>::type GetTasks() const;
 
-    //template<typename N = E>
-    //inline auto get() -> std::enable_if_t<!std::is_same_v<N, void>, xvector<N>>;
-
-    template<typename N = E>
-    inline typename std::enable_if<!std::is_same<N, void>::value, xvector<T>>::type get_wipe();
-    inline void wipe();
+    inline bool TasksCompleted() const;
 
     // =================================== DESIGNED FOR NUMERIC BASED VECTORS ===================================
 
-    inline size_t sum() const;
-    inline size_t mul() const;
+    inline size_t Sum() const;
+    inline size_t Mul() const;
 
     // =================================== DESIGNED FOR STRING  BASED VECTORS ===================================
 
-    inline T join(const T& str = "") const;
-    inline T join(const char str) const;
-    inline T join(const char* str) const;
+    inline T Join(const T& str = "") const;
+    inline T Join(const char str) const;
+    inline T Join(const char* str) const;
 
-    inline bool match_one(const T& in_pattern) const;
-    inline bool match_one(T&& in_pattern) const;
-    inline bool match_one(char const* in_pattern) const;
+    inline bool MatchOne(const T& in_pattern) const;
+    inline bool MatchOne(T&& in_pattern) const;
+    inline bool MatchOne(char const* in_pattern) const;
 
-    inline bool match_all(const T& in_pattern) const;
-    inline bool match_all(T&& in_pattern) const;
-    inline bool match_all(char const* in_pattern) const;
+    inline bool MatchAll(const T& in_pattern) const;
+    inline bool MatchAll(T&& in_pattern) const;
+    inline bool MatchAll(char const* in_pattern) const;
 
-    inline bool scan_one(const T& in_pattern) const;
-    inline bool scan_one(T&& in_pattern) const;
-    inline bool scan_one(char const* in_pattern) const;
+    inline bool ScanOne(const T& in_pattern) const;
+    inline bool ScanOne(T&& in_pattern) const;
+    inline bool ScanOne(char const* in_pattern) const;
 
-    inline bool scan_all(const T& in_pattern) const;
-    inline bool scan_all(T&& in_pattern) const;
-    inline bool scan_all(char const* in_pattern) const;
+    inline bool Scanall(const T& in_pattern) const;
+    inline bool Scanall(T&& in_pattern) const;
+    inline bool Scanall(char const* in_pattern) const;
     
-    inline xvector<T> take(const T& in_pattern) const;
-    inline xvector<T> take(T&& in_pattern) const;
-    inline xvector<T> take(char const* in_pattern) const;
+    inline xvector<T> Take(const T& in_pattern) const;
+    inline xvector<T> Take(T&& in_pattern) const;
+    inline xvector<T> Take(char const* in_pattern) const;
 
-    inline xvector<T> remove(const T& in_pattern) const;
-    inline xvector<T> remove(T&& in_pattern) const;
-    inline xvector<T> remove(char const* in_pattern) const;
+    inline xvector<T> Remove(const T& in_pattern) const;
+    inline xvector<T> Remove(T&& in_pattern) const;
+    inline xvector<T> Remove(char const* in_pattern) const;
 
-    inline xvector<T> sub_all(const T& in_pattern, const T& replacement) const;
-    inline xvector<T> sub_all(T&& in_pattern, T&& replacement) const;
-    inline xvector<T> sub_all(char const* in_pattern, char const* replacement) const;
+    inline xvector<T> SubAll(const T& in_pattern, const T& replacement) const;
+    inline xvector<T> SubAll(T&& in_pattern, T&& replacement) const;
+    inline xvector<T> SubAll(char const* in_pattern, char const* replacement) const;
     
     // double was chose to hold long signed and unsigned values
     inline xvector<T> operator()(long double x = 0, long double y = 0, long double z = 0, const char removal_method = 's') const;
@@ -210,7 +208,7 @@ public:
 
 template<typename T>
 template<typename P>
-inline bool val_xvector<T>::has(const P* item) const
+inline bool val_xvector<T>::Has(const P* item) const
 {
     for (typename val_xvector<T>::const_iterator it = this->begin(); it != this->end(); it++) {
         if (**it == *item)
@@ -258,34 +256,34 @@ inline void val_xvector<T>::operator=(std::vector<T>&& vec)
 }
 
 template<typename T>
-bool val_xvector<T>::has(const T& item) const {
+bool val_xvector<T>::Has(const T& item) const {
     return (bool(std::find(this->begin(), this->end(), item) != this->end()));
 }
 
 template<typename T>
-bool val_xvector<T>::has(T&& item) const {
+bool val_xvector<T>::Has(T&& item) const {
     return (bool(std::find(this->begin(), this->end(), item) != this->end()));
 }
 
 template<typename T>
-bool val_xvector<T>::has(char const* item) const {
+bool val_xvector<T>::Has(char const* item) const {
     return (bool(std::find(this->begin(), this->end(), item) != this->end()));
 }
 
 // ------------------------------------------------------------------------------------------------
 
 template<typename T>
-bool val_xvector<T>::lacks(T&& item) const {
+bool val_xvector<T>::Lacks(T&& item) const {
     return !(bool(std::find(this->begin(), this->end(), item) != this->end()));
 }
 
 template<typename T>
-bool val_xvector<T>::lacks(const T& item) const {
+bool val_xvector<T>::Lacks(const T& item) const {
     return !(bool(std::find(this->begin(), this->end(), item) != this->end()));
 }
 
 template<typename T>
-bool val_xvector<T>::lacks(char const* item) const {
+bool val_xvector<T>::Lacks(char const* item) const {
     return !(bool(std::find(this->begin(), this->end(), item) != this->end()));
 }
 
@@ -293,7 +291,7 @@ bool val_xvector<T>::lacks(char const* item) const {
 
 template<typename T>
 template<typename L>
-xvector<T> val_xvector<T>::common(L& item) 
+xvector<T> val_xvector<T>::GetCommonItems(L& item) 
 {
     std::sort(this->begin(), this->end());
     std::sort(item.begin(), item.end());
@@ -305,8 +303,8 @@ xvector<T> val_xvector<T>::common(L& item)
 
 template<typename T>
 template<typename L>
-xvector<T> val_xvector<T>::common(L&& item) {
-    return this->common(item);
+xvector<T> val_xvector<T>::GetCommonItems(L&& item) {
+    return this->GetCommonItems(item);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -335,21 +333,21 @@ inline void val_xvector<T>::operator*=(const size_t count)
 }
 
 template<typename T>
-inline void val_xvector<T>::add() {}
+inline void val_xvector<T>::Add() {}
 template<typename T>
-inline void val_xvector<T>::add(const T& val){
+inline void val_xvector<T>::Add(const T& val){
     *this << val;
 }
 template<typename T>
 template<typename First, typename ...Rest>
-inline void val_xvector<T>::add(const First& first, const Rest& ...rest)
+inline void val_xvector<T>::Add(const First& first, const Rest& ...rest)
 {
     *this << first;
-    this->add(rest...);
+    this->Add(rest...);
 }
 
 template<typename T>
-inline void val_xvector<T>::add_char_strings(int strC, char** strV)
+inline void val_xvector<T>::AddCharStrings(int strC, char** strV)
 {
     for (int i = 0; i < strC; i++)
         this->push_back(T(strV[i]));
@@ -374,7 +372,7 @@ template<typename O>
 inline bool val_xvector<T>::operator==(const O& other) const
 {
     for (T& it : other) {
-        if (this->lacks(it))
+        if (this->Lacks(it))
             return false;
     }
     return true;
@@ -385,7 +383,7 @@ template<typename O>
 inline bool val_xvector<T>::operator!=(const O& other) const
 {
     for (T& it : other) {
-        if (this->lacks(it))
+        if (this->Lacks(it))
             return true;
     }
     return false;
@@ -414,26 +412,26 @@ inline bool val_xvector<T>::operator!=(const size_t value) const {
 // ------------------------------------------------------------------------------------------------
 
 template<typename T>
-inline T val_xvector<T>::back(size_t value) const {
+inline T& val_xvector<T>::Back(size_t value) {
     return this->operator[](this->size() - value);
 }
 
 template<typename T>
-inline T* val_xvector<T>::back_ptr(size_t value) const {
+inline T* val_xvector<T>::GetBackPtr(size_t value) {
     return &this->operator[](this->size() - value);
 }
 
 // ------------------------------------------------------------------------------------------------
 
 template<typename T>
-inline std::pair<T, T> val_xvector<T>::pair() const
+inline std::pair<T, T> val_xvector<T>::GetPair() const
 {
     return std::pair<E, E>(this->at(0), this->at(1));
 }
 
 template<typename T>
 template<typename C>
-inline xvector<C> val_xvector<T>::convert() const
+inline xvector<C> val_xvector<T>::Convert() const
 {
     xvector<C> ret;
     for (typename val_xvector<T>::const_iterator it = this->begin(); it != this->end(); it++)
@@ -444,7 +442,7 @@ inline xvector<C> val_xvector<T>::convert() const
 
 template<typename T>
 template<typename C, typename F>
-inline xvector<C> val_xvector<T>::convert(F function) const
+inline xvector<C> val_xvector<T>::Convert(F function) const
 {
     xvector<C> ret;
     for (typename val_xvector<T>::const_iterator it = this->begin(); it != this->end(); it++)
@@ -454,7 +452,7 @@ inline xvector<C> val_xvector<T>::convert(F function) const
 
 template<typename T>
 template<typename N>
-inline xvector<xvector<T>> val_xvector<T>::split(N count) const
+inline xvector<xvector<T>> val_xvector<T>::Split(N count) const
 {
 
     xvector<xvector<T>> ret_vec;
@@ -511,7 +509,13 @@ xvector<T> val_xvector<T>::operator+(const xvector<T>& other) const
 // ------------------------------------------------------------------------------------------------
 
 template<typename T>
-inline void val_xvector<T>::organize()
+inline size_t val_xvector<T>::Size() const
+{
+    return this->size();
+}
+
+template<typename T>
+inline void val_xvector<T>::Organize()
 {
     std::multiset<T> set_arr;
     for (typename val_xvector<T>::const_iterator it = this->begin(); it != this->end(); it++)
@@ -525,7 +529,7 @@ inline void val_xvector<T>::organize()
 }
 
 template<typename T>
-inline void val_xvector<T>::remove_dups()
+inline void val_xvector<T>::RemoveDups()
 {
     std::set<T> set_arr;
     for (typename val_xvector<T>::const_iterator it = this->begin(); it != this->end(); it++)
@@ -542,14 +546,14 @@ inline void val_xvector<T>::remove_dups()
 
 template<typename T>
 template<typename F>
-inline xvector<T> val_xvector<T>::sort(F func)
+inline xvector<T> val_xvector<T>::Sort(F func)
 {
     std::sort(this->begin(), this->end(), func);
     return *this;
 }
 
 template<typename T>
-inline xvector<T*> val_xvector<T>::ptrs()
+inline xvector<T*> val_xvector<T>::GetPtrs()
 {
     xvector<T*> ret_vec;
     for (T& item : *this)
@@ -560,7 +564,7 @@ inline xvector<T*> val_xvector<T>::ptrs()
 
 template<typename T>
 template<typename F, typename... A>
-inline void val_xvector<T>::proc(F&& function, A&& ...Args)
+inline void val_xvector<T>::Proc(F&& function, A&& ...Args)
 {
     for (typename xvector<E>::iterator it = this->begin(); it != this->end(); it++) {
         if (function(*it, Args...))
@@ -570,15 +574,15 @@ inline void val_xvector<T>::proc(F&& function, A&& ...Args)
 
 template<typename T>
 template<typename F, typename... A>
-inline void val_xvector<T>::xproc(F&& function, A&& ...Args)
+inline void val_xvector<T>::ThreadProc(F&& function, A&& ...Args)
 {
     for (typename xvector<E>::iterator it = this->begin(); it != this->end(); it++)
-        Nexus<>::Add_Job_Val(function, *it, Args...);
+        Nexus<>::AddJobVal(function, *it, Args...);
 }
 
 template<typename T>
 template<typename N, typename F, typename ...A>
-inline xvector<N> val_xvector<T>::render(F&& function, A&& ...Args)
+inline xvector<N> val_xvector<T>::ForEach(F&& function, A&& ...Args)
 {
     xvector<N> vret;
     for (typename xvector<E>::iterator it = this->begin(); it != this->end(); it++)
@@ -588,7 +592,7 @@ inline xvector<N> val_xvector<T>::render(F&& function, A&& ...Args)
 
 template<typename T>
 template<typename K, typename V, typename F, typename ...A>
-inline std::unordered_map<K, V> val_xvector<T>::render(F&& function, A&& ...Args)
+inline std::unordered_map<K, V> val_xvector<T>::ForEach(F&& function, A&& ...Args)
 {
     std::unordered_map<K, V> rmap;
     for (typename xvector<E>::iterator it = this->begin(); it != this->end(); it++)
@@ -598,19 +602,19 @@ inline std::unordered_map<K, V> val_xvector<T>::render(F&& function, A&& ...Args
 
 template<typename T>
 template<typename N, typename F, typename ...A>
-inline xvector<N> val_xvector<T>::xrender(F&& function, A&& ...Args)
+inline xvector<N> val_xvector<T>::ForEachThread(F&& function, A&& ...Args)
 {
     Nexus<N>* trd = new Nexus<N>;
 
     for (typename xvector<E>::iterator it = this->begin(); it != this->end(); it++)
-        trd->add_job_val(function, *it, Args...);
+        trd->AddJobVal(function, *it, Args...);
 
     xvector<N> vret;
-    vret.reserve(trd->size());
-    trd->wait_all();
+    trd->WaitAll();
+    vret.reserve(trd->Size());
 
-    for (size_t i = 0; i < trd->size(); i++)
-        vret << trd->get_fast(i).move();
+    for (size_t i = 0; i < trd->Size(); i++)
+        vret << trd->GetWithoutProtection(i).Move();
 
     delete trd;
     return vret;
@@ -618,19 +622,19 @@ inline xvector<N> val_xvector<T>::xrender(F&& function, A&& ...Args)
 
 template<typename T>
 template<typename K, typename V, typename F, typename ...A>
-inline std::unordered_map<K, V> val_xvector<T>::xrender(F&& function, A&& ...Args)
+inline std::unordered_map<K, V> val_xvector<T>::ForEachThread(F&& function, A&& ...Args)
 {
     Nexus<std::pair<K,V>>* trd = new Nexus<std::pair<K, V>>;
 
     for (typename xvector<E>::iterator it = this->begin(); it != this->end(); it++)
-        trd->add_job_val(function, *it, Args...);
+        trd->AddJobVal(function, *it, Args...);
 
     std::unordered_map<K, V> rmap;
+    trd->WaitAll();
     rmap.reserve(trd->size());
-    trd->wait_all();
 
     for (size_t i = 0; i < trd->size(); i++)
-        rmap.insert(trd->get_fast(i).move());
+        rmap.insert(trd->GetWithoutProtection(i).move());
 
     delete trd;
     return rmap;
@@ -638,7 +642,7 @@ inline std::unordered_map<K, V> val_xvector<T>::xrender(F&& function, A&& ...Arg
 
 template<typename T>
 template <typename N, typename F, typename ...A>
-inline void val_xvector<T>::start(F&& function, A&& ...Args)
+inline void val_xvector<T>::StartTasks(F&& function, A&& ...Args)
 {
     if (td != nullptr)
         delete td;
@@ -646,56 +650,34 @@ inline void val_xvector<T>::start(F&& function, A&& ...Args)
     td = new Nexus<N>;
 
     for (typename xvector<E>::iterator it = this->begin(); it != this->end(); it++)
-        td->add_job_val(function, *it, Args...);
+        td->AddJobVal(function, *it, Args...);
+}
 
+template<typename T>
+template<typename N>
+inline typename std::enable_if<!std::is_same<N, void>::value, xvector<N>>::type val_xvector<T>::GetTasks() const
+{
+    xvector<N> vret;
+    td->WaitAll();
+    for (size_t i = 0; i < td->size(); i++)
+        vret << td->GetWithoutProtection(i).move();
+
+    td->Clear();
     delete td;
-}
-
-template<typename T>
-template<typename N>
-inline typename std::enable_if<!std::is_same<N, void>::value, xvector<N>>::type val_xvector<T>::get() const
-{
-    xvector<N> vret;
-    td->wait_all();
-    for (size_t i = 0; i < td->size(); i++)
-        vret << td->get_fast(i).move();
-    return vret;
-}
-// template<typename T>
-// template<typename N>
-// inline auto val_xvector<T>::get() -> std::enable_if_t<!std::is_same_v<N, void>, xvector<N>>
-// {
-//  xvector<N> vret;
-//     td->wait_all();
-//     for (size_t i = 0; i < td->size(); i++)
-//         vret << td->get_fast(i).move();
-//     return vret;
-// }
-
-template<typename T>
-template<typename N>
-inline typename std::enable_if<!std::is_same<N, void>::value, xvector<T>>::type val_xvector<T>::get_wipe()
-{
-    xvector<N> vret;
-    td->wait_all();
-    for (size_t i = 0; i < td->size(); i++)
-        vret << td->get_fast(i).move();
-
-    td->clear();
     return vret;
 }
 
 template<typename T>
-inline void val_xvector<T>::wipe()
+inline bool val_xvector<T>::TasksCompleted() const
 {
-    td->clear();
+    return td->TasksCompleted();
 }
 
 // =============================================================================================================
 
 
 template<typename T>
-inline size_t val_xvector<T>::sum() const
+inline size_t val_xvector<T>::Sum() const
 {
     size_t num = 0;
     for (typename val_xvector<T>::const_iterator it = this->begin(); it != this->end(); it++) {
@@ -705,7 +687,7 @@ inline size_t val_xvector<T>::sum() const
 }
 
 template<typename T>
-inline size_t val_xvector<T>::mul() const
+inline size_t val_xvector<T>::Mul() const
 {
     size_t num = *this->begin();
     for (typename val_xvector<T>::const_iterator it = this->begin()+1; it != this->end(); it++) {
@@ -717,7 +699,7 @@ inline size_t val_xvector<T>::mul() const
 // =============================================================================================================
 
 template<typename T>
-inline T val_xvector<T>::join(const T& str) const
+inline T val_xvector<T>::Join(const T& str) const
 {
     T ret;
     for (typename val_xvector<T>::const_iterator it = this->begin(); it != this->end(); it++)
@@ -727,7 +709,7 @@ inline T val_xvector<T>::join(const T& str) const
 }
 
 template<typename T>
-T val_xvector<T>::join(const char str) const
+T val_xvector<T>::Join(const char str) const
 {
     T ret;
     for (typename val_xvector<T>::const_iterator it = this->begin(); it != this->end(); it++)
@@ -737,7 +719,7 @@ T val_xvector<T>::join(const char str) const
 }
 
 template<typename T>
-T val_xvector<T>::join(const char* str) const
+T val_xvector<T>::Join(const char* str) const
 {
     T ret;
     for (typename val_xvector<T>::const_iterator it = this->begin(); it != this->end(); it++)
@@ -747,7 +729,7 @@ T val_xvector<T>::join(const char* str) const
 }
 
 template<typename T>
-bool val_xvector<T>::match_one(const T& in_pattern) const {
+bool val_xvector<T>::MatchOne(const T& in_pattern) const {
     std::regex pattern(in_pattern.c_str());
     for (typename val_xvector<T>::const_iterator iter = this->begin(); iter != this->end(); iter++) {
         if (std::regex_match(*iter, pattern)) {
@@ -758,19 +740,19 @@ bool val_xvector<T>::match_one(const T& in_pattern) const {
 }
 
 template<typename T>
-bool val_xvector<T>::match_one(T&& in_pattern) const {
-    return this->match_one(in_pattern);
+bool val_xvector<T>::MatchOne(T&& in_pattern) const {
+    return this->MatchOne(in_pattern);
 }
 
 template<typename T>
-bool val_xvector<T>::match_one(char const* in_pattern) const {
-    return this->match_one(T(in_pattern));
+bool val_xvector<T>::MatchOne(char const* in_pattern) const {
+    return this->MatchOne(T(in_pattern));
 }
 
 // =============================================================================================================
 
 template<typename T>
-bool val_xvector<T>::match_all(const T& in_pattern) const {
+bool val_xvector<T>::MatchAll(const T& in_pattern) const {
     std::regex pattern(in_pattern);
     for (typename T::const_iterator iter = this->begin(); iter != this->end(); iter++) {
         if (!std::regex_match(*iter, pattern)) {
@@ -781,20 +763,20 @@ bool val_xvector<T>::match_all(const T& in_pattern) const {
 }
 
 template<typename T>
-bool val_xvector<T>::match_all(T&& in_pattern) const {
-    return this->match_all(in_pattern);
+bool val_xvector<T>::MatchAll(T&& in_pattern) const {
+    return this->MatchAll(in_pattern);
 }
 
 template<typename T>
-bool val_xvector<T>::match_all(char const* in_pattern) const {
-    return this->match_all(T(in_pattern));
+bool val_xvector<T>::MatchAll(char const* in_pattern) const {
+    return this->MatchAll(T(in_pattern));
 }
 
 // =============================================================================================================
 
 
 template<typename T>
-bool val_xvector<T>::scan_one(const T& in_pattern) const {
+bool val_xvector<T>::ScanOne(const T& in_pattern) const {
     std::regex pattern(in_pattern);
     for (typename val_xvector<T>::const_iterator iter = this->begin(); iter != this->end(); iter++) {
         if (std::regex_search(*iter, pattern)) {
@@ -805,19 +787,19 @@ bool val_xvector<T>::scan_one(const T& in_pattern) const {
 }
 
 template<typename T>
-bool val_xvector<T>::scan_one(T&& in_pattern) const {
-    return this->scan_one(in_pattern);
+bool val_xvector<T>::ScanOne(T&& in_pattern) const {
+    return this->ScanOne(in_pattern);
 }
 
 template<typename T>
-bool val_xvector<T>::scan_one(char const* in_pattern) const {
-    return this->scan_one(T(in_pattern));
+bool val_xvector<T>::ScanOne(char const* in_pattern) const {
+    return this->ScanOne(T(in_pattern));
 }
 
 // =============================================================================================================
 
 template<typename T>
-bool val_xvector<T>::scan_all(const T& in_pattern) const {
+bool val_xvector<T>::Scanall(const T& in_pattern) const {
     std::regex pattern(in_pattern);
     for (typename T::const_iterator iter = this->begin(); iter != this->end(); iter++) {
         if (!std::regex_search(*iter, pattern)) {
@@ -828,18 +810,18 @@ bool val_xvector<T>::scan_all(const T& in_pattern) const {
 }
 
 template<typename T>
-bool val_xvector<T>::scan_all(T&& in_pattern) const {
-    return this->scan_all(in_pattern);
+bool val_xvector<T>::Scanall(T&& in_pattern) const {
+    return this->Scanall(in_pattern);
 }
 
 template<typename T>
-bool val_xvector<T>::scan_all(char const* in_pattern) const {
-    return this->scan_all(T(in_pattern));
+bool val_xvector<T>::Scanall(char const* in_pattern) const {
+    return this->Scanall(T(in_pattern));
 }
 // =============================================================================================================
 
 template<typename T>
-inline xvector<T> val_xvector<T>::take(const T& in_pattern) const
+inline xvector<T> val_xvector<T>::Take(const T& in_pattern) const
 {
     xvector<T> ret_vec;
     std::regex pattern(in_pattern);
@@ -852,20 +834,20 @@ inline xvector<T> val_xvector<T>::take(const T& in_pattern) const
 }
 
 template<typename T>
-inline xvector<T> val_xvector<T>::take(T&& in_pattern) const
+inline xvector<T> val_xvector<T>::Take(T&& in_pattern) const
 {
-    return this->take(in_pattern);
+    return this->Take(in_pattern);
 }
 
 template<typename T>
-inline xvector<T> val_xvector<T>::take(char const* in_pattern) const
+inline xvector<T> val_xvector<T>::Take(char const* in_pattern) const
 {
-    return this->take(T(in_pattern));
+    return this->Take(T(in_pattern));
 }
 
 
 template<typename T>
-inline xvector<T> val_xvector<T>::remove(const T& in_pattern) const
+inline xvector<T> val_xvector<T>::Remove(const T& in_pattern) const
 {
     xvector<T> ret_vec;
     ret_vec.reserve(this->size()+1);
@@ -878,21 +860,21 @@ inline xvector<T> val_xvector<T>::remove(const T& in_pattern) const
 }
 
 template<typename T>
-inline xvector<T> val_xvector<T>::remove(T&& in_pattern) const
+inline xvector<T> val_xvector<T>::Remove(T&& in_pattern) const
 {
-    return this->remove(in_pattern);
+    return this->Remove(in_pattern);
 }
 
 template<typename T>
-inline xvector<T> val_xvector<T>::remove(char const* in_pattern) const
+inline xvector<T> val_xvector<T>::Remove(char const* in_pattern) const
 {
-    return this->remove(T(in_pattern));
+    return this->Remove(T(in_pattern));
 }
 
 // =============================================================================================================
 
 template<typename T>
-inline xvector<T> val_xvector<T>::sub_all(const T& in_pattern, const T& replacement) const
+inline xvector<T> val_xvector<T>::SubAll(const T& in_pattern, const T& replacement) const
 {
     xvector<T> ret_vec;
     std::regex pattern(in_pattern.c_str());
@@ -903,15 +885,15 @@ inline xvector<T> val_xvector<T>::sub_all(const T& in_pattern, const T& replacem
 }
 
 template<typename T>
-inline xvector<T> val_xvector<T>::sub_all(T&& in_pattern, T&& replacement) const
+inline xvector<T> val_xvector<T>::SubAll(T&& in_pattern, T&& replacement) const
 {
-    return this->sub_all(in_pattern, replacement);
+    return this->SubAll(in_pattern, replacement);
 }
 
 template<typename T>
-inline xvector<T> val_xvector<T>::sub_all(char const* in_pattern, char const* replacement) const
+inline xvector<T> val_xvector<T>::SubAll(char const* in_pattern, char const* replacement) const
 {
-    return this->sub_all(T(in_pattern), T(replacement));
+    return this->SubAll(T(in_pattern), T(replacement));
 }
 
 // =============================================================================================================

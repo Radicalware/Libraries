@@ -26,11 +26,11 @@ class Win_Server : public Server
 public:
     Win_Server(int* mtu, bool* verbose, int pro);
 
-    virtual Server& listen(const xstring& port);
-    virtual Server& accept();
-    virtual Server& recv(int size = 0);
-    virtual Server& respond();
-    virtual Server& close();
+    virtual Server& Listen(const xstring& port);
+    virtual Server& Accept();
+    virtual Server& Recv(int size = 0);
+    virtual Server& Respond();
+    virtual Server& Close();
 };
 
 // =====================================================================================

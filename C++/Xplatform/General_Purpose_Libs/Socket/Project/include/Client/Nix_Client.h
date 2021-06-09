@@ -18,11 +18,11 @@ public:
     Nix_Client(const Nix_Client& other);
     Nix_Client(const Client& other);
 
-    virtual Client& connect();
-    virtual Client& connect(const xstring& ip, const xstring& port);
-    virtual Client& send(const xstring& buff = "");
-    virtual Client& recv(int size = 0);
-    virtual Client& close();
+    virtual Client& Connect();
+    virtual Client& Connect(const xstring& ip, const xstring& port);
+    virtual Client& Send(const xstring& buff = "");
+    virtual Client& Recv(int size = 0);
+    virtual Client& Close();
 
 };
 

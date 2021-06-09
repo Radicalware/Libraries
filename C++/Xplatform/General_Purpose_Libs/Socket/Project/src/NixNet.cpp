@@ -20,14 +20,14 @@ void NixNet::operator=(const NixNet& other)
     listen = other.listen;
 }
 
-int NixNet::send(const char* message)
+int NixNet::Send(const char* message)
 {
     int mtu_cpy = *mtu;
     ::send(connect, &mtu_cpy, sizeof(mtu_cpy), 0);
     return ::send(connect, &message[0], mtu_cpy, 0); 
 }
 
-int NixNet::recv(xstring& message)
+int NixNet::Recv(xstring& message)
 {
     int size = *mtu;
     message.clear();
@@ -40,7 +40,7 @@ int NixNet::recv(xstring& message)
     return (str_size < ret_size) ? str_size : ret_size;
 }
 
-socklen_t& NixNet::size() {
+socklen_t& NixNet::Size() {
     return m_size;
 }
 

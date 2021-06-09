@@ -7,7 +7,19 @@
 #include "re2/re2.h"
 #include "xmap.h"
 
-class Timer
+
+#if (defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64))
+    #ifdef DLL_EXPORT
+       #define EXI __declspec(dllexport)
+    #else
+       #define EXI __declspec(dllimport)
+    #endif
+#else
+    #define EXI
+#endif
+
+
+class EXI Timer
 {
     xvector<double>       m_laps_xv;
     xmap<xstring, double> m_laps_xm;
@@ -18,24 +30,25 @@ class Timer
 
 public:
     Timer();
-    void reset();
-    double elapsed() const;
+    void Reset();
+    double GetElapsedTime() const;
 
-    void wait_seconds(double extent) const;
-    void wait_milliseconds(unsigned long extent) const;
-    void wait(unsigned long extent) const; // wait_milliseconds
+    void WaitSeconds(double extent) const;
+    void WaitMilliseconds(unsigned long extent) const;
+    void Wait(unsigned long extent) const; // wait_milliseconds
 
-    void lap();
-    void lap(const xstring& key);
-    void clear();
+    void Lap();
+    void Lap(const xstring& key);
+    void Lap(xstring&& key);
+    void Clear();
 
-    double get(size_t idx) const;
-    double get(const xstring& key) const;
+    double Get(size_t idx) const;
+    double Get(const xstring& key) const;
 
-    xvector<double> get_xvector() const;
-    xmap<xstring, double> get_xmap() const;
+    xvector<double> GetVector() const;
+    xmap<xstring, double> GetMap() const;
 
     static void Sleep(unsigned long extent);
 };
 
-std::ostream& operator<<(std::ostream& out, const Timer& time);
+EXI std::ostream& operator<<(std::ostream& out, const Timer& time);

@@ -28,6 +28,16 @@
 // also, on windows, be sure to remove the debugging for the iterator. 
 // -------------------------------------------------------------------------------
 
+#if (defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64))
+    #ifdef DLL_EXPORT
+       #define EXI __declspec(dllexport)
+    #else
+       #define EXI __declspec(dllimport)
+    #endif
+#else
+    #define EXI
+#endif
+
 #include<iostream>
 #include<stdexcept>
 #include<unordered_map>
@@ -44,7 +54,7 @@
 // ----- eXtended STL Functionality ---------
 // ----- Radicalware Libs -------------------
 
-class SYS
+class EXI SYS
 {
 private:
     int    m_argc;
@@ -68,7 +78,7 @@ private:
 
     xmap<char, xstring> m_alias;  // User defined and inserted
 
-    void add_value_section(size_t idx_start, size_t idx_end);
+    void AddValueSection(size_t idx_start, size_t idx_end);
 
     // ======================================================================================================================
 public:
@@ -78,27 +88,27 @@ public:
     ~SYS();
     // -------------------------------------------------------------------------------------------------------------------
     // >>>> args
-    void set_args(int argc, char** argv);
-    void alias(const char c_arg, const xstring& s_arg); // char_arg, string_arg
+    void SetArgs(int argc, char** argv);
+    void AddAlias(const char c_arg, const xstring& s_arg); // char_arg, string_arg
     // -------------------------------------------------------------------------------------------------------------------
-    int argc() const;
-    xvector<xstring> argv() const;
-    xvector<const xstring*> str_keys() const;
-    xstring chr_keys() const;
+    int ArgC() const;
+    xvector<xstring> ArgV() const;
+    xvector<const xstring*> GetKeyPtrs() const;
+    xstring ChrKeys() const;
     // -------------------------------------------------------------------------------------------------------------------
-    xstring full_path();
-    xstring path();
-    xstring file();
+    xstring FullPath();
+    xstring Path();
+    xstring File();
     // -------------------------------------------------------------------------------------------------------------------
-    xvector<xstring*> key(const xstring& key);
-    xvector<xstring*> key(const char key);
-    bool key_used() const;
+    xvector<xstring*> Key(const xstring& key);
+    xvector<xstring*> Key(const char key);
+    bool HasArgs() const;
     // -------------------------------------------------------------------------------------------------------------------
-    bool has(const xstring& key) const;
-    bool has(const xstring* key) const;
-    bool has(xstring&& key) const;
-    bool has(const char* key) const;
-    bool has(const char key) const;
+    bool Has(const xstring& key) const;
+    bool Has(const xstring* key) const;
+    bool Has(xstring&& key) const;
+    bool Has(const char* key) const;
+    bool Has(const char key) const;
     //// -------------------------------------------------------------------------------------------------------------------
     // Almost everything above can be handled using the operator overloading below and is the prefered method
     xvector<xstring*> operator[](const xstring& key);                     // Return Key-Values
@@ -111,7 +121,7 @@ public:
     bool operator()(const char key) const;                                // Test boolean for Key
     bool operator()(const char key, const xstring& value) const;          // Test boolean for KVP
     // -------------------------------------------------------------------------------------------------------------------
-    bool help();
+    bool Help();
     // ======================================================================================================================
 };
 

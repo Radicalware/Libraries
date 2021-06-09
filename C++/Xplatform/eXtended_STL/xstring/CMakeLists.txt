@@ -1,4 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.16)
+﻿cmake_minimum_required(VERSION 3.17)
 
 set(THIS xstring)
 
@@ -16,28 +16,24 @@ include("${RADICAL_PATH}/Radical-Lib-Config.cmake")
 
 project (${THIS})
 
-UNSET(PROJECT_FILES)
-SUBDIRLIST(PROJECT_FILES "${CMAKE_CURRENT_SOURCE_DIR}/Project")
+find_program_files(project_files "${BUILD_DIR}")
 
+add_library(${THIS} STATIC ${project_files})
+add_library(Radical::${THIS} ALIAS ${THIS})
 
-add_library(${THIS} STATIC ${PROJECT_FILES})
-add_library(radical::${THIS} ALIAS ${THIS})
-
-target_include_directories(${THIS} PRIVATE
-
-    ${EXT_HEADER_PATH}
-    ${INC}
+target_include_directories(${THIS}
+    PRIVATE
+        ${installed_projects}
 )
 
-# Required Libs -------------------------------------------------------------------------
-target_link_libraries(${THIS} ${EXT_BIN_PATH}/lib/${PF}Nexus${ST})
-target_link_libraries(${THIS} ${EXT_BIN_PATH}/lib/${PF}xvector${ST})
+link_static(${THIS} xvector)
+link_static(${THIS} Nexus)
+link_static(${THIS} re2)
 
-link_libraries(${THIS} ${EXT_BIN_PATH}/bin/${PF}re2${SH})
 # -------------------------- INSTALL ----------------------------------------------------
 
 include("${RADICAL_PATH}/Radical-Lib-Install.cmake")
-CONFIGURE_VISUAL_STUDIO_STANDALONE_PROJECT(${PROJECT_FILES})
+INSTALL_VISUAL_STUDIO_PROJECT(${PROJECT_FILES})
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # -------------------------- END --------------------------------------------------------

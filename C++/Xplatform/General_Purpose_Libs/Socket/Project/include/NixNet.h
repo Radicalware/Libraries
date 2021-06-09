@@ -32,9 +32,9 @@ public:
 
     NixNet();
     void operator=(const NixNet& other);
-    int send(const char* message);
-    int recv(xstring& message);
-    socklen_t& size();
+    int Send(const char* message);
+    int Recv(xstring& message);
+    socklen_t& Size();
 };
 
 #endif

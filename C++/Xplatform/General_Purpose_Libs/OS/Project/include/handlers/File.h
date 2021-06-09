@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 #include <fstream>
 #include <stdlib.h>
@@ -12,10 +14,10 @@
 #define NIX_BASE
 #endif
 
-class OS;
+class EXI OS;
 namespace OS_O // OS Object
 {
-    class File : public Dir_Type
+    class EXI File : public Dir_Type
     {
         friend class ::OS;
 
@@ -28,7 +30,7 @@ namespace OS_O // OS Object
         static RE2 s_get_file;
         static RE2 s_forwardslash;
 
-        void set_file(const xstring& iname);
+        void SetFile(const xstring& iname);
 
     public:
         File();
@@ -36,23 +38,23 @@ namespace OS_O // OS Object
         File(const xstring& iname);
         void operator=(const File& file);
 
-        xstring name() const;
-        xstring data() const;
+        xstring GetName() const;
+        xstring GetData() const;
 
-        void set_read();
-        void set_write();
-        void set_append();
+        void SetRead();
+        void SetWrite();
+        void SetAppend();
 
-        void close();
-        void clear();
+        void Close();
+        void Clear();
 
-        void remove();
-        void rm();
+        void Remove();
+        void RM();
 
-        void copy(const xstring& location);
-        void cp(const xstring& location);
+        void Copy(const xstring& location);
+        void CP(const xstring& location);
 
-        void move(const xstring& location);
-        void mv(const xstring& location);
+        void Move(const xstring& location);
+        void MV(const xstring& location);
     };
 };

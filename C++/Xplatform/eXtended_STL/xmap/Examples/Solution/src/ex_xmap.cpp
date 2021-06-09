@@ -47,12 +47,12 @@ int main()
     cout << "xmap3.size()  = " << xmap3.size() << "\n\n";
 
     xvector<xstring> single_vec{ "one","two","three","four","five","six" };
-    xvector<xvector<xstring>> double_vec = single_vec.split(3);
+    xvector<xvector<xstring>> double_vec = single_vec.Split(3);
 
-    single_vec.sub_all("(o)", "0").join(' ').print();
+    single_vec.SubAll("(o)", "0").Join(' ').Print();
 
-    single_vec.remove("(^f)").join(' ').print();
-    single_vec.take("(^f)").join(' ').print();
+    single_vec.Remove("(^f)").Join(' ').Print();
+    single_vec.Take("(^f)").Join(' ').Print();
 
     cout << "\n========================================\n";
     cout << "testing map discovery\n\n";
@@ -69,67 +69,67 @@ int main()
         { "hash4", ""}
     };
 
-    map_s_v.keys().join(' ').print();
-    smap.keys().join(' ').print();
+    map_s_v.GetKeys().Join(' ').Print();
+    smap.GetKeys().Join(' ').Print();
 
     // the following three are the same method but with different verbage
-    cout << "1.) map_ss_1 value for 'hash222' = " << smap.at("hash222") << endl;
-    cout << "2.) map_ss_1 value for 'hash222' = " << smap.key("hash222") << endl;
-    cout << "3.) map_ss_1 value for 'hash222' = " << smap.value_for("hash222") << endl;
+    cout << "1.) map_ss_1 value for 'hash222' = " << smap["hash222"] << endl;
+    cout << "2.) map_ss_1 value for 'hash222' = " << smap.Key("hash222") << endl;
+    cout << "3.) map_ss_1 value for 'hash222' = " << smap.GetValueFrom("hash222") << endl;
 
-    cout << "its value is BBBB = " << smap.value_for("hash222").is("BBBB") << endl; // true
-    cout << "its value is BBBB = " << smap.key("hash222").is("BBBB") << endl; // true
+    cout << "its value is BBBB = " << smap.GetValueFrom("hash222").Is("BBBB") << endl; // true
+    cout << "its value is BBBB = " << smap.Key("hash222").Is("BBBB") << endl; // true
     cout << "its value is BBBB = " << smap("hash222", "BBBB") << endl; // true, alternate method
     cout << "its value is BBBB = " << smap("I don't exist", "BBBB") << endl; // false
     
-    cout << "no cache allocated; size = " << smap.cached_keys().size() << endl;
+    cout << "no cache allocated; size = " << smap.GetCachedKeys().size() << endl;
 
     cout << "========================================\n";
-    cout << "starting order of keys \n" << smap.keys().join("\n") << endl;
+    cout << "starting order of keys \n" << smap.GetKeys().Join("\n") << endl;
     cout << "========================================\n";
     cout << "orderd by key size \n";
-    smap.allocate_keys()->sort([](const auto* first, const auto* second) { return first->size() < second->size(); });
-    smap.cached_keys().join('\n').print();
+    smap.AllocateKeys()->Sort([](const auto* first, const auto* second) { return first->size() < second->size(); });
+    smap.GetCachedKeys().Join('\n').Print();
     cout << "========================================\n";
     
     xstring key_values1;
-    smap.proc([&key_values1](const auto& key, const auto& value) {
+    smap.Proc([&key_values1](const auto& key, const auto& value) {
         if (value.size())
             key_values1 += value + " ";
         return false; // never break loop
     });
     cout << '[' << key_values1 << ']' << endl;
 
-    // note smap.xrender<string> is not needed because we are returning xvector<key type>
-    xstring key_values2 = smap.xrender([](const auto& key, const auto& value) {
+    // note smap.ForEachThread<string> is not needed because we are returning xvector<key type>
+    xstring key_values2 = smap.ForEachThread([](const auto& key, const auto& value) {
         xstring ret_str;
         if (value.size())
             ret_str += value + " ";
         return ret_str;
-    }).join();
+    }).Join();
     cout << '[' << key_values2 << ']' << endl;
 
     cout << "========================================\n";
 
     xvector<xstring> str_lst = { "one","two","three","four","five" };
-    xvector<xstring*> ptr_lst = str_lst.ptrs();
+    xvector<xstring*> ptr_lst = str_lst.GetPtrs();
 
     xmap<xstring*, xstring> map_ptrs;
     int count = 1;
     for (xstring* ptr : ptr_lst) {
-        map_ptrs.add_pair(ptr, xstring(count, '='));
+        map_ptrs.AddPair(ptr, xstring(count, '='));
         count++;
     }
 
-    map_ptrs.allocate_keys()->join('\n').print(2);
+    map_ptrs.AllocateKeys()->Join('\n').Print(2);
 
-    cout << "cached truth: " << map_ptrs.cache().has(str_lst[0]) << endl; // faster when cached
-    cout << "slow   truth: " << map_ptrs.has(str_lst[0]) << endl;
+    cout << "cached truth: " << map_ptrs.GetCache().Has(str_lst[0]) << endl; // faster when cached
+    cout << "slow   truth: " << map_ptrs.Has(str_lst[0]) << endl;
 
     cout << "========================================\n";
 
-    smap.print(2);
-    smap.allocate_reverse_map()->print(2);
+    smap.Print(2);
+    smap.AllocateReverseMap()->Print(2);
 
     xmap<xstring, int> awd_cars = {
         { "Ford RS", 350 },
@@ -138,14 +138,14 @@ int main()
         { "Audi S5", 349 }
     };
 
-    awd_cars.xrender([](const xstring& key, const int& value) {
-        return key + " = " + to_xstring(value) + " HP";
-    }).join('\n').print(2);
+    awd_cars.ForEachThread([](const xstring& key, const int& value) {
+        return key + " = " + ToXString(value) + " HP";
+    }).Join('\n').Print(2);
 
     xmap<xstring, xstring> tmp_mp;
-    std::map<xstring, xstring> std_map = smap.to_std_map(); tmp_mp = std_map;
-    std::unordered_map<xstring, xstring> std_u_map = smap.to_std_unordered_map(); tmp_mp = std_u_map;
-    tmp_mp.print();
+    std::map<xstring, xstring> std_map = smap.ToStdMap(); tmp_mp = std_map;
+    std::unordered_map<xstring, xstring> std_u_map = smap.ToStdUnorderedMap(); tmp_mp = std_u_map;
+    tmp_mp.Print();
 
 
     Nexus<>::Stop();

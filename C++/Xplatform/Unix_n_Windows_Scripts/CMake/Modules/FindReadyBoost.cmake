@@ -5,8 +5,8 @@ if(WIN32)
     SET(BOOST_INCLUDEDIR  "D:/Application_Engines/Boost/boost")
     SET(BOOST_LIBRARYDIR  "D:/Application_Engines/Boost/libs")
 
-    set(Boost_INCLUDE_DIR "D:/Application_Engines/Boost")
-    set(CMAKE_MODULE_PATH  "${CMAKE_MODULE_PATH}:C:/Program Files/CMake/share/cmake-3.16/Modules")
+    set(Boost_INCLUDE_DIR  "D:/Application_Engines/Boost")
+    set(CMAKE_MODULE_PATH  "${CMAKE_MODULE_PATH}:C:/Program Files/CMake/share/cmake-3.17/Modules")
     set(CMAKE_MODULE_PATH  "${CMAKE_MODULE_PATH}:D:/Application_Engines/Boost/tools/boost_install")
     set(CMAKE_MODULE_PATH  "${CMAKE_MODULE_PATH}:D:/Application_Engines/Boost")
 
@@ -22,6 +22,7 @@ set(Boost_USE_RELEASE_LIBS     ON)  # only find release libs
 
 message(">>> Boost Configured <<<")
 
+set(BOOST_CONFIGURED True)
 # Example Usage
 # find_package( Boost 1.71.0 EXACT REQUIRED COMPONENTS regex )
 
