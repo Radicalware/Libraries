@@ -22,6 +22,9 @@ project(${THIS} CXX)
 
 # Old enough to support Ubuntu Xenial.
 
+set(RE2_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Project")
+
+
 if(POLICY CMP0048)
     cmake_policy(SET CMP0048 NEW)
 endif()
@@ -66,62 +69,60 @@ if(USEPCRE)
 endif()
 
 UNSET(PROJECT_FILES)
-#find_program_files(PROJECT_FILES "${CMAKE_CURRENT_SOURCE_DIR}/Project")
-#add_library(${THIS} STATIC ${PROJECT_FILES})
-
-add_library(${THIS} STATIC
-    ./Project/include/re2/bitmap256.h
-    ./Project/include/re2/filtered_re2.h
-    ./Project/include/re2/pod_array.h
-    ./Project/include/re2/prefilter.h
-    ./Project/include/re2/prefilter_tree.h
-    ./Project/include/re2/prog.h
-    ./Project/include/re2/re2.h
-    ./Project/include/re2/regexp.h
-    ./Project/include/re2/set.h
-    ./Project/include/re2/sparse_array.h
-    ./Project/include/re2/sparse_set.h
-    ./Project/include/re2/stringpiece.h
-    ./Project/include/re2/unicode_casefold.h
-    ./Project/include/re2/unicode_groups.h
-    ./Project/include/re2/walker-inl.h
-    ./Project/include/util/benchmark.h
-    ./Project/include/util/flags.h
-    ./Project/include/util/logging.h
-    ./Project/include/util/malloc_counter.h
-    ./Project/include/util/mix.h
-    ./Project/include/util/mutex.h
-    ./Project/include/util/pcre.h
-    ./Project/include/util/strutil.h
-    ./Project/include/util/test.h
-    ./Project/include/util/utf.h
-    ./Project/include/util/util.h
-    ./Project/src/re2/bitstate.cpp
-    ./Project/src/re2/compile.cpp
-    ./Project/src/re2/dfa.cpp
-    ./Project/src/re2/filtered_re2.cpp
-    ./Project/src/re2/mimics_pcre.cpp
-    ./Project/src/re2/nfa.cpp
-    ./Project/src/re2/onepass.cpp
-    ./Project/src/re2/parse.cpp
-    ./Project/src/re2/perl_groups.cpp
-    ./Project/src/re2/prefilter.cpp
-    ./Project/src/re2/prefilter_tree.cpp
-    ./Project/src/re2/prog.cpp
-    ./Project/src/re2/re2.cpp
-    ./Project/src/re2/regexp.cpp
-    ./Project/src/re2/set.cpp
-    ./Project/src/re2/simplify.cpp
-    ./Project/src/re2/stringpiece.cpp
-    ./Project/src/re2/tostring.cpp
-    ./Project/src/re2/unicode_casefold.cpp
-    ./Project/src/re2/unicode_groups.cpp
-    ./Project/src/util/pcre.cpp
-    ./Project/src/util/rune.cpp
-    ./Project/src/util/strutil.cpp
+set(PROJECT_FILES
+    ${RE2_DIR}/include/re2/bitmap256.h
+    ${RE2_DIR}/include/re2/filtered_re2.h
+    ${RE2_DIR}/include/re2/pod_array.h
+    ${RE2_DIR}/include/re2/prefilter.h
+    ${RE2_DIR}/include/re2/prefilter_tree.h
+    ${RE2_DIR}/include/re2/prog.h
+    ${RE2_DIR}/include/re2/re2.h
+    ${RE2_DIR}/include/re2/regexp.h
+    ${RE2_DIR}/include/re2/set.h
+    ${RE2_DIR}/include/re2/sparse_array.h
+    ${RE2_DIR}/include/re2/sparse_set.h
+    ${RE2_DIR}/include/re2/stringpiece.h
+    ${RE2_DIR}/include/re2/unicode_casefold.h
+    ${RE2_DIR}/include/re2/unicode_groups.h
+    ${RE2_DIR}/include/re2/walker-inl.h
+    ${RE2_DIR}/include/util/benchmark.h
+    ${RE2_DIR}/include/util/flags.h
+    ${RE2_DIR}/include/util/logging.h
+    ${RE2_DIR}/include/util/malloc_counter.h
+    ${RE2_DIR}/include/util/mix.h
+    ${RE2_DIR}/include/util/mutex.h
+    ${RE2_DIR}/include/util/pcre.h
+    ${RE2_DIR}/include/util/strutil.h
+    ${RE2_DIR}/include/util/test.h
+    ${RE2_DIR}/include/util/utf.h
+    ${RE2_DIR}/include/util/util.h
+    ${RE2_DIR}/src/re2/bitstate.cpp
+    ${RE2_DIR}/src/re2/compile.cpp
+    ${RE2_DIR}/src/re2/dfa.cpp
+    ${RE2_DIR}/src/re2/filtered_re2.cpp
+    ${RE2_DIR}/src/re2/mimics_pcre.cpp
+    ${RE2_DIR}/src/re2/nfa.cpp
+    ${RE2_DIR}/src/re2/onepass.cpp
+    ${RE2_DIR}/src/re2/parse.cpp
+    ${RE2_DIR}/src/re2/perl_groups.cpp
+    ${RE2_DIR}/src/re2/prefilter.cpp
+    ${RE2_DIR}/src/re2/prefilter_tree.cpp
+    ${RE2_DIR}/src/re2/prog.cpp
+    ${RE2_DIR}/src/re2/re2.cpp
+    ${RE2_DIR}/src/re2/regexp.cpp
+    ${RE2_DIR}/src/re2/set.cpp
+    ${RE2_DIR}/src/re2/simplify.cpp
+    ${RE2_DIR}/src/re2/stringpiece.cpp
+    ${RE2_DIR}/src/re2/tostring.cpp
+    ${RE2_DIR}/src/re2/unicode_casefold.cpp
+    ${RE2_DIR}/src/re2/unicode_groups.cpp
+    ${RE2_DIR}/src/util/pcre.cpp
+    ${RE2_DIR}/src/util/rune.cpp
+    ${RE2_DIR}/src/util/strutil.cpp
 )
 
-add_library(Radical::${THIS} ALIAS ${THIS})
+add_library(${THIS} STATIC ${PROJECT_FILES})
+add_library(Radical_Mod::${THIS} ALIAS ${THIS})
 
 target_include_directories(${THIS}
     PRIVATE
@@ -142,8 +143,6 @@ else()
 endif()
 
 
-
-
 # Required Libs -------------------------------------------------------------------------
 # No Required Libs Needed
 # -------------------------- INSTALL ----------------------------------------------------
@@ -151,5 +150,8 @@ endif()
 include("${RADICAL_PATH}/Radical-Lib-Install.cmake")
 INSTALL_VISUAL_STUDIO_PROJECT(${PROJECT_FILES})
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+file(REMOVE "${INSTALL_PREFIX}/Libraries/Projects/re2/include/re2.h")
+file(REMOVE "${INSTALL_PREFIX}/Libraries/Projects/re2/src/re2.cpp")
 
 # -------------------------- END --------------------------------------------------------

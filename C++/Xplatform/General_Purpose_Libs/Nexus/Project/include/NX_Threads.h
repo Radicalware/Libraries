@@ -15,13 +15,13 @@ protected:
     static std::atomic<int>  s_task_count;
 
 public:
-    static const int    GetCPUThreadCount();
-    static const int    GetThreadCountUsed();
-    static const size_t GetInstCount();
-    static const size_t GetCrossTaskCount();
+    static int    GetCPUThreadCount();
+    static int    GetThreadCountUsed();
+    static size_t GetInstCount();
+    static size_t GetCrossTaskCount();
 
-    static const int    GetThreadCountAvailable();
-    static const bool   ThreadsAreAvailable();
+    static int    GetThreadCountAvailable();
+    static bool   ThreadsAreAvailable();
 
     static void ResetThreadCount();
     static void SetThreadCount(int val);

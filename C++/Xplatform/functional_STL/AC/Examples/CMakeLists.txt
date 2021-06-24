@@ -20,7 +20,7 @@ find_program_files(SOLUTION_FILES "${CMAKE_CURRENT_SOURCE_DIR}/Solution")
 add_executable(${THIS} ${SOLUTION_FILES})
 
 find_package(AC)
-
+message(">>>>> ${installed_projects}")
 target_include_directories(${THIS} PRIVATE
         ${installed_projects}
 )

@@ -6,29 +6,29 @@ std::atomic<int> NX_Threads::s_Threads_Used = 0;
 std::atomic<int> NX_Threads::s_Inst_Count = 0;
 std::atomic<int> NX_Threads::s_task_count = 0;
 
-const int NX_Threads::GetCPUThreadCount(){
+int NX_Threads::GetCPUThreadCount(){
     return NX_Threads::s_Thread_Count;
 }
 
-const int NX_Threads::GetThreadCountUsed(){
+int NX_Threads::GetThreadCountUsed(){
     return s_Threads_Used.load();
 }
 
-const size_t NX_Threads::GetInstCount(){
+size_t NX_Threads::GetInstCount(){
     return NX_Threads::s_Inst_Count.load();
 }
 
-const size_t NX_Threads::GetCrossTaskCount(){
+size_t NX_Threads::GetCrossTaskCount(){
     return NX_Threads::s_task_count.load();
 }
 // --------------------------------------------------
 
-const int NX_Threads::GetThreadCountAvailable(){
+int NX_Threads::GetThreadCountAvailable(){
     return s_Thread_Count - s_Threads_Used;
 }
 
 
-const bool NX_Threads::ThreadsAreAvailable(){
+bool NX_Threads::ThreadsAreAvailable(){
     return s_Thread_Count > s_Threads_Used;
 }
 

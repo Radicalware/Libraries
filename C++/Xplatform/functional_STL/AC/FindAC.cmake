@@ -5,6 +5,8 @@ set(LIB AC)
 # -------------------------- PRE-CONFIG ---------------------------------------
 list(APPEND STATIC_LIB_LST ${LIB})
 
+list(APPEND installed_projects   "${PROJECT_DIR}/${LIB}/include")
+
 if(${release} AND NOT ${build_all})
     link_static(${THIS} ${LIB})
     return()
@@ -13,11 +15,10 @@ endif()
 
 UNSET(PROJECT_FILES)
 find_program_files(PROJECT_FILES "${PROJECT_DIR}/${LIB}")
-
 add_library(${LIB} STATIC ${PROJECT_FILES})
 add_library(Radical::${LIB} ALIAS ${LIB})
 
-include_directories(${LIB} PRIVATE
+target_include_directories(${LIB} PRIVATE
     ${installed_projects}
 )
 

@@ -35,6 +35,7 @@ if(WIN32) # --------------------------------------------------------------------
 
     set(CPP_ARGS "${CPP_ARGS} /EHsc")
     set(C_ARGS   "${CPP_ARGS} ${C_ARGS}")
+    set(C_ARGS "  ${C_ARGS}   /std:c17")
     set(CPP_ARGS "${CPP_ARGS} /std:c++17")
 
     set(CMAKE_PATH "C:/Program Files/CMake/share/cmake-3.20/Modules")
@@ -57,7 +58,8 @@ else() # -----------------------------------------------------------------------
 
     set(CPP_ARGS " -Wfatal-errors -finput-charset=UTF-8 -fPIC -pthread")
     set(CPP_ARGS "${CPP_ARGS} -Wno-unused-result")
-    set(C_ARGS   CPP_ARGS)
+    set(C_ARGS   "${CPP_ARGS} ${C_ARGS}")
+    set(C_ARGS   "${C_ARGS}   -std:c17")
     set(CPP_ARGS "${CPP_ARGS} -std=c++17")
 
     set(CMAKE_PATH "/usr/share/cmake-3.16/Modules")
@@ -109,7 +111,5 @@ set(EXT_BIN_PATH    ${INSTALL_PREFIX}/Libraries/Build/${BUILD_TYPE})
 set(PROJECT_DIR ${INSTALL_PREFIX}/Libraries/Projects)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
-find_include_dirs(installed_projects "${INSTALL_DIR}")
 
 # --------------- DON'T MODIFY (CALCULATED) ------------------------------------------

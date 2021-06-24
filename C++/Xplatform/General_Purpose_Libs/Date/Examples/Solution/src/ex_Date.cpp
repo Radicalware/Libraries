@@ -16,24 +16,42 @@ int main()
 {
     Nexus<>::Start();
 
-    xvector<Date> dates = { 
-         Date(3, 29, 2020)
-        ,Date("3/29/2020")
-        ,Date(737515) // total days since AD
-    };
+    //Date LoDate(1624345800);
 
-    dates[0] += 6;
+    //cout << "Date: " << LoDate << endl;
 
-    cout << '\n';
-    for (auto date : dates)
-        cout << date << endl;
+    {
+        std::time_t result = std::time(nullptr);
+        std::cout << std::asctime(std::localtime(&result)) << result << " seconds since the Epoch\n";
+    }
+    {
 
-    for (auto& date : dates)
-        date.SetNeat(true);
+        std::time_t result(1624345800);
+        std::cout << std::asctime(std::localtime(&result)) << result << " seconds since the Epoch\n";
+    }
 
-    cout << '\n';
-    for (auto date : dates)
-        cout << date << endl;
+    Date LoDate(1624345800);
+
+    cout << LoDate << endl;
+
+    //xvector<Date> dates = { 
+    //     Date(3, 29, 2020)
+    //    ,Date("3/29/2020")
+    //    ,Date(737515) // total days since AD
+    //};
+
+    //dates[0] += 6;
+
+    //cout << '\n';
+    //for (auto date : dates)
+    //    cout << date << endl;
+
+    //for (auto& date : dates)
+    //    date.SetNeat(true);
+
+    //cout << '\n';
+    //for (auto date : dates)
+    //    cout << date << endl;
 
     Nexus<>::Stop();
     return 0;

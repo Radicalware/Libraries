@@ -3,6 +3,8 @@
 
 #include "xstring.h"
 
+#include <stdlib.h>
+
 const xstring xstring::static_class;
 
 xstring Color::Black = "\033[30m";
@@ -133,6 +135,11 @@ char& xstring::At(size_t Idx)
     return at(Idx);
 }
 
+size_t xstring::Size() const
+{
+    return size();
+}
+
 void xstring::Print() const
 {
     std::cout << *this << '\n';
@@ -166,6 +173,15 @@ void xstring::Print(const char* chr1, const char* chr2) const
 
 std::string xstring::ToStdString() const {
     return std::string(this->c_str()); // todo: return only from the base class
+}
+
+std::wstring xstring::ToStdWString() const
+{
+    std::wstring LsWideStr(size(), L' ');
+    for(size_t i = 0; i < size(); i++)
+        LsWideStr[i] = static_cast<wchar_t>((*this)[i]);
+
+    return LsWideStr;
 }
 
 xstring xstring::ToUpper() const

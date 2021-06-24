@@ -20,7 +20,7 @@ find_program_files(SOLUTION_FILES "${CMAKE_CURRENT_SOURCE_DIR}/Solution")
 add_executable(${THIS} ${SOLUTION_FILES})
 
 find_package(AC)
-find_package(RE)
+find_package(MC)
 
 target_include_directories(${THIS} PRIVATE
         ${installed_projects}
@@ -30,6 +30,7 @@ if(${debug} OR ${build_all})
     target_link_libraries(${THIS}
 
         Radical::AC
+        Radical::MC
     )
 endif()
 

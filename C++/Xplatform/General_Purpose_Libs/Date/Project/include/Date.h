@@ -26,54 +26,35 @@
 #endif
 
 
+using uint = size_t;
+
 class EXI Date
 {
-
-    bool mUpdated_str  = false;
-    bool mUpdated_ints = false;
-
-    xstring mStr;
-    size_t mTotal_days = 0;
-
-    int mDay = 0;
-    int mMonth = 0;
-    int mYear = 0;
-
-    bool mNeat = false;
-
-    void UpdateTotalDays();
-
 public:
-    const static xvector<int> StandardMonthDays;
-    const static xvector<int> LeapMonthDays;
+    ~Date();
+    Date(uint FnEpochTime = 0);
+    Date(int FnYear, int FnMonth, int FnDay, int FnHour = 0, int FnMin = 0);
 
-    Date();
-    Date(size_t days);
-    Date(const xstring& str);
-    Date(int month, int day, int year);
     Date(const Date& date);
     Date(Date&& date) noexcept;
     void operator=(const Date& date);
     void operator=(Date&& date) noexcept;
-    ~Date();
 
-    Date& UpdateInts();
-    Date& UpdateStr();
+    void CreateStr();
+    xstring& GetStr();
+    std::tm& GetTM();
 
-    bool IsLeapYear() const;
-    const xvector<int>& MonthDays() const;
+    std::time_t GetEpochTime() const { return MoTime; }
 
-    xstring ToStr();
-    size_t GetTotalDays() const;
-    Date& SetNeat(bool neat);
+private:
+    std::time_t MoTime = 0;
+    xstring* MsStr = nullptr;
 
-    std::ostream& operator<<(std::ostream& out);
-
-    void operator+=(int val);
-    void operator-=(int val);
-
-    Date operator+(int val) const;
-    Date operator-(int val) const;
+    //int MnYears = 0;
+    //int MnMonths = 0;
+    //int MnDays = 0;
+    //int MnHours = 0;
+    //int MnSeconds = 0;
 };
 
 EXI std::ostream& operator<<(std::ostream& out, Date& obj);

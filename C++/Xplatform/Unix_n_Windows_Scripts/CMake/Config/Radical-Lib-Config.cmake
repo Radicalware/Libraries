@@ -18,4 +18,6 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR} ${INC})
 set(BUILD_SHARED_LIBS ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+find_include_dirs(installed_projects "${INSTALL_DIR}")
+
 # -------------------------- CONFIGURATION ------------------------------------

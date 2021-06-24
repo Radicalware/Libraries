@@ -76,7 +76,7 @@ public:
     const char& At(size_t Idx) const;
     char& At(size_t Idx);
 
-    size_t Size() const { return size(); }
+    size_t Size() const;
 
     void Print() const;
     void Print(int num) const;
@@ -84,7 +84,8 @@ public:
     void Print(const char chr1, const char chr2 = ' ') const;
     void Print(const char* chr1, const char* chr2 = "") const;
 
-    std::string ToStdString() const;
+    std::string  ToStdString() const;
+    std::wstring ToStdWString() const;
 
     xstring ToUpper() const;
     xstring ToLower() const;

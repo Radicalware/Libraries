@@ -19,11 +19,11 @@ project (${THIS})
 find_program_files(SOLUTION_FILES "${CMAKE_CURRENT_SOURCE_DIR}/Solution")
 add_executable(${THIS} ${SOLUTION_FILES})
 
+find_package(re2)
 find_package(Nexus)
 find_package(xvector)
 find_package(xstring)
 find_package(xmap)
-find_package(re2)
 find_package(SYS)
 
 target_include_directories(${THIS} PRIVATE

@@ -43,7 +43,7 @@
 // =========================================================================================
 
 template<typename T = void>
-class Nexus : public NX_Threads
+class __single_inheritance Nexus : public NX_Threads
 {
 private:
     bool m_finish_tasks = false;

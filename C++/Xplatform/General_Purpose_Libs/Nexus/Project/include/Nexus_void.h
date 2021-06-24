@@ -33,11 +33,12 @@
 
 // =========================================================================================
 
-template<typename T> class Nexus;
 
+//template<typename T> class Nexus;
 
+// error C2292: 'Nexus<void>': best case inheritance representation: 'virtual_inheritance' declared but 'single_inheritance' required
 template<>
-class Nexus<void> : public NX_Threads // This class is for updating member values in objects
+class __single_inheritance Nexus<void> : public NX_Threads
 {
 public:
     struct tsk_st // used when poped from the queue to create a task
@@ -65,7 +66,7 @@ private:
 
 public:
     Nexus();
-    ~Nexus();
+    virtual ~Nexus();
     static void Start();
     static int Stop();
 

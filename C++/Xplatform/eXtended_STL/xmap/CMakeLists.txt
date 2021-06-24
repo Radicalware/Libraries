@@ -26,6 +26,7 @@ target_include_directories(${THIS}
         ${installed_projects}
 )
 
+link_static(${THIS} xmap)
 link_static(${THIS} xvector)
 link_static(${THIS} xstring)
 link_static(${THIS} Nexus)

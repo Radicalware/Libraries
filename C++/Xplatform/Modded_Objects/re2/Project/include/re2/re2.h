@@ -367,14 +367,16 @@ class RE2 {
   //    RE2::FullMatch("abc", "[a-z]+(\\d+)?", &number);
   template <typename... A>
   static bool FullMatch(const StringPiece& text, const RE2& re, A&&... a) {
-    return Apply(FullMatchN, text, re, Arg(std::forward<A>(a))...);
+    //return Apply(FullMatchN, text, re, Arg(std::forward<A>(a))...);
+    return FullMatchN(text, re, nullptr, 0);
   }
 
   // Exactly like FullMatch(), except that "re" is allowed to match
   // a substring of "text".
   template <typename... A>
   static bool PartialMatch(const StringPiece& text, const RE2& re, A&&... a) {
-    return Apply(PartialMatchN, text, re, Arg(std::forward<A>(a))...);
+    //return Apply(PartialMatchN, text, re, Arg(std::forward<A>(a))...);
+    return PartialMatchN(text, re, nullptr, 0);
   }
 
   // Like FullMatch() and PartialMatch(), except that "re" has to match
@@ -383,7 +385,8 @@ class RE2 {
   // and "re" matched a non-empty substring of "text".
   template <typename... A>
   static bool Consume(StringPiece* input, const RE2& re, A&&... a) {
-    return Apply(ConsumeN, input, re, Arg(std::forward<A>(a))...);
+    //return Apply(ConsumeN, input, re, Arg(std::forward<A>(a))...);
+    return ConsumeN(input, re, nullptr, 0);
   }
 
   // Like Consume(), but does not anchor the match at the beginning of
@@ -393,7 +396,8 @@ class RE2 {
 
   template <typename... A>
   static bool FindAndConsume(StringPiece* input, const RE2& re, A&&... a) {
-    return Apply(FindAndConsumeN, input, re, Arg(std::forward<A>(a))...);
+    //return Apply(FindAndConsumeN, input, re, Arg(std::forward<A>(a))...);
+    return FindAndConsumeN(input, re, nullptr, 0);
   }
 #endif
 

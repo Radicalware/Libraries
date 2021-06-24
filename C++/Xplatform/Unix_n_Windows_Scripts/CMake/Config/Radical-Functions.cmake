@@ -53,11 +53,14 @@ endfunction()
 
 
 function(post_build_copy target_name file_name from_dir to_dir)
+
     add_custom_command(
         TARGET "${target_name}" POST_BUILD # PRE_BUILD, PRE_LINK, POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
                 "${from_dir}/${file_name}"
-                "${to_dir}/${file_name}")
+                "${to_dir}/${file_name}"
+        DEPENDS "${from_dir}/${file_name}"
+    )
 endfunction()
 
 function(install_static_lib TARGET_FILE)
@@ -188,14 +191,14 @@ function(INSTALL_VISUAL_STUDIO_PROJECT)
         string(SUBSTRING  ${FULL_PATH} ${SLN_FOLDER_LEN} ${RELATIVE_LEN} RELATIVE_PATH) # take only what is from the sln path + the relative path distnace
         string(REPLACE "/" "\\\\" RELATIVE_PATH "${RELATIVE_PATH}") # fix slashes on relative path
 
-        message("FULL_PATH     = ${FULL_PATH}")
-        message("Solution Path = ${CMAKE_SOURCE_DIR}/Project/")
-        message("RELATIVE_PATH = ${RELATIVE_PATH}")
+        # message("FULL_PATH     = ${FULL_PATH}")
+        # message("Solution Path = ${CMAKE_SOURCE_DIR}/Project/")
+        # message("RELATIVE_PATH = ${RELATIVE_PATH}")
 
-        message("BUILD_DIR     = ${BUILD_DIR}")
-        message("INSTALL_DIR   = ${INSTALL_DIR}")
+        # message("BUILD_DIR     = ${BUILD_DIR}")
+        # message("INSTALL_DIR   = ${INSTALL_DIR}")
         
-        message("--")
+        # message("--")
 
         source_group("${RELATIVE_PATH}" FILES "${FULL_PATH}")
     endforeach()

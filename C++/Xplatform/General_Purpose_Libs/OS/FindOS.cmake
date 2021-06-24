@@ -5,19 +5,20 @@ set(LIB OS)
 # -------------------------- PRE-CONFIG ---------------------------------------
 list(APPEND SHARED_LIB_LST ${LIB})
 
+list(APPEND installed_projects   "${PROJECT_DIR}/${LIB}/include")
+
 if(${release} AND NOT ${build_all})
     link_dynamic(${THIS} ${LIB})
     return()
 endif()
 # -------------------------- BUILD --------------------------------------------
 
-UNSET(project_files)
-find_program_files(project_files "${PROJECT_DIR}/${LIB}")
-
-add_library(${LIB} MODULE ${project_files})
+UNSET(PROJECT_FILES)
+find_program_files(PROJECT_FILES "${PROJECT_DIR}/${LIB}")
+add_library(${LIB} MODULE ${PROJECT_FILES})
 add_library(Radical::${LIB} ALIAS ${LIB})
 
-include_directories(${LIB} PUBLIC
+target_include_directories(${LIB} PUBLIC
     ${installed_projects}
 )
 
@@ -31,7 +32,7 @@ link_dynamic(${THIS} ${LIB})
 set_target_properties(${LIB} PROPERTIES COMPILE_DEFINITIONS DLL_EXPORT=1)
 
 # -------------------------- POST-CONFIG --------------------------------------
-CONFIGURE_VISUAL_STUDIO_PROJECT(${project_files})
+CONFIGURE_VISUAL_STUDIO_PROJECT(${PROJECT_FILES})
 install_dynamic_lib(${LIB})
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # -------------------------- END ----------------------------------------------

@@ -19,10 +19,10 @@ project (${THIS})
 find_program_files(SOLUTION_FILES "${CMAKE_CURRENT_SOURCE_DIR}/Solution")
 add_executable(${THIS} ${SOLUTION_FILES})
 
+find_package(re2)
 find_package(Nexus)
 find_package(xvector)
 find_package(xstring)
-find_package(re2)
 
 target_include_directories(${THIS} PRIVATE
         ${installed_projects}
@@ -31,10 +31,10 @@ target_include_directories(${THIS} PRIVATE
 if(${debug} OR ${build_all})
     target_link_libraries(${THIS}
 
+        Radical_Mod::re2
         Radical::Nexus
         Radical::xvector
         Radical::xstring
-        Radical_Mod::re2
     )
 endif()
 

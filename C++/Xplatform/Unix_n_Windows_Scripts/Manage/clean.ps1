@@ -14,3 +14,5 @@ $(Get-ChildItem -Path C:\Source\Radicalware\Libraries -Recurse -Force).foreach({
         }
     }
 });
+
+Remove-Item -Force -Recurse C:\Source\CMake\Radicalware\Libraries

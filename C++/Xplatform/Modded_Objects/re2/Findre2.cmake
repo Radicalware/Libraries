@@ -10,6 +10,8 @@ set(LIB re2)
 # -------------------------- PRE-CONFIG ---------------------------------------
 list(APPEND STATIC_LIB_LST ${LIB})
 
+list(APPEND installed_projects   "${PROJECT_DIR}/${LIB}/include")
+message("find re2 >> ${installed_projects}")
 if(${release} AND NOT ${build_all})
     link_static(${THIS} ${LIB})
     return()
@@ -66,8 +68,7 @@ if(USEPCRE)
     list(APPEND EXTRA_TARGET_LINK_LIBRARIES pcre)
 endif()
 
-UNSET(PROJECT_FILES)
-add_library(${LIB} STATIC
+set(PROJECT_FILES
     ${RE2_DIR}/include/re2/bitmap256.h
     ${RE2_DIR}/include/re2/filtered_re2.h
     ${RE2_DIR}/include/re2/pod_array.h
@@ -119,6 +120,7 @@ add_library(${LIB} STATIC
     ${RE2_DIR}/src/util/strutil.cpp
 )
 
+add_library(${LIB} STATIC ${PROJECT_FILES})
 add_library(Radical_Mod::${LIB} ALIAS ${LIB})
 
 target_include_directories(${LIB} PRIVATE
@@ -126,6 +128,9 @@ target_include_directories(${LIB} PRIVATE
 )
 
 # -------------------------- POST-CONFIG --------------------------------------
+
+UNSET(PROJECT_FILES)
+find_program_files(PROJECT_FILES "${PROJECT_DIR}/${LIB}")
 CONFIGURE_VISUAL_STUDIO_PROJECT(${PROJECT_FILES})
 
 if(WIN32)
@@ -142,4 +147,7 @@ else()
 endif()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+file(REMOVE "${INSTALL_PREFIX}/Libraries/Projects/re2/include/re2.h")
+file(REMOVE "${INSTALL_PREFIX}/Libraries/Projects/re2/src/re2.cpp")
 # -------------------------- END ----------------------------------------------
