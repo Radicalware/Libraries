@@ -33,7 +33,9 @@ class EXI Date
 public:
     ~Date();
     Date(uint FnEpochTime = 0);
-    Date(int FnYear, int FnMonth, int FnDay, int FnHour = 0, int FnMin = 0);
+    // Format: "2021-06-23 20:00:00"
+    Date(const xstring& FsDateTime);
+    Date(int FnYear, int FnMonth, int FnDay, int FnHour = 0, int FnMin = 0, int FnSecond = 0);
 
     Date(const Date& date);
     Date(Date&& date) noexcept;
@@ -47,6 +49,7 @@ public:
     std::time_t GetEpochTime() const { return MoTime; }
 
 private:
+    void SetDateTime(int FnYear, int FnMonth, int FnDay, int FnHour = 0, int FnMin = 0, int FnSecond = 0);
     std::time_t MoTime = 0;
     xstring* MsStr = nullptr;
 

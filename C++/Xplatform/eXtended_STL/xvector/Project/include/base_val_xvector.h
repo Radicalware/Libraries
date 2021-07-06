@@ -158,8 +158,8 @@ public:
 
     // =================================== DESIGNED FOR NUMERIC BASED VECTORS ===================================
 
-    inline size_t Sum() const;
-    inline size_t Mul() const;
+    inline T Sum(size_t FnSkipIdx = 0) const;
+    inline T Mul(size_t FnSkipIdx = 0) const;
 
     // =================================== DESIGNED FOR STRING  BASED VECTORS ===================================
 
@@ -677,20 +677,37 @@ inline bool val_xvector<T>::TasksCompleted() const
 
 
 template<typename T>
-inline size_t val_xvector<T>::Sum() const
+inline T val_xvector<T>::Sum(size_t FnSkipIdx) const
 {
-    size_t num = 0;
-    for (typename val_xvector<T>::const_iterator it = this->begin(); it != this->end(); it++) {
+    if (!Size())
+        return 0;
+
+    T LnModSize = 0;
+    if (Size() > FnSkipIdx)
+        LnModSize = Size() - FnSkipIdx;
+
+    T num = 0;
+    for (typename val_xvector<T>::const_iterator it = this->begin() + LnModSize; it != this->end(); it++) {
         num += *it;
     }
     return num;
 }
 
 template<typename T>
-inline size_t val_xvector<T>::Mul() const
+inline T val_xvector<T>::Mul(size_t FnSkipIdx) const
 {
-    size_t num = *this->begin();
-    for (typename val_xvector<T>::const_iterator it = this->begin()+1; it != this->end(); it++) {
+    if (!Size())
+        return 0;
+
+    if (Size() == 1)
+        return (*this)[0];
+
+    T LnModSize = 0;
+    if (Size() > FnSkipIdx)
+        LnModSize = Size() - FnSkipIdx;
+
+    T num = 1;
+    for (typename val_xvector<T>::const_iterator it = this->begin() + LnModSize; it != this->end(); it++) {
         num *= (*it);
     }
     return num;

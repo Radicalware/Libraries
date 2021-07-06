@@ -20,6 +20,7 @@ class Files
         "../../General_Purpose_Libs/Timer/install.ps1",
         "../../General_Purpose_Libs/Socket/install.ps1",
         "../../General_Purpose_Libs/Date/install.ps1",
+        "../../General_Purpose_Libs/CudaBridge/install.ps1",
 
         "../../Modded_Objects/CC/install.ps1"
     )
@@ -41,6 +42,7 @@ class Files
         "../../General_Purpose_Libs/Timer/Examples/run.ps1",
         "../../General_Purpose_Libs/Socket/Examples/run.ps1",
         "../../General_Purpose_Libs/Date/Examples/run.ps1",
+        "../../General_Purpose_Libs/CudaBridge/Examples/run.ps1",
 
         "../../Modded_Objects/CC/Examples/run.ps1"
         "../../Modded_Objects/re2/Examples/run.ps1"

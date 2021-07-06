@@ -13,7 +13,7 @@ $Modded_Objects       = 'Modded_Objects'
 
 Write-Host "Copying Project Folders: "
 Write-Host "1. $General_Purpose_Libs : Nexus, Socket, OS, 
-                          SYS, Iterator, Timer, Date"
+                          SYS, Iterator, Timer, Date, CudaBridge"
 Write-Host "2. $eXtended_STL         : xvector, xstring, xmap"
 Write-Host "3. $Functional_STL       : re, ac, mc"
 Write-Host "4. $Modded_Objects       : cc, re2"
@@ -50,6 +50,7 @@ $handler.copy("SYS")
 $handler.copy("Iterator")
 $handler.copy("Timer")
 $handler.copy("Date")
+$handler.copy("CudaBridge")
 
 $handler.dir = $eXtended_STL
 $handler.copy("xvector")

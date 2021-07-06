@@ -20,38 +20,26 @@ int main()
 
     //cout << "Date: " << LoDate << endl;
 
-    {
-        std::time_t result = std::time(nullptr);
-        std::cout << std::asctime(std::localtime(&result)) << result << " seconds since the Epoch\n";
-    }
-    {
+    //{
+    //    std::time_t result = std::time(nullptr);
+    //    std::cout << std::asctime(std::localtime(&result)) << result << " seconds since the Epoch\n";
+    //}
+    //{
 
-        std::time_t result(1624345800);
-        std::cout << std::asctime(std::localtime(&result)) << result << " seconds since the Epoch\n";
-    }
+    //    std::time_t result(1624345800);
+    //    std::cout << std::asctime(std::localtime(&result)) << result << " seconds since the Epoch\n";
+    //}
 
-    Date LoDate(1624345800);
 
-    cout << LoDate << endl;
+    Date LoDate1(1624345800);
 
-    //xvector<Date> dates = { 
-    //     Date(3, 29, 2020)
-    //    ,Date("3/29/2020")
-    //    ,Date(737515) // total days since AD
-    //};
+    cout << LoDate1 << endl;
 
-    //dates[0] += 6;
+    cout << LoDate1.GetStr() << endl;
 
-    //cout << '\n';
-    //for (auto date : dates)
-    //    cout << date << endl;
+    Date LoDate2(LoDate1.GetStr());
 
-    //for (auto& date : dates)
-    //    date.SetNeat(true);
-
-    //cout << '\n';
-    //for (auto date : dates)
-    //    cout << date << endl;
+    cout << LoDate2 << endl;
 
     Nexus<>::Stop();
     return 0;
