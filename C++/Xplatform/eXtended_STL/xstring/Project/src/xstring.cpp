@@ -991,7 +991,7 @@ xstring xstring::ToOnWhite() const {
     return Color::On::White + *this;
 }
 // --------------------------------------
-xstring xstring::Reset() const {
+xstring xstring::ResetColor() const {
     return *this + Color::Mod::Reset;
 }
 xstring xstring::ToBold() const {

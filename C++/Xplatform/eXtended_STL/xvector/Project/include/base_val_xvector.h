@@ -64,6 +64,9 @@ public:
     inline void operator=(xvector<T>&& vec);
     inline void operator=(std::vector<T>&& vec);
 
+    inline T& At(const size_t Idx);
+    inline const T& At(const size_t Idx) const;
+
     template<typename P = T> 
     inline bool Has(const P* item) const;
     inline bool Has(const T& item) const;
@@ -253,6 +256,22 @@ inline void val_xvector<T>::operator=(std::vector<T>&& vec)
     this->clear();
     this->reserve(vec.size());
     this->insert(this->begin(), std::make_move_iterator(vec.begin()), std::make_move_iterator(vec.end()));
+}
+
+template<typename T>
+inline T& val_xvector<T>::At(const size_t Idx)
+{
+    if (Size() >= Idx)
+        throw "Index Out Of Range";
+    return (*this)[Idx];
+}
+
+template<typename T>
+inline const T& val_xvector<T>::At(const size_t Idx) const
+{
+    if (Size() >= Idx)
+        throw "Index Out Of Range";
+    return (*this)[Idx];
 }
 
 template<typename T>

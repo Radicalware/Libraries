@@ -157,7 +157,7 @@ OS::OS()
 };
 
 OS::~OS() {
-    file.Close();
+    File.Close();
 };
 
 xvector<int> OS::GetConsoleSize() // [columns, rows]
@@ -201,12 +201,12 @@ bool OS::AllHaveFileSyntax(const xvector<xstring>& i_files)
 void OS::Touch(const xstring& new_file)
 {
     if (new_file.size())
-        file.m_name = OS::FullPath(new_file);
+        File.m_name = OS::FullPath(new_file);
 
-    if (OS::Has(file.m_name))
+    if (OS::Has(File.m_name))
         return;
 
-    file.SetWrite();
+    File.SetWrite();
 }
 
 
@@ -296,25 +296,25 @@ OS OS::Open(const xstring& new_file_name, const char write_method)
     // w = write mode 
     // a = append
 
-    file.Close();
-    file.SetFile(new_file_name);
+    File.Close();
+    File.SetFile(new_file_name);
 
     switch (write_method)
     {
     case 'r':
-        file.SetRead();
+        File.SetRead();
         break;
 
     case 'w':
-        file.SetWrite();
+        File.SetWrite();
         break;
 
     case 'a':
-        file.SetAppend();
+        File.SetAppend();
         break;
 
     default:
-        file.SetRead();
+        File.SetRead();
     }
 
     m_last_read = 'f'; // 'f' for file opposed to 'c' for command
@@ -323,7 +323,7 @@ OS OS::Open(const xstring& new_file_name, const char write_method)
 
 OS OS::Close()
 {
-    file.Close();
+    File.Close();
     return *this;
 }
 
@@ -334,7 +334,7 @@ xstring OS::Read(char content, bool close_file /* = false */)
     content = (content == 'd') ? m_last_read : content;
     switch (content) {
     case 'f':  return this->InstRead();
-    case 'c':  return cmd.m_out;
+    case 'c':  return CMD.m_out;
     default:  return xstring("none");
     }
     if (close_file)
@@ -343,22 +343,22 @@ xstring OS::Read(char content, bool close_file /* = false */)
 
 xstring OS::InstRead()
 {
-    if (file.m_handler != 'r')
-        file.SetRead();
+    if (File.m_handler != 'r')
+        File.SetRead();
 
-    file.m_data.clear();
+    File.m_data.clear();
     xstring line;
     errno = 0;
-    if (file.m_in_stream.is_open()) {
-        while (getline(file.m_in_stream, line))
-            file.m_data += line + '\n';
+    if (File.m_in_stream.is_open()) {
+        while (getline(File.m_in_stream, line))
+            File.m_data += line + '\n';
     }
     else {
         xstring err("Error (" + ToXString(errno) + "): Could Not Open Text File: ");
-        err += file.m_name;
+        err += File.m_name;
         throw std::runtime_error(err.c_str());
     }
-    return file.m_data;
+    return File.m_data;
 }
 
 
@@ -483,22 +483,21 @@ xstring OS::ReadStreamMethod(const xstring& file_name)
 // you must use open before write
 OS OS::Write(const xstring& content, bool store /* = false */)
 {
-    if (file.m_handler != 'w' && file.m_handler != 'a') {
-        file.SetAppend();
-    }else{
-        file.Clear();
-    }
+    if (File.m_handler == 'a')
+        File.SetAppend();
+    else
+        File.Clear();
 
     errno = 0;
-    if (!file.m_out_stream.is_open())
-        throw std::runtime_error("Error (" + ToXString(errno) + ") Unable to Open File: " + file.m_name + "\n");
+    if (!File.m_out_stream.is_open())
+        throw std::runtime_error("Error (" + ToXString(errno) + ") Unable to Open File: " + File.m_name + "\n");
 
     if (store)
-        file.m_data = content;
+        File.m_data = content;
     else
-        file.m_data.clear();
+        File.m_data.clear();
 
-    file.m_out_stream << content;
+    File.m_out_stream << content;
 
     m_last_read = 'f';
     return *this;
@@ -557,12 +556,12 @@ OS& OS::RunConsoleCommand(const xstring& command, char leave)
     // e = exit if command fails
 
 #if defined(NIX_BASE)
-    cmd.m_cmd = command + " 2>&1";
+    CMD.m_cmd = command + " 2>&1";
 #elif defined(WIN_BASE)
-    cmd.m_cmd = command;
+    CMD.m_cmd = command;
 #endif
 
-    cmd.m_out.clear();
+    CMD.m_out.clear();
     int buf_size = 512;
     char buffer[512];
 
@@ -570,12 +569,12 @@ OS& OS::RunConsoleCommand(const xstring& command, char leave)
     std::cout << cmd.m_cmd.c_str() << std::endl;
     FILE* file = popen(cmd.m_cmd.c_str(), "r");
 #elif defined(WIN_BASE)
-    FILE* file = _popen(cmd.m_cmd.c_str(), "r");
+    FILE* file = _popen(CMD.m_cmd.c_str(), "r");
 #endif
 
     while (!feof(file)) {
         if (fgets(buffer, buf_size, file) != NULL)
-            cmd.m_out += buffer;
+            CMD.m_out += buffer;
     }
 
 #if defined(NIX_BASE)
@@ -585,23 +584,23 @@ OS& OS::RunConsoleCommand(const xstring& command, char leave)
 #endif
 
     if (returnCode) {
-        cmd.m_err = cmd.m_out;
-        cmd.m_err_message = xstring("\nConsole Command Failed:\n") + cmd.m_cmd + "\nerror out: " + cmd.m_err;
+        CMD.m_err = CMD.m_out;
+        CMD.m_err_message = xstring("\nConsole Command Failed:\n") + CMD.m_cmd + "\nerror out: " + CMD.m_err;
         if (leave == 'd') {
             m_last_read = 'c';
             return *this;
         }
         switch (leave) {
-        case 't': throw std::runtime_error(cmd.m_err);                  // t = throw error
-        case 'x': std::cout << cmd.m_err_message << std::endl; exit(1); // x = eXit
-        case 'm': std::cout << cmd.m_err_message << std::endl; break;   // m = full error Message
-        case 'e': std::cout << cmd.m_err << std::endl; break;           // e = standard Error
-        case 'p': std::cout << cmd.m_err << std::endl; break;           // p = Programatic error
+        case 't': throw std::runtime_error(CMD.m_err);                  // t = throw error
+        case 'x': std::cout << CMD.m_err_message << std::endl; exit(1); // x = eXit
+        case 'm': std::cout << CMD.m_err_message << std::endl; break;   // m = full error Message
+        case 'e': std::cout << CMD.m_err << std::endl; break;           // e = standard Error
+        case 'p': std::cout << CMD.m_err << std::endl; break;           // p = Programatic error
         }
     }
     else {
-        cmd.m_err.clear();
-        cmd.m_err_message.clear();
+        CMD.m_err.clear();
+        CMD.m_err_message.clear();
     }
     m_last_read = 'c';
     return *this;

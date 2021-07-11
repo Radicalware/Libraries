@@ -57,7 +57,7 @@ int main()
     dim3 LoBlock(LoBlockSize);
     dim3 LoGrid((HostArray1.Size() / LoBlock.x) + 1);
 
-    SumArraysIndicesGPU << <LoGrid, LoBlock >> > (
+    SumArraysIndicesGPU <<<LoGrid, LoBlock>>> (
         HostArray1.GetDevice(),
         HostArray2.GetDevice(),
         DeviceOutput.GetDevice(),

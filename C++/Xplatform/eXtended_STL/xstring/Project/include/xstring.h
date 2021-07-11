@@ -238,7 +238,7 @@ public:
     xstring ToOnGrey() const;
     xstring ToOnWhite() const;
 
-    xstring Reset() const;
+    xstring ResetColor() const;
     xstring ToBold() const;
     xstring ToUnderline() const;
     xstring ToInvertedColor() const;

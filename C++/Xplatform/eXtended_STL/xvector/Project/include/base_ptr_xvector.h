@@ -65,6 +65,9 @@ public:
     inline void operator=(xvector<T*>&& vec);
     inline void operator=(std::vector<T*>&& vec);
 
+    inline T& At(const size_t Idx);
+    inline const T& At(const size_t Idx) const;
+
     inline bool Has(const T& item) const;
     inline bool Has(T&& item) const;
     inline bool Has(char const* item) const;
@@ -250,6 +253,22 @@ inline void ptr_xvector<T*>::operator=(std::vector<T*>&& vec)
     this->clear();
     this->reserve(vec.size());
     this->insert(this->begin(), std::make_move_iterator(vec.begin()), std::make_move_iterator(vec.end()));
+}
+
+template<typename T>
+inline T& ptr_xvector<T*>::At(const size_t Idx)
+{
+    if (Size() >= Idx)
+        throw "Index Out Of Range";
+    return *(*this)[Idx];
+}
+
+template<typename T>
+inline const T& ptr_xvector<T*>::At(const size_t Idx) const
+{
+    if (Size() >= Idx)
+        throw "Index Out Of Range";
+    return *(*this)[Idx];
 }
 
 template<typename T>

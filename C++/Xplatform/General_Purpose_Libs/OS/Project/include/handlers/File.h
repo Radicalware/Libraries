@@ -56,5 +56,7 @@ namespace OS_O // OS Object
 
         void Move(const xstring& location);
         void MV(const xstring& location);
+
+        void operator<<(const xstring& FnWriteData);
     };
 };

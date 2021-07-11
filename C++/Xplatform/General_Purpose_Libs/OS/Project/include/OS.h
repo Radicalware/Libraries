@@ -79,8 +79,8 @@ private:
 
 public:
 
-    OS_O::File file;
-    OS_O::CMD  cmd;
+    OS_O::File File;
+    OS_O::CMD  CMD;
 
     OS();
     ~OS();

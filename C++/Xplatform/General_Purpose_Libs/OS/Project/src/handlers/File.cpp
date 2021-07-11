@@ -152,3 +152,8 @@ void OS_O::File::MV(const xstring& location)
     this->RM();
 }
 
+
+void OS_O::File::operator<<(const xstring& FnWriteData)
+{
+    m_out_stream << FnWriteData;
+}

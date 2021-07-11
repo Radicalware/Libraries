@@ -24,15 +24,26 @@ class Lib_Handler
 {
     [string] $dir;
     
-    [string] $build_dir         = 'C:\Source\Radicalware\Libraries'
+    [string] $build_lib_dir     = 'C:\Source\Radicalware\git\Libraries\C++\Xplatform'
+    [string] $build_module_dir  = 'C:\Source\Radicalware\git\Libraries\C++\Modules'
+
     [string] $cmake_install_dir = 'C:\Source\CMake\Radicalware\Libraries\Projects'
     [string] $cmake_header_dir  = 'C:\Source\CMake\Radicalware\Libraries\Headers'
 
     [string] $inc = "include\*"
 
-    [void] copy([string] $lib)
+    [void] CopyLib([string] $lib)
     {    
-        Copy-Item  "$($this.cmake_install_dir)\$lib\*"  "$($this.build_dir)\$($this.dir)\$lib\Project" -Recurse -Force
+        Copy-Item  "$($this.cmake_install_dir)\$lib\*"  "$($this.build_lib_dir)\$($this.dir)\$lib\Project" -Recurse -Force
+        
+        # It is better to use soft links
+        # Copy-Item  "$($this.cmake_install_dir)\$lib\$($this.inc)"  "$($this.cmake_header_dir)" -Recurse -Force
+
+    }
+
+    [void] CopyModule([string] $lib)
+    {    
+        Copy-Item  "$($this.cmake_install_dir)\$lib\*"  "$($this.build_module_dir)\$($this.dir)\$lib\Project" -Recurse -Force
         
         # It is better to use soft links
         # Copy-Item  "$($this.cmake_install_dir)\$lib\$($this.inc)"  "$($this.cmake_header_dir)" -Recurse -Force
@@ -43,28 +54,28 @@ class Lib_Handler
 $handler = [Lib_Handler]::new()
 
 $handler.dir = $General_Purpose_Libs
-$handler.copy("Nexus")
-$handler.copy("Socket")
-$handler.copy("OS")
-$handler.copy("SYS")
-$handler.copy("Iterator")
-$handler.copy("Timer")
-$handler.copy("Date")
-$handler.copy("CudaBridge")
+$handler.CopyLib("Nexus")
+$handler.CopyLib("Socket")
+$handler.CopyLib("OS")
+$handler.CopyLib("SYS")
+$handler.CopyLib("Iterator")
+$handler.CopyLib("Timer")
+$handler.CopyLib("Date")
+$handler.CopyLib("CudaBridge")
 
 $handler.dir = $eXtended_STL
-$handler.copy("xvector")
-$handler.copy("xstring")
-$handler.copy("xmap")
+$handler.CopyLib("xvector")
+$handler.CopyLib("xstring")
+$handler.CopyLib("xmap")
 
 $handler.dir = $Functional_STL
-$handler.copy("re")
-$handler.copy("ac")
-$handler.copy("mc")
+$handler.CopyLib("re")
+$handler.CopyLib("ac")
+$handler.CopyLib("mc")
 
 $handler.dir = $Modded_Objects
-$handler.copy("cc")
-$handler.copy("re2")
+$handler.CopyLib("cc")
+$handler.CopyLib("re2")
 
 
 Write-Host "All Lib Folders Updated!!"

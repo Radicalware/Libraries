@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.17)
 set(LIB Date)
 
 # -------------------------- PRE-CONFIG ---------------------------------------
-list(APPEND STATIC_LIB_LST ${LIB})
+list(APPEND SHARED_LIB_LST ${LIB})
 
 list(APPEND installed_projects   "${PROJECT_DIR}/${LIB}/include")
 
