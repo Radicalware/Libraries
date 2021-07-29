@@ -44,10 +44,18 @@ endfunction()
 # Tools > Options > Projects and Solutions > Build and Run > 
 #    uncheck "Only build startup project and dependinces on run"
 function(link_dynamic TARGET_FILE DYNAMIC_LIB)
-    if(WIN32) # windows injects the .lib into the .exe to locate the .dll file at runtime
-        target_link_libraries(${TARGET_FILE} ${EXT_BIN_PATH}/lib/${PF}${DYNAMIC_LIB}.${ST})
+    if(${debug} OR ${build_all})
+        if(WIN32)
+            target_link_libraries(${TARGET_FILE}  "${CMAKE_SOURCE_DIR}/Build/${OS_TYPE}/${BUILD_TYPE}/${BUILD_TYPE}/lib/${PF}${DYNAMIC_LIB}.${ST}")
+        else()
+            target_link_libraries(${TARGET_FILE}  "${CMAKE_SOURCE_DIR}/Build/${OS_TYPE}/${BUILD_TYPE}/${BUILD_TYPE}/bin/${PF}${DYNAMIC_LIB}.${SH}")
+        endif()
     else()
-        target_link_libraries(${TARGET_FILE} ${EXT_BIN_PATH}/bin/${PF}${DYNAMIC_LIB}.${SH})
+        if(WIN32) # windows injects the .lib into the .exe to locate the .dll file at runtime
+            target_link_libraries(${TARGET_FILE} ${EXT_BIN_PATH}/lib/${PF}${DYNAMIC_LIB}.${ST})
+        else()
+            target_link_libraries(${TARGET_FILE} ${EXT_BIN_PATH}/bin/${PF}${DYNAMIC_LIB}.${SH})
+        endif()
     endif()
 endfunction()
 

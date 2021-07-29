@@ -115,14 +115,14 @@ Client& Win_Client::Send(const xstring& buff)
             }
             count += m_mtu;
             if(m_verbose)
-                xstring("Client >> Bytes sent: " + ToXString(m_send_result)).ToBold().ToYellow().Reset().Print();
+                xstring("Client >> Bytes sent: " + ToXString(m_send_result)).ToBold().ToYellow().ResetColor().Print();
         }
     }
     else
     {
         m_send_result = ::send(m_socket, buffer.send.c_str(), buffer.send.size(), 0);
         if(m_verbose)
-            xstring("Client >> Bytes sent: " + ToXString(m_send_result) + '\n').ToBold().ToYellow().Reset().Print();
+            xstring("Client >> Bytes sent: " + ToXString(m_send_result) + '\n').ToBold().ToYellow().ResetColor().Print();
     }
 
     if (m_result == SOCKET_ERROR)
@@ -133,7 +133,7 @@ Client& Win_Client::Send(const xstring& buff)
         throw std::runtime_error(err_str);
     }
     if(m_verbose)
-        xstring("Client >> Bytes sent: " + ToXString(m_send_result)).ToBold().ToYellow().Reset().Print();
+        xstring("Client >> Bytes sent: " + ToXString(m_send_result)).ToBold().ToYellow().ResetColor().Print();
     
     // shutdown the connection since no more data will be sent
     m_result = shutdown(m_socket, SD_SEND);
@@ -169,9 +169,9 @@ Client& Win_Client::Recv(int size)
         if (m_verbose)
         {
             if (m_result > 0)
-                xstring("Client >> Bytes received: " + ToXString(m_result)).ToBold().ToYellow().Reset().Print();
+                xstring("Client >> Bytes received: " + ToXString(m_result)).ToBold().ToYellow().ResetColor().Print();
             else if (m_result == 0)
-                xstring("Client >> Connection closed\n").ToBold().ToYellow().Reset().Print();
+                xstring("Client >> Connection closed\n").ToBold().ToYellow().ResetColor().Print();
         }
 
         counter += m_mtu;

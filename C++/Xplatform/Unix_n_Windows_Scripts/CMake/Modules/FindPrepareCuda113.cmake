@@ -1,8 +1,5 @@
 
 
-set(VCPKG_LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/installed/x64-windows/lib")
-include("${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
-
 set(CMAKE_CUDA_ARCHITECTURES 61) # Pascal GPUs (aka 1000 Series GPUs)
 set(CUDA_INCLUDE_DIRS "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.3/include")
 

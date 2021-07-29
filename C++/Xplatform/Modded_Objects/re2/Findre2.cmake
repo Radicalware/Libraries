@@ -11,7 +11,6 @@ set(LIB re2)
 list(APPEND STATIC_LIB_LST ${LIB})
 
 list(APPEND installed_projects   "${PROJECT_DIR}/${LIB}/include")
-message("find re2 >> ${installed_projects}")
 if(${release} AND NOT ${build_all})
     link_static(${THIS} ${LIB})
     return()

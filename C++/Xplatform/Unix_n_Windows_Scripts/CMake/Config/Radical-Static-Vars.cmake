@@ -19,6 +19,12 @@ else()
 endif()
 
 
+set(VCPKG_ROOT      "D:/AIE/vcpkg")
+set(VCPKG_LIB_DIR   "${VCPKG_ROOT}/installed/x64-windows/lib")
+set(VCPKG_SCRIPT    "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
+set(VCPKG_INCLUDE   "${VCPKG_ROOT}/installed/x64-windows/include")
+include_directories("${VCPKG_INCLUDE}")
+
 if(WIN32) # ----------------------------------------------------------------------------
     set(OS_TYPE "Windows")
     set(IsWindows ON)
@@ -113,5 +119,6 @@ set(EXT_BIN_PATH    ${INSTALL_PREFIX}/Libraries/Build/${BUILD_TYPE})
 set(PROJECT_DIR ${INSTALL_PREFIX}/Libraries/Projects)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 
 # --------------- DON'T MODIFY (CALCULATED) ------------------------------------------

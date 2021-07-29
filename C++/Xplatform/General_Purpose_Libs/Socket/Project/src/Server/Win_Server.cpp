@@ -148,7 +148,7 @@ Server& Win_Server::Recv(int size)
         {
 
             if (m_verbose)
-                xstring("Server >> Bytes received: " + ToXString(m_result)).ToBold().ToRed().Reset().Print();
+                xstring("Server >> Bytes received: " + ToXString(m_result)).ToBold().ToRed().ResetColor().Print();
 
             if (m_result == SOCKET_ERROR)
             {
@@ -161,7 +161,7 @@ Server& Win_Server::Recv(int size)
         else if (m_result == 0) 
         {
             if (m_verbose)
-                xstring("Server >> Connection closing...").ToBold().ToRed().Reset().Print();
+                xstring("Server >> Connection closing...").ToBold().ToRed().ResetColor().Print();
         }
         else {
             xstring err_str("! (send) Failed with Error: " + ToXString(WSAGetLastError()) + '\n');
@@ -196,7 +196,7 @@ Server& Win_Server::Respond()
             count += m_mtu;
 
             if(m_verbose)
-                xstring("Server >> Bytes sent: " + ToXString(m_result)).ToBold().ToRed().Reset().Print();
+                xstring("Server >> Bytes sent: " + ToXString(m_result)).ToBold().ToRed().ResetColor().Print();
         }
     }
     else
@@ -204,7 +204,7 @@ Server& Win_Server::Respond()
         m_result = send(m_client_socket, buffer.send.c_str(), buffer.send.size(), 0);
 
         if (m_verbose)
-            xstring("Server >> Bytes sent: " + ToXString(m_result) + '\n').ToBold().ToRed().Reset().Print();
+            xstring("Server >> Bytes sent: " + ToXString(m_result) + '\n').ToBold().ToRed().ResetColor().Print();
     }
 
     if (m_result == SOCKET_ERROR)

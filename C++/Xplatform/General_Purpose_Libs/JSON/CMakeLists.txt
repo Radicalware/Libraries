@@ -1,6 +1,6 @@
 ﻿cmake_minimum_required(VERSION 3.17)
 
-set(THIS CudaBridge)
+set(THIS JSON)
 
 # -------------------------- CONFIG -----------------------------------------------------
 
@@ -17,8 +17,6 @@ include("${RADICAL_PATH}/Radical-Lib-Config.cmake")
 project (${THIS})
 
 include(${VCPKG_SCRIPT})
-find_package(PrepareCuda113)
-
 find_program_files(project_files "${BUILD_DIR}")
 
 add_library(${THIS} STATIC ${project_files})
@@ -29,7 +27,38 @@ target_include_directories(${THIS}
         ${installed_projects}
 )
 
-set_target_properties(${THIS} PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+link_static(${THIS} xmap)
+link_static(${THIS} xvector)
+link_static(${THIS} xstring)
+link_static(${THIS} Nexus)
+link_static(${THIS} re2)
+
+set(MONGO_LIBS "")
+if(${debug})
+    list(APPEND ${MONGO_LIBS}
+        "D:/AIE/vcpkg/installed/x64-windows/debug/lib/bsoncxx.lib"
+        "D:/AIE/vcpkg/installed/x64-windows/debug/lib/mongocxx.lib"
+    )
+else()
+    list(APPEND ${MONGO_LIBS}
+        "D:/AIE/vcpkg/installed/x64-windows/lib/bsoncxx.lib"
+        "D:/AIE/vcpkg/installed/x64-windows/lib/mongocxx.lib"
+    )
+endif()
+
+find_package(cpprestsdk CONFIG REQUIRED)
+find_package(nlohmann_json CONFIG REQUIRED)
+
+target_link_libraries(${THIS}
+    cpprestsdk::cpprest
+    cpprestsdk::cpprestsdk_zlib_internal
+    cpprestsdk::cpprestsdk_brotli_internal
+
+    nlohmann_json
+    nlohmann_json::nlohmann_json
+
+    ${MONGO_LIBS}
+)
 
 # -------------------------- INSTALL ----------------------------------------------------
 

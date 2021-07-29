@@ -1,6 +1,6 @@
 ﻿cmake_minimum_required(VERSION 3.17)
 
-SET(THIS ex_CudaBridge)
+SET(THIS ex_Stash)
 
 # -------------------------- PRE-CONFIG ---------------------------------------
 
@@ -14,26 +14,37 @@ include("${RADICAL_PATH}/Radical-App-Config.cmake")
 
 # -------------------------- BUILD --------------------------------------------
 
-project(${THIS} LANGUAGES CXX CUDA)
-
-include(${VCPKG_SCRIPT})
-find_package(PrepareCuda113)
+project (${THIS})
 
 find_program_files(SOLUTION_FILES "${CMAKE_CURRENT_SOURCE_DIR}/Solution")
 add_executable(${THIS} ${SOLUTION_FILES})
 
-find_package(CudaBridge)
+find_package(re2)
+find_package(Nexus)
+find_package(xvector)
+find_package(xstring)
+find_package(xmap)
+find_package(JSON)
+find_package(Stash)
 
-target_include_directories(${THIS} PRIVATE
-    ${installed_projects}
+print_list(${installed_projects})
+
+include_directories(
+        ${installed_projects}
 )
 
-target_link_libraries(${THIS}
+if(${debug} OR ${build_all})
+    target_link_libraries(${THIS}
 
-    Radical::CudaBridge
-)
-
-set_target_properties(${THIS} PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+        Radical::Nexus
+        Radical::xvector
+        Radical::xstring
+        Radical::xmap
+        Radical::JSON
+        Radical::Stash
+        Radical_Mod::re2
+    )
+endif()
 
 # -------------------------- POST-CONFIG --------------------------------------
 

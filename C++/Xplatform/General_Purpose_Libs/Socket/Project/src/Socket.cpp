@@ -26,7 +26,7 @@ Socket::Socket(Start start, Protocol protocol)
 {
     if (m_pro != Protocol::TCP) {
         xstring err = "Only TCP Protocol is Supported at this Time\n";
-        err.ToBold().ToRed().Reset().Print();
+        err.ToBold().ToRed().ResetColor().Print();
         throw std::runtime_error(err);
     }
     this->InitSockets(start);

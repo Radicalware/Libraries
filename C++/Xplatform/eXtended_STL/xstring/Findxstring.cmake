@@ -6,7 +6,6 @@ set(LIB xstring)
 list(APPEND STATIC_LIB_LST ${LIB})
 
 list(APPEND installed_projects   "${PROJECT_DIR}/${LIB}/include")
-message(">>>> ${installed_projects} << find xstring")
 if(${release} AND NOT ${build_all})
     link_static(${THIS} ${LIB})
     return()

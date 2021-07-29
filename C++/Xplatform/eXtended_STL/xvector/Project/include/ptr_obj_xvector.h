@@ -31,12 +31,13 @@ class xvector<T*, typename std::enable_if_t<std::is_class<std::remove_pointer_t<
 {
 private:
     typedef typename std::remove_const<T>::type E;// E for Erratic
-    
+
 public:
     using ptr_xvector<T*>::ptr_xvector;
     using ptr_xvector<T*>::operator=;
 
     typedef T value_type;
+    inline xvector() = default;
     inline xvector(std::initializer_list<T*> lst): ptr_xvector<T*>(std::move(lst)) { };
     inline xvector(const std::vector<T*>& vec) : ptr_xvector<T*>(vec) { };
     inline xvector(std::vector<T*>&& vec) noexcept : ptr_xvector<T*>(std::move(vec)) { };

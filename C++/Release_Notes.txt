@@ -4,7 +4,16 @@
 
 ---------------------------------------------------------------------
 
-07/05/2021 >> Libs 17.0.0
+07/29/2021 >> Libs 18.0.0
+
+JSON and Stash have been added. JSON makes it easy to handle 
+incomming data form Microsoft's CppRestSdk and Stash moves that
+data to and from your Mongo DB. Between both of them you will
+have an easy time handling the data that comes from the server!
+
+---------------------------------------------------------------------
+
+07/05/2021 >> Libs 16.0.0
 
 Cmake Upgrades. Also, I have started to change the naming scheme to
 pascal case. This is because more and more of C++ is going into

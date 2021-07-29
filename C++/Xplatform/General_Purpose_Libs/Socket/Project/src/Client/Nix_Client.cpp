@@ -82,7 +82,7 @@ Client& Nix_Client::Send(const xstring& buff)
             m_result = m_net.Send(view.substr(low_seg, inc).data());
 
             if (m_verbose)
-                xstring(xstring("Client >> Bytes sent: ") + ToXString(inc)).ToBold().ToYellow().Reset().Print();
+                xstring(xstring("Client >> Bytes sent: ") + ToXString(inc)).ToBold().ToYellow().ResetColor().Print();
             low_seg += m_mtu;
         }
     }
@@ -91,7 +91,7 @@ Client& Nix_Client::Send(const xstring& buff)
         m_result = m_net.Send(buffer.send.c_str());
 
         if (m_verbose)
-            xstring("Client >> Bytes sent: " + ToXString(buffer.send.size()) + '\n').ToBold().ToYellow().Reset().Print();
+            xstring("Client >> Bytes sent: " + ToXString(buffer.send.size()) + '\n').ToBold().ToYellow().ResetColor().Print();
     }
     m_net.Send(""); // ensures that at least one packet will be less than the m_mtu to break the recv loop
     return *this;
@@ -117,9 +117,9 @@ Client& Nix_Client::Recv(int size)
         if (m_verbose)
         {
             if (m_result > 0)
-                xstring("Client >> Bytes received: " + ToXString(m_result)).ToBold().ToYellow().Reset().Print();
+                xstring("Client >> Bytes received: " + ToXString(m_result)).ToBold().ToYellow().ResetColor().Print();
             else if (m_result == 0)
-                xstring("Client >> Connection closed\n").ToBold().ToYellow().Reset().Print();
+                xstring("Client >> Connection closed\n").ToBold().ToYellow().ResetColor().Print();
         }
 
         counter += m_mtu;
