@@ -90,8 +90,9 @@ Class PS_Builder
 
         Set-Location $this.ArgStruct.build_dir;
         Write-Host -ForegroundColor Green "[+] Running CMake to configure a" $this.ArgStruct.build_type "Build";
-        
+
         $this.cmake_command += " -DBUILD_TYPE=" + $this.ArgStruct.build_type.ToString();
+        $this.cmake_command += " -DPROJECTNAME=" + $this.ArgStruct.name.ToString();
         if($this.ArgStruct.BuildAll){
             $this.cmake_command += " -DBUILD_ALL_PROJECTS=ON";
         }else{
