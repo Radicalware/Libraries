@@ -24,6 +24,6 @@ target_include_directories(${LIB} PRIVATE
 
 # -------------------------- POST-CONFIG --------------------------------------
 CONFIGURE_VISUAL_STUDIO_PROJECT(${PROJECT_FILES})
-#install_static_lib(${LIB}) # because this is CUDA
+install_static_lib(${LIB}) # because this is CUDA
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # -------------------------- END ----------------------------------------------

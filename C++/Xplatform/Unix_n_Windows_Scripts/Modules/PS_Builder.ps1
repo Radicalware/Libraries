@@ -92,13 +92,13 @@ Class PS_Builder
         Write-Host -ForegroundColor Green "[+] Running CMake to configure a" $this.ArgStruct.build_type "Build";
 
         $this.cmake_command += " -DBUILD_TYPE=" + $this.ArgStruct.build_type.ToString();
-        $this.cmake_command += " -DPROJECTNAME=" + $this.ArgStruct.name.ToString();
+        $this.cmake_command += " -DArgProjectName=" + $this.ArgStruct.name.ToString();
         if($this.ArgStruct.BuildAll){
             $this.cmake_command += " -DBUILD_ALL_PROJECTS=ON";
         }else{
             $this.cmake_command += " -DBUILD_ALL_PROJECTS=OFF";
         }
-
+        
         $this.cmake_command += " ../../../";
         Write-Host $this.cmake_command;
         $ps_error_strings = @(

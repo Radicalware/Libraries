@@ -28,7 +28,7 @@ target_include_directories(${THIS} PRIVATE
     ${installed_projects}
 )
 
-target_link_libraries(${THIS}
+link_libraries(${THIS}
 
     Radical::CudaBridge
 )

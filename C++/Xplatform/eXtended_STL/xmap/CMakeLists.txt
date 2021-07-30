@@ -1,6 +1,6 @@
 ﻿cmake_minimum_required(VERSION 3.17)
 
-set(THIS xmap)
+set(THIS ${ArgProjectName})
 
 # -------------------------- CONFIG -----------------------------------------------------
 

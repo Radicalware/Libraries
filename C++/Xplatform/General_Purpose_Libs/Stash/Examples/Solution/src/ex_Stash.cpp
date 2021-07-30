@@ -51,19 +51,17 @@ int main()
     RA::JSON Result = Stash.GetAll();
     Result.GetPrettyJson().Print();
 
-    auto tmp = Stash << xstring(R"({ "_id" : { "$oid" : "60fe4538ab7b00008b005b02" }, "name" : "Inline String", "type" : "database", "count" : 1, "versions" : [ "v3.2", "v3.0", "v2.6" ], "info" : { "x" : 203, "y" : 102 } })");
+    auto tmp = Stash << xstring(R"({ "_id" : { "oid" : "F0fe4538ab7b00008b605b02" }, "name" : "Inline String", "type" : "database", "count" : 1, "versions" : [ "v3.2", "v3.0", "v2.6" ], "info" : { "x" : 203, "y" : 102 } })");
 
     Stash.FindOne(BSON::Start() << "name" << "Inline String" << BSON::Finish).GetPrettyJson().Print();
 
-    BSON::Value Find    = BSON::Start{} << "info" << BSON::OpenDoc << "x"      << 203 << "y"      << 102 << BSON::CloseDoc << BSON::Finish;
-    BSON::Value Replace = BSON::Start{} << "$set" << BSON::OpenDoc << "info.x" << 0   << "info.y" << 0   << BSON::CloseDoc << BSON::Finish;
-
+    BSON::Value Find    = MongoInfo <<      "x" << 203 <<      "y" << 102 << MongoEnd;
+    BSON::Value Replace = MongoSet  << "info.x" <<   0 << "info.y" <<   0 << MongoEnd;
     Stash.UpdateMany(Find, Replace);
 
-
     // Delete (note that both x and y need to be correct, delete won't work if you only add x
-    Stash.DeleteOne( BSON::Start() << "info" << BSON::OpenDoc  << "x" << 0 << "y" << 0 << BSON::CloseDoc << BSON::Finish);
-    Stash.DeleteMany(BSON::Start() << "info" << BSON::OpenDoc << "x" << 203 << "y" << 102 << BSON::CloseDoc << BSON::Finish);
+    Stash.DeleteOne( MongoInfo << "x" <<   0 << "y" <<   0 << MongoEnd);
+    Stash.DeleteMany(MongoInfo << "x" << 203 << "y" << 102 << MongoEnd);
 
     Nexus<>::Stop();
     return 0;
