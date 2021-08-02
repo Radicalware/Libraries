@@ -5,8 +5,16 @@
 #define ThrowNoJSON() \
     if (!MoFullJson.get()) throw "No JSON";
 
+void RA::JSON::Clear()
+{
+    MoBsonValue.reset();
+    MoFullJson.reset();
+    MoZoomedJson.reset();
+}
+
 RA::JSON::~JSON()
 {
+    Clear();
 }
 
 RA::JSON::JSON(const xstring& FoString, Init FeInit)
@@ -101,6 +109,20 @@ void RA::JSON::PrintJson() const
 {
     ThrowNoJSON();
     std::cout << nlohmann::json::parse(WTXS(GetZoomedObject().serialize().c_str()).c_str()).dump(4, ' ', true).c_str() << std::endl;
+}
+
+bool RA::JSON::Has(const xstring& FsObjectName) const
+{
+    if (!MoFullJson.get())
+        throw "No JSON";
+    return MoFullJson.get()->has_field(FsObjectName.ToStdWString());
+}
+
+bool RA::JSON::Has(const wchar_t* FsObjectName) const
+{
+    if (!MoFullJson.get())
+        throw "No JSON";
+    return MoFullJson.get()->has_field(FsObjectName);
 }
 
 RA::JSON& RA::JSON::Zoom(const char* FacObject)
