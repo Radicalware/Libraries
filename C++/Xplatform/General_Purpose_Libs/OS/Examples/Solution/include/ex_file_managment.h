@@ -25,14 +25,14 @@ void ex_file_managment()
     OS::MKDIR("./os_test");
 
     os.Open("./os_test/tmp.txt", 'w').Write("hello world\n");
-    auto& file = os.file;
+    auto& file = os.File;
 
 #if defined(NIX_BASE)
     cout << "1st time write >> " << os.RunConsoleCommand("cat ./os_test/tmp.txt").Read() << endl;
     os.cmd.GetOutput().Print();
 #elif defined(WIN_BASE)
     cout << "1st time write >> " << os.RunConsoleCommand("TYPE .\\os_test\\tmp.txt").Read() << endl;
-    os.cmd.GetOutput().Print();
+    os.CMD.GetOutput().Print();
 #endif
 
     file.Clear();
@@ -100,7 +100,7 @@ void ex_file_managment()
      cout << os("tree ./test") << endl;
  #elif defined (WIN_BASE)
      cout << os("tree /F .\\test") << endl;
-     os.file.Close();
+     os.File.Close();
      os.RemoveDir("./test");
      cout << "\n\n"; 
      cout << os("tree /F .\\test") << endl;

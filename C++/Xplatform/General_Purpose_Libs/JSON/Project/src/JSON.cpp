@@ -106,8 +106,10 @@ void RA::JSON::PrintJson() const
 RA::JSON& RA::JSON::Zoom(const char* FacObject)
 {
     ThrowNoJSON();
-    wchar_t* LacWideChar = new wchar_t[strlen(FacObject) + 1];
+    size_t Size = strlen(FacObject) + 1;
+    wchar_t* LacWideChar = new wchar_t[Size];
     mbstowcs_s(NULL, LacWideChar, strlen(FacObject) + 1, FacObject, strlen(FacObject));
+    LacWideChar[Size - 1] = L'\0';
     Zoom(LacWideChar);
     delete[] LacWideChar;
     return *this;

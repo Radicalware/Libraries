@@ -35,7 +35,7 @@ void ex_bash_style()
     // could have used
     //os.file.Copy("./tmp_dir/test_file1.txt");
 
-    os.file.Close(); // test_file.txt will not delete if we don't close it first
+    os.File.Close(); // test_file.txt will not delete if we don't close it first
     os.MV("./test_file.txt", "./tmp_dir/test_file2.txt"); 
     // could have used
     //os.file.Move("./tmp_dir/test_file2.txt");
