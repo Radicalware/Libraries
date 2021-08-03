@@ -72,30 +72,40 @@ Date::Date(int FnYear, int FnMonth, int FnDay, Offset FeOffset)
 
 Date::Date(const Date& Other)
 {
-    self = Other;
+    *this = Other;
 }
 
 Date::Date(Date&& Other) noexcept
 {
-    self = std::move(Other);
+    *this = std::move(Other);
 }
 
 void Date::operator=(const Date& Other)
 {
-    if (self.MsStr)
-        *self.MsStr = *Other.MsStr;
+    if (Other.MsStr)
+    {
+        if (MsStr)
+            delete MsStr;
 
-    self.MoEpochTime = Other.MoEpochTime;
-    self.MoTime = Other.MoTime;
+        MsStr = new xstring(*Other.MsStr);
+    }
+
+    MoEpochTime = Other.MoEpochTime;
+    MoTime = Other.MoTime;
 }
 
 void Date::operator=(Date&& Other) noexcept
 {
-    if(self.MsStr)
-        *self.MsStr     = std::move(*Other.MsStr);
+    if (Other.MsStr)
+    {
+        if (MsStr)
+            delete MsStr;
 
-    self.MoEpochTime    = Other.MoEpochTime;
-    self.MoTime         = Other.MoTime;
+        *MsStr = std::move(*Other.MsStr);
+    }
+
+    MoEpochTime    = Other.MoEpochTime;
+    MoTime         = Other.MoTime;
 }
 
 Date::~Date()

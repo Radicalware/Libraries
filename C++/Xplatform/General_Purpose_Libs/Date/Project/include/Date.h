@@ -1,7 +1,4 @@
 #pragma once
-#ifndef self
-#define self (*this)
-#endif
 
 #include<sstream>
 #include<math.h>
