@@ -85,9 +85,9 @@ void Date::operator=(const Date& Other)
     if (Other.MsStr)
     {
         if (MsStr)
-            delete MsStr;
-
-        MsStr = new xstring(*Other.MsStr);
+            *MsStr = *Other.MsStr;
+        else
+            MsStr = new xstring(*Other.MsStr);
     }
 
     MoEpochTime = Other.MoEpochTime;
@@ -99,9 +99,9 @@ void Date::operator=(Date&& Other) noexcept
     if (Other.MsStr)
     {
         if (MsStr)
-            delete MsStr;
-
-        *MsStr = std::move(*Other.MsStr);
+            *MsStr = std::move(*Other.MsStr);
+        else
+            MsStr = new xstring(std::move(*Other.MsStr));
     }
 
     MoEpochTime    = Other.MoEpochTime;
