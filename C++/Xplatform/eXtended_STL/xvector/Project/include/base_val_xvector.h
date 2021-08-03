@@ -702,7 +702,7 @@ inline T val_xvector<T>::Sum(size_t FnSkipIdx) const
         return 0;
 
     T LnModSize = 0;
-    if (Size() > FnSkipIdx)
+    if (FnSkipIdx && Size() > FnSkipIdx)
         LnModSize = Size() - FnSkipIdx;
 
     T num = 0;
