@@ -89,6 +89,8 @@ void Date::operator=(const Date& Other)
         else
             MsStr = new xstring(*Other.MsStr);
     }
+    else if (MsStr)
+        ClearStr();
 
     MoEpochTime = Other.MoEpochTime;
     MoTime = Other.MoTime;
@@ -103,21 +105,30 @@ void Date::operator=(Date&& Other) noexcept
         else
             MsStr = new xstring(std::move(*Other.MsStr));
     }
+    else if (MsStr)
+        ClearStr();
 
     MoEpochTime    = Other.MoEpochTime;
     MoTime         = Other.MoTime;
 }
 
-Date::~Date()
+void Date::ClearStr()
 {
     if (MsStr)
+    {
         delete MsStr;
+        MsStr = nullptr;
+    }
+}
+
+Date::~Date()
+{
+    ClearStr();
 }
 
 void Date::CreateStr()
 {
-    if (MsStr) 
-        delete MsStr;
+    ClearStr();
 
     // Wed Jun 23 23:30:38 2021
     // MsStr = new xstring(ToXString(std::asctime(std::localtime(&MoEpochTime))));
@@ -129,7 +140,6 @@ void Date::CreateStr()
 
 const xstring& Date::GetStr() 
 {
-
     if (!MsStr)
         CreateStr();
 
@@ -219,6 +229,8 @@ int Date::GetSecondsOffset(Offset FeOffset)
 
 void Date::SetDateTime(int FnYear, int FnMonth, int FnDay, int FnHour, int FnMin, int FnSecond)
 {
+    ClearStr();
+
     MoTime.tm_year    = FnYear - 1900;
     MoTime.tm_mon     = FnMonth - 1; // -1 due to indexing
     MoTime.tm_mday    = FnDay;

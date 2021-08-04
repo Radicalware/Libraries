@@ -39,6 +39,7 @@ public:
         ToLocal
     };
 
+    void ClearStr();
     ~Date();
     Date(Offset FeOffset);
     Date(const Date& Other, Offset FeOffset);
