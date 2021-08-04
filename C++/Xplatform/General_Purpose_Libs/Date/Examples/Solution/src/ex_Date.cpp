@@ -81,7 +81,7 @@ void Test()
     xstring("").ResetColor().Print();
 }
 
-int main() 
+int main()
 {
     Nexus<>::Start();
 

@@ -90,7 +90,7 @@ void Date::operator=(const Date& Other)
             MsStr = new xstring(*Other.MsStr);
     }
     else if (MsStr)
-        ClearStr();
+        Clear();
 
     MoEpochTime = Other.MoEpochTime;
     MoTime = Other.MoTime;
@@ -106,29 +106,31 @@ void Date::operator=(Date&& Other) noexcept
             MsStr = new xstring(std::move(*Other.MsStr));
     }
     else if (MsStr)
-        ClearStr();
+        Clear();
 
     MoEpochTime    = Other.MoEpochTime;
     MoTime         = Other.MoTime;
 }
 
-void Date::ClearStr()
+void Date::Clear()
 {
     if (MsStr)
     {
         delete MsStr;
         MsStr = nullptr;
     }
+
+    MoTime.tm_year = 0;
 }
 
 Date::~Date()
 {
-    ClearStr();
+    Clear();
 }
 
 void Date::CreateStr()
 {
-    ClearStr();
+    Clear();
 
     // Wed Jun 23 23:30:38 2021
     // MsStr = new xstring(ToXString(std::asctime(std::localtime(&MoEpochTime))));
@@ -229,7 +231,7 @@ int Date::GetSecondsOffset(Offset FeOffset)
 
 void Date::SetDateTime(int FnYear, int FnMonth, int FnDay, int FnHour, int FnMin, int FnSecond)
 {
-    ClearStr();
+    Clear();
 
     MoTime.tm_year    = FnYear - 1900;
     MoTime.tm_mon     = FnMonth - 1; // -1 due to indexing
@@ -268,8 +270,9 @@ bool Date::operator>(const Date& Other) const {
 bool Date::operator<(const Date& Other) const {
     return MoEpochTime < Other.MoEpochTime;
 }
-
-Date Date::Year(int FnYear) {
+// ------------------------------------------------------
+Date Date::Year(int FnYear) 
+{
     Date RoDate = *this;
     std::tm LoTime = RoDate.GetTime();
     LoTime.tm_year += FnYear;
@@ -277,46 +280,49 @@ Date Date::Year(int FnYear) {
     return RoDate;
 }
 
-Date Date::Month(int FnMonth) {
+Date Date::Month(int FnMonth) 
+{
     Date RoDate = *this;
     std::tm LoTime = RoDate.GetTime();
-    LoTime.tm_mon += FnMonth;
-    RoDate.SetDateTime(LoTime);
-    return RoDate;
-}
+    int CurentMonth = RoDate.GetTime().tm_mon;
+    int NewMonth = CurentMonth + FnMonth;
 
-Date Date::Day(int FnDay) {
-    Date RoDate = *this;
-    std::tm LoTime = RoDate.GetTime();
-    LoTime.tm_mday += FnDay;
+    if (NewMonth >= 0 && NewMonth <= 12)
+    {
+        LoTime.tm_mon += FnMonth;
+    }
+    else if (NewMonth < 0)
+    {
+        LoTime.tm_year -= static_cast<int>((NewMonth * -1) / 12);
+        LoTime.tm_mon  -= NewMonth % 12;
+    }
+    else if (NewMonth > 12)
+    {
+        LoTime.tm_year += static_cast<int>(NewMonth / 12);
+        LoTime.tm_mon  += NewMonth % 12;
+    }
+    else
+        throw "This won't happen";
     RoDate.SetDateTime(LoTime);
-    return RoDate;
+    return RoDate.Hour(1);
+}
+// ------------------------------------------------------
+Date Date::Day(int FnDay) {
+    return Second(FnDay * 60 * 60 * 24);
 }
 
 Date Date::Hour(int FnHour) {
-    Date RoDate = *this;
-    std::tm LoTime = RoDate.GetTime();
-    LoTime.tm_hour += FnHour;
-    RoDate.SetDateTime(LoTime);
-    return RoDate;
+    return Second(FnHour * 60 * 60);
 }
 
 Date Date::Min(int FnMin) {
-    Date RoDate = *this;
-    std::tm LoTime = RoDate.GetTime();
-    LoTime.tm_min += FnMin;
-    RoDate.SetDateTime(LoTime);
-    return RoDate;
+    return Second(FnMin * 60);
 }
 
 Date Date::Second(int FnSecond) {
-    Date RoDate = *this;
-    std::tm LoTime = RoDate.GetTime();
-    LoTime.tm_sec += FnSecond;
-    RoDate.SetDateTime(LoTime);
-    return RoDate;
+    return Date(MoEpochTime + FnSecond);
 }
-
+// ------------------------------------------------------
 
 std::ostream& operator<<(std::ostream& out, Date& obj)
 {
