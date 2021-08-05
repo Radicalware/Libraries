@@ -14,14 +14,14 @@ Date::Date(Offset FeOffset)
 {
     const long long int LnSecondsOffset = GetSecondsOffset(FeOffset);
     MoEpochTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()) + LnSecondsOffset * 60;
-    MoTime.tm_year = 0;
+    MoTime.Year = 0;
 }
 
 Date::Date(const Date& Other, Offset FeOffset)
 {
     const long long int LnSecondsOffset = GetSecondsOffset(FeOffset);
     MoEpochTime = Other.GetEpochTime() + LnSecondsOffset * 60;
-    MoTime.tm_year = 0;
+    MoTime.Year = 0;
 }
 
 
@@ -33,7 +33,7 @@ Date::Date(uint FnEpochTime, Offset FeOffset)
         MoEpochTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()) + LnSecondsOffset * 60;
     else
         MoEpochTime = std::time_t(FnEpochTime + LnSecondsOffset * 60);
-    MoTime.tm_year = 0;
+    MoTime.Year = 0;
 }
 
 // Format: "2021-06-23 20:00:00"
@@ -44,7 +44,7 @@ Date::Date(const xstring& FsDateTime, Offset FeOffset)
         LnHoursOffset /= 60;
 
     xvector<int> FvnDigits = FsDateTime.Search(R"(^(\d\d\d\d)-(\d\d)-(\d\d) (\d\d):(\d\d):(\d\d)$)").ForEach<int>([](const xstring& Item) { return Item.ToInt(); });
-    MoTime.tm_year = 0;
+    MoTime.Year = 0;
     SetDateTime(FvnDigits[0], FvnDigits[1], FvnDigits[2], FvnDigits[3] + LnHoursOffset, FvnDigits[4], FvnDigits[5]);
 }
 
@@ -55,7 +55,7 @@ Date::Date(int FnYear, int FnMonth, int FnDay, int FnHour, int FnMin, int FnSeco
     if (LnHoursOffset)
         LnHoursOffset /= 60;
 
-    MoTime.tm_year = 0;
+    MoTime.Year = 0;
     SetDateTime(FnYear, FnMonth, FnDay, FnHour + LnHoursOffset, FnMin, FnSecond);
 }
 
@@ -65,7 +65,7 @@ Date::Date(int FnYear, int FnMonth, int FnDay, Offset FeOffset)
     if (LnHoursOffset)
         LnHoursOffset /= 60;
 
-    MoTime.tm_year = 0;
+    MoTime.Year = 0;
     SetDateTime(FnYear, FnMonth, FnDay, LnHoursOffset, 0, 0);
 }
 
@@ -120,7 +120,7 @@ void Date::Clear()
         MsStr = nullptr;
     }
 
-    MoTime.tm_year = 0;
+    MoTime.Year = 0;
 }
 
 Date::~Date()
@@ -148,18 +148,80 @@ const xstring& Date::GetStr()
     return *MsStr;
 }
 
-std::tm Date::GetTime()
+Date::Layout Date::GetLayout()
 {
-    if (MoTime.tm_year)
+    if (MoTime.Year)
         return MoTime;
 
-    MoTime = *std::localtime(&MoEpochTime);
-    MoTime.tm_year += 1900;
-    MoTime.tm_mon++;
+    MoTime = *reinterpret_cast<Date::Layout*>(std::localtime(&MoEpochTime));
+    MoTime.Year += 1900;
+    MoTime.Month++;
     return MoTime;
 }
 
-std::time_t Date::GetEpochTime() const {
+int Date::GetDaysInMonth(const int FnYear, const int FnMonth)
+{
+    switch (FnMonth)
+    {
+    case 1:
+        return 31;
+    case 2:
+        if (Date::IsLeapYear(FnYear))
+            return 29;
+        else
+            return 28;
+    case 3:
+        return 31;
+    case 4:
+        return 30;
+    case 5:
+        return 31;
+    case 6:
+        return 30;
+    case 7:
+        return 31;
+    case 8:
+        return 31;
+    case 9:
+        return 30;
+    case 10:
+        return 31;
+    case 11:
+        return 30;
+    case 12:
+        return 31;
+    default:
+        throw "Invalid Month";
+    }
+}
+
+int Date::GetDaysInMonth()
+{
+    Date::Layout LoLayout = GetLayout();
+    return Date::GetDaysInMonth(LoLayout.Year, LoLayout.Month);
+}
+
+void Date::ClampDayToMonth()
+{
+    Date::Layout& LoTime = GetLayout();
+    int LoMaxDays = Date::GetDaysInMonth(LoTime.Year, LoTime.Month);
+    if (LoTime.Day > LoMaxDays)
+        SetEpochTime(MoEpochTime + ((static_cast<Date::EpochTime>(LoMaxDays) - LoTime.Day) * 60 * 60 * 24));
+}
+
+bool Date::IsLeapYear(int FnYear)
+{
+    if (((FnYear % 4 == 0) && (FnYear % 100 != 0)) || (FnYear % 400 == 0))
+        return true;
+    return false;
+}
+
+bool Date::IsLeapYear()
+{
+    return Date::IsLeapYear(GetLayout().Year);
+}
+
+Date::EpochTime Date::GetEpochTime() const {
     return MoEpochTime;
 }
 
@@ -176,20 +238,20 @@ xstring Date::GetNumericTimeStr()
             LoSS << '0';
         LoSS << FnInt;
     };
-    std::tm LoTime = GetTime();
-    LoSS << LoTime.tm_year;
-    AddStreamValue(LoTime.tm_mon);
-    AddStreamValue(LoTime.tm_mday);
+    Date::Layout LoTime = GetLayout();
+    LoSS << LoTime.Year;
+    AddStreamValue(LoTime.Month);
+    AddStreamValue(LoTime.Day);
     LoSS << 'T';
-    if (LoTime.tm_hour == 0 && LoTime.tm_min == 0 && LoTime.tm_sec == 0)
+    if (LoTime.Hour == 0 && LoTime.Min == 0 && LoTime.Sec == 0)
     {
         LoSS << "000000";
         return LoSS.str();
     }
 
-    AddStreamValue(LoTime.tm_hour);
-    AddStreamValue(LoTime.tm_min);
-    AddStreamValue(LoTime.tm_sec);
+    AddStreamValue(LoTime.Hour);
+    AddStreamValue(LoTime.Min);
+    AddStreamValue(LoTime.Sec);
 
     return LoSS.str();
 }
@@ -229,27 +291,37 @@ int Date::GetSecondsOffset(Offset FeOffset)
     return LnTimeOffset;
 }
 
+void Date::SetEpochTime(const Date::EpochTime FnEpochTime)
+{
+    MoEpochTime = FnEpochTime;
+    MoTime.Year = 0;
+}
+
 void Date::SetDateTime(int FnYear, int FnMonth, int FnDay, int FnHour, int FnMin, int FnSecond)
 {
     Clear();
 
-    MoTime.tm_year    = FnYear - 1900;
-    MoTime.tm_mon     = FnMonth - 1; // -1 due to indexing
-    MoTime.tm_mday    = FnDay;
-    MoTime.tm_hour    = FnHour;
-    MoTime.tm_min     = FnMin;
-    MoTime.tm_sec     = FnSecond;
-    MoTime.tm_isdst   = 1; // daylight saving (on/off)
+    MoTime.Year    = FnYear - 1900;
+    MoTime.Month   = FnMonth - 1; // -1 due to indexing
+    MoTime.Day     = FnDay;
+    MoTime.Hour    = FnHour;
+    MoTime.Min     = FnMin;
+    MoTime.Sec     = FnSecond;
+    MoTime.DaylightSavingsTimeFlag   = 1; // daylight saving (on/off)
 
-    MoEpochTime = std::mktime(&MoTime);
+    int LoMaxDays = Date::GetDaysInMonth(FnYear, FnMonth);
+    if (MoTime.Day > LoMaxDays)
+        MoTime.Day = LoMaxDays;
 
-    MoTime.tm_year += 1900;
-    MoTime.tm_mon++;
+    MoEpochTime = std::mktime(reinterpret_cast<std::tm*>(&MoTime));
+
+    MoTime.Year += 1900;
+    MoTime.Month++;
 }
 
-void Date::SetDateTime(const std::tm& FnTime)
+void Date::SetDateTime(const Date::Layout& FnTime)
 {
-    SetDateTime(FnTime.tm_year, FnTime.tm_mon, FnTime.tm_mday, FnTime.tm_hour, FnTime.tm_min, FnTime.tm_sec);
+    SetDateTime(FnTime.Year, FnTime.Month + 1, FnTime.Day, FnTime.Hour, FnTime.Min, FnTime.Sec);
 }
 
 bool Date::operator==(const Date& Other) const {
@@ -271,55 +343,60 @@ bool Date::operator<(const Date& Other) const {
     return MoEpochTime < Other.MoEpochTime;
 }
 // ------------------------------------------------------
-Date Date::Year(int FnYear) 
+Date Date::Year(int FnYear) const
 {
     Date RoDate = *this;
-    std::tm LoTime = RoDate.GetTime();
-    LoTime.tm_year += FnYear;
+    Date::Layout LoTime = RoDate.GetLayout();
+    LoTime.Year += FnYear;
     RoDate.SetDateTime(LoTime);
     return RoDate;
 }
 
-Date Date::Month(int FnMonth) 
+Date Date::Month(int FnMonth) const
 {
     Date RoDate = *this;
-    std::tm LoTime = RoDate.GetTime();
-    int CurentMonth = RoDate.GetTime().tm_mon;
-    int NewMonth = CurentMonth + FnMonth;
+    Date::Layout LoLayout = RoDate.GetLayout();
+    int CurentMonth = LoLayout.Month;
+    int MoveMonths  = CurentMonth + FnMonth;
 
-    if (NewMonth >= 0 && NewMonth <= 12)
+    if (MoveMonths >= 1 && MoveMonths <= 12)
     {
-        LoTime.tm_mon += FnMonth;
+        LoLayout.Month += FnMonth;
     }
-    else if (NewMonth < 0)
+    else if (MoveMonths < 1)
     {
-        LoTime.tm_year -= static_cast<int>((NewMonth * -1) / 12);
-        LoTime.tm_mon  -= NewMonth % 12;
+        MoveMonths     -= LoLayout.Month;
+        LoLayout.Month  = 1; // month goes down to the last year
+        LoLayout.Year  -= static_cast<int>((MoveMonths * -1) / 12) + 1;
+        LoLayout.Month -= (12 - ((MoveMonths * -1) % 12));
     }
-    else if (NewMonth > 12)
+    else if (MoveMonths > 12)
     {
-        LoTime.tm_year += static_cast<int>(NewMonth / 12);
-        LoTime.tm_mon  += NewMonth % 12;
+        MoveMonths     -= (12 - LoLayout.Month);
+        LoLayout.Month  = 1; // month goes up to the new year
+        LoLayout.Year  += static_cast<int>(MoveMonths / 12) + 1;
+        LoLayout.Month += MoveMonths % 12;
     }
     else
         throw "This won't happen";
-    RoDate.SetDateTime(LoTime);
+
+    RoDate.SetDateTime(LoLayout);
     return RoDate.Hour(1);
 }
 // ------------------------------------------------------
-Date Date::Day(int FnDay) {
+Date Date::Day(int FnDay) const {
     return Second(FnDay * 60 * 60 * 24);
 }
 
-Date Date::Hour(int FnHour) {
+Date Date::Hour(int FnHour) const {
     return Second(FnHour * 60 * 60);
 }
 
-Date Date::Min(int FnMin) {
+Date Date::Min(int FnMin) const {
     return Second(FnMin * 60);
 }
 
-Date Date::Second(int FnSecond) {
+Date Date::Second(int FnSecond) const {
     return Date(MoEpochTime + FnSecond);
 }
 // ------------------------------------------------------

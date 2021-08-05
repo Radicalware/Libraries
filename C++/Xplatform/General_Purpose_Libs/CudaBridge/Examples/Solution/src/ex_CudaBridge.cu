@@ -10,7 +10,7 @@ using std::endl;
 
 
 __global__
-void SumArraysIndicesGPU(int* a, int* b, int* c, int size) 
+void SumArraysIndicesGPU(const int* a, const int* b, int* c, const int size)
 {
     int index = (blockDim.x * blockIdx.x) + threadIdx.x;
 
@@ -20,7 +20,7 @@ void SumArraysIndicesGPU(int* a, int* b, int* c, int size)
 }
 
 __host__
-void SumArraysIndicesCPU(int* a, int* b, int* c, int size) 
+void SumArraysIndicesCPU(const int* a, const int* b, int* c, const int size)
 {
     for (int i = 0; i < size; i++)
         c[i] = a[i] + b[i];
@@ -31,47 +31,35 @@ void SumArraysIndicesCPU(int* a, int* b, int* c, int size)
 
 int main() 
 {
-    const int LoValueCount = 1 << 10;
-    // const uint ByteSize = LoValueCount * sizeof(int);
+    const int ArraySize = 1 << 10;
+    // const uint ByteSize = ArraySize * sizeof(int);
     const int LoBlockSize = 128;
 
-    CudaBridge<int> HostArray1(LoValueCount);
-    CudaBridge<int> HostArray2(LoValueCount);
+    CudaBridge<int> HostArray1(ArraySize);
+    CudaBridge<int> HostArray2(ArraySize);
 
     HostArray1.AllocateHost();
     HostArray2.AllocateHost();
 
-    for (uint i = 0; i < LoValueCount; i++)
+    for (uint i = 0; i < ArraySize; i++)
         HostArray1.GetHost(i) = GetRandomInt();
-    for (uint i = 0; i < LoValueCount; i++)
+    for (uint i = 0; i < ArraySize; i++)
         HostArray2.GetHost(i) = GetRandomInt();
-
-    auto CpuResult = CudaBridge<int>::SumArraysIndicesCPU(HostArray1, HostArray2);
 
     HostArray1.CopyHostToDevice();
     HostArray2.CopyHostToDevice();
 
-    CudaBridge<int> DeviceOutput(LoValueCount);
-    DeviceOutput.AllocateDevice();
-
     dim3 LoBlock(LoBlockSize);
     dim3 LoGrid((HostArray1.Size() / LoBlock.x) + 1);
 
-    SumArraysIndicesGPU <<<LoGrid, LoBlock>>> (
-        HostArray1.GetDevice(),
-        HostArray2.GetDevice(),
-        DeviceOutput.GetDevice(),
-        HostArray1.Size()
-        );
+    auto DeviceResult = CudaBridge<int>::RunGPU(SumArraysIndicesGPU, LoGrid, LoBlock, HostArray1, HostArray2, ArraySize);
 
-    cudaDeviceSynchronize();
-    DeviceOutput.CopyDeviceToHost();
+    auto HostResult   = CudaBridge<int>::RunCPU(SumArraysIndicesCPU, HostArray1, HostArray2, ArraySize);
 
-    if (CudaBridge<int>::SameHostArrays(CpuResult, DeviceOutput))
+    if (CudaBridge<int>::SameHostArrays(HostResult, DeviceResult))
         cout << "Arrays are the same\n";
     else
         cout << "Arrays are different\n";
-
 
     return 0;
 }

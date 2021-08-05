@@ -32,7 +32,7 @@ public:
     uint Size() const { return MnSize; }
     uint GetByteSize() const { return MnByteSize; }
 
-    bool HasHostArray()   const { return MaxHost   != nullptr; }
+    bool HasHostArray()   const { return MaxHost != nullptr; }
     bool HasDeviceArray() const { return MaxDevice != nullptr; }
 
     void CopyHostToDevice();
@@ -47,6 +47,13 @@ public:
     const T& GetDevice(uint FnIdx) const;
     T* GetDevice();
     const T* GetDevice() const;
+
+    template<typename F>
+    static CudaBridge<T> RunGPU(F&& Function, const dim3 FnGrid, const dim3 FnBlock,
+        const CudaBridge<T>& FnHost1, const CudaBridge<T>& FnHost2, const int FnArraySize);
+
+    template<typename F>
+    static CudaBridge<T> RunCPU(F&& Function, const CudaBridge<T>& FnHost1, const CudaBridge<T>& FnHost2, const int FnArraySize);
 
     static bool SameHostArrays(const CudaBridge<T>& One, const CudaBridge<T>& Two);
     static CudaBridge<T> SumArraysIndicesCPU(const CudaBridge<T>& One, const CudaBridge<T>& Two);
@@ -64,23 +71,23 @@ private:
     uint MnSize = 0;
     uint MnByteSize = 0;
 
-    T* MaxHost   = nullptr;
+    T* MaxHost = nullptr;
     T* MaxDevice = nullptr;
 };
 
 template<typename T>
 CudaBridge<T>::~CudaBridge()
 {
-    if (MaxHost) 
+    if (MaxHost)
         delete[] MaxHost;
 
-    if (MaxDevice) 
+    if (MaxDevice)
         cudaFree(MaxDevice);// todo: add error check
 }
 
 template<typename T>
 CudaBridge<T>::CudaBridge(uint FnSize) :
-    MnSize(FnSize), MnByteSize(sizeof(T) * FnSize)
+    MnSize(FnSize), MnByteSize(sizeof(T)* FnSize)
 {
 }
 
@@ -241,6 +248,34 @@ std::ostream& operator<<(std::ostream& out, CudaBridge<T>& obj)
 {
     out << obj.GetStr();
     return out;
+}
+
+template<typename T>
+template<typename F>
+CudaBridge<T> CudaBridge<T>::RunGPU(F&& Function, const dim3 FnGrid, const dim3 FnBlock,
+    const CudaBridge<T>& FnHost1, const CudaBridge<T>& FnHost2, const int FnArraySize)
+{
+    CudaBridge<int> DeviceOutput(FnArraySize);
+    DeviceOutput.AllocateDevice();
+
+    Function << <FnGrid, FnBlock >> > (FnHost1.GetDevice(), FnHost2.GetDevice(), DeviceOutput.GetDevice(), FnArraySize);
+
+    cudaDeviceSynchronize();
+    DeviceOutput.CopyDeviceToHost();
+
+    return DeviceOutput;
+}
+
+template<typename T>
+template<typename F>
+CudaBridge<T> CudaBridge<T>::RunCPU(F&& Function, const CudaBridge<T>& FnHost1, const CudaBridge<T>& FnHost2, const int FnArraySize)
+{
+    CudaBridge<int> HostOutput(FnArraySize);
+    HostOutput.AllocateHost();
+
+    Function(FnHost1.GetHost(), FnHost2.GetHost(), HostOutput.GetHost(), FnArraySize);
+
+    return HostOutput;
 }
 
 template<typename T>

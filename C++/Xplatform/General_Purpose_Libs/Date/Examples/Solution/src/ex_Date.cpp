@@ -40,14 +40,14 @@ void Test()
     Date LoLocal2(LoLocal1.GetStr());
     TestDates(LoLocal1, LoLocal2);
 
-    auto& LoLocalStruct = LoLocal2.GetTime();
+    auto& LoLocalStruct = LoLocal2.GetLayout();
     Date LoLocal3(
-        LoLocalStruct.tm_year,
-        LoLocalStruct.tm_mon,
-        LoLocalStruct.tm_mday,
-        LoLocalStruct.tm_hour,
-        LoLocalStruct.tm_min,
-        LoLocalStruct.tm_sec,
+        LoLocalStruct.Year,
+        LoLocalStruct.Month,
+        LoLocalStruct.Day,
+        LoLocalStruct.Hour,
+        LoLocalStruct.Min,
+        LoLocalStruct.Sec,
         Date::Offset::None);
 
     TestDates(LoLocal2, LoLocal3);
@@ -60,14 +60,14 @@ void Test()
     Date LoUtc2(LoUtc1.GetStr());
     TestDates(LoUtc1, LoUtc2);
 
-    auto& LoUtcStruct = LoUtc2.GetTime();
+    auto& LoUtcStruct = LoUtc2.GetLayout();
     Date LoUtc3(
-        LoUtcStruct.tm_year,
-        LoUtcStruct.tm_mon,
-        LoUtcStruct.tm_mday,
-        LoUtcStruct.tm_hour,
-        LoUtcStruct.tm_min,
-        LoUtcStruct.tm_sec,
+        LoUtcStruct.Year,
+        LoUtcStruct.Month,
+        LoUtcStruct.Day,
+        LoUtcStruct.Hour,
+        LoUtcStruct.Min,
+        LoUtcStruct.Sec,
         Date::Offset::None);
 
     TestDates(LoUtc2, LoUtc3);
@@ -84,6 +84,10 @@ void Test()
 int main()
 {
     Nexus<>::Start();
+
+    // Date day(2021, 1, 30);
+    // cout << day.Month(-1) << endl;
+    // return Nexus<>::Stop();
 
     Date LoDate1(Date::Offset::Local);
     cout << "=======================================================\n";
