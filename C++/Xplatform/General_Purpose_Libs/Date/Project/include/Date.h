@@ -115,6 +115,13 @@ public:
     Date Min(int FnMin) const;
     Date Second(int FnSecond) const;
 
+    void SetYear(int FnYear);
+    void SetMonth(int FnMonth);
+    void SetDay(int FnDay);
+    void SetHour(int FnHour);
+    void SetMin(int FnMin);
+    void SetSecond(int FnSecond);
+
 private:
     static bool SbAppliedLocalOffset;
     static int  SnLocalOffset;

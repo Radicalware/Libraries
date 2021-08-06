@@ -321,7 +321,7 @@ void Date::SetDateTime(int FnYear, int FnMonth, int FnDay, int FnHour, int FnMin
 
 void Date::SetDateTime(const Date::Layout& FnTime)
 {
-    SetDateTime(FnTime.Year, FnTime.Month + 1, FnTime.Day, FnTime.Hour, FnTime.Min, FnTime.Sec);
+    SetDateTime(FnTime.Year, FnTime.Month, FnTime.Day, FnTime.Hour + 1, FnTime.Min, FnTime.Sec);
 }
 
 bool Date::operator==(const Date& Other) const {
@@ -368,20 +368,20 @@ Date Date::Month(int FnMonth) const
         MoveMonths     -= LoLayout.Month;
         LoLayout.Month  = 1; // month goes down to the last year
         LoLayout.Year  -= static_cast<int>((MoveMonths * -1) / 12) + 1;
-        LoLayout.Month -= (12 - ((MoveMonths * -1) % 12));
+        LoLayout.Month  = 12 + MoveMonths;
     }
     else if (MoveMonths > 12)
     {
         MoveMonths     -= (12 - LoLayout.Month);
         LoLayout.Month  = 1; // month goes up to the new year
         LoLayout.Year  += static_cast<int>(MoveMonths / 12) + 1;
-        LoLayout.Month += MoveMonths % 12;
+        LoLayout.Month  = MoveMonths - 12;
     }
     else
         throw "This won't happen";
 
     RoDate.SetDateTime(LoLayout);
-    return RoDate.Hour(1);
+    return RoDate;
 }
 // ------------------------------------------------------
 Date Date::Day(int FnDay) const {
@@ -398,6 +398,62 @@ Date Date::Min(int FnMin) const {
 
 Date Date::Second(int FnSecond) const {
     return Date(MoEpochTime + FnSecond);
+}
+// ------------------------------------------------------
+
+void Date::SetYear(int FnYear)
+{
+    Date::Layout Layout = GetLayout();
+    Layout.Year = FnYear;
+    SetDateTime(Layout);
+}
+
+void Date::SetMonth(int FnMonth)
+{
+    if (FnMonth < 1) FnMonth = 1;
+    else if (FnMonth > 12) FnMonth = 12;
+
+    Date::Layout Layout = GetLayout();
+    Layout.Month = FnMonth;
+    SetDateTime(Layout);
+}
+
+void Date::SetDay(int FnDay)
+{
+    int Days = GetDaysInMonth();
+    if (FnDay > Days) FnDay = Days;
+    else if (FnDay < 1) FnDay = 1;
+
+    Date::Layout Layout = GetLayout();
+    Layout.Day = FnDay;
+    SetDateTime(Layout);
+}
+
+void Date::SetHour(int FnHour)
+{
+    if (FnHour > 60) FnHour = 60;
+    else if (FnHour < 1) FnHour = 1;
+
+    MoTime.Year = 0;
+    MoEpochTime += static_cast<Date::EpochTime>(FnHour) * 60 * 60;
+}
+
+void Date::SetMin(int FnMin)
+{
+    if (FnMin > 60) FnMin = 60;
+    else if (FnMin < 1) FnMin = 1;
+
+    MoTime.Year = 0;
+    MoEpochTime += static_cast<Date::EpochTime>(FnMin) * 60;
+}
+
+void Date::SetSecond(int FnSecond)
+{
+    if (FnSecond > 60) FnSecond = 60;
+    else if (FnSecond < 1) FnSecond = 1;
+
+    MoTime.Year = 0;
+    MoEpochTime += FnSecond;
 }
 // ------------------------------------------------------
 

@@ -78,16 +78,28 @@ void Test()
     Date Dejavu(LoUtc4.GetEpochTime(), Date::Offset::ToLocal);
 
     TestDates(Dejavu, LoDate);
+
+    {
+        Date Mod1(2021, 1, 31);
+        Date Mod2 = Mod1.Month(-1);
+        Mod1.SetYear(2020);
+        Mod1.SetMonth(12);
+        TestDates(Mod1, Mod2);
+    }
+    {
+        Date Mod1(2020, 12, 25);
+        Date Mod2 = Mod1.Month(1);
+        Mod1.SetYear(2021);
+        Mod1.SetMonth(1);
+        TestDates(Mod1, Mod2);
+    }
+
     xstring("").ResetColor().Print();
 }
 
 int main()
 {
     Nexus<>::Start();
-
-    // Date day(2021, 1, 30);
-    // cout << day.Month(-1) << endl;
-    // return Nexus<>::Stop();
 
     Date LoDate1(Date::Offset::Local);
     cout << "=======================================================\n";
