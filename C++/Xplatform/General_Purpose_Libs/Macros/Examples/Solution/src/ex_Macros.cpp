@@ -12,22 +12,34 @@ void ThisWillFail()
     double dbl = 3.3333;
     xstring str = "str-val";
     NullThrow(NullStr);
-    //NullThrow(NullStr, SSS("this Number three: ", 3, " and double ", dbl, " and str = ", str));
 
 }
 
-void TestPointers()
+struct Object
 {
-    xstring* NamePtr = new xstring("Riddick");
-    GET(Name);
-    cout << Name << endl;
-    delete NamePtr;
-    // ------------------------------------------
-    xstring* NullStrPtr = nullptr;
-    GET(NullStr);
-    cout << Name << endl;
-    delete NamePtr;
-}
+    static void TestPointers()
+    {
+        CreateObject(xstring, Name, "Riddick");
+        cout << Name << endl;
+        DeleteObject(Name);
+        // ------------------------------------------
+        xstring* NullStrPtr = nullptr;
+        GET(NullStr);
+        cout << Name << endl;
+        delete NamePtr;
+    }
+
+    xstring* TheNamePtr = nullptr;
+
+    void FastCreateAndDestroy()
+    {
+        CreateClassObject(xstring, TheName, "King");
+        cout << TheName << endl;
+        DeleteObject(TheName);
+    }
+};
+
+
 
 int main() 
 {
@@ -43,7 +55,12 @@ int main()
     }
 
     Begin();
-    TestPointers();
+    Object::TestPointers();
+    Rescue();
+
+    Begin();
+    Object Instance;
+    Instance.FastCreateAndDestroy();
     Rescue();
 
     Nexus<>::Stop();
