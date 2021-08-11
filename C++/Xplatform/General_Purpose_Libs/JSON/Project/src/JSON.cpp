@@ -5,6 +5,9 @@
 #define ThrowNoJSON() \
     if (!MoFullJson.get()) throw "No JSON";
 
+#define ThrowNoBSON() \
+    if (!MoBsonValue.get()) throw "No BSON";
+
 void RA::JSON::Clear()
 {
     MoBsonValue.reset();
@@ -178,7 +181,13 @@ const web::json::value& RA::JSON::GetFullObject() const
     return *MoFullJson;
 }
 
-const web::json::value& RA::JSON::GetJson() const
+const BSON::Value& RA::JSON::GetBSON() const
+{
+    ThrowNoBSON();
+    return *MoBsonValue;
+}
+
+const web::json::value& RA::JSON::GetJSON() const
 {
     ThrowNoJSON();
     return GetZoomedObject();

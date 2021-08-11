@@ -1,6 +1,6 @@
 ﻿cmake_minimum_required(VERSION 3.17)
 
-SET(THIS ex_Date)
+SET(THIS ${ArgProjectName})
 
 # -------------------------- PRE-CONFIG ---------------------------------------
 
@@ -16,6 +16,7 @@ include("${RADICAL_PATH}/Radical-App-Config.cmake")
 
 project (${THIS})
 
+set_target_properties(${LIB} PROPERTIES COMPILE_DEFINITIONS DLL_EXPORT=1)
 find_program_files(SOLUTION_FILES "${CMAKE_CURRENT_SOURCE_DIR}/Solution")
 add_executable(${THIS} ${SOLUTION_FILES})
 
@@ -33,11 +34,11 @@ target_include_directories(${THIS} PRIVATE
 if(${debug} OR ${build_all})
     target_link_libraries(${THIS}
 
+        Radical_Mod::re2
         Radical::Nexus
         Radical::xvector
         Radical::xstring
         Radical::xmap
-        Radical_Mod::re2
     )
 endif()
 

@@ -26,22 +26,23 @@ Xplatform
          5. re         - regex (string controller)
          6. mc         - map controller
     General_Purpose_Libs
-         7. SYS        - Key/Value Pair Argument Parsing
-         8. OS         - Operating System handling
-         9. Nexus      - Thread Pool with Indexing & Exception Handling
-        10. Socket     - This makes client/server protocols very easy to use
-        11. Timer      - Used for tracking the duration of a processes
-        12. Date       - Converts dates to ints and vice verca
-        13. CudaBridge - Handles memory between host and device
-        14. JSON       - Moves data between API JSON and DB BSON
-        15. Stash      - Easy tool to manage your Mongo DB
+         7. Macros     - Helps in handling pointers and Exception Handling
+         8. SYS        - Key/Value Pair Argument Parsing
+         9. OS         - Operating System handling
+        10. Nexus      - Thread Pool with Indexing & Exception Handling
+        11. Socket     - This makes client/server protocols very easy to use
+        12. Timer      - Used for tracking the duration of a processes
+        13. Date       - Converts dates to ints and vice verca
+        14. CudaBridge - Handles memory between host and device
+        15. JSON       - Moves data between API JSON and DB BSON
+        16. Stash      - Easy tool to manage your Mongo DB
     Mods
-        16. cc         - A modified version of termcolor by Ihor Kalnytskyi
-        17. re2        - Google's regular expression lib kit
+        17. cc         - A modified version of termcolor by Ihor Kalnytskyi
+        18. re2        - Google's regular expression lib kit
      
 Modules
     Qt
-        18. QtImage     - Formats the image to fill and perserve aspect ratio
+        19. QtImage     - Formats the image to fill and perserve aspect ratio
 
 --------------------------------------------------------------------------------------------
 On Nix, add the following to your bash env (bashrc/bash_profile/etc)

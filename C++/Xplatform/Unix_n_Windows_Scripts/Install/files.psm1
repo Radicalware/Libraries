@@ -14,6 +14,7 @@ class Files
         "../../eXtended_STL/xstring/install.ps1",
         "../../eXtended_STL/xmap/install.ps1",
 
+        "../../General_Purpose_Libs/Macros/install.ps1",
         "../../General_Purpose_Libs/Iterator/install.ps1",
         "../../General_Purpose_Libs/OS/install.ps1",
         "../../General_Purpose_Libs/SYS/install.ps1",
@@ -38,7 +39,7 @@ class Files
         "../../eXtended_STL/xstring/Examples/run.ps1",
         "../../eXtended_STL/xmap/Examples/run.ps1",
 
-
+        "../../General_Purpose_Libs/Macros/Examples/run.ps1",
         "../../General_Purpose_Libs/OS/Examples/run.ps1",
         "../../General_Purpose_Libs/SYS/Examples/run.ps1",
         "../../General_Purpose_Libs/Timer/Examples/run.ps1",

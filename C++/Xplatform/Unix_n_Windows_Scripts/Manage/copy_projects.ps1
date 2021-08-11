@@ -12,9 +12,9 @@ $Functional_STL       = 'Functional_STL'
 $Modded_Objects       = 'Modded_Objects'
 
 Write-Host "Copying Project Folders: "
-Write-Host "1. $General_Purpose_Libs : Nexus, Socket, OS, 
+Write-Host "1. $General_Purpose_Libs : Macros, Nexus, Socket, OS, 
                           SYS, Iterator, Timer, Date
-                          Stash, CudaBridge, JSON"
+                          CudaBridge, Stash, JSON"
 Write-Host "2. $eXtended_STL         : xvector, xstring, xmap"
 Write-Host "3. $Functional_STL       : re, ac, mc"
 Write-Host "4. $Modded_Objects       : cc, re2"
@@ -55,6 +55,7 @@ class Lib_Handler
 $handler = [Lib_Handler]::new()
 
 $handler.dir = $General_Purpose_Libs
+$handler.CopyLib("Macros")
 $handler.CopyLib("Nexus")
 $handler.CopyLib("Socket")
 $handler.CopyLib("OS")

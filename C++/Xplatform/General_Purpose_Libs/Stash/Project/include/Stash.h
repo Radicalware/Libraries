@@ -1,25 +1,15 @@
 #pragma once
 
+#include "Macros.h"
 #include "JSON.h" // Include First
-
 #include "xstring.h"
 
-//#if (defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64))
-//    #ifdef DLL_EXPORT
-//        #define EXI __declspec(dllexport)
-//        #define DllExport __declspec(dllexport)
-//    #else
-//        #define EXI __declspec(dllimport)
-//        #define DllImport __declspec(dllimport)
-//    #endif
-//#else
-//    #define EXI
-//#endif
 
 
-#define MongoInfo BSON::Start{} << "info" << BSON::OpenDoc
-#define MongoSet  BSON::Start{} << "$set" << BSON::OpenDoc
-#define MongoEnd  BSON::CloseDoc << BSON::Finish
+
+#define MongoOpenDoc(__DOC__) BSON::Start{} << __DOC__ << BSON::OpenDoc
+#define MongoSetDoc()  BSON::Start{} << "$set" << BSON::OpenDoc
+#define MongoCloseDoc()  BSON::CloseDoc << BSON::Finish
 
 namespace RA
 {
@@ -36,25 +26,15 @@ namespace RA
 
         Stash& SetDatabase(const xstring& FsDatabase);
         Stash& SetCollection(const xstring& FsCollection);
+        void DropCollection();
 
         BSON::Result::InsertOne  operator<<(const BSON::Value& FoView);
         BSON::Result::InsertOne  operator<<(const xstring& FoJsonStr);
         //BSON::Result::InsertMany operator<<(const BSON::Document& FoDocument);
-
-
-        template<typename T, typename Arg>
-        static void JoinDocument(T& FoDocument, Arg&& FoArg);
-        template<typename T, typename... Args>
-        static void JoinDocument(T& FoDocument, Args&&... FoArgs);
-
-        template<typename ...Args>
-        static BSON::Value CreateInfoDocument(Args&& ...FoArgs);
-
-        //template<typename ...Args>
-        //static BSON::Value CreateSetDocument(Args ...FoArgs);
        
         static RA::JSON CursorToJSON(BSON::Cursor& FoCursor, RA::JSON::Init FeInit);
         RA::JSON GetAll(RA::JSON::Init FeInit = RA::JSON::Init::Both);
+        uint Count(const BSON::Value& FnData);
         RA::JSON FindOne(const BSON::Data& FnData, RA::JSON::Init FeInit = RA::JSON::Init::Both);
         RA::JSON FindMany(const BSON::Data& FnData, RA::JSON::Init FeInit = RA::JSON::Init::Both);
 
@@ -70,8 +50,8 @@ namespace RA
         mongocxx::uri          MoURI;
         mongocxx::client       MoClient;
 
-        mongocxx::database     MoDatabase;
-        mongocxx::collection   MoCollection;
+        mongocxx::database*    MoDatabasePtr;
+        mongocxx::collection*  MoCollectionPtr;
 
         static mongocxx::instance SoInstance;
     };

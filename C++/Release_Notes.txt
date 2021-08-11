@@ -4,6 +4,17 @@
 
 ---------------------------------------------------------------------
 
+08/11/2021 >> Libs 19.0.0
+
+Macros lib was released. This library will continue to grow as
+I come accross new ways to automate with macros. Macros are 
+useful when I need a function that can take the path of 2 or more
+different outcomes by, instantiating variables in a current scope, 
+returning values from the function or other things that a plain 
+function can't do.
+
+---------------------------------------------------------------------
+
 07/29/2021 >> Libs 18.0.0
 
 JSON and Stash have been added. JSON makes it easy to handle 

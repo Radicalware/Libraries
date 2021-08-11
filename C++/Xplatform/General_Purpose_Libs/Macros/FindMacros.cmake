@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.17)
 
-set(LIB Stash)
+set(LIB Macros)
 
 # -------------------------- PRE-CONFIG ---------------------------------------
 list(APPEND STATIC_LIB_LST ${LIB})
 
-list(APPEND installed_projects "${PROJECT_DIR}/${LIB}/include")
+list(APPEND installed_projects   "${PROJECT_DIR}/${LIB}/include")
 
 if(${release} AND NOT ${build_all})
     link_static(${THIS} ${LIB})
@@ -20,39 +20,6 @@ add_library(Radical::${LIB} ALIAS ${LIB})
 
 target_include_directories(${LIB} PRIVATE
     ${installed_projects}
-)
-
-link_static(${LIB} JSON)
-
-link_static(${LIB} Macros)
-link_static(${LIB} re2)
-link_static(${LIB} Nexus)
-link_static(${LIB} xstring)
-link_static(${LIB} xvector)
-link_static(${LIB} xmap)
-
-set(MongoLibs "")
-if(${debug})
-    list(APPEND ${MongoLibs}
-        "D:/AIE/vcpkg/installed/x64-windows/debug/lib/bsoncxx.lib"
-        "D:/AIE/vcpkg/installed/x64-windows/debug/lib/mongocxx.lib"
-    )
-else()
-    list(APPEND ${MongoLibs}
-        "D:/AIE/vcpkg/installed/x64-windows/lib/bsoncxx.lib"
-        "D:/AIE/vcpkg/installed/x64-windows/lib/mongocxx.lib"
-    )
-endif()
-
-link_libraries(
-    cpprestsdk::cpprest
-    cpprestsdk::cpprestsdk_zlib_internal
-    cpprestsdk::cpprestsdk_brotli_internal
-
-    nlohmann_json
-    nlohmann_json::nlohmann_json
-
-    ${MongoLibs}
 )
 
 # -------------------------- POST-CONFIG --------------------------------------

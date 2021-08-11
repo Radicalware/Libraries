@@ -368,13 +368,12 @@ Date Date::Month(int FnMonth) const
         MoveMonths     -= LoLayout.Month;
         LoLayout.Month  = 1; // month goes down to the last year
         LoLayout.Year  -= static_cast<int>((MoveMonths * -1) / 12) + 1;
-        LoLayout.Month  = 12 + MoveMonths;
+        LoLayout.Month += 12 + MoveMonths;
     }
     else if (MoveMonths > 12)
     {
         MoveMonths     -= (12 - LoLayout.Month);
-        LoLayout.Month  = 1; // month goes up to the new year
-        LoLayout.Year  += static_cast<int>(MoveMonths / 12) + 1;
+        LoLayout.Year  += static_cast<int>(MoveMonths / 12);
         LoLayout.Month  = MoveMonths - 12;
     }
     else

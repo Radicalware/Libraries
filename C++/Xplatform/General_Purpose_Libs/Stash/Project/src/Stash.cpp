@@ -41,6 +41,11 @@
      return *this;
  }
 
+ void RA::Stash::DropCollection()
+ {
+     MoCollection.drop();
+ }
+
  BSON::Result::InsertOne RA::Stash::operator<<(const BSON::Value& FoView)
  {
      return MoCollection.insert_one(FoView.view());
@@ -68,12 +73,19 @@
              Json += ',';
          Json += bsoncxx::to_json(Document);
      }
+     if(!Json.Size())
+         return RA::JSON();
      return RA::JSON(Json, FeInit);
  }
 
  RA::JSON RA::Stash::GetAll(RA::JSON::Init FeInit)
  {
      return  RA::Stash::CursorToJSON(MoCollection.find({}), FeInit);
+ }
+
+ uint RA::Stash::Count(const BSON::Value& FnData)
+ {
+     return MoCollection.count(FnData.view());
  }
 
  RA::JSON RA::Stash::FindOne(const BSON::Data& FnData, RA::JSON::Init FeInit)

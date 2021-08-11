@@ -1,5 +1,5 @@
 
-// Copyright[2019][Joel Leagues aka Scourge] under the Apache V2 Licence
+// Copyright[2021][Joel Leagues aka Scourge] under the Apache V2 Licence
 
 #include<iostream>
 
@@ -23,9 +23,9 @@ void PrintDate(Date& FoDate)
 void TestDates(Date& One, Date& Two)
 {
     if (One == Two)
-        xstring("success\n").ToGreen().Print();
+        xstring("success\n").ToGreen().Print(0);
     else
-        xstring("Failed\n").ToRed().Print();
+        xstring("Failed\n").ToRed().Print(0);
 
     xstring().ResetColor();
 }
@@ -93,7 +93,13 @@ void Test()
         Mod1.SetMonth(1);
         TestDates(Mod1, Mod2);
     }
-
+    {
+        Date Mod1(2020, 12, 25);
+        Date Mod2 = Mod1.Month(1);
+        Mod1 = Mod1.Year(1);
+        Mod1 = Mod1.Month(-11);
+        TestDates(Mod1, Mod2);
+    }
     xstring("").ResetColor().Print();
 }
 
