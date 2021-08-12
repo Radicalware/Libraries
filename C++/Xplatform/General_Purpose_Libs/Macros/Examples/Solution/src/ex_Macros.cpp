@@ -4,14 +4,16 @@
 #include "Nexus.h"
 #include "Macros.h"
 
+#include <sstream>
+//#include "vld.h"
+
 
 void ThisWillFail()
 {
-    xstring* NullStr = nullptr;
-
-    double dbl = 3.3333;
-    xstring str = "str-val";
-    NullThrow(NullStr);
+    xstring* PlayerNamePtr = nullptr;
+    int Kills = 55;
+    int Health = 98.555;
+    NullThrow(PlayerNamePtr, SSS("Player is Null with Kills: ", Kills, " and Health: ", 98.555));
 
 }
 
@@ -19,7 +21,7 @@ struct Object
 {
     static void TestPointers()
     {
-        CreateObject(xstring, Name, "Riddick");
+        NewObject(xstring, Name, "Riddick");
         cout << Name << endl;
         DeleteObject(Name);
         // ------------------------------------------
@@ -33,12 +35,11 @@ struct Object
 
     void FastCreateAndDestroy()
     {
-        CreateClassObject(xstring, TheName, "King");
+        RenewObject(xstring, TheName, "King");
         cout << TheName << endl;
         DeleteObject(TheName);
     }
 };
-
 
 
 int main() 
