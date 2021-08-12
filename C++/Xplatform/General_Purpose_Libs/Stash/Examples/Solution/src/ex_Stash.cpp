@@ -2,10 +2,8 @@
 
 #include "Stash.h"  // Include First
 
-#include<iostream>
+#include "Macros.h"
 
-#include "Nexus.h"
-#include "xvector.h"
 
 using std::cout;
 using std::endl;
@@ -16,6 +14,7 @@ int main()
 {
     Nexus<>::Start();
 
+    Begin();
     RA::Stash Stash;
     Stash.SetDatabase("MyDatabase");
     Stash.SetCollection("MyCollection");
@@ -65,7 +64,7 @@ int main()
     // Delete (note that both x and y need to be correct, delete won't work if you only add x
     Stash.DeleteOne( MongoOpenDoc("Info") << "x" <<   0 << "y" <<   0 << MongoCloseDoc());
     Stash.DeleteMany(MongoOpenDoc("Info") << "x" << 203 << "y" << 102 << MongoCloseDoc());
-
+    RescuePrint();
     Nexus<>::Stop();
     return 0;
 }

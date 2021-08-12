@@ -1,15 +1,12 @@
 #pragma once
 
-#include "Macros.h"
 #include "JSON.h" // Include First
 #include "xstring.h"
 
 
-
-
 #define MongoOpenDoc(__DOC__) BSON::Start{} << __DOC__ << BSON::OpenDoc
-#define MongoSetDoc()  BSON::Start{} << "$set" << BSON::OpenDoc
-#define MongoCloseDoc()  BSON::CloseDoc << BSON::Finish
+#define MongoSetDoc()         BSON::Start{} << "$set" << BSON::OpenDoc
+#define MongoCloseDoc()       BSON::CloseDoc << BSON::Finish
 
 namespace RA
 {
@@ -18,11 +15,11 @@ namespace RA
     public:
         Stash(const xstring& URL = "mongodb://localhost:27017");
 
-        //Stash(const Stash& Other);
-        //Stash(Stash&& Other) noexcept;
+        Stash(const Stash& Other);
+        Stash(Stash&& Other) noexcept;
 
-        //void operator=(const Stash& Other);
-        //void operator=(Stash&& Other) noexcept;
+        void operator=(const Stash& Other);
+        void operator=(Stash&& Other) noexcept;
 
         Stash& SetDatabase(const xstring& FsDatabase);
         Stash& SetCollection(const xstring& FsCollection);
@@ -45,13 +42,13 @@ namespace RA
         BSON::Result::Delete DeleteMany(const BSON::Data& FnDocument);
 
     private:
+        std::string          MoURL;
 
+        mongocxx::uri        MoURI;
+        mongocxx::client     MoClient;
 
-        mongocxx::uri          MoURI;
-        mongocxx::client       MoClient;
-
-        mongocxx::database*    MoDatabasePtr;
-        mongocxx::collection*  MoCollectionPtr;
+        mongocxx::database   MoDatabase;
+        mongocxx::collection MoCollection;
 
         static mongocxx::instance SoInstance;
     };

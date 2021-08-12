@@ -26,6 +26,11 @@ target_include_directories(${THIS}
         ${installed_projects}
 )
 
+link_static(${THIS} xvector)
+link_static(${THIS} xstring)
+link_static(${THIS} Nexus)
+link_static(${THIS} re2)
+
 # -------------------------- INSTALL ----------------------------------------------------
 
 include("${RADICAL_PATH}/Radical-Lib-Install.cmake")

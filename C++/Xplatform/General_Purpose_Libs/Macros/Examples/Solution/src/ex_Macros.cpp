@@ -8,7 +8,7 @@
 //#include "vld.h"
 
 
-void ThisWillFail()
+void BadFuncitonWithSSS()
 {
     xstring* PlayerNamePtr = nullptr;
     int Kills = 55;
@@ -17,18 +17,28 @@ void ThisWillFail()
 
 }
 
+void BadFunctionWithGET()
+{
+    Begin();
+    xstring* NamePtr = nullptr;
+    GET(Name);
+    cout << Name << endl;
+    delete NamePtr;
+    RescueThrow();
+}
+
 struct Object
 {
     static void TestPointers()
     {
+        Begin()
         NewObject(xstring, Name, "Riddick");
         cout << Name << endl;
         DeleteObject(Name);
-        // ------------------------------------------
-        xstring* NullStrPtr = nullptr;
-        GET(NullStr);
-        cout << Name << endl;
-        delete NamePtr;
+
+
+        BadFunctionWithGET();
+        RescueThrow();
     }
 
     xstring* TheNamePtr = nullptr;
@@ -48,7 +58,7 @@ int main()
 
     try
     {
-        ThisWillFail();
+        BadFuncitonWithSSS();
     }
     catch (const xstring& Err)
     {
@@ -57,12 +67,12 @@ int main()
 
     Begin();
     Object::TestPointers();
-    Rescue();
+    RescuePrint();
 
     Begin();
     Object Instance;
     Instance.FastCreateAndDestroy();
-    Rescue();
+    RescuePrint();
 
     Nexus<>::Stop();
     return 0;

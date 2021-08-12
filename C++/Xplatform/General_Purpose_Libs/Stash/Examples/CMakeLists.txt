@@ -19,11 +19,11 @@ project (${THIS})
 find_program_files(SOLUTION_FILES "${CMAKE_CURRENT_SOURCE_DIR}/Solution")
 add_executable(${THIS} ${SOLUTION_FILES})
 
-find_package(Macros)
 find_package(re2)
 find_package(Nexus)
 find_package(xvector)
 find_package(xstring)
+find_package(Macros)
 find_package(xmap)
 find_package(JSON)
 find_package(Stash)
@@ -37,10 +37,10 @@ include_directories(
 if(${debug} OR ${build_all})
     target_link_libraries(${THIS}
 
-        Radical::Macros
         Radical::Nexus
         Radical::xvector
         Radical::xstring
+        Radical::Macros
         Radical::xmap
         Radical::JSON
         Radical::Stash

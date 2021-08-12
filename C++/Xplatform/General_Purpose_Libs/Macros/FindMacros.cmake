@@ -22,6 +22,11 @@ target_include_directories(${LIB} PRIVATE
     ${installed_projects}
 )
 
+link_static(${LIB} xstring)
+link_static(${LIB} xvector)
+link_static(${LIB} Nexus)
+link_static(${LIB} re2)
+
 # -------------------------- POST-CONFIG --------------------------------------
 CONFIGURE_VISUAL_STUDIO_PROJECT(${PROJECT_FILES})
 install_static_lib(${LIB})
