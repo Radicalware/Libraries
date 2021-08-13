@@ -36,13 +36,13 @@ link_static(${THIS} re2)
 set(MONGO_LIBS "")
 if(${debug})
     list(APPEND ${MONGO_LIBS}
-        "D:/AIE/vcpkg/installed/x64-windows/debug/lib/bsoncxx.lib"
-        "D:/AIE/vcpkg/installed/x64-windows/debug/lib/mongocxx.lib"
+        "${VCPKG_DEBUG_LIB_DIR}/bsoncxx.lib"
+        "${VCPKG_DEBUG_LIB_DIR}/mongocxx.lib"
     )
 else()
     list(APPEND ${MONGO_LIBS}
-        "D:/AIE/vcpkg/installed/x64-windows/lib/bsoncxx.lib"
-        "D:/AIE/vcpkg/installed/x64-windows/lib/mongocxx.lib"
+        "${VCPKG_RELEASE_LIB_DIR}/bsoncxx.lib"
+        "${VCPKG_RELEASE_LIB_DIR}/mongocxx.lib"
     )
 endif()
 

@@ -20,7 +20,8 @@ endif()
 
 
 set(VCPKG_ROOT      "D:/AIE/vcpkg")
-set(VCPKG_LIB_DIR   "${VCPKG_ROOT}/installed/x64-windows/lib")
+set(VCPKG_RELEASE_LIB_DIR "${VCPKG_ROOT}/installed/x64-windows/lib")
+set(VCPKG_DEBUG_LIB_DIR   "${VCPKG_ROOT}/installed/x64-windows/lib")
 set(VCPKG_SCRIPT    "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
 set(VCPKG_INCLUDE   "${VCPKG_ROOT}/installed/x64-windows/include")
 include_directories("${VCPKG_INCLUDE}")
@@ -34,7 +35,6 @@ if(WIN32) # --------------------------------------------------------------------
 
     set(RADICAL_BASE   "C:/Source/CMake/Radicalware")
     set(CMAKE_PATH     "C:/Program Files/CMake/share/cmake-3.20/Modules")
-    set(VCPKG_ROOT     "D:/AIE/vcpkg")
 
     SET(INSTALL_PREFIX "${RADICAL_BASE}")
     SET(INSTALL_DIR    "${RADICAL_BASE}/Libraries/Projects")
