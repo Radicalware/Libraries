@@ -25,7 +25,11 @@ void TestDates(Date& One, Date& Two)
     if (One == Two)
         xstring("success\n").ToGreen().Print(0);
     else
+    {
         xstring("Failed\n").ToRed().Print(0);
+        cout << "\tone: " << One << endl;
+        cout << "\ttwo: " << Two << endl;
+    }
 
     xstring().ResetColor();
 }
@@ -100,6 +104,11 @@ void Test()
         Mod1 = Mod1.Month(-11);
         TestDates(Mod1, Mod2);
     }
+    {
+        Date Num(2020, 12, 31, 23, 59);
+        Date Str = Num.GetStr();
+        TestDates(Num, Str);
+    }
     xstring("").ResetColor().Print();
 }
 
@@ -126,7 +135,7 @@ int main()
     cout << "                     UTC TIME \n";
     cout << "=======================================================\n";
     cout << "----------- From EPC ---------------------\n";
-    Date LoDate4(LoDate3.GetEpochTime(), Date::Offset::ToUTC);
+    Date LoDate4(LoDate3.GetEpochTime(), Date::Offset::ToUTC); // from local
     PrintDate(LoDate4);
     cout << "----------- From Str ---------------------\n";
     Date LoDate5(LoDate4.GetStr(), Date::Offset::None);
@@ -134,7 +143,7 @@ int main()
     cout << "=======================================================\n";
     cout << "                     Convert TIME \n";
     cout << "=======================================================\n";
-    Date LoDateToUTC(2021, 7, 9, 3, 0, 0, Date::Offset::ToLocal);
+    Date LoDateToUTC(2021, 7, 9, 0, 1, 2); // literal time
     PrintDate(LoDateToUTC);
     cout << '\n';
     Date LoDateToLocal(LoDateToUTC, Date::Offset::ToUTC);

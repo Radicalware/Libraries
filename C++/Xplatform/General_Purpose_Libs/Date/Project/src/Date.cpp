@@ -14,7 +14,6 @@ Date::Date(Offset FeOffset)
 {
     const long long int LnSecondsOffset = GetSecondsOffset(FeOffset);
     MoEpochTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()) + LnSecondsOffset * 60;
-    MoTime.Year = 0;
 }
 
 Date::Date(const Date& Other, Offset FeOffset)
@@ -91,9 +90,9 @@ void Date::operator=(const Date& Other)
     }
     else if (MsStr)
         Clear();
-
-    MoEpochTime = Other.MoEpochTime;
-    MoTime = Other.MoTime;
+    
+    MoEpochTime    = Other.MoEpochTime;
+    MoTime         = Other.MoTime;
 }
 
 void Date::operator=(Date&& Other) noexcept
@@ -132,11 +131,9 @@ void Date::CreateStr()
 {
     Clear();
 
-    // Wed Jun 23 23:30:38 2021
-    // MsStr = new xstring(ToXString(std::asctime(std::localtime(&MoEpochTime))));
-
     char buffer[80];
-    strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", std::localtime(&MoEpochTime));
+    Date::Layout Layout = GetLayout();
+    strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", std::gmtime(&MoEpochTime));
     MsStr = new xstring(buffer);
 }
 
@@ -153,7 +150,7 @@ Date::Layout Date::GetLayout()
     if (MoTime.Year)
         return MoTime;
 
-    MoTime = *reinterpret_cast<Date::Layout*>(std::localtime(&MoEpochTime));
+    MoTime = *reinterpret_cast<Date::Layout*>(std::gmtime(&MoEpochTime));
     MoTime.Year += 1900;
     MoTime.Month++;
     return MoTime;
@@ -280,7 +277,7 @@ int Date::GetSecondsOffset(Offset FeOffset)
     {
         SbAppliedLocalOffset = true;
         time_t LoZeroTime(0);
-        tm* LoEpochOffset = std::localtime(&LoZeroTime);
+        tm* LoEpochOffset = std::gmtime(&LoZeroTime);
         SnLocalOffset = (23 - LoEpochOffset->tm_hour) * 60;
     }
 
@@ -306,19 +303,23 @@ void Date::SetDateTime(int FnYear, int FnMonth, int FnDay, int FnHour, int FnMin
 {
     Clear();
 
-    MoTime.Year    = FnYear - 1900;
-    MoTime.Month   = FnMonth - 1; // -1 due to indexing
-    MoTime.Day     = FnDay;
-    MoTime.Hour    = FnHour;
-    MoTime.Min     = FnMin;
-    MoTime.Sec     = FnSecond;
-    MoTime.DaylightSavingsTimeFlag   = 1; // daylight saving (on/off)
-
     int LoMaxDays = Date::GetDaysInMonth(FnYear, FnMonth);
-    if (MoTime.Day > LoMaxDays)
-        MoTime.Day = LoMaxDays;
 
-    MoEpochTime = std::mktime(reinterpret_cast<std::tm*>(&MoTime));
+    auto SetArgTime = [&]()->void {
+        MoTime.Year = FnYear - 1900;
+        MoTime.Month = FnMonth - 1; // -1 due to indexing
+        MoTime.Day = FnDay;
+        MoTime.Hour = FnHour;
+        MoTime.Min = FnMin;
+        MoTime.Sec = FnSecond;
+        MoTime.DaylightSavingsTimeFlag = 1; // daylight saving (on/off)
+
+        if (MoTime.Day > LoMaxDays)
+            MoTime.Day = LoMaxDays;
+    };
+
+    SetArgTime();
+    MoEpochTime = _mkgmtime(reinterpret_cast<std::tm*>(&MoTime));
 
     MoTime.Year += 1900;
     MoTime.Month++;
@@ -326,7 +327,7 @@ void Date::SetDateTime(int FnYear, int FnMonth, int FnDay, int FnHour, int FnMin
 
 void Date::SetDateTime(const Date::Layout& FnTime)
 {
-    SetDateTime(FnTime.Year, FnTime.Month, FnTime.Day, FnTime.Hour + 1, FnTime.Min, FnTime.Sec);
+    SetDateTime(FnTime.Year, FnTime.Month, FnTime.Day, FnTime.Hour, FnTime.Min, FnTime.Sec);
 }
 
 bool Date::operator==(const Date& Other) const {
