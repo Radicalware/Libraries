@@ -41,7 +41,7 @@ namespace RA
         BSON::Result::Delete DeleteOne(const BSON::Data& FnDocument);
         BSON::Result::Delete DeleteMany(const BSON::Data& FnDocument);
 
-        RA::JSON Sort(const BSON::Value& FoFind, const RA::JSON::Init FeInit);
+        RA::JSON Sort(const xstring& FoKey, const RA::JSON::Init FeInit);
 
     private:
         std::string          MoURL;
