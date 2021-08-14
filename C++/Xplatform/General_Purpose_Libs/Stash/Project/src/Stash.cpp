@@ -96,6 +96,7 @@
              Json += ',';
          Json += bsoncxx::to_json(Document);
      }
+
      if(!Json.Size())
          return RA::JSON();
      return RA::JSON(Json, FeInit);
@@ -106,13 +107,6 @@
  {
      Begin();
      return  RA::Stash::CursorToJSON(MoCollection.find({}), FeInit);
-     RescueThrow();
- }
-
- uint RA::Stash::Count(const BSON::Value& FnData)
- {
-     Begin();
-     return MoCollection.count(FnData.view());
      RescueThrow();
  }
 
@@ -158,13 +152,11 @@
      RescueThrow();
  }
 
-RA::JSON RA::Stash::Sort(const xstring& FoKey, const RA::JSON::Init FeInit)
+RA::JSON RA::Stash::Sort(const xstring& FoKey, const int FnDirection, const RA::JSON::Init FeInit)
 {
     Begin();
     BSON::Pipeline Pipeline{};
-
-    Pipeline.sort(BSON::MakeDocument(BSON::KVP(FoKey.ToStdString(), 1)));
-
+    Pipeline.sort(BSON::MakeDocument(BSON::KVP(FoKey.ToStdString(), FnDirection)));
     BSON::Cursor Cursor = MoCollection.aggregate(Pipeline, BSON::Aggregate{});
     return RA::Stash::CursorToJSON(Cursor, FeInit);
     RescueThrow();

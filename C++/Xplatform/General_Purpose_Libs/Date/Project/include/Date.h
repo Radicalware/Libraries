@@ -102,6 +102,7 @@ public:
     bool            IsLeapYear();
 
     Date::EpochTime GetEpochTime() const;
+    int             GetEpochTimeInt() const;
     xstring         GetEpochTimeStr() const;
     xstring         GetNumericTimeStr();
 

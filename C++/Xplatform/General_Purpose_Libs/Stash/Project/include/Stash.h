@@ -31,7 +31,12 @@ namespace RA
        
         static RA::JSON CursorToJSON(BSON::Cursor& FoCursor, RA::JSON::Init FeInit);
         RA::JSON GetAll(RA::JSON::Init FeInit = RA::JSON::Init::Both);
-        uint Count(const BSON::Value& FnData);
+
+        template<typename K, typename V>
+        uint Count(const K& FxKey, const V& FxValue);
+
+        template<typename K, typename V>
+        RA::JSON Match(const K& FxKey, const V& FxValue, RA::JSON::Init FeInit = RA::JSON::Init::Both);
         RA::JSON FindOne(const BSON::Data& FnData, RA::JSON::Init FeInit = RA::JSON::Init::Both);
         RA::JSON FindMany(const BSON::Data& FnData, RA::JSON::Init FeInit = RA::JSON::Init::Both);
 
@@ -41,7 +46,7 @@ namespace RA
         BSON::Result::Delete DeleteOne(const BSON::Data& FnDocument);
         BSON::Result::Delete DeleteMany(const BSON::Data& FnDocument);
 
-        RA::JSON Sort(const xstring& FoKey, const RA::JSON::Init FeInit);
+        RA::JSON Sort(const xstring& FoKey, const int FnDirection, const RA::JSON::Init FeInit);
 
     private:
         std::string          MoURL;
@@ -54,4 +59,30 @@ namespace RA
 
         static mongocxx::instance SoInstance;
     };
+}
+
+
+template<typename K, typename V>
+inline uint RA::Stash::Count(const K& FxKey, const V& FxValue)
+{
+    Begin();
+    BSON::Pipeline Pipeline{};
+    Pipeline.match(BSON::MakeDocument(BSON::KVP(FxKey, FxValue)));
+    BSON::Cursor Cursor = MoCollection.aggregate(Pipeline, BSON::Aggregate{});
+    uint Count = 0;
+    for (auto& Val : Cursor)
+        Count++;
+    return Count;
+    RescueThrow();
+}
+
+template<typename K, typename V>
+inline RA::JSON RA::Stash::Match(const K& FxKey, const V& FxValue, RA::JSON::Init FeInit)
+{
+    Begin();
+    BSON::Pipeline Pipeline{};
+    Pipeline.match(BSON::MakeDocument(BSON::KVP(FxKey, FxValue)));
+    BSON::Cursor Cursor = MoCollection.aggregate(Pipeline, BSON::Aggregate{});
+    return RA::Stash::CursorToJSON(Cursor, FeInit);
+    RescueThrow();
 }

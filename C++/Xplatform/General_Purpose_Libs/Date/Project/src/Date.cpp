@@ -225,6 +225,11 @@ Date::EpochTime Date::GetEpochTime() const {
     return MoEpochTime;
 }
 
+int Date::GetEpochTimeInt() const
+{
+    return static_cast<int>(MoEpochTime);
+}
+
 xstring Date::GetEpochTimeStr() const {
     return ToXString(MoEpochTime);
 }

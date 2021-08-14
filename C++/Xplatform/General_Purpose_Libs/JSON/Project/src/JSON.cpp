@@ -3,10 +3,10 @@
 #include <nlohmann/json.hpp>
 
 #define ThrowNoJSON() \
-    if (!MoFullJson.get()) throw "No JSON";
+    if (!MoFullJsonPtr.get()) throw "No JSON";
 
 #define ThrowNoBSON() \
-    if (!MoBsonValue.get()) throw "No BSON";
+    if (!MoBsonValuePtr.get()) throw "No BSON";
 
 void RA::JSON::Print(const web::json::value & FoWebJson)
 {
@@ -17,9 +17,9 @@ void RA::JSON::Print(const web::json::value & FoWebJson)
 
 void RA::JSON::Clear()
 {
-    MoBsonValue.reset();
-    MoFullJson.reset();
-    MoZoomedJson.reset();
+    MoBsonValuePtr.reset();
+    MoFullJsonPtr.reset();
+    MoZoomedJsonPtr.reset();
 }
 
 RA::JSON::~JSON()
@@ -52,20 +52,20 @@ void RA::JSON::SetJSON(const xstring& FoString)
     StringStream << JsonStr.c_str();
     
     web::json::value JsonValue = web::json::value::parse(StringStream);
-    if (!MoFullJson.get())
-        MoFullJson = std::make_shared<web::json::value>(JsonValue);
+    if (!MoFullJsonPtr.get())
+        MoFullJsonPtr = std::make_shared<web::json::value>(JsonValue);
     else
-        *MoFullJson = JsonValue;
+        *MoFullJsonPtr = JsonValue;
     RescueThrow();
 }
 
 void RA::JSON::SetBSON(const BSON::Value& FoBSON)
 {
     Begin();
-    if (!MoBsonValue.get())
-        MoBsonValue = std::make_shared<BSON::Value>(FoBSON);
+    if (!MoBsonValuePtr.get())
+        MoBsonValuePtr = std::make_shared<BSON::Value>(FoBSON);
     else
-        *MoBsonValue = FoBSON;
+        *MoBsonValuePtr = FoBSON;
     RescueThrow();
 }
 
@@ -101,10 +101,10 @@ void RA::JSON::Set(const web::json::value& FoJson, Init FeInit)
 
     if (FeInit == Init::Both || FeInit == Init::JSON) // If not exclusivly only BSON
     {
-        if (!MoFullJson.get())
-            MoFullJson = std::make_shared<web::json::value>(FoJson);
+        if (!MoFullJsonPtr.get())
+            MoFullJsonPtr = std::make_shared<web::json::value>(FoJson);
         else
-            *MoFullJson = FoJson;
+            *MoFullJsonPtr = FoJson;
     }
 
     if(FeInit == Init::Both || FeInit == Init::BSON)
@@ -116,7 +116,7 @@ xstring RA::JSON::GetPrettyJson(const int FnSpaceCount, const char FcIndentChar,
 {
     Begin();
     ThrowNoJSON();
-    const web::json::value& JsonTarget = (MoZoomedJson) ? *MoZoomedJson : *MoFullJson;
+    const web::json::value& JsonTarget = (MoZoomedJsonPtr) ? *MoZoomedJsonPtr : *MoFullJsonPtr;
     return nlohmann::json::parse(WTXS(JsonTarget.serialize().c_str()).c_str()).dump(FnSpaceCount, FcIndentChar, FbEnsureAscii).c_str();
     RescueThrow();
 }
@@ -140,18 +140,25 @@ void RA::JSON::PrintJson() const
 bool RA::JSON::Has(const xstring& FsObjectName) const
 {
     Begin();
-    if (!MoFullJson.get())
-        throw "No JSON";
-    return MoFullJson.get()->has_field(FsObjectName.ToStdWString());
+    GST(MoFullJson);
+    return MoFullJson.has_field(FsObjectName.ToStdWString());
     RescueThrow();
 }
 
 bool RA::JSON::Has(const wchar_t* FsObjectName) const
 {
     Begin();
-    if (!MoFullJson.get())
-        throw "No JSON";
-    return MoFullJson.get()->has_field(FsObjectName);
+    GST(MoFullJson);
+    return MoFullJson.has_field(FsObjectName);
+    RescueThrow();
+}
+
+uint RA::JSON::Size() const
+{
+    Begin();
+    if (!MoFullJsonPtr && !MoBsonValuePtr) return 0;
+    GST(MoBsonValue);
+    return MoBsonValue.view().length();
     RescueThrow();
 }
 
@@ -182,14 +189,15 @@ RA::JSON& RA::JSON::Zoom(const wchar_t* FacObject)
     Begin();
     ThrowNoJSON();
 
-    if (!MoZoomedJson.get())
+    if (!MoZoomedJsonPtr.get())
     {
-        MoZoomedJson = std::make_shared<web::json::value>();
-        *MoZoomedJson = *MoFullJson;
+        MoZoomedJsonPtr = std::make_shared<web::json::value>();
+        *MoZoomedJsonPtr = *MoFullJsonPtr;
     }
  
     try {
-        *MoZoomedJson = MoZoomedJson->at(FacObject);
+        GST(MoZoomedJson);
+        *MoZoomedJsonPtr = MoZoomedJson.at(FacObject);
     }
     catch (...)
     {
@@ -205,7 +213,7 @@ RA::JSON& RA::JSON::ZoomReset()
 {
     Begin();
     ThrowNoJSON();
-    MoZoomedJson.reset();
+    MoZoomedJsonPtr.reset();
     return *this;
     RescueThrow();
 }
@@ -214,7 +222,7 @@ const web::json::value& RA::JSON::GetFullObject() const
 {
     Begin();
     ThrowNoJSON();
-    return *MoFullJson;
+    return *MoFullJsonPtr;
     RescueThrow();
 }
 
@@ -222,7 +230,7 @@ const BSON::Value& RA::JSON::GetBSON() const
 {
     Begin();
     ThrowNoBSON();
-    return *MoBsonValue;
+    return *MoBsonValuePtr;
     RescueThrow();
 }
 
@@ -254,9 +262,9 @@ const web::json::value& RA::JSON::GetZoomedObject() const
 {
     Begin();
     ThrowNoJSON();
-    if (MoZoomedJson.get())
-        return *MoZoomedJson.get();
+    if (MoZoomedJsonPtr.get())
+        return *MoZoomedJsonPtr.get();
     else
-        return *MoFullJson;
+        return *MoFullJsonPtr;
     RescueThrow();
 }
