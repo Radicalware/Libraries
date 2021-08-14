@@ -156,8 +156,16 @@ RA::JSON RA::Stash::Sort(const xstring& FoKey, const int FnDirection, const RA::
 {
     Begin();
     BSON::Pipeline Pipeline{};
-    Pipeline.sort(BSON::MakeDocument(BSON::KVP(FoKey.ToStdString(), FnDirection)));
+    Pipeline.sort(MongoKVP(FoKey.ToStdString(), FnDirection));
     BSON::Cursor Cursor = MoCollection.aggregate(Pipeline, BSON::Aggregate{});
+    return RA::Stash::CursorToJSON(Cursor, FeInit);
+    RescueThrow();
+}
+
+RA::JSON RA::Stash::Aggrigate(const BSON::Pipeline& FoPipeline, const RA::JSON::Init FeInit)
+{
+    Begin();
+    BSON::Cursor Cursor = MoCollection.aggregate(FoPipeline, BSON::Aggregate{});
     return RA::Stash::CursorToJSON(Cursor, FeInit);
     RescueThrow();
 }
