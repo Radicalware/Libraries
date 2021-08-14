@@ -8,6 +8,13 @@
 #define ThrowNoBSON() \
     if (!MoBsonValue.get()) throw "No BSON";
 
+void RA::JSON::Print(const web::json::value & FoWebJson)
+{
+    Begin();
+    std::cout << nlohmann::json::parse(WTXS(FoWebJson.serialize().c_str()).c_str()).dump(4, ' ', true).c_str() << std::endl;
+    RescueThrow();
+}
+
 void RA::JSON::Clear()
 {
     MoBsonValue.reset();

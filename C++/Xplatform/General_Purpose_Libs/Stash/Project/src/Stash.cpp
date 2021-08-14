@@ -157,3 +157,11 @@
      return MoCollection.delete_many(FnDocument);
      RescueThrow();
  }
+
+ RA::JSON RA::Stash::Sort(const BSON::Value& FoFind, const RA::JSON::Init FeInit)
+ {
+     auto Options = mongocxx::options::find{};
+     Options.sort(FoFind.view());
+     auto Cursor = MoCollection.find({}, Options);
+     return RA::Stash::CursorToJSON(Cursor, FeInit);
+ }
