@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.17)
 
-SET(THIS ex_Timer)
+SET(THIS ${ArgProjectName})
 
 # -------------------------- PRE-CONFIG ---------------------------------------
 

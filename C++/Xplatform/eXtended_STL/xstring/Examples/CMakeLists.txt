@@ -1,6 +1,6 @@
 ﻿cmake_minimum_required(VERSION 3.17)
 
-set(THIS ex_xstring)
+SET(THIS ${ArgProjectName})
 
 # -------------------------- PRE-CONFIG ---------------------------------------
 

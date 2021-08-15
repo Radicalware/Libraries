@@ -56,6 +56,7 @@ void RA::JSON::SetJSON(const xstring& FoString)
         MoFullJsonPtr = std::make_shared<web::json::value>(JsonValue);
     else
         *MoFullJsonPtr = JsonValue;
+    ZoomReset();
     RescueThrow();
 }
 
@@ -66,6 +67,7 @@ void RA::JSON::SetBSON(const BSON::Value& FoBSON)
         MoBsonValuePtr = std::make_shared<BSON::Value>(FoBSON);
     else
         *MoBsonValuePtr = FoBSON;
+    ZoomReset();
     RescueThrow();
 }
 
@@ -109,6 +111,7 @@ void RA::JSON::Set(const web::json::value& FoJson, Init FeInit)
 
     if(FeInit == Init::Both || FeInit == Init::BSON)
         SetBSON(bsoncxx::from_json(GetSingleLineJson().c_str()));
+    ZoomReset();
     RescueThrow();
 }
 
@@ -187,17 +190,16 @@ RA::JSON& RA::JSON::Zoom(const xstring& FsObject)
 RA::JSON& RA::JSON::Zoom(const wchar_t* FacObject)
 {
     Begin();
-    ThrowNoJSON();
-
-    if (!MoZoomedJsonPtr.get())
-    {
-        MoZoomedJsonPtr = std::make_shared<web::json::value>();
-        *MoZoomedJsonPtr = *MoFullJsonPtr;
-    }
- 
+    GST(MoFullJson);
     try {
-        GST(MoZoomedJson);
-        *MoZoomedJsonPtr = MoZoomedJson.at(FacObject);
+
+        if (!MoZoomedJsonPtr.get())
+            MoZoomedJsonPtr = std::make_shared<web::json::value>(MoFullJson.at(FacObject));
+        else {
+            GST(MoZoomedJson);
+            auto Zoomed = MoZoomedJson.at(FacObject);
+            MoZoomedJson = Zoomed;
+        }
     }
     catch (...)
     {
@@ -212,7 +214,6 @@ RA::JSON& RA::JSON::Zoom(const wchar_t* FacObject)
 RA::JSON& RA::JSON::ZoomReset()
 {
     Begin();
-    ThrowNoJSON();
     MoZoomedJsonPtr.reset();
     return *this;
     RescueThrow();

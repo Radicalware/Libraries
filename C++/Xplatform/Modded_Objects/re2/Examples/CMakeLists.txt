@@ -1,6 +1,6 @@
 ﻿cmake_minimum_required(VERSION 3.16)
 
-SET(THIS ex_re2)
+SET(THIS ${ArgProjectName})
 
 # -------------------------- PRE-CONFIG ---------------------------------------
 

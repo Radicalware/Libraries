@@ -34,6 +34,17 @@ void TestDates(Date& One, Date& Two)
     xstring().ResetColor();
 }
 
+void Loop()
+{
+    Date  Start(2020, 11, 25);
+    Date Finish(2021,  2 , 3);
+
+    for (Date Dt = Start; Dt.GetEpochTime() < Finish.GetEpochTime(); Dt = Dt.Day(1))
+    {
+        cout << "Loop By Day = " << Dt << endl;
+    }
+}
+
 void Test()
 {
     xstring("\r").ResetColor().Print();
@@ -157,6 +168,8 @@ int main()
     Date LoShortTimeLocal(LoShortTimeUTC, Date::Offset::ToLocal);
     PrintDate(LoShortTimeLocal);
     cout << "=======================================================\n";
+
+    Loop();
 
     Test();
 

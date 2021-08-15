@@ -277,7 +277,7 @@ int Date::GetSecondsOffset(Offset FeOffset)
     {
         SbAppliedLocalOffset = true;
         time_t LoZeroTime(0);
-        tm* LoEpochOffset = std::gmtime(&LoZeroTime);
+        tm* LoEpochOffset = std::localtime(&LoZeroTime);
         SnLocalOffset = (23 - LoEpochOffset->tm_hour) * 60;
     }
 
