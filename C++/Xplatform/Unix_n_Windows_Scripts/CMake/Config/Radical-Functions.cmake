@@ -47,18 +47,25 @@ function(link_dynamic TARGET_FILE DYNAMIC_LIB)
     if(${debug} OR ${build_all})
         if(WIN32)
             target_link_libraries(${TARGET_FILE}  "${CMAKE_SOURCE_DIR}/Build/${OS_TYPE}/${BUILD_TYPE}/${BUILD_TYPE}/lib/${PF}${DYNAMIC_LIB}.${ST}")
-            link_libraries("Debug\\lib\\${DYNAMIC_LIB}")
         else()
             target_link_libraries(${TARGET_FILE}  "${CMAKE_SOURCE_DIR}/Build/${OS_TYPE}/${BUILD_TYPE}/${BUILD_TYPE}/bin/${PF}${DYNAMIC_LIB}.${SH}")
         endif()
     else()
         if(WIN32) # windows injects the .lib into the .exe to locate the .dll file at runtime
             target_link_libraries(${TARGET_FILE} ${EXT_BIN_PATH}/lib/${PF}${DYNAMIC_LIB}.${ST})
-            link_libraries("Release\\lib\\${DYNAMIC_LIB}")
         else()
             target_link_libraries(${TARGET_FILE} ${EXT_BIN_PATH}/bin/${PF}${DYNAMIC_LIB}.${SH})
         endif()
     endif()
+
+    # if(WIN32)
+    #     if(${debug})
+    #         link_libraries("Debug\\lib\\${DYNAMIC_LIB}")
+    #     else()
+    #         link_libraries("Release\\lib\\${DYNAMIC_LIB}")
+    #     endif()
+    # endif()
+
 endfunction()
 
 
