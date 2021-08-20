@@ -93,6 +93,7 @@ public:
     // -------------------------------------------------------------------------------------------------------------------
     int ArgC() const;
     xvector<xstring> ArgV() const;
+    xstring ArgV(const size_t Idx) const;
     xvector<const xstring*> GetKeyPtrs() const;
     xstring ChrKeys() const;
     // -------------------------------------------------------------------------------------------------------------------

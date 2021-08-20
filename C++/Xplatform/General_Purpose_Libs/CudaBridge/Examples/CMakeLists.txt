@@ -16,7 +16,6 @@ include("${RADICAL_PATH}/Radical-App-Config.cmake")
 
 project(${THIS} LANGUAGES CXX CUDA)
 
-include(${VCPKG_SCRIPT})
 find_package(PrepareCuda113)
 
 find_program_files(SOLUTION_FILES "${CMAKE_CURRENT_SOURCE_DIR}/Solution")

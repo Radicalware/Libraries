@@ -70,14 +70,16 @@ endfunction()
 
 
 function(post_build_copy target_name file_name from_dir to_dir)
-
-    add_custom_command(
-        TARGET "${target_name}" POST_BUILD # PRE_BUILD, PRE_LINK, POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy
-                "${from_dir}/${file_name}"
-                "${to_dir}/${file_name}"
-        DEPENDS "${from_dir}/${file_name}"
-    )
+    # add_custom_command(
+    #     TARGET "${target_name}" PRE_LINK # PRE_BUILD, PRE_LINK, POST_BUILD
+    #     COMMAND ${CMAKE_COMMAND} -E copy
+    #             "${from_dir}/${file_name}"
+    #             "${to_dir}/${file_name}"
+    #     DEPENDS "${from_dir}/${file_name}"
+    # )
+    list(APPEND TargetLibs "${target_name}")
+    list(APPEND OldLibs    "${from_dir}/${file_name}")
+    list(APPEND NewLibs    "${from_dir}/${file_name}")
 endfunction()
 
 function(install_static_lib TARGET_FILE)

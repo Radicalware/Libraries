@@ -68,4 +68,14 @@ install (
     DESTINATION     ${RADICAL_PATH}
 )
 
+foreach(TargetLib OldLib NewLib IN ZIP_LISTS TargetLibs OldLibs NewLibs)
+        add_custom_command(
+        TARGET "${TargetLib}" POST_BUILD # PRE_BUILD, PRE_LINK, POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+                "${OldLib}"
+                "${NewLib}"
+        DEPENDS "${OldLib}"
+    )
+endforeach()
+
 # -------------------------- INSTALL ----------------------------------------------------

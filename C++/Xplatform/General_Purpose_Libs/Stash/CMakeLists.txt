@@ -16,7 +16,6 @@ include("${RADICAL_PATH}/Radical-Lib-Config.cmake")
 
 project (${THIS})
 
-include(${VCPKG_SCRIPT})
 find_program_files(project_files "${BUILD_DIR}")
 
 

@@ -46,6 +46,7 @@ if(WIN32) # --------------------------------------------------------------------
     set(C_ARGS   "${CPP_ARGS} ${C_ARGS}")
     set(C_ARGS "  ${C_ARGS}   /std:c17")
     set(CPP_ARGS "${CPP_ARGS} /std:c++17")
+    set(CPP_ARGS "${CPP_ARGS} /Z7")
 
     list(APPEND CMAKE_MODULE_PATH ${CMAKE_PATH})
     list(APPEND CMAKE_MODULE_PATH ${RADICAL_PATH})
@@ -120,5 +121,7 @@ set(PROJECT_DIR ${INSTALL_PREFIX}/Libraries/Projects)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+set(NewLibs "")
+set(OldLibs "")
 
 # --------------- DON'T MODIFY (CALCULATED) ------------------------------------------

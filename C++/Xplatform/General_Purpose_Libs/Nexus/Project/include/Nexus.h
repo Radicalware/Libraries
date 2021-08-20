@@ -22,5 +22,3 @@
 #include "Nexus_T.h"
 #include "Nexus_void.h"
 
-template class Nexus<void>;
-

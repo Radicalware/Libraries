@@ -49,10 +49,13 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     endif()
     # CMake defaults to /W3, but some users like /W4 (or /Wall) and /WX,
     # so we disable various warnings that aren't particularly helpful.
-    add_compile_options(/wd4100 /wd4201 /wd4456 /wd4457 /wd4702 /wd4815)
+    
+    # add_compile_options(/wd4100 /wd4201 /wd4456 /wd4457 /wd4702 /wd4815)
+    
     # Without a byte order mark (BOM), Visual Studio assumes that the source
     # file is encoded using the current user code page, so we specify UTF-8.
-    add_compile_options(/utf-8)
+    
+    # add_compile_options(/utf-8)
 endif()
 
 if(WIN32)
