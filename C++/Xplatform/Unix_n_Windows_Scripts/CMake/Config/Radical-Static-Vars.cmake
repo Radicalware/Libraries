@@ -46,7 +46,8 @@ if(WIN32) # --------------------------------------------------------------------
     set(C_ARGS   "${CPP_ARGS} ${C_ARGS}")
     set(C_ARGS "  ${C_ARGS}   /std:c17")
     set(CPP_ARGS "${CPP_ARGS} /std:c++17")
-    set(CPP_ARGS "${CPP_ARGS} /Z7")
+    add_link_options("/ignore:4099") # Ignore PDB Warnings
+    add_link_options("/ignore:4204") # Ignore PDB Warnings
 
     list(APPEND CMAKE_MODULE_PATH ${CMAKE_PATH})
     list(APPEND CMAKE_MODULE_PATH ${RADICAL_PATH})

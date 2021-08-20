@@ -125,10 +125,6 @@ set(PROJECT_FILES
 add_library(${LIB} STATIC ${PROJECT_FILES})
 add_library(Radical_Mod::${LIB} ALIAS ${LIB})
 
-target_include_directories(${LIB} PRIVATE
-    ${installed_projects}
-)
-
 # -------------------------- POST-CONFIG --------------------------------------
 
 UNSET(PROJECT_FILES)

@@ -33,18 +33,14 @@ link_static(${LIB} xmap)
 
 set(MongoLibs "")
 if(${debug})
-    list(APPEND ${MongoLibs}
-        "D:/AIE/vcpkg/installed/x64-windows/debug/lib/bsoncxx.lib"
-        "D:/AIE/vcpkg/installed/x64-windows/debug/lib/mongocxx.lib"
-    )
+    target_link_libraries(${LIB} "D:/AIE/vcpkg/installed/x64-windows/debug/lib/bsoncxx.lib")
+    target_link_libraries(${LIB} "D:/AIE/vcpkg/installed/x64-windows/debug/lib/mongocxx.lib")
 else()
-    list(APPEND ${MongoLibs}
-        "D:/AIE/vcpkg/installed/x64-windows/lib/bsoncxx.lib"
-        "D:/AIE/vcpkg/installed/x64-windows/lib/mongocxx.lib"
-    )
+    target_link_libraries(${LIB} "D:/AIE/vcpkg/installed/x64-windows/lib/bsoncxx.lib")
+    target_link_libraries(${LIB} "D:/AIE/vcpkg/installed/x64-windows/lib/mongocxx.lib")
 endif()
 
-link_libraries(
+link_libraries(${LIB}
     cpprestsdk::cpprest
     cpprestsdk::cpprestsdk_zlib_internal
     cpprestsdk::cpprestsdk_brotli_internal
