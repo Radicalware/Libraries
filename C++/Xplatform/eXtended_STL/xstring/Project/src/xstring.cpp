@@ -140,6 +140,11 @@ size_t xstring::Size() const
     return size();
 }
 
+const char* xstring::Ptr() const
+{
+    return c_str();
+}
+
 void xstring::Print() const
 {
     std::cout << *this << '\n';

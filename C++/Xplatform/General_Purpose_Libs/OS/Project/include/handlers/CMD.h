@@ -1,16 +1,6 @@
 #pragma once
 
-#include "xstring.h"
-
-#if (defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64))
-    #ifdef DLL_EXPORT
-       #define EXI __declspec(dllexport)
-    #else
-       #define EXI __declspec(dllimport)
-    #endif
-#else
-    #define EXI
-#endif
+#include "Macros.h"
 
 class EXI OS;
 namespace OS_O // OS Object

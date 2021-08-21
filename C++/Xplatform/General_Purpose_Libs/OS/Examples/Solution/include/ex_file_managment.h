@@ -3,20 +3,17 @@
 // Copyright[2019][Joel Leagues aka Scourge] under the Apache V2 Licence
 
 #include<iostream>
-using std::cout;
-using std::endl;
 
-#include "xvector.h"
 #include "OS.h"
-extern OS os;
 
 void ex_file_managment() 
 {
+    Begin();
     // all static OS functions start with an Upper_Case
-
+    OS os;
     cout << "Present Working Directory = " << OS::PWD() << endl;
-    cout << "Binary Working Directory  = " << os.BWD() << endl;
-    cout << "users home dir            = " << os.Home() << endl;
+    cout << "Binary Working Directory  = " << OS::BWD() << endl;
+    cout << "users home dir            = " << OS::Home() << endl;
 
     cout << os.RunConsoleCommand("echo testing popen").Read() << endl;
 
@@ -106,5 +103,5 @@ void ex_file_managment()
      cout << os("tree /F .\\test") << endl;
  #endif
      cout << "\n\n";
-
+     RescueThrow();
 }

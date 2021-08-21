@@ -24,6 +24,7 @@ find_package(Nexus)
 find_package(xvector)
 find_package(xstring)
 find_package(xmap)
+find_package(Macros)
 find_package(OS)
 
 target_include_directories(${THIS} PRIVATE
@@ -33,11 +34,12 @@ target_include_directories(${THIS} PRIVATE
 if(${debug} OR ${build_all})
     target_link_libraries(${THIS}
 
-        Radical::Nexus
-        Radical::xstring
-        Radical::xvector
-        Radical::xmap
         Radical_Mod::re2
+        Radical::Nexus
+        Radical::xvector
+        Radical::xstring
+        Radical::xmap
+        Radical::Macros
     )
 
 endif()

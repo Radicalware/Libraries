@@ -125,10 +125,12 @@ set(PROJECT_FILES
 add_library(${LIB} STATIC ${PROJECT_FILES})
 add_library(Radical_Mod::${LIB} ALIAS ${LIB})
 
+target_include_directories(${LIB} PRIVATE 
+    ${installed_projects}
+)
+
 # -------------------------- POST-CONFIG --------------------------------------
 
-UNSET(PROJECT_FILES)
-find_program_files(PROJECT_FILES "${PROJECT_DIR}/${LIB}")
 CONFIGURE_VISUAL_STUDIO_PROJECT(${PROJECT_FILES})
 
 if(WIN32)

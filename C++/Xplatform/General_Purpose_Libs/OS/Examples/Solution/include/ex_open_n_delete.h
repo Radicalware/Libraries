@@ -1,19 +1,22 @@
 #pragma once
+// Copyright[2019][Joel Leagues aka Scourge] under the Apache V2 Licence
 #pragma warning ( disable : 26444) // Allow un-named objects
 
-// Copyright[2019][Joel Leagues aka Scourge] under the Apache V2 Licence
+#include "OS.h"
+
+#include "xvector.h"
+#include "xstring.h"
 
 #include<iostream>
 using std::cout;
 using std::endl;
 
-#include "xvector.h"
-#include "OS.h"
-extern OS os;
 
 void ex_open_n_delete() 
 {    
+    Begin();
 	// all static OS functions start with an Upper_Case
+    OS os;
 
     os.RM("./test_folder1");
     os.RM("./test_folder2");
@@ -66,6 +69,7 @@ void ex_open_n_delete()
         cout << "item = " << i << endl;
 
     cout << "\n\n\n";
+    RescueThrow();
 }
 
 

@@ -9,12 +9,12 @@ using std::endl;
 
 #include "xvector.h"
 #include "OS.h"
-extern OS os;
 
 void ex_bash_style() 
 {
+    Begin();
     // all static OS functions start with an Upper_Case
-
+    OS os;
     os.Touch("test_file.txt"); 
     // has will work as both "has_file" and "has_dir"
     if (os.HasFile("./test_file.txt") && os.Has("./test_file.txt")) {
@@ -22,7 +22,7 @@ void ex_bash_style()
     } else {
         cout << "error: test_data.txt should have been created\n"; exit(1);
     }
-    os.Write("random data\n", 'w').Close();
+    os.Write("random data\n", true).Close();
 
     if (os.Read() == "random data\n") {
         cout << "data was written\n";
@@ -72,4 +72,5 @@ void ex_bash_style()
     }
 
     cout << xstring("All Bash File Managment was SUCCESSFUL!!\n").ToGreen();
+    RescueThrow();
 }

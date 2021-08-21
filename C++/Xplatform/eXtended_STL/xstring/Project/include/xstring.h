@@ -77,6 +77,7 @@ public:
     char& At(size_t Idx);
 
     size_t Size() const;
+    const char* Ptr() const;
 
     void Print() const;
     void Print(int num) const;

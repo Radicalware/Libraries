@@ -34,7 +34,7 @@ struct Object
         Begin()
         NewObject(xstring, Name, "Riddick");
         cout << Name << endl;
-        DeleteObject(Name);
+        DeleteObject(NamePtr);
 
 
         BadFunctionWithGET();
@@ -47,10 +47,17 @@ struct Object
     {
         RenewObject(xstring, TheName, "King");
         cout << TheName << endl;
-        DeleteObject(TheName);
+        DeleteObject(TheNamePtr);
     }
 };
 
+
+void StlException()
+{
+    Begin();
+    throw std::exception("We are throwing an STL Execption!");
+    RescueThrow();
+}
 
 int main() 
 {
@@ -72,6 +79,10 @@ int main()
     Begin();
     Object Instance;
     Instance.FastCreateAndDestroy();
+    RescuePrint();
+
+    Begin();
+    StlException();
     RescuePrint();
 
     Nexus<>::Stop();

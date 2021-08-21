@@ -29,8 +29,8 @@
 // you donw but you won't get a speed boost either, so alway suse -O2!!
 // -------------------------------------------------------------------------------
 
-#if (defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64))
-#define WIN_BASE
+#include "Macros.h"
+#if (defined(WIN_BASE))
 #include<Windows.h>
 #include<tchar.h> 
 #include<stdio.h>
@@ -41,7 +41,6 @@
 #include<streambuf>
 #include<cstdarg>
 #else
-#define NIX_BASE
 #include<sys/types.h>
 #include<unistd.h>
 #include<pwd.h>

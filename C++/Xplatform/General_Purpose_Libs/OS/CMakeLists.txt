@@ -21,16 +21,15 @@ find_program_files(project_files "${BUILD_DIR}")
 add_library(${THIS} MODULE ${project_files})
 add_library(Radical::${THIS} ALIAS ${THIS})
 
-target_include_directories(${THIS}
-    PRIVATE
-        ${installed_projects}
+target_include_directories(${THIS} PRIVATE
+    ${installed_projects}
 )
 
-link_static(${THIS} xmap)
+link_static(${THIS} re2)
+link_static(${THIS} Nexus)
 link_static(${THIS} xvector)
 link_static(${THIS} xstring)
-link_static(${THIS} Nexus)
-link_static(${THIS} re2)
+link_static(${THIS} xmap)
 
 # -------------------------- INSTALL ----------------------------------------------------
 

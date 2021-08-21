@@ -6,13 +6,6 @@
 #include <climits>
 
 #include "dir_support/Dir_Type.h"
-#include "xstring.h"
-
-#if (defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64))
-#define WIN_BASE
-#else
-#define NIX_BASE
-#endif
 
 class EXI OS;
 namespace OS_O // OS Object

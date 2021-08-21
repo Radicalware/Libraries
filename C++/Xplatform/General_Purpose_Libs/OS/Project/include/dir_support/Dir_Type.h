@@ -1,23 +1,6 @@
 #pragma once
 
-
-#if (defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64))
-#define WIN_BASE
-#else
-#define NIX_BASE
-#endif
-
-#if (defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64))
-    #ifdef DLL_EXPORT
-       #define EXI __declspec(dllexport)
-    #else
-       #define EXI __declspec(dllimport)
-    #endif
-#else
-    #define EXI
-#endif
-
-#include "xstring.h"
+#include "Macros.h"
 
 namespace OS_O // OS Object
 {

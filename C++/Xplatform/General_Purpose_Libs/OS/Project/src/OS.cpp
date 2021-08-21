@@ -210,8 +210,8 @@ void OS::Touch(const xstring& new_file)
 }
 
 
-void OS::MKDIR(const xstring& folder) {
-
+void OS::MKDIR(const xstring& folder)
+{
     if (!folder.size()) return;
 
     xstring new_folder = OS::FullPath(folder);
