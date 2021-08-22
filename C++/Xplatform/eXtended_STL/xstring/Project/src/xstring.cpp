@@ -173,7 +173,10 @@ void xstring::Print(const char chr1, const char chr2) const
 
 void xstring::Print(const char* chr1, const char* chr2) const
 {
-    std::cout << chr1 << *this << chr2 << '\n';
+    if(strlen(chr2))
+        std::cout << chr1 << *this << chr2 << '\n';
+    else
+        std::cout << *this << chr1 << '\n';
 }
 
 std::string xstring::ToStdString() const {

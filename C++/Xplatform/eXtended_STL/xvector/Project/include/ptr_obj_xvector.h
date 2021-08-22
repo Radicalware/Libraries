@@ -80,7 +80,11 @@ inline T xvector<T*, typename std::enable_if_t<std::is_class<std::remove_pointer
     E ret;
     for (typename xvector<T*>::const_iterator it = this->begin(); it != this->end(); it++)
         ret += **it + str;
-    return ret.substr(0, ret.size() - str.size());
+
+    size_t Diff = ret.size() - str.size();
+    if (Diff > 0)
+        return ret.substr(0, Diff);
+    return ret;
 }
 
 template<typename T>
@@ -90,7 +94,9 @@ inline T xvector<T*, typename std::enable_if_t<std::is_class<std::remove_pointer
     for (typename xvector<T*>::const_iterator it = this->begin(); it != this->end(); it++)
         ret += **it + str;
 
-    return ret.substr(0, ret.size() - 1);
+    if (ret.size() > 1)
+        return ret.substr(0, ret.size() - 1);
+    return ret;
 }
 
 template<typename T>
@@ -100,5 +106,8 @@ inline T xvector<T*, typename std::enable_if_t<std::is_class<std::remove_pointer
     for (typename xvector<T*>::const_iterator it = this->begin(); it != this->end(); it++)
         ret += **it + str;
 
-    return ret.substr(0, ret.size() - strlen(str));
+    long long int Diff = ret.size() - strlen(str);
+    if (Diff > 0)
+        return ret.substr(0, Diff);
+    return ret;
 }

@@ -14,7 +14,6 @@ void BadFuncitonWithSSS()
     int Kills = 55;
     int Health = 98.555;
     NullThrow(PlayerNamePtr, SSS("Player is Null with Kills: ", Kills, " and Health: ", 98.555));
-
 }
 
 void BadFunctionWithGET()
@@ -69,7 +68,7 @@ int main()
     }
     catch (const xstring& Err)
     {
-        Err.Print();
+        Err.Print("\n");
     }
 
     Begin();

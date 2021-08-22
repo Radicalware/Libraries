@@ -39,7 +39,6 @@ install(
     FILES ${OBJ_FILE_PATH}
     CONFIGURATIONS ${BUILD_TYPE}
     DESTINATION   "${INSTALL_PREFIX}/Build/${BUILD_TYPE}/lib"
-    OPTIONAL
 )
 
 # Install Include file

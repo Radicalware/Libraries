@@ -26,6 +26,8 @@ set(VCPKG_SCRIPT    "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
 set(VCPKG_INCLUDE   "${VCPKG_ROOT}/installed/x64-windows/include")
 include_directories("${VCPKG_INCLUDE}")
 
+
+
 if(WIN32) # ----------------------------------------------------------------------------
     set(OS_TYPE "Windows")
     set(IsWindows ON)
@@ -48,6 +50,7 @@ if(WIN32) # --------------------------------------------------------------------
     set(CPP_ARGS "${CPP_ARGS} /std:c++17")
     add_link_options("/ignore:4099") # Ignore PDB Warnings
     add_link_options("/ignore:4204") # Ignore PDB Warnings
+    # add_link_options("/INCREMENTAL:NO")
 
     list(APPEND CMAKE_MODULE_PATH ${CMAKE_PATH})
     list(APPEND CMAKE_MODULE_PATH ${RADICAL_PATH})
@@ -56,6 +59,7 @@ if(WIN32) # --------------------------------------------------------------------
     set(ST  "lib") # STatic
     set(SH  "dll") # SHared
     set(OBJ "obj") # OBJect 
+
 
 else() # -----------------------------------------------------------------------------
     SET(OS_TYPE "Nix")

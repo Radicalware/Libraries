@@ -33,6 +33,5 @@ set_target_properties(${LIB} PROPERTIES COMPILE_DEFINITIONS DLL_EXPORT=1)
 
 # -------------------------- POST-CONFIG --------------------------------------
 CONFIGURE_VISUAL_STUDIO_PROJECT(${PROJECT_FILES})
-install_dynamic_lib(${LIB})
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # -------------------------- END ----------------------------------------------

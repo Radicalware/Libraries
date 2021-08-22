@@ -220,7 +220,7 @@ public:
 template<typename T>
 inline ptr_xvector<T*>::~ptr_xvector()
 {
-    if (td) delete td;
+    DeleteNexusPtr(td);
 }
 
 template<typename T>
@@ -608,7 +608,7 @@ inline xvector<N> ptr_xvector<T*>::ForEachThread(F&& function, A&& ...Args)
     for (size_t i = 0; i < trd->Size(); i++)
         vret << trd->GetWithoutProtection(i).Move();
 
-    delete trd;
+    DeleteNexusPtr(trd);
     return vret;
 }
 
@@ -628,7 +628,7 @@ inline std::unordered_map<K, V> ptr_xvector<T*>::ForEachThread(F&& function, A&&
     for (size_t i = 0; i < trd->size(); i++)
         rmap.insert(trd->GetWithoutProtection(i).move());
 
-    delete trd;
+    DeleteNexusPtr(trd);
     return rmap;
 }
 
@@ -636,9 +636,7 @@ template<typename T>
 template <typename N, typename F, typename ...A>
 inline void ptr_xvector<T*>::StartTasks(F&& function, A&& ...Args)
 {
-    if (td != nullptr)
-        delete td;
-
+    DeleteNexusPtr(td);
     td = new Nexus<N>;
     for (typename xvector<E>::iterator it = this->begin(); it != this->end(); it++)
         td->AddJobVal(function, **it, Args...);
@@ -653,14 +651,15 @@ inline xvector<N> ptr_xvector<T*>::GetTasks() const
     for (size_t i = 0; i < td->size(); i++)
         vret << td->GetWithoutProtection(i).move();
 
-    td->clear();
-    delete td;
+    DeleteNexusPtr(td);
     return vret;
 }
 
 template<typename T>
 inline bool ptr_xvector<T*>::TasksCompleted() const
 {
+    if (!td)
+        return true;
     return td->TasksCompleted();
 }
 

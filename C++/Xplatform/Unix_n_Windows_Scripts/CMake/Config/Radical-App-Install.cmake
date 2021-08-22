@@ -9,13 +9,13 @@ else()
     install(TARGETS ${THIS} DESTINATION ${INSTALL_PREFIX}/Build/${BUILD_TYPE}/bin)
 endif()
 
-
 if(${build_all})
     # Install to Applications
     install( 
         TARGETS       ${SHARED_LIB_LST} 
         DESTINATION   ${INSTALL_PREFIX}/Build/${BUILD_TYPE}/bin
     )
+
     install(
         TARGETS       ${STATIC_LIB_LST}  
         DESTINATION   ${INSTALL_PREFIX}/Build/${BUILD_TYPE}/lib
@@ -41,16 +41,6 @@ install (
     DIRECTORY   "${BUILD_DIR}/src"
     DESTINATION "${INSTALL_PREFIX}/Solutions/${THIS}"
 )
-
-foreach(TargetLib OldLib NewLib IN ZIP_LISTS TargetLibs OldLibs NewLibs)
-        add_custom_command(
-        TARGET "${TargetLib}" POST_BUILD # PRE_BUILD, PRE_LINK, POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy
-                "${OldLib}"
-                "${NewLib}"
-        DEPENDS "${OldLib}"
-    )
-endforeach()
 
 # -------------------------- INSTALL ------------------------------------------
 

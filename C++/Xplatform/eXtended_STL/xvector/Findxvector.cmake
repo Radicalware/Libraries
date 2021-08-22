@@ -26,6 +26,5 @@ link_static(${LIB} Nexus)
 
 # -------------------------- BUILD --------------------------------------------
 CONFIGURE_VISUAL_STUDIO_PROJECT(${PROJECT_FILES})
-install_static_lib(${LIB})
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # -------------------------- END ----------------------------------------------

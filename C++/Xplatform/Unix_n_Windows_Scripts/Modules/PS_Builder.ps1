@@ -141,6 +141,7 @@ Class PS_Builder
             Write-Host -ForegroundColor Green "[+] CL.exe is the Building Project " $this.ArgStruct.name
             
             # Use this for fast small builds
+            Write-Host "devenv $($this.ArgStruct.name + '.sln') /Build $($this.ArgStruct.build_type)"
             devenv $($this.ArgStruct.name + '.sln') /Build $this.ArgStruct.build_type | Write-Host
             
             # Use this for big large builds

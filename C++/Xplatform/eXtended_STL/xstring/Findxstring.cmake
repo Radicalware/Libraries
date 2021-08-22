@@ -27,6 +27,5 @@ link_static(${LIB} re2)
 
 # -------------------------- POST-CONFIG --------------------------------------
 CONFIGURE_VISUAL_STUDIO_PROJECT(${PROJECT_FILES})
-install_static_lib(${LIB})
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # -------------------------- END ----------------------------------------------

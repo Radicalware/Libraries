@@ -37,7 +37,12 @@ MACRO(find_include_dirs RESULT CUR_DIR)
 ENDMACRO()
 
 function(link_static TARGET_FILE STATIC_LIB)
-    target_link_libraries(${TARGET_FILE} ${EXT_BIN_PATH}/lib/${PF}${STATIC_LIB}.${ST})
+    if(${build_all})
+        set(LocalInstalldir "${CMAKE_SOURCE_DIR}/Build/${OS_TYPE}/${BUILD_TYPE}/${BUILD_TYPE}")
+        target_link_libraries(${TARGET_FILE} ${LocalInstalldir}/lib/${PF}${STATIC_LIB}.${ST})
+    else()
+        target_link_libraries(${TARGET_FILE} ${EXT_BIN_PATH}/lib/${PF}${STATIC_LIB}.${ST})
+    endif()
 endfunction()
 
 # for this to run well in Visual Studio do the following...
@@ -57,106 +62,34 @@ function(link_dynamic TARGET_FILE DYNAMIC_LIB)
             target_link_libraries(${TARGET_FILE} ${EXT_BIN_PATH}/bin/${PF}${DYNAMIC_LIB}.${SH})
         endif()
     endif()
-
-    # if(WIN32)
-    #     if(${debug})
-    #         link_libraries("Debug\\lib\\${DYNAMIC_LIB}")
-    #     else()
-    #         link_libraries("Release\\lib\\${DYNAMIC_LIB}")
-    #     endif()
-    # endif()
-
 endfunction()
 
+macro(SetLocalInstallDirs)
+    set(LocalInstalldir "${CMAKE_SOURCE_DIR}/Build/${OS_TYPE}/${BUILD_TYPE}/${BUILD_TYPE}")
+    if(WIN32)
+        SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG   "${LocalInstalldir}/bin")
+        SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${LocalInstalldir}/bin")
+
+        SET( CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG   "${LocalInstalldir}/bin")
+        SET( CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE "${LocalInstalldir}/bin")
+
+        SET( CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG   "${LocalInstalldir}/lib")
+        SET( CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE "${LocalInstalldir}/lib")
+    else()
+        set (CMAKE_RUNTIME_OUTPUT_DIRECTORY "${LocalInstalldir}")
+        set (CMAKE_LIBRARY_OUTPUT_DIRECTORY "${LocalInstalldir}/bin")
+        set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${LocalInstalldir}/lib")
+    endif()
+endmacro()
 
 function(post_build_copy target_name file_name from_dir to_dir)
-    # add_custom_command(
-    #     TARGET "${target_name}" PRE_LINK # PRE_BUILD, PRE_LINK, POST_BUILD
-    #     COMMAND ${CMAKE_COMMAND} -E copy
-    #             "${from_dir}/${file_name}"
-    #             "${to_dir}/${file_name}"
-    #     DEPENDS "${from_dir}/${file_name}"
-    # )
-    list(APPEND TargetLibs "${target_name}")
-    list(APPEND OldLibs    "${from_dir}/${file_name}")
-    list(APPEND NewLibs    "${from_dir}/${file_name}")
-endfunction()
-
-function(install_static_lib TARGET_FILE)
-
-    set(LIB_DIR "${CMAKE_SOURCE_DIR}/Build/${OS_TYPE}/${BUILD_TYPE}/${BUILD_TYPE}/lib")
-
-    if(WIN32)
-        set(OBJ_DIR "${CMAKE_SOURCE_DIR}/Build/${OS_TYPE}/${BUILD_TYPE}/${TARGET_FILE}.dir/${BUILD_TYPE}")
-    else()
-        set(OBJ_DIR "${CMAKE_SOURCE_DIR}/Build/${OS_TYPE}/${BUILD_TYPE}/CMakeFiles/${TARGET_FILE}.dir/opt/Radicalware/Libraries/Projects/${TARGET_FILE}/src")
-    endif()
-
-    if(${release})
-        set(lib_destination "../Libraries") # only release global dlls go to libraries
-    else()
-        set(lib_destination "Applications")
-    endif()
-
-    post_build_copy(
-        "${TARGET_FILE}"
-        "${PF}${TARGET_FILE}.${ST}"
-        "${LIB_DIR}"
-        "${INSTALL_PREFIX}/${lib_destination}/Build/${BUILD_TYPE}/lib"
+    add_custom_command(
+        TARGET "${target_name}" POST_BUILD # PRE_BUILD, PRE_LINK, POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+                "${from_dir}/${file_name}"
+                "${to_dir}/${file_name}"
+        DEPENDS "${from_dir}/${file_name}"
     )
-
-    post_build_copy(
-        "${TARGET_FILE}"
-        "${TARGET_FILE}.${OBJ}"
-        "${OBJ_DIR}"
-        "${INSTALL_PREFIX}/${lib_destination}/Build/${BUILD_TYPE}/lib"
-    )
-endfunction()
-
-function(install_dynamic_lib TARGET_FILE)
-
-    set(DLL_DIR "${CMAKE_SOURCE_DIR}/Build/${OS_TYPE}/${BUILD_TYPE}/${BUILD_TYPE}/bin")
-    if(WIN32)
-        set(OBJ_DIR "${CMAKE_SOURCE_DIR}/Build/${OS_TYPE}/${BUILD_TYPE}/${TARGET_FILE}.dir/${BUILD_TYPE}")
-    else()
-        set(OBJ_DIR "${CMAKE_SOURCE_DIR}/Build/${OS_TYPE}/${BUILD_TYPE}/CMakeFiles/${TARGET_FILE}.dir/opt/Radicalware/Libraries/Projects/${TARGET_FILE}/src")
-    endif()
-
-    if(WIN32)
-        install_static_lib("${TARGET_FILE}")
-        # correct cmake, who puts the DLLs into the lib folder even though the exe needs it at runtime
-        post_build_copy(
-            "${TARGET_FILE}"
-            "${PF}${TARGET_FILE}.${SH}"
-            "${CMAKE_SOURCE_DIR}/Build/${OS_TYPE}/${BUILD_TYPE}/${BUILD_TYPE}/lib"
-            "${DLL_DIR}/../bin"
-        )
-    endif()
-
-    if(${release})
-        set(lib_destination "../Libraries") # only release global dlls go to libraries
-    else()
-        set(lib_destination "Applications")
-        # debug and release EXEs go to Applications 
-        # releae gets DLLs from the libraries folder
-        # for debug EXEs to work, they need to be in the same path as the app
-        # so they must go with the exe to applications
-    endif()
-    # copy the DLL/SO file
-    post_build_copy(
-        "${TARGET_FILE}"
-        "${PF}${TARGET_FILE}.${SH}"
-        "${DLL_DIR}"
-        "${INSTALL_PREFIX}/${lib_destination}/Build/${BUILD_TYPE}/bin"
-    )
-    
-    post_build_copy(
-        "${TARGET_FILE}"
-        "${TARGET_FILE}.${OBJ}"
-        "${OBJ_DIR}"
-        "${INSTALL_PREFIX}/${lib_destination}/Build/${BUILD_TYPE}/lib"
-    )
-
 endfunction()
 
 # DEBUG MESSAGES

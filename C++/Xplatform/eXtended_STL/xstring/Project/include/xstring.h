@@ -83,7 +83,7 @@ public:
     void Print(int num) const;
     void Print(const xstring& front, const xstring& end = "") const;
     void Print(const char chr1, const char chr2 = ' ') const;
-    void Print(const char* chr1, const char* chr2 = "") const;
+    void Print(const char* chr1, const char* chr2 = "\0") const;
 
     std::string  ToStdString() const;
     std::wstring ToStdWString() const;

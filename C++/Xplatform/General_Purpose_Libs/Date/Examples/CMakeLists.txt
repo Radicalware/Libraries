@@ -16,7 +16,7 @@ include("${RADICAL_PATH}/Radical-App-Config.cmake")
 
 project (${THIS})
 
-set_target_properties(${LIB} PROPERTIES COMPILE_DEFINITIONS DLL_EXPORT=1)
+SetLocalInstallDirs()
 find_program_files(SOLUTION_FILES "${CMAKE_CURRENT_SOURCE_DIR}/Solution")
 add_executable(${THIS} ${SOLUTION_FILES})
 

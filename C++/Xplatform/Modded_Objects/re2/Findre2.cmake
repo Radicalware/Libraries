@@ -134,8 +134,7 @@ target_include_directories(${LIB} PRIVATE
 CONFIGURE_VISUAL_STUDIO_PROJECT(${PROJECT_FILES})
 
 if(WIN32)
-    install_static_lib(${LIB})
-else()
+    else()
     set(RE2_OBJ_FILE_PATH "${CMAKE_SOURCE_DIR}/Build/${OS_TYPE}/${BUILD_TYPE}/CMakeFiles/${LIB}.dir/Project/src/re2/${LIB}.cpp${OBJ}")
     
     install(

@@ -14,10 +14,10 @@ include("${RADICAL_PATH}/Radical-App-Config.cmake")
 
 # -------------------------- BUILD --------------------------------------------
 
+find_package(PrepareCuda113)
 project(${THIS} LANGUAGES CXX CUDA)
 
-find_package(PrepareCuda113)
-
+SetLocalInstallDirs()
 find_program_files(SOLUTION_FILES "${CMAKE_CURRENT_SOURCE_DIR}/Solution")
 add_executable(${THIS} ${SOLUTION_FILES})
 

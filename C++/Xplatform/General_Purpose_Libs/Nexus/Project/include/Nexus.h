@@ -22,3 +22,14 @@
 #include "Nexus_T.h"
 #include "Nexus_void.h"
 
+//NEXUSPTR->WaitAll(); \
+//NEXUSPTR->Clear(); \
+
+#ifndef DeleteNexusPtr
+#define DeleteNexusPtr(NEXUSPTR) \
+    if (NEXUSPTR) \
+    { \
+        delete NEXUSPTR; \
+        NEXUSPTR = nullptr; \
+    }
+#endif

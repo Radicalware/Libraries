@@ -15,9 +15,6 @@ using std::endl;
 //    #include<vld.h>
 //#endif
 
-// Note: I had a case where the OS dll had issues building
-// The fix was to build it as a SHARED DLL and then switch it back to a MODULE DLL
-
 int main() 
 {
     Begin();

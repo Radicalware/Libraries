@@ -147,7 +147,9 @@ void SYS::AddAlias(const char c_arg, const xstring& s_arg)
 
 // -------------------------------------------------------------------------------------------------------------------
 int SYS::ArgC() const { return m_argc; }
-xvector<xstring> SYS::ArgV() const { return m_all_args; }
+xvector<xstring> SYS::ArgV() const { 
+    return m_all_args; 
+}
 xstring SYS::ArgV(const size_t Idx) const { return m_all_args[Idx]; }
 xvector<const xstring*> SYS::GetKeyPtrs() const { return m_str_kvps.GetCache(); }
 xstring SYS::ChrKeys() const { return m_chr_lst; }
