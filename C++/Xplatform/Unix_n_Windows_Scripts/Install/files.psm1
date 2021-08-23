@@ -16,6 +16,8 @@ class Files
 
         "../../General_Purpose_Libs/Macros/install.ps1",
         "../../General_Purpose_Libs/Iterator/install.ps1",
+        "../../Modded_Objects/CC/install.ps1"
+
         "../../General_Purpose_Libs/OS/install.ps1",
         "../../General_Purpose_Libs/SYS/install.ps1",
         "../../General_Purpose_Libs/Timer/install.ps1",
@@ -24,8 +26,6 @@ class Files
         "../../General_Purpose_Libs/JSON/install.ps1",
         "../../General_Purpose_Libs/Stash/install.ps1",
         "../../General_Purpose_Libs/CudaBridge/install.ps1",
-
-        "../../Modded_Objects/CC/install.ps1"
     )
         # --------------------------------------------------
     $examples = @(
@@ -33,6 +33,7 @@ class Files
         "../../functional_STL/MC/Examples/run.ps1",
         "../../functional_STL/RE/Examples/run.ps1",
 
+        "../../Modded_Objects/re2/Examples/run.ps1"
         "../../General_Purpose_Libs/Nexus/Examples/run.ps1",
 
         "../../eXtended_STL/xvector/Examples/run.ps1",
@@ -40,6 +41,8 @@ class Files
         "../../eXtended_STL/xmap/Examples/run.ps1",
 
         "../../General_Purpose_Libs/Macros/Examples/run.ps1",
+        "../../Modded_Objects/CC/Examples/run.ps1"
+        
         "../../General_Purpose_Libs/OS/Examples/run.ps1",
         "../../General_Purpose_Libs/SYS/Examples/run.ps1",
         "../../General_Purpose_Libs/Timer/Examples/run.ps1",
@@ -47,8 +50,5 @@ class Files
         "../../General_Purpose_Libs/Date/Examples/run.ps1",
         "../../General_Purpose_Libs/Stash/Examples/run.ps1",
         "../../General_Purpose_Libs/CudaBridge/Examples/run.ps1",
-
-        "../../Modded_Objects/CC/Examples/run.ps1"
-        "../../Modded_Objects/re2/Examples/run.ps1"
     )
 }

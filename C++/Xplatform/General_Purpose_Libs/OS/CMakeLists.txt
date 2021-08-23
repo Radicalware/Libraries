@@ -31,6 +31,8 @@ link_static(${THIS} xvector)
 link_static(${THIS} xstring)
 link_static(${THIS} xmap)
 
+set_target_properties(${THIS} PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+
 # -------------------------- INSTALL ----------------------------------------------------
 
 include("${RADICAL_PATH}/Radical-Lib-Install.cmake")

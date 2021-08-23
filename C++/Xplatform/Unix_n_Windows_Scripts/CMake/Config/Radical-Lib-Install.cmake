@@ -2,6 +2,8 @@
 
 # -------------------------- INSTALL ----------------------------------------------------
 
+set(binary_type "lib")
+
 set_target_properties(${THIS} PROPERTIES COMPILE_DEFINITIONS DLL_EXPORT=1)
 
 FILE(REMOVE "${INSTALL_PREFIX}/Build/${BUILD_TYPE}/bin/${PF}${THIS}.${SH}")

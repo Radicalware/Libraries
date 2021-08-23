@@ -1,4 +1,6 @@
 
+set(binary_type "app")
+
 include("${RADICAL_PATH}/Radical-Functions.cmake")
 include("${RADICAL_PATH}/Radical-Static-Vars.cmake")
 include("${RADICAL_PATH}/Radical-Header.cmake")
