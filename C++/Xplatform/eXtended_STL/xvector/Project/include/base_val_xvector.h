@@ -108,8 +108,8 @@ public:
     inline bool operator==(const size_t value) const;
     inline bool operator!=(const size_t value) const;
 
-    T& Back(size_t value = 1);
-    T* GetBackPtr(size_t value = 1);
+    T& Back(size_t value = 0);
+    T* GetBackPtr(size_t value = 0);
 
     inline std::pair<T, T> GetPair() const;
 
@@ -432,12 +432,12 @@ inline bool val_xvector<T>::operator!=(const size_t value) const {
 
 template<typename T>
 inline T& val_xvector<T>::Back(size_t value) {
-    return this->operator[](this->size() - value);
+    return this->operator[](this->size() - value - 1);
 }
 
 template<typename T>
 inline T* val_xvector<T>::GetBackPtr(size_t value) {
-    return &this->operator[](this->size() - value);
+    return &this->operator[](this->size() - value - 1);
 }
 
 // ------------------------------------------------------------------------------------------------

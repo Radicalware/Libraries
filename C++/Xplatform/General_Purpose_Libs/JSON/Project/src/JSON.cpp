@@ -3,10 +3,10 @@
 #include <nlohmann/json.hpp>
 
 #define ThrowNoJSON() \
-    if (!MoFullJsonPtr.get()) throw "No JSON";
+    if (!MoFullJsonPtr.get())  ThrowIt("No JSON");
 
 #define ThrowNoBSON() \
-    if (!MoBsonValuePtr.get()) throw "No BSON";
+    if (!MoBsonValuePtr.get()) ThrowIt("No BSON");
 
 void RA::JSON::Print(const web::json::value & FoWebJson)
 {
@@ -143,7 +143,7 @@ void RA::JSON::PrintJson() const
 bool RA::JSON::Has(const xstring& FsObjectName) const
 {
     Begin();
-    GST(MoFullJson);
+    GSS(MoFullJson);
     return MoFullJson.has_field(FsObjectName.ToStdWString());
     RescueThrow();
 }
@@ -151,7 +151,7 @@ bool RA::JSON::Has(const xstring& FsObjectName) const
 bool RA::JSON::Has(const wchar_t* FsObjectName) const
 {
     Begin();
-    GST(MoFullJson);
+    GSS(MoFullJson);
     return MoFullJson.has_field(FsObjectName);
     RescueThrow();
 }
@@ -160,7 +160,7 @@ uint RA::JSON::Size() const
 {
     Begin();
     if (!MoFullJsonPtr && !MoBsonValuePtr) return 0;
-    GST(MoBsonValue);
+    GSS(MoBsonValue);
     return MoBsonValue.view().length();
     RescueThrow();
 }
@@ -190,13 +190,13 @@ RA::JSON& RA::JSON::Zoom(const xstring& FsObject)
 RA::JSON& RA::JSON::Zoom(const wchar_t* FacObject)
 {
     Begin();
-    GST(MoFullJson);
+    GSS(MoFullJson);
     try {
 
         if (!MoZoomedJsonPtr.get())
             MoZoomedJsonPtr = std::make_shared<web::json::value>(MoFullJson.at(FacObject));
         else {
-            GST(MoZoomedJson);
+            GSS(MoZoomedJson);
             auto Zoomed = MoZoomedJson.at(FacObject);
             MoZoomedJson = Zoomed;
         }

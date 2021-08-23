@@ -6,8 +6,14 @@ param (
     [switch] $lib,      # Only install libs
     [switch] $Examples, # Only install Examples
     [switch] $Debug,    # Install Debug instead of Release
-    [string] $MatchOnly # Install only what matches this pattern
+    [string] $MatchOnly, # Install only what matches this pattern
+    [switch] $LoseInstalledLibs
 )
+
+if($LoseInstalledLibs -eq $false){
+    ..\Manage\copy_projects.ps1
+}
+
 
 $current_location = "$PSScriptRoot"
 Set-Location $current_location

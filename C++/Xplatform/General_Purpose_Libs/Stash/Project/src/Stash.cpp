@@ -1,14 +1,14 @@
 #include "Stash.h"
 #include "Macros.h"
 
- mongocxx::instance RA::Stash::SoInstance{};
+Mongo::Instance RA::Stash::SoInstance{};
 
 
  RA::Stash::Stash(const xstring& URL)
  {
-     MoURL = URL;
-     MoURI = mongocxx::uri(MoURL);
-     MoClient = mongocxx::client(MoURI);
+     MoURL    = URL;
+     MoURI    = Mongo::URI(MoURL);
+     MoClient = Mongo::Client(MoURI);
  }
 
  RA::Stash::Stash(const Stash& Other)
@@ -24,8 +24,8 @@
  void RA::Stash::operator=(const Stash& Other)
  {
      MoURL        = Other.MoURL;
-     MoURI        = mongocxx::uri(MoURL);
-     MoClient     = mongocxx::client(MoURI);
+     MoURI        = Mongo::URI(MoURL);
+     MoClient     = Mongo::Client(MoURI);
 
      MoDatabase   = Other.MoDatabase;
      MoCollection = Other.MoCollection;
@@ -34,8 +34,8 @@
  void RA::Stash::operator=(Stash&& Other) noexcept
  {
      MoURL        = std::move(Other.MoURL);
-     MoURI        = mongocxx::uri(MoURL);
-     MoClient     = mongocxx::client(MoURI);
+     MoURI        = Mongo::URI(MoURL);
+     MoClient     = Mongo::Client(MoURI);
 
      MoDatabase   = std::move(Other.MoDatabase);
      MoCollection = std::move(Other.MoCollection);
@@ -55,6 +55,16 @@
      MoCollection = MoDatabase[FsCollection.c_str()];
      return *this;
      RescueThrow();
+ }
+
+ Mongo::Database& RA::Stash::GetDatabase()
+ {
+     return MoDatabase;
+ }
+
+ Mongo::Collection& RA::Stash::GetCollection()
+ {
+     return MoCollection;
  }
 
  void RA::Stash::DropCollection()

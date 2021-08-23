@@ -8,6 +8,15 @@
 #define MongoSetDoc()         BSON::Start{} << "$set" << BSON::OpenDoc
 #define MongoCloseDoc()       BSON::CloseDoc << BSON::Finish
 
+namespace Mongo
+{
+    using Instance   = mongocxx::instance;
+    using URI        = mongocxx::uri;
+    using Client     = mongocxx::client;
+    using Database   = mongocxx::database;
+    using Collection = mongocxx::collection;
+};
+
 namespace RA
 {
     class Stash
@@ -23,6 +32,10 @@ namespace RA
 
         Stash& SetDatabase(const xstring& FsDatabase);
         Stash& SetCollection(const xstring& FsCollection);
+
+        Mongo::Database&   GetDatabase();
+        Mongo::Collection& GetCollection();
+
         void DropCollection();
 
         BSON::Result::InsertOne  operator<<(const BSON::Value& FoView);
@@ -50,15 +63,15 @@ namespace RA
         RA::JSON Aggrigate(const BSON::Pipeline& FoPipeline, const RA::JSON::Init FeInit);
 
     private:
-        std::string          MoURL;
+        xstring           MoURL;
 
-        mongocxx::uri        MoURI;
-        mongocxx::client     MoClient;
+        Mongo::URI        MoURI;
+        Mongo::Client     MoClient;
 
-        mongocxx::database   MoDatabase;
-        mongocxx::collection MoCollection;
+        Mongo::Database   MoDatabase;
+        Mongo::Collection MoCollection;
 
-        static mongocxx::instance SoInstance;
+        static Mongo::Instance SoInstance;
     };
 }
 
