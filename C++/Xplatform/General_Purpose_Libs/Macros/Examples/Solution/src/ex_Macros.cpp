@@ -31,10 +31,9 @@ struct Object
     static void TestPointers()
     {
         Begin()
-        NewObject(xstring, Name, "Riddick");
+        NewObject(Name, xstring("Riddick"));
         cout << Name << endl;
         DeleteObject(NamePtr);
-
 
         BadFunctionWithGET();
         RescueThrow();
@@ -44,7 +43,7 @@ struct Object
 
     void FastCreateAndDestroy()
     {
-        RenewObject(xstring, TheName, "King");
+        RenewObject(TheName, xstring("King"));
         cout << TheName << endl;
         DeleteObject(TheNamePtr);
     }

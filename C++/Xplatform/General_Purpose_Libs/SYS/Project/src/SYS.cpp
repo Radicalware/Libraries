@@ -158,8 +158,8 @@ xstring SYS::FullPath() { return m_full_path; }
 xstring SYS::Path() { return m_path; }
 xstring SYS::File() { return m_file; }
 // -------------------------------------------------------------------------------------------------------------------
-xvector<xstring*> SYS::Key(const xstring& key) { return m_values[m_str_kvps[key]]; }
-xvector<xstring*> SYS::Key(const char key) { return m_values[m_chr_kvps[key]]; }
+xvector<xstring*> SYS::Key(const xstring& key) const { return m_values[m_str_kvps[key]]; }
+xvector<xstring*> SYS::Key(const char key) const { return m_values[m_chr_kvps[key]]; }
 bool SYS::HasArgs() const { return m_key_used; }
 // -------------------------------------------------------------------------------------------------------------------
 

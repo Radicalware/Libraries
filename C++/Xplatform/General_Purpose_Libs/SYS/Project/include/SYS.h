@@ -101,8 +101,8 @@ public:
     xstring Path();
     xstring File();
     // -------------------------------------------------------------------------------------------------------------------
-    xvector<xstring*> Key(const xstring& key);
-    xvector<xstring*> Key(const char key);
+    xvector<xstring*> Key(const xstring& key) const;
+    xvector<xstring*> Key(const char key) const;
     bool HasArgs() const;
     // -------------------------------------------------------------------------------------------------------------------
     bool Has(const xstring& key) const;
