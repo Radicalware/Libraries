@@ -94,6 +94,7 @@ public:
 
     void            CreateStr();
     const xstring&  GetStr();
+          xstring   GetStr() const;
     Date::Layout    GetLayout();
     static int      GetDaysInMonth(const int FnYear, const int FnMonth);
     int             GetDaysInMonth();

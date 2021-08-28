@@ -52,11 +52,11 @@ int main()
     dim3 LoBlock(LoBlockSize);
     dim3 LoGrid((HostArray1.Size() / LoBlock.x) + 1);
 
-    auto DeviceResult = CudaBridge<int>::RunGPU(SumArraysIndicesGPU, LoGrid, LoBlock, HostArray1, HostArray2, ArraySize);
+    auto DeviceResult = CudaBridge<int>::ARRAY::RunGPU(SumArraysIndicesGPU, LoGrid, LoBlock, HostArray1, HostArray2);
 
-    auto HostResult   = CudaBridge<int>::RunCPU(SumArraysIndicesCPU, HostArray1, HostArray2, ArraySize);
+    auto HostResult   = CudaBridge<int>::ARRAY::RunCPU(SumArraysIndicesCPU, HostArray1, HostArray2);
 
-    if (CudaBridge<int>::SameHostArrays(HostResult, DeviceResult))
+    if (CudaBridge<>::SameHostArrays(HostResult, DeviceResult))
         cout << "Arrays are the same\n";
     else
         cout << "Arrays are different\n";

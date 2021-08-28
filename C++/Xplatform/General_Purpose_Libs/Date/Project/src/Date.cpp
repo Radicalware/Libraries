@@ -145,6 +145,12 @@ const xstring& Date::GetStr()
     return *MsStr;
 }
 
+xstring Date::GetStr() const
+{
+    Date Copy = *this;
+    return Copy.GetStr();
+}
+
 Date::Layout Date::GetLayout()
 {
     if (MoTime.Year)

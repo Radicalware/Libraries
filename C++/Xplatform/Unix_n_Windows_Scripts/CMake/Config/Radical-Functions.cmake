@@ -37,7 +37,7 @@ MACRO(find_include_dirs RESULT CUR_DIR)
 ENDMACRO()
 
 function(link_static TARGET_FILE STATIC_LIB)
-    if(${build_all} AND NOT ${binary_type})
+    if(${build_all})
         set(LocalInstalldir "${CMAKE_SOURCE_DIR}/Build/${OS_TYPE}/${BUILD_TYPE}/${BUILD_TYPE}")
         target_link_libraries(${TARGET_FILE} ${LocalInstalldir}/lib/${PF}${STATIC_LIB}.${ST})
     else()
