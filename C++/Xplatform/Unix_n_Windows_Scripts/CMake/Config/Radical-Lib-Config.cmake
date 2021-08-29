@@ -1,4 +1,8 @@
 
+set(binary_type "lib")
+set(is_lib ON)
+set(is_app OFF)
+
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 
 include("${RADICAL_PATH}/Radical-Functions.cmake")

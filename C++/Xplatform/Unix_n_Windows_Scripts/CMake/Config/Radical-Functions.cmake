@@ -37,7 +37,7 @@ MACRO(find_include_dirs RESULT CUR_DIR)
 ENDMACRO()
 
 function(link_static TARGET_FILE STATIC_LIB)
-    if(${build_all})
+    if(${is_app} AND (${debug} OR ${build_all}))
         set(LocalInstalldir "${CMAKE_SOURCE_DIR}/Build/${OS_TYPE}/${BUILD_TYPE}/${BUILD_TYPE}")
         target_link_libraries(${TARGET_FILE} ${LocalInstalldir}/lib/${PF}${STATIC_LIB}.${ST})
     else()
@@ -49,7 +49,7 @@ endfunction()
 # Tools > Options > Projects and Solutions > Build and Run > 
 #    uncheck "Only build startup project and dependinces on run"
 function(link_dynamic TARGET_FILE DYNAMIC_LIB)
-    if(${debug} OR ${build_all})
+    if(${is_app} AND (${debug} OR ${build_all}))
         if(WIN32)
             target_link_libraries(${TARGET_FILE}  "${CMAKE_SOURCE_DIR}/Build/${OS_TYPE}/${BUILD_TYPE}/${BUILD_TYPE}/lib/${PF}${DYNAMIC_LIB}.${ST}")
         else()

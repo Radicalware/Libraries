@@ -30,10 +30,10 @@ include_directories("${VCPKG_INCLUDE}")
 
 if(WIN32) # ----------------------------------------------------------------------------
     set(OS_TYPE "Windows")
-    set(IsWindows ON)
-    #set(WINDOWS_SDK "10.0.17763.0")
-    #set(CMAKE_SYSTEM_VERSION ${WINDOWS_SDK})
-    #set(CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION ${WINDOWS_SDK})
+    set(is_windows ON)
+    # set(WINDOWS_SDK "10.0.17763.0")
+    # set(CMAKE_SYSTEM_VERSION ${WINDOWS_SDK})
+    # set(CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION ${WINDOWS_SDK})
 
     set(RADICAL_BASE   "C:/Source/CMake/Radicalware")
     set(CMAKE_PATH     "C:/Program Files/CMake/share/cmake-3.20/Modules")
@@ -63,7 +63,7 @@ if(WIN32) # --------------------------------------------------------------------
 
 else() # -----------------------------------------------------------------------------
     SET(OS_TYPE "Nix")
-    set(IsNix ON)
+    set(is_nix ON)
 
     SET(RADICAL_BASE   "/opt/Radicalware")
     SET(INSTALL_PREFIX "${RADICAL_BASE}")
@@ -125,8 +125,5 @@ set(EXT_BIN_PATH    ${INSTALL_PREFIX}/Libraries/Build/${BUILD_TYPE})
 set(PROJECT_DIR ${INSTALL_PREFIX}/Libraries/Projects)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
-set(NewLibs "")
-set(OldLibs "")
 
 # --------------- DON'T MODIFY (CALCULATED) ------------------------------------------

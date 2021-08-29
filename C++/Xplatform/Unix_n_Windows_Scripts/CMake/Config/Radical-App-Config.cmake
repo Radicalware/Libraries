@@ -1,5 +1,7 @@
 
 set(binary_type "app")
+set(is_app ON)
+set(is_lib OFF)
 
 include("${RADICAL_PATH}/Radical-Functions.cmake")
 include("${RADICAL_PATH}/Radical-Static-Vars.cmake")
