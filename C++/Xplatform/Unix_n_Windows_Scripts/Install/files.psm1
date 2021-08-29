@@ -25,7 +25,7 @@ class Files
         "../../General_Purpose_Libs/Date/install.ps1",
         "../../General_Purpose_Libs/JSON/install.ps1",
         "../../General_Purpose_Libs/Stash/install.ps1",
-        "../../General_Purpose_Libs/CudaBridge/install.ps1",
+        "../../General_Purpose_Libs/CudaBridge/install.ps1"
     )
         # --------------------------------------------------
     $examples = @(
@@ -49,6 +49,6 @@ class Files
         "../../General_Purpose_Libs/Socket/Examples/run.ps1",
         "../../General_Purpose_Libs/Date/Examples/run.ps1",
         "../../General_Purpose_Libs/Stash/Examples/run.ps1",
-        "../../General_Purpose_Libs/CudaBridge/Examples/run.ps1",
+        "../../General_Purpose_Libs/CudaBridge/Examples/run.ps1"
     )
 }
