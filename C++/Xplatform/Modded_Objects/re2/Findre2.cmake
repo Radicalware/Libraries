@@ -129,6 +129,8 @@ target_include_directories(${LIB} PRIVATE
     ${installed_projects}
 )
 
+list(APPEND installed_libs "Radical_Mod::re2")
+
 # -------------------------- POST-CONFIG --------------------------------------
 
 CONFIGURE_VISUAL_STUDIO_PROJECT(${PROJECT_FILES})

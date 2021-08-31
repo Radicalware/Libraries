@@ -15,14 +15,12 @@ endif()
 
 UNSET(PROJECT_FILES)
 find_program_files(PROJECT_FILES "${PROJECT_DIR}/${LIB}")
-add_library(${LIB} STATIC ${PROJECT_FILES})
+add_library(${LIB} STATIC ${PROJECT_FILES}) # Lib Type <<<
 add_library(Radical::${LIB} ALIAS ${LIB})
-
-target_include_directories(${LIB} PRIVATE
-    ${installed_projects}
-)
-
-link_static(${LIB} Nexus)
+target_include_directories(${LIB} PUBLIC ${installed_projects})
+target_link_libraries(${LIB} ${installed_libs})
+list(APPEND installed_libs "Radical::${LIB}")
+add_dependencies(${THIS}   "Radical::${LIB}")
 
 # -------------------------- BUILD --------------------------------------------
 CONFIGURE_VISUAL_STUDIO_PROJECT(${PROJECT_FILES})

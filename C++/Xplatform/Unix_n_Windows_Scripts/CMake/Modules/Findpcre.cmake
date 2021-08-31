@@ -37,3 +37,5 @@ else()
     find_package(PCREPOSIX)
     target_include_directories(${THIS} PRIVATE ${PCRE_INCLUDE_DIR})
 endif()
+
+list(APPEND installed_libs "Radical_Mod::pcre")

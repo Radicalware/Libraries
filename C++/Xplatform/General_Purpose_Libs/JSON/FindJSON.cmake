@@ -15,23 +15,18 @@ endif()
 
 UNSET(PROJECT_FILES)
 find_program_files(PROJECT_FILES "${PROJECT_DIR}/${LIB}")
-add_library(${LIB} STATIC ${PROJECT_FILES})
+add_library(${LIB} STATIC ${PROJECT_FILES}) # Lib Type <<<
 add_library(Radical::${LIB} ALIAS ${LIB})
-
-target_include_directories(${LIB} PUBLIC
-    ${installed_projects}
-)
-
-link_static(${LIB} xmap)
-link_static(${LIB} xstring)
-link_static(${LIB} xvector)
-link_static(${LIB} Nexus)
-link_static(${LIB} re2)
+target_include_directories(${LIB} PUBLIC ${installed_projects})
+list(APPEND installed_libs "Radical::${LIB}")
+add_dependencies(${THIS}   "Radical::${LIB}")
 
 find_package(cpprestsdk CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 
 target_link_libraries(${LIB}
+    ${installed_libs}
+
     cpprestsdk::cpprest
     cpprestsdk::cpprestsdk_zlib_internal
     cpprestsdk::cpprestsdk_brotli_internal

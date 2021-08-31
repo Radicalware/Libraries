@@ -15,12 +15,11 @@ endif()
 
 UNSET(PROJECT_FILES)
 find_program_files(PROJECT_FILES "${PROJECT_DIR}/${LIB}")
-add_library(${LIB} MODULE ${PROJECT_FILES})
-add_library(Radical_Mod::${LIB} ALIAS ${LIB})
-
-target_include_directories(${LIB} PUBLIC
-    ${installed_projects}
-)
+add_library(${LIB} MODULE ${PROJECT_FILES}) # Lib Type <<<
+add_library(Radical::${LIB} ALIAS ${LIB})
+target_include_directories(${LIB} PUBLIC ${installed_projects})
+target_link_libraries(${LIB} ${installed_libs})
+add_dependencies(${THIS}   "Radical::${LIB}")
 
 link_dynamic(${THIS} ${LIB})
 set_target_properties(${LIB} PROPERTIES COMPILE_DEFINITIONS DLL_EXPORT=1)

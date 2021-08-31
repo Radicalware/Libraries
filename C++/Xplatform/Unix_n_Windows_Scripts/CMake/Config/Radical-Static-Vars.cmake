@@ -125,5 +125,6 @@ set(EXT_BIN_PATH    ${INSTALL_PREFIX}/Libraries/Build/${BUILD_TYPE})
 set(PROJECT_DIR ${INSTALL_PREFIX}/Libraries/Projects)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(compiled_libs) # Used to link targets and set dependencies
 
 # --------------- DON'T MODIFY (CALCULATED) ------------------------------------------
