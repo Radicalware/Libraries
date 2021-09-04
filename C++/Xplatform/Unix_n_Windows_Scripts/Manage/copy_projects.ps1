@@ -25,30 +25,50 @@ class Lib_Handler
 {
     [string] $dir;
     
-    [string] $build_lib_dir     = 'C:\Source\Radicalware\git\Libraries\C++\Xplatform'
-    [string] $build_module_dir  = 'C:\Source\Radicalware\git\Libraries\C++\Modules'
+    [string] $build_lib_dir
+    [string] $build_module_dir
 
     [string] $cmake_install_dir = 'C:\Source\CMake\Radicalware\Libraries\Projects'
     [string] $cmake_header_dir  = 'C:\Source\CMake\Radicalware\Libraries\Headers'
 
     [string] $inc = "include\*"
 
+    Lib_Handler()
+    {
+        $this.build_lib_dir    = "$PSScriptRoot\..\.."
+        $this.build_module_dir = "$PSScriptRoot\..\..\..\Modules"
+    }
+
     [void] CopyLib([string] $lib)
     {    
-        Copy-Item  "$($this.cmake_install_dir)\$lib\*"  "$($this.build_lib_dir)\$($this.dir)\$lib\Project" -Recurse -Force
-        
-        # It is better to use soft links
-        # Copy-Item  "$($this.cmake_install_dir)\$lib\$($this.inc)"  "$($this.cmake_header_dir)" -Recurse -Force
+        $From = "$($this.cmake_install_dir)\$lib\*"
+        $To   = "$($this.build_lib_dir)\$($this.dir)\$lib\Project"
+        # Write-Host "Copying: $From >> $To"
 
+        try{
+            if(Test-Path $From){
+                Copy-Item -Recurse -Force $From $To
+            }
+        }catch
+        {
+            Write-Host "Can't Copy: $From >> $To"
+        }
     }
 
     [void] CopyModule([string] $lib)
     {    
-        Copy-Item  "$($this.cmake_install_dir)\$lib\*"  "$($this.build_module_dir)\$($this.dir)\$lib\Project" -Recurse -Force
-        
-        # It is better to use soft links
-        # Copy-Item  "$($this.cmake_install_dir)\$lib\$($this.inc)"  "$($this.cmake_header_dir)" -Recurse -Force
+        $From = "$($this.cmake_install_dir)\$lib\*"
+        $To   = "$($this.build_module_dir)\$($this.dir)\$lib\Project"
+        # Write-Host "Copying: $From >> $To"
 
+        try{
+            if(Test-Path $From){
+                Copy-Item -Recurse -Force $From $To
+            }
+        }catch
+        {
+            Write-Host "Can't Copy: $From >> $To"
+        }
     }
 }
 

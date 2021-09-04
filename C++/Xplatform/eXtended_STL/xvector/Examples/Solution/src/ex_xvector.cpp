@@ -110,12 +110,12 @@ int main(int argc, char** argv)
        "trap@attack.hack.info"
     };
 
-    cout << "false email = " << emails.MatchOne(R"([\w\d_]*@[\w\d_]*)") << endl;
+    cout << "false email = " << emails.FullMatchOne(R"([\w\d_]*@[\w\d_]*)") << endl;
     // that failed because it does not match any one email start to finish
-    cout << "true  email = " << emails.MatchOne(R"(^([\w\d_]*(\.?)){1,2}@([\w\d_]*\.){1,2}[\w\d_]*$)") << endl;;
+    cout << "true  email = " << emails.FullMatchOne(R"(^([\w\d_]*(\.?)){1,2}@([\w\d_]*\.){1,2}[\w\d_]*$)") << endl;;
     // this one matches the first email start to finish so it replies true
 
-    cout << "true email  = " << emails.ScanOne("[\\w\\d_]*@[\\w\\d_]*") << endl;
+    cout << "true email  = " << emails.MatchOne("[\\w\\d_]*@[\\w\\d_]*") << endl;
     // this time the partial email returns true because the regex matches at least a portion
     // of one of the elements in the array.
 

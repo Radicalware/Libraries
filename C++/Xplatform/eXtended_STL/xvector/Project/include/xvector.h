@@ -37,6 +37,7 @@
 #include<set>
 #include<type_traits>
 
+#include "re2/re2.h"
 #include "Nexus.h"
 
 template<typename T> class val_xvector;

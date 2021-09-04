@@ -19,11 +19,10 @@ class Run_CMake
 
     }
 
-    [void] Copy_Files(){ # For Myself and not to be of consern to the userbase
-        if("$env:USERNAME`:$env:COMPUTERNAME" -eq "Scourge:WIT"){
-            if($this.ArgStruct.Overwrite -ne $true){ # Do Not Overwrite Install Files (Preserve Them)
-                   &"$PSScriptRoot\copy_projects.ps1"    
-            }
+    # This will copy files from your install dir to your git dir
+    [void] Copy_Files(){
+        if($this.ArgStruct.Overwrite -ne $true){
+                &"$PSScriptRoot\copy_projects.ps1"    
         }
     }
 
