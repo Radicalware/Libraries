@@ -1,4 +1,12 @@
 
+if(UNIX)
+    message("These libraries are currently under rapid development so will only officially support Windows")
+    message("Official Unix support will return later, remove this hault to use on Linux")
+    message("It's located in Radical-Static-Vars.cmake at the first conditional Statment")
+    message("Thanks for your patience!")
+    exit()
+endif()
+
 # ------------------------- MODIFY VALUES BELOW ----------------------------------------
 
 set(CPP_ARGS "")
