@@ -99,6 +99,7 @@ int main(int argc, char** argv)
     cout << "print vals: " << vec_str_vals.Join(' ') << "\n\n";
 
     cout << "true  => " << vec_str.Has(three) << endl;
+    cout << "      => " << vec_str.Take(three).Join(' ') << endl;
     cout << "true  => " << vec_str.Has("two") << endl;
     cout << "false => " << vec_str.Has("twenty") << endl;
 

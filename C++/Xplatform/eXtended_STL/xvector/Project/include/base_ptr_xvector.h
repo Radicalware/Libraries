@@ -40,8 +40,6 @@
 #include "Nexus.h"
 #include "xvector.h"
 
-class xstring;
-
 template<typename T>
 class ptr_xvector<T*> : public std::vector<T*>
 {
@@ -161,39 +159,39 @@ public:
     inline T Join(const char* str) const;
 
     inline bool FullMatchOne(const re2::RE2& in_pattern) const;
-    inline bool FullMatchOne(const xstring& in_pattern) const;
-    inline bool FullMatchOne(xstring&& in_pattern) const;
+    inline bool FullMatchOne(const std::string& in_pattern) const;
+    inline bool FullMatchOne(std::string&& in_pattern) const;
     inline bool FullMatchOne(char const* in_pattern) const;
 
     inline bool FullMatchAll(const re2::RE2& in_pattern) const;
-    inline bool FullMatchAll(const xstring& in_pattern) const;
-    inline bool FullMatchAll(xstring&& in_pattern) const;
+    inline bool FullMatchAll(const std::string& in_pattern) const;
+    inline bool FullMatchAll(std::string&& in_pattern) const;
     inline bool FullMatchAll(char const* in_pattern) const;
 
     inline bool MatchOne(const re2::RE2& in_pattern) const;
-    inline bool MatchOne(const xstring& in_pattern) const;
-    inline bool MatchOne(xstring&& in_pattern) const;
+    inline bool MatchOne(const std::string& in_pattern) const;
+    inline bool MatchOne(std::string&& in_pattern) const;
     inline bool MatchOne(char const* in_pattern) const;
 
     inline bool MatchAll(const re2::RE2& in_pattern) const;
-    inline bool MatchAll(const xstring& in_pattern) const;
-    inline bool MatchAll(xstring&& in_pattern) const;
+    inline bool MatchAll(const std::string& in_pattern) const;
+    inline bool MatchAll(std::string&& in_pattern) const;
     inline bool MatchAll(char const* in_pattern) const;
 
-    inline xvector<xstring*> xstringake(const re2::RE2& in_pattern) const;
-    inline xvector<xstring*> xstringake(const xstring& in_pattern) const;
-    inline xvector<xstring*> xstringake(xstring&& in_pattern) const;
-    inline xvector<xstring*> xstringake(char const* in_pattern) const;
+    inline xvector<T*> Take(const re2::RE2& in_pattern) const;
+    inline xvector<T*> Take(const std::string& in_pattern) const;
+    inline xvector<T*> Take(std::string&& in_pattern) const;
+    inline xvector<T*> Take(char const* in_pattern) const;
 
-    inline xvector<xstring*> Remove(const re2::RE2& in_pattern) const;
-    inline xvector<xstring*> Remove(const xstring& in_pattern) const;
-    inline xvector<xstring*> Remove(xstring&& in_pattern) const;
-    inline xvector<xstring*> Remove(char const* in_pattern) const;
+    inline xvector<T*> Remove(const re2::RE2& in_pattern) const;
+    inline xvector<T*> Remove(const std::string& in_pattern) const;
+    inline xvector<T*> Remove(std::string&& in_pattern) const;
+    inline xvector<T*> Remove(char const* in_pattern) const;
 
-    inline xvector<xstring> SubAll(const re2::RE2& in_pattern, const xstring& replacement) const;
-    inline xvector<xstring> SubAll(const xstring& in_pattern, const xstring& replacement) const;
-    inline xvector<xstring> SubAll(xstring&& in_pattern, xstring&& replacement) const;
-    inline xvector<xstring> SubAll(char const* in_pattern, const xstring& replacement) const;
+    inline xvector<T> SubAll(const re2::RE2& in_pattern, const std::string& replacement) const;
+    inline xvector<T> SubAll(const std::string& in_pattern, const std::string& replacement) const;
+    inline xvector<T> SubAll(std::string&& in_pattern, std::string&& replacement) const;
+    inline xvector<T> SubAll(char const* in_pattern, const std::string& replacement) const;
 
     // double was chose to hold long signed and unsigned values
     inline xvector<T*> operator()(long double x = 0, long double y = 0, long double z = 0, const char removal_method = 's') const;
@@ -752,7 +750,7 @@ T ptr_xvector<T*>::Join(const char* str) const
 template<typename T>
 inline bool ptr_xvector<T*>::FullMatchOne(const re2::RE2& in_pattern) const
 {
-    for (typename xvector<xstring*>::const_iterator iter = this->begin(); iter != this->end(); iter++) {
+    for (typename xvector<T*>::const_iterator iter = this->begin(); iter != this->end(); iter++) {
         if (RE2::FullMatch(**iter, in_pattern)) {
             return true;
         }
@@ -761,12 +759,12 @@ inline bool ptr_xvector<T*>::FullMatchOne(const re2::RE2& in_pattern) const
 }
 
 template<typename T>
-bool ptr_xvector<T*>::FullMatchOne(const xstring& in_pattern) const {
+bool ptr_xvector<T*>::FullMatchOne(const std::string& in_pattern) const {
     return this->FullMatchOne(in_pattern.c_str());
 }
 
 template<typename T>
-bool ptr_xvector<T*>::FullMatchOne(xstring&& in_pattern) const {
+bool ptr_xvector<T*>::FullMatchOne(std::string&& in_pattern) const {
     return this->FullMatchOne(in_pattern.c_str());
 }
 
@@ -780,7 +778,7 @@ bool ptr_xvector<T*>::FullMatchOne(char const* in_pattern) const {
 template<typename T>
 inline bool ptr_xvector<T*>::FullMatchAll(const re2::RE2& in_pattern) const
 {
-    for (typename xvector<xstring*>::const_iterator iter = this->begin(); iter != this->end(); iter++) {
+    for (typename xvector<T*>::const_iterator iter = this->begin(); iter != this->end(); iter++) {
         if (!RE2::FullMatch(**iter, in_pattern)) {
             return false;
         }
@@ -789,12 +787,12 @@ inline bool ptr_xvector<T*>::FullMatchAll(const re2::RE2& in_pattern) const
 }
 
 template<typename T>
-bool ptr_xvector<T*>::FullMatchAll(const xstring& in_pattern) const {
+bool ptr_xvector<T*>::FullMatchAll(const std::string& in_pattern) const {
     return this->FullMatchAll(in_pattern.c_str());
 }
 
 template<typename T>
-bool ptr_xvector<T*>::FullMatchAll(xstring&& in_pattern) const {
+bool ptr_xvector<T*>::FullMatchAll(std::string&& in_pattern) const {
     return this->FullMatchAll(in_pattern.c_str());
 }
 
@@ -809,7 +807,7 @@ bool ptr_xvector<T*>::FullMatchAll(char const* in_pattern) const {
 template<typename T>
 inline bool ptr_xvector<T*>::MatchOne(const re2::RE2& in_pattern) const
 {
-    for (typename xvector<xstring*>::const_iterator iter = this->begin(); iter != this->end(); iter++) {
+    for (typename xvector<T*>::const_iterator iter = this->begin(); iter != this->end(); iter++) {
         if (RE2::PartialMatch(**iter, in_pattern)) {
             return true;
         }
@@ -818,12 +816,12 @@ inline bool ptr_xvector<T*>::MatchOne(const re2::RE2& in_pattern) const
 }
 
 template<typename T>
-bool ptr_xvector<T*>::MatchOne(const xstring& in_pattern) const {
+bool ptr_xvector<T*>::MatchOne(const std::string& in_pattern) const {
     return this->MatchOne(in_pattern.c_str());
 }
 
 template<typename T>
-bool ptr_xvector<T*>::MatchOne(xstring&& in_pattern) const {
+bool ptr_xvector<T*>::MatchOne(std::string&& in_pattern) const {
     return this->MatchOne(in_pattern.c_str());
 }
 
@@ -837,7 +835,7 @@ bool ptr_xvector<T*>::MatchOne(char const* in_pattern) const {
 template<typename T>
 inline bool ptr_xvector<T*>::MatchAll(const re2::RE2& in_pattern) const
 {
-    for (typename xvector<xstring*>::const_iterator iter = this->begin(); iter != this->end(); iter++) {
+    for (typename xvector<T*>::const_iterator iter = this->begin(); iter != this->end(); iter++) {
         if (!RE2::PartialMatch(**iter, in_pattern)) {
             return false;
         }
@@ -846,12 +844,12 @@ inline bool ptr_xvector<T*>::MatchAll(const re2::RE2& in_pattern) const
 }
 
 template<typename T>
-bool ptr_xvector<T*>::MatchAll(const xstring& in_pattern) const {
+bool ptr_xvector<T*>::MatchAll(const std::string& in_pattern) const {
     return this->MatchAll(in_pattern.c_str());
 }
 
 template<typename T>
-bool ptr_xvector<T*>::MatchAll(xstring&& in_pattern) const {
+bool ptr_xvector<T*>::MatchAll(std::string&& in_pattern) const {
     return this->MatchAll(in_pattern.c_str());
 }
 
@@ -862,9 +860,9 @@ bool ptr_xvector<T*>::MatchAll(char const* in_pattern) const {
 // =============================================================================================================
 
 template<typename T>
-inline xvector<xstring*> ptr_xvector<T*>::xstringake(const re2::RE2& in_pattern) const
+inline xvector<T*> ptr_xvector<T*>::Take(const re2::RE2& in_pattern) const
 {
-    xvector<xstring*> ret_vec;
+    xvector<T*> ret_vec;
     ret_vec.reserve(this->size() + 1);
     for (size_t i = 0; i < this->size(); i++) {
         if ((RE2::PartialMatch(*(*this)[i], in_pattern)))
@@ -874,28 +872,28 @@ inline xvector<xstring*> ptr_xvector<T*>::xstringake(const re2::RE2& in_pattern)
 }
 
 template<typename T>
-inline xvector<xstring*> ptr_xvector<T*>::xstringake(const xstring& in_pattern) const
+inline xvector<T*> ptr_xvector<T*>::Take(const std::string& in_pattern) const
 {
-    return this->xstringake(in_pattern.c_str());
+    return this->Take(in_pattern.c_str());
 }
 
 template<typename T>
-inline xvector<xstring*> ptr_xvector<T*>::xstringake(xstring&& in_pattern) const
+inline xvector<T*> ptr_xvector<T*>::Take(std::string&& in_pattern) const
 {
-    return this->xstringake(in_pattern.c_str());
+    return this->Take(in_pattern.c_str());
 }
 
 template<typename T>
-inline xvector<xstring*> ptr_xvector<T*>::xstringake(char const* in_pattern) const
+inline xvector<T*> ptr_xvector<T*>::Take(char const* in_pattern) const
 {
-    return this->xstringake(re2::RE2(in_pattern));
+    return this->Take(re2::RE2(in_pattern));
 }
 
 
 template<typename T>
-inline xvector<xstring*> ptr_xvector<T*>::Remove(const re2::RE2& in_pattern) const
+inline xvector<T*> ptr_xvector<T*>::Remove(const re2::RE2& in_pattern) const
 {
-    xvector<xstring*> ret_vec;
+    xvector<T*> ret_vec;
     ret_vec.reserve(this->size() + 1);
     for (size_t i = 0; i < this->size(); i++) {
         if (!(RE2::PartialMatch(*(*this)[i], in_pattern)))
@@ -905,50 +903,50 @@ inline xvector<xstring*> ptr_xvector<T*>::Remove(const re2::RE2& in_pattern) con
 }
 
 template<typename T>
-inline xvector<xstring*> ptr_xvector<T*>::Remove(const xstring& in_pattern) const
+inline xvector<T*> ptr_xvector<T*>::Remove(const std::string& in_pattern) const
 {
     return this->Remove(in_pattern.c_str());
 }
 
 template<typename T>
-inline xvector<xstring*> ptr_xvector<T*>::Remove(xstring&& in_pattern) const
+inline xvector<T*> ptr_xvector<T*>::Remove(std::string&& in_pattern) const
 {
     return this->Remove(in_pattern.c_str());
 }
 
 template<typename T>
-inline xvector<xstring*> ptr_xvector<T*>::Remove(char const* in_pattern) const
+inline xvector<T*> ptr_xvector<T*>::Remove(char const* in_pattern) const
 {
     return this->Remove(re2::RE2(in_pattern));
 }
 // =============================================================================================================
 
 template<typename T>
-inline xvector<xstring> ptr_xvector<T*>::SubAll(const re2::RE2& in_pattern, const xstring& replacement) const
+inline xvector<T> ptr_xvector<T*>::SubAll(const re2::RE2& in_pattern, const std::string& replacement) const
 {
     xvector<E> ret_vec;
     ret_vec.reserve(this->size() + 1);
-    for (typename xvector<xstring*>::const_iterator iter = this->begin(); iter != this->end(); iter++)
+    for (typename xvector<T*>::const_iterator iter = this->begin(); iter != this->end(); iter++)
         ret_vec << RE2::Replace((*iter)->c_str(), in_pattern, replacement);
     return ret_vec;
 }
 
 template<typename T>
-inline xvector<xstring> ptr_xvector<T*>::SubAll(const xstring& in_pattern, const xstring& replacement) const
+inline xvector<T> ptr_xvector<T*>::SubAll(const std::string& in_pattern, const std::string& replacement) const
 {
     return this->SubAll(re2::RE2(in_pattern.c_str()), replacement);
 }
 
 template<typename T>
-inline xvector<xstring> ptr_xvector<T*>::SubAll(xstring&& in_pattern, xstring&& replacement) const
+inline xvector<T> ptr_xvector<T*>::SubAll(std::string&& in_pattern, std::string&& replacement) const
 {
     return this->SubAll(re2::RE2(in_pattern.c_str()), replacement);
 }
 
 template<typename T>
-inline xvector<xstring> ptr_xvector<T*>::SubAll(char const* in_pattern, const xstring& replacement) const
+inline xvector<T> ptr_xvector<T*>::SubAll(char const* in_pattern, const std::string& replacement) const
 {
-    return this->SubAll(re2::RE2(in_pattern), xstring(replacement));
+    return this->SubAll(re2::RE2(in_pattern), std::string(replacement));
 }
 
 

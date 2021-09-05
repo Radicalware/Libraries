@@ -154,6 +154,7 @@ Class PS_Builder
     [void] Install_Files(){
         Set-Location $this.ArgStruct.build_dir
         Write-Host -ForegroundColor Green "[+] CMake is Installing Projct" $this.ArgStruct.name
+        Write-Host "cmake -DBUILD_TYPE=$($this.ArgStruct.build_type) -P ./cmake_install.cmake"
         cmake "-DBUILD_TYPE=$($this.ArgStruct.build_type)" -P ./cmake_install.cmake | Write-Host
         Set-Location $this.ArgStruct.base_dir
     }
