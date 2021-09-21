@@ -82,13 +82,13 @@ AddExecutable("GeneralPurposeLibs" "Socket")
 AddExecutable("GeneralPurposeLibs" "Stash")
 
 AddExecutable("ModdedObjects" "CC")
-AddExecutable("ModdedObjects" "re2")
-
 
 include_directories(${THIS} PRIVATE
         ${InstalledIncludeDirs}
         ${AllFiles}
 )
+
+find_package(re2 CONFIG REQUIRED)
 
 find_package(RE)
 find_package(AC)
@@ -124,8 +124,6 @@ set(FirstLoop ON)
 foreach(EXE ${EXES})
     target_link_libraries(${EXE}
 
-            Radical::re2
-
             Radical::AC
             Radical::MC
 
@@ -139,6 +137,8 @@ foreach(EXE ${EXES})
             Radical::Socket
             Radical::CudaBridge
             # -----------------------------------------
+            re2::re2
+            
             cpprestsdk::cpprest 
             cpprestsdk::cpprestsdk_zlib_internal 
             cpprestsdk::cpprestsdk_brotli_internal

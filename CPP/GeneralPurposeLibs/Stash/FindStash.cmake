@@ -7,11 +7,15 @@ find_package(nlohmann_json CONFIG REQUIRED)
 
 set(MongoLibs "")
 if(${debug})
-    target_link_libraries(${LIB} "D:/AIE/vcpkg/installed/x64-windows/debug/lib/bsoncxx.lib")
-    target_link_libraries(${LIB} "D:/AIE/vcpkg/installed/x64-windows/debug/lib/mongocxx.lib")
+    list(APPEND ${MongoLibs}
+        "${VCPKG_DEBUG_LIB_DIR}/bsoncxx.lib"
+        "${VCPKG_DEBUG_LIB_DIR}/mongocxx.lib"
+    )
 else()
-    target_link_libraries(${LIB} "D:/AIE/vcpkg/installed/x64-windows/lib/bsoncxx.lib")
-    target_link_libraries(${LIB} "D:/AIE/vcpkg/installed/x64-windows/lib/mongocxx.lib")
+    list(APPEND ${MongoLibs}
+        "${VCPKG_RELEASE_LIB_DIR}/bsoncxx.lib"
+        "${VCPKG_RELEASE_LIB_DIR}/mongocxx.lib"
+    )
 endif()
 
 link_libraries(${LIB}
