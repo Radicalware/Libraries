@@ -44,8 +44,8 @@ Get-Module | Remove-Module
 
 Write-Host
 Write-Host "Copying Powershell Modules"
-#Copy-Item $PSScriptRoot\BuildScripts\Modules\* $PowershellModulePath -Force
-#Copy-Item $PSScriptRoot\BuildScripts\Manage\*  $PowershellModulePath -Force
+Copy-Item $PSScriptRoot\BuildScripts\Modules\* $PowershellModulePath -Force
+Copy-Item $PSScriptRoot\BuildScripts\Manage\*  $PowershellModulePath -Force
 
 &"$PSScriptRoot\BuildScripts\Manage\CopyCMakeFiles.ps1"
 

@@ -94,7 +94,6 @@ find_package(RE)
 find_package(AC)
 find_package(MC)
 
-find_package(re2)
 find_package(Nexus)
 find_package(xvector)
 find_package(xstring)
