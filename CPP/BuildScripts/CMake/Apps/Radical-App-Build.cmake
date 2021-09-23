@@ -15,6 +15,8 @@ macro(BuildRadicalSolution InPrivateLibs InPublicLibs)
 
     target_include_directories(${THIS} PRIVATE
         ${InstalledIncludeDirs}
+        "${CMAKE_CURRENT_SOURCE_DIR}/Solution/include"
+        "${CMAKE_CURRENT_SOURCE_DIR}/Solution/controller/include"
     )
 
     if(${debug} OR ${BuildAll})        

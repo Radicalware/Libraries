@@ -18,4 +18,5 @@ list(APPEND PrivateLibs "xstring")
 list(APPEND PrivateLibs "Macros")
 
 BuildRadicalSolution(PrivateLibs PublicLibs)
+
 link_libraries(${THIS} re2::re2)
