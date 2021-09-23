@@ -839,12 +839,12 @@ bool val_xvector<T>::MatchOne(const re2::RE2& in_pattern) const {
 
 template<typename T>
 bool val_xvector<T>::MatchOne(const std::string& in_pattern) const {
-    return this->MatchOne(pattern.c_str());
+    return this->MatchOne(in_pattern.c_str());
 }
 
 template<typename T>
 bool val_xvector<T>::MatchOne(std::string&& in_pattern) const {
-    return this->MatchOne(pattern.c_str());
+    return this->MatchOne(in_pattern.c_str());
 }
 
 template<typename T>

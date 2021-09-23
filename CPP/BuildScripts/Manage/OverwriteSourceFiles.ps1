@@ -25,20 +25,19 @@ class Lib_Handler
 {
     [string] $Dir;
     
-    [string] $BuildLibDir
+    [string] $GitSourceDir    = "C:\Source\Radicalware\Libraries"
 
     [string] $CMakeInstallDir = 'C:\Source\CMake\Radicalware\Libraries\Projects'
     [string] $CMakeHeaderDir  = 'C:\Source\CMake\Radicalware\Libraries\Headers'
 
     Lib_Handler()
     {
-        $this.BuildLibDir = "$PSScriptRoot\..\.."
     }
 
     [void] CopyLib([string] $Lib)
     {    
         $From = "$($this.CMakeInstallDir)\$Lib\*"
-        $To   = "$($this.BuildLibDir)\$($this.dir)\$Lib\Project"
+        $To   = "$($this.GitSourceDir)\$($this.dir)\$Lib\Project"
         # Write-Host "Copying: $From >> $To"
 
         if($(Test-Path $To) -eq $false){

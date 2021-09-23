@@ -156,7 +156,7 @@ bool RA::JSON::Has(const wchar_t* FsObjectName) const
     RescueThrow();
 }
 
-uint RA::JSON::Size() const
+pint RA::JSON::Size() const
 {
     Begin();
     if (!MoFullJsonPtr && !MoBsonValuePtr) return 0;

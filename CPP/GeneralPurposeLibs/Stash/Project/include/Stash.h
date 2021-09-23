@@ -46,7 +46,7 @@ namespace RA
         RA::JSON GetAll(RA::JSON::Init FeInit = RA::JSON::Init::Both);
 
         template<typename K, typename V>
-        uint Count(const K& FxKey, const V& FxValue);
+        pint Count(const K& FxKey, const V& FxValue);
 
         template<typename K, typename V>
         RA::JSON Match(const K& FxKey, const V& FxValue, RA::JSON::Init FeInit = RA::JSON::Init::Both);
@@ -77,7 +77,7 @@ namespace RA
 
 
 template<typename K, typename V>
-inline uint RA::Stash::Count(const K& FxKey, const V& FxValue)
+inline pint RA::Stash::Count(const K& FxKey, const V& FxValue)
 {
     Begin();
     BSON::Pipeline Pipeline{};
