@@ -121,7 +121,6 @@ inline void Nexus<void>::TaskLooper(int thread_idx)
             s_inst_task_count++;
 
             s_task_queue.pop();
-
         }
 
         if (!mutex_idx) // no lock given

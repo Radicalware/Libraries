@@ -39,9 +39,11 @@ include_directories("${VCPKG_INCLUDE}")
 if(WIN32) # ----------------------------------------------------------------------------
     set(OS_TYPE "Windows")
     set(IsWindows ON)
-    # set(WINDOWS_SDK "10.0.17763.0")
-    # set(CMAKE_SYSTEM_VERSION ${WINDOWS_SDK})
-    # set(CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION ${WINDOWS_SDK})
+    
+    set(MSVC_TOOLSET_VERSION "142")
+    set(WINDOWS_SDK "10.0.18362.0")
+    set(CMAKE_SYSTEM_VERSION ${WINDOWS_SDK})
+    set(CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION ${WINDOWS_SDK})
 
     set(RADICAL_BASE   "C:/Source/CMake/Radicalware")
     set(CMAKE_PATH     "C:/Program Files/CMake/share/cmake-3.20/Modules")
@@ -52,10 +54,10 @@ if(WIN32) # --------------------------------------------------------------------
     # INSTALL_DIR = install location of those cpp files
     FindProgramFiles(RADICAL_PROGRAM_FILES "${INSTALL_DIR}")
 
-    set(CPP_ARGS "${CPP_ARGS} /EHsc")
     set(C_ARGS   "${CPP_ARGS} ${C_ARGS}")
     set(C_ARGS "  ${C_ARGS}   /std:c17")
-    set(CPP_ARGS "${CPP_ARGS} /std:c++17")
+    set(CPP_ARGS "${CPP_ARGS} /EHsc")
+    set(CPP_ARGS "${CPP_ARGS} /std:c++20")
     add_link_options("/ignore:4099") # Ignore PDB Warnings
     add_link_options("/ignore:4204") # Ignore PDB Warnings
     # add_link_options("/INCREMENTAL:NO")
@@ -82,7 +84,7 @@ else() # -----------------------------------------------------------------------
     set(CPP_ARGS "${CPP_ARGS} -Wno-unused-result")
     set(C_ARGS   "${CPP_ARGS} ${C_ARGS}")
     set(C_ARGS   "${C_ARGS}   -std:c17")
-    set(CPP_ARGS "${CPP_ARGS} -std=c++17")
+    set(CPP_ARGS "${CPP_ARGS} -std=c++20")
 
     set(CMAKE_PATH                "/usr/share/cmake-3.16/Modules")
     list(APPEND CMAKE_MODULE_PATH "/usr/share/cmake-3.16/Utilities/cmlibarchive/build/cmake")

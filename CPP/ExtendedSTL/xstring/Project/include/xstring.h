@@ -59,6 +59,8 @@ public:
     xstring(const char chr);
     xstring(const char* chrs);
     xstring(const unsigned char* chrs);
+    xstring(const wchar_t* chrs);
+    xstring(const std::wstring& wstr);
 
     // operator=(&&) tests positive for moving in the examples
 

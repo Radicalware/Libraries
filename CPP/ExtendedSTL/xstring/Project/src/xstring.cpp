@@ -58,6 +58,16 @@ xstring::xstring(const unsigned char* chrs)
     RemoveNulls();
 }
 
+xstring::xstring(const wchar_t* chrs)
+{
+    *this = WTXS(chrs);
+}
+
+xstring::xstring(const std::wstring& wstr)
+{
+    *this = WTXS(wstr.c_str());
+}
+
 void xstring::operator+=(const char chr)
 {
     this->insert(this->end(), chr);

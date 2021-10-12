@@ -67,6 +67,8 @@ public:
     inline T& At(const size_t Idx);
     inline const T& At(const size_t Idx) const;
 
+    inline bool HitRange(const size_t FnSize) const;
+
     template<typename P = T> 
     inline bool Has(const P* item) const;
     inline bool Has(const T& item) const;
@@ -107,6 +109,9 @@ public:
     inline bool operator<(const size_t value) const;
     inline bool operator==(const size_t value) const;
     inline bool operator!=(const size_t value) const;
+
+    const T& Front(size_t value = 0) const;
+    T& Front(size_t value = 0);
 
     T& Back(size_t value = 0);
     T* GetBackPtr(size_t value = 0);
@@ -161,8 +166,9 @@ public:
 
     // =================================== DESIGNED FOR NUMERIC BASED VECTORS ===================================
 
-    inline T Sum(size_t FnSkipIdx = 0) const;
-    inline T Mul(size_t FnSkipIdx = 0) const;
+    inline T GetSum(size_t FnSkipIdx = 0) const;
+    inline T GetMul(size_t FnSkipIdx = 0) const;
+    inline T GetAvg(size_t FnSkipIdx = 0) const;
 
     // =================================== DESIGNED FOR STRING  BASED VECTORS ===================================
 
@@ -215,18 +221,6 @@ public:
 };
 // =============================================================================================================
 
-
-template<typename T>
-template<typename P>
-inline bool val_xvector<T>::Has(const P* item) const
-{
-    for (typename val_xvector<T>::const_iterator it = this->begin(); it != this->end(); it++) {
-        if (**it == *item)
-            return true;
-    }
-    return false;
-}
-
 template<typename T>
 inline val_xvector<T>::~val_xvector()
 {
@@ -268,7 +262,7 @@ inline void val_xvector<T>::operator=(std::vector<T>&& vec)
 template<typename T>
 inline T& val_xvector<T>::At(const size_t Idx)
 {
-    if (Size() >= Idx)
+    if (Idx >= Size())
         throw "Index Out Of Range";
     return (*this)[Idx];
 }
@@ -276,9 +270,28 @@ inline T& val_xvector<T>::At(const size_t Idx)
 template<typename T>
 inline const T& val_xvector<T>::At(const size_t Idx) const
 {
-    if (Size() >= Idx)
+    if (Idx >= Size())
         throw "Index Out Of Range";
     return (*this)[Idx];
+}
+
+template<typename T>
+bool val_xvector<T>::HitRange(const size_t FnSize) const
+{
+    if (Size() > FnSize)
+        return true;
+    return false;
+}
+
+template<typename T>
+template<typename P>
+inline bool val_xvector<T>::Has(const P* item) const
+{
+    for (typename val_xvector<T>::const_iterator it = this->begin(); it != this->end(); it++) {
+        if (**it == *item)
+            return true;
+    }
+    return false;
 }
 
 template<typename T>
@@ -436,6 +449,18 @@ inline bool val_xvector<T>::operator!=(const size_t value) const {
 }
 
 // ------------------------------------------------------------------------------------------------
+
+template<typename T>
+inline const T& val_xvector<T>::Front(size_t value) const
+{
+    return this->operator[](value);
+}
+
+template<typename T>
+inline T& val_xvector<T>::Front(size_t value)
+{
+    return this->operator[](value);
+}
 
 template<typename T>
 inline T& val_xvector<T>::Back(size_t value) {
@@ -702,7 +727,7 @@ inline bool val_xvector<T>::TasksCompleted() const
 
 
 template<typename T>
-inline T val_xvector<T>::Sum(size_t FnSkipIdx) const
+inline T val_xvector<T>::GetSum(size_t FnSkipIdx) const
 {
     if (!Size())
         return 0;
@@ -719,7 +744,7 @@ inline T val_xvector<T>::Sum(size_t FnSkipIdx) const
 }
 
 template<typename T>
-inline T val_xvector<T>::Mul(size_t FnSkipIdx) const
+inline T val_xvector<T>::GetMul(size_t FnSkipIdx) const
 {
     if (!Size())
         return 0;
@@ -736,6 +761,12 @@ inline T val_xvector<T>::Mul(size_t FnSkipIdx) const
         num *= (*it);
     }
     return num;
+}
+
+template<typename T>
+inline T val_xvector<T>::GetAvg(size_t FnSkipIdx) const
+{
+    return this->GetSum(FnSkipIdx) / (this->Size() - FnSkipIdx);
 }
 
 // =============================================================================================================

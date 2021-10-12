@@ -121,7 +121,7 @@ void SYS::SetArgs(int argc, char** argv)
     for(char chr : m_chr_kvps.GetKeys())
         m_chr_lst += chr;
 
-
+    m_chr_kvps.AllocateKeys();
     //// for debugging
     //m_str_kvps.Print();
     //i = 0;
@@ -140,17 +140,20 @@ void SYS::AddAlias(const char c_arg, const xstring& s_arg)
         error.Print();
         throw std::runtime_error(error.c_str());
     }
-
     m_alias.AddPair(c_arg, s_arg);
 }
-
 
 // -------------------------------------------------------------------------------------------------------------------
 int SYS::ArgC() const { return m_argc; }
 xvector<xstring> SYS::ArgV() const { 
     return m_all_args; 
 }
-xstring SYS::ArgV(const size_t Idx) const { return m_all_args[Idx]; }
+xstring SYS::ArgV(const size_t Idx) const 
+{
+    if (!m_all_args.HitRange(Idx))
+        ThrowIt("Read the help menu; you have not entered enough arguments");
+    return m_all_args[Idx]; 
+}
 xvector<const xstring*> SYS::GetKeyPtrs() const { return m_str_kvps.GetCache(); }
 xstring SYS::ChrKeys() const { return m_chr_lst; }
 // -------------------------------------------------------------------------------------------------------------------
@@ -158,8 +161,18 @@ xstring SYS::FullPath() { return m_full_path; }
 xstring SYS::Path() { return m_path; }
 xstring SYS::File() { return m_file; }
 // -------------------------------------------------------------------------------------------------------------------
-xvector<xstring*> SYS::Key(const xstring& key) const { return m_values[m_str_kvps[key]]; }
-xvector<xstring*> SYS::Key(const char key) const { return m_values[m_chr_kvps[key]]; }
+xvector<xstring*> SYS::Key(const xstring& key) const 
+{
+    if (!m_str_kvps.Has(key))
+        ThrowIt("CLI argument not found for key: ", key);
+    return m_values.At(m_str_kvps[key]); 
+}
+xvector<xstring*> SYS::Key(const char key) const 
+{ 
+    if (!m_chr_kvps.Has(key))
+        ThrowIt("CLI argument not found for key: ", key);
+    return m_values.At(m_chr_kvps.Key(key)); 
+}
 bool SYS::HasArgs() const { return m_key_used; }
 // -------------------------------------------------------------------------------------------------------------------
 
@@ -185,37 +198,62 @@ bool SYS::Has(const char key) const {
 
 // -------------------------------------------------------------------------------------------------------------------
 
-xvector<xstring*> SYS::operator[](const xstring& key) { return m_values[m_str_kvps[key]]; }
+xvector<xstring*> SYS::operator[](const xstring& key) 
+{ 
+    if(!m_str_kvps.Has(key))
+        ThrowIt("CLI argument not found for key: ", key);
+    return m_values[m_str_kvps[key]]; 
+}
 
-xvector<xstring*> SYS::operator[](const char key) { return m_values[m_chr_kvps[key]]; }
+xvector<xstring*> SYS::operator[](const char key) 
+{
+    if (!m_chr_kvps.Has(key))
+        ThrowIt("CLI argument not found for key: ", key);
+    return m_values[m_chr_kvps[key]]; 
+}
 
-xstring SYS::operator[](int key) {
+xstring SYS::operator[](int key) 
+{
+    if (!m_all_args.HitRange(key))
+        ThrowIt("CLI argument not found for key: ", key);
     return m_all_args[key];
 }
 
-bool SYS::operator()(const xstring& key) const {
+bool SYS::operator()(const xstring& key) const 
+{
     return m_str_kvps.Has(key);
 }
 
-bool SYS::operator()(const xstring& key, const xstring& value) const {
+bool SYS::operator()(const xstring& key, const xstring& value) const 
+{
+    if (!m_str_kvps.Has(key))
+        ThrowIt("CLI argument not found for key: ", key);
     return m_values[m_str_kvps[key]].Has(value);
 }
 
-bool SYS::operator()(xstring&& key) const {
+bool SYS::operator()(xstring&& key) const 
+{
     return m_str_kvps.Has(key);
 }
 
-bool SYS::operator()(xstring&& key, xstring&& value) const {
+bool SYS::operator()(xstring&& key, xstring&& value) const 
+{
+    if (!m_str_kvps.Has(key))
+        ThrowIt("CLI argument not found for key: ", key);
     return m_values[m_str_kvps[key]].Has(value);
 }
 
-bool SYS::operator()(const char key) const {
+bool SYS::operator()(const char key) const 
+{
     return this->m_chr_lst.Has(key);
 }
 
-bool SYS::operator()(const char key, const xstring& value) const {
-    return m_values[m_chr_kvps.at(key)].Has(value);
+bool SYS::operator()(const char key, const xstring& value) const 
+{
+    if (!m_chr_kvps.Has(key))
+        ThrowIt("CLI argument not found for key: ", key);
 
+    return m_values[m_chr_kvps.at(key)].Has(value);
 }
 
 // -------------------------------------------------------------------------------------------------------------------

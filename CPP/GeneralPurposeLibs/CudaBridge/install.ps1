@@ -17,6 +17,7 @@ param (
 # -----------------------------------
 $proj_name  = "CudaBridge";
 $executable = $false;
+write-host "CUDA not working yet with VS 2022"; exit(0)
 # -----------------------------------
 
 $module_path = "";

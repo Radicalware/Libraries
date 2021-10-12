@@ -9,7 +9,7 @@ include("${RADICAL_PATH}/Radical-Lib-Build.cmake")
 
 set(THIS ${ArgProjectName})
 project(${THIS} LANGUAGES CXX CUDA)
-set(CUDA_VERSION "11.3")
+set(CUDA_VERSION "11.4")
 find_package(PrepareCuda)
 
 BuildRadicalProject("STATIC" "" "")

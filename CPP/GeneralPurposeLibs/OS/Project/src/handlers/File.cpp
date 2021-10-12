@@ -42,56 +42,46 @@ xstring OS_O::File::GetData() const
 
 void OS_O::File::SetRead()
 {
+    Begin();
     this->Close();
     m_handler = 'r';
-    try {
-        m_in_stream.open(m_name.c_str(), std::ios::binary | std::ios::in);
-    }
-    catch (std::ifstream::failure & e) {
-        //std::cerr << e.what() << std::endl;
-        throw e;
-    }
+    m_in_stream.open(m_name.c_str(), std::ios::binary | std::ios::in);
+    Rescue();
 }
 
 void OS_O::File::SetWrite()
 {
+    Begin();
     Close();
     m_handler = 'w';
-    try {
-        m_out_stream.open(
-            m_name.c_str(),
-            std::ios::binary | std::ios::in | std::ios::out | std::ofstream::trunc
-        );
-    }
-    catch (std::ostream::failure & e) {
-        //std::cerr << e.what() << std::endl;
-        throw e;
-    }
+    m_out_stream.open(
+        m_name.c_str(),
+        std::ios::binary | std::ios::in | std::ios::out | std::ofstream::trunc
+    );
+    Rescue();
 }
 
 void OS_O::File::SetAppend()
 {
+    Begin();
     this->Close();
     m_handler = 'a';
-    try {
-        m_out_stream.open(
-            m_name.c_str(),
-            std::ios::binary | std::ios::in | std::ios::out | std::ios::ate
-        );
-    }
-    catch (std::ostream::failure & e) {
-        //std::cerr << e.what() << std::endl;
-        throw e;
-    }
+    m_out_stream.open(
+        m_name.c_str(),
+        std::ios::binary | std::ios::in | std::ios::out | std::ios::ate
+    );
+    Rescue();
 }
 
 void OS_O::File::Close()
 {
+    Begin();
     if (m_in_stream.is_open())
         m_in_stream.close();
 
     if (m_out_stream.is_open())
         m_out_stream.close();
+    Rescue();
 }
 
 void OS_O::File::Clear(){

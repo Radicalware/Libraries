@@ -129,6 +129,7 @@ function(SetVisualStudioFilters BreakPoint Files)
         # message("RELATIVE_PATH = ${RELATIVE_PATH}")
         # message("--")
 
+        # message(">**> ${FULL_PATH}  --  ${RELATIVE_PATH}")
         source_group("${RELATIVE_PATH}" FILES "${FULL_PATH}")
     endforeach()
     set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${TargetProject})

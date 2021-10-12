@@ -200,7 +200,7 @@ inline constexpr V xmap<K, V*>::Key(const K& input) const
 {
     auto it = this->find(input);
     if (it == this->end())
-        return V();
+        ThrowIt("No Key: ", input);
     else
         return it->second;
 }
@@ -209,7 +209,7 @@ inline constexpr V xmap<K, V*>::GetValueFrom(const K& input) const
 {
     auto it = this->find(input);
     if (it == this->end())
-        return V();
+        ThrowIt("No Key: ", input);
     else
         return it->second;
 }
@@ -279,19 +279,19 @@ template<typename O>
 inline void xmap<K, V*>::operator=(O&& other)
 {
     this->clear();
-    this->insert(other.begin(), other.end());
+    this->insert(std::make_move_iterator(other.begin()), std::make_move_iterator(other.end()));
 }
 
 template<typename K, typename V>
 inline const V& xmap<K, V*>::operator[](const K& key) const
 {
-    return *this->at(key);
+    return (*this)[key];
 }
 
 template<typename K, typename V>
 inline V& xmap<K, V*>::operator[](const K& key)
 {
-    return *this->at(key);
+    return (*this)[key];
 }
 
 template<typename K, typename V>

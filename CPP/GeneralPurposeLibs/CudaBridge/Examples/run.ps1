@@ -17,7 +17,9 @@ param (
 # -----------------------------------
 $proj_name  = "ex_CudaBridge";
 $executable = $true;
+write-host "CUDA not working yet with VS 2022"; exit(0)
 # -----------------------------------
+
 
 $module_path = "";
 if($($global:PSVersionTable.Platform -eq "Unix")){

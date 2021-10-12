@@ -83,7 +83,7 @@ inline pint RA::Stash::Count(const K& FxKey, const V& FxValue)
     BSON::Pipeline Pipeline{};
     Pipeline.match(BSON::MakeDocument(BSON::KVP(FxKey, FxValue)));
     BSON::Cursor Cursor = MoCollection.aggregate(Pipeline, BSON::Aggregate{});
-    uint Count = 0;
+    pint Count = 0;
     for (auto& Val : Cursor)
         Count++;
     return Count;

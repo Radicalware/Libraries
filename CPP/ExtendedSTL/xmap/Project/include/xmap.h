@@ -28,6 +28,7 @@
 #include "Nexus.h"
 #include "xvector.h"
 #include "xstring.h"
+#include "Macros.h"
 
 //template<typename K, typename V> class xmap;
 //template<typename K, typename V> class xmap<K*, V*>;

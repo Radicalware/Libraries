@@ -116,7 +116,8 @@ Mongo::Instance RA::Stash::SoInstance{};
  RA::JSON RA::Stash::GetAll(RA::JSON::Init FeInit)
  {
      Begin();
-     return  RA::Stash::CursorToJSON(MoCollection.find({}), FeInit);
+     auto Data = MoCollection.find({});
+     return  RA::Stash::CursorToJSON(Data, FeInit);
      RescueThrow();
  }
 
@@ -130,7 +131,8 @@ Mongo::Instance RA::Stash::SoInstance{};
  RA::JSON RA::Stash::FindMany(const BSON::Data& FnData, RA::JSON::Init FeInit)
  {
      Begin();
-     return RA::Stash::CursorToJSON(MoCollection.find(FnData), FeInit);
+     auto Data = MoCollection.find(FnData);
+     return RA::Stash::CursorToJSON(Data, FeInit);
      RescueThrow();
  }
 

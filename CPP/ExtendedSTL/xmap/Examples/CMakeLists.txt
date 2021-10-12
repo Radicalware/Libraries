@@ -15,6 +15,7 @@ find_package(re2 CONFIG REQUIRED)
 list(APPEND PrivateLibs "Nexus")
 list(APPEND PrivateLibs "xvector")
 list(APPEND PrivateLibs "xstring")
+list(APPEND PrivateLibs "macros")
 list(APPEND PrivateLibs "xmap")
 
 BuildRadicalSolution(PrivateLibs "")

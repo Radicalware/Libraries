@@ -53,7 +53,7 @@ public:
     inline constexpr K GetKeyFromValue(const V& input) const; // for Key-Value-Pairs
     inline constexpr xvector<const K*> GetCache() const;       // remember to allocate 
 
-    inline constexpr V Key(const K& input) const; // ------|
+    inline const V& Key(const K& input) const; // ------|
     inline constexpr V GetValueFrom(const K& input) const;//--|--all 3 are the same
 
     // ======== RETREVAL =============================================================================
@@ -72,8 +72,8 @@ public:
     template<typename O>
     inline void operator=(O&& other);
 
-    inline const V& operator[](const K& key) const;
-    inline V& operator[](const K& key);
+    //inline const V& operator[](const K& key) const;
+    //inline V& operator[](const K& key);
 
     inline void operator+=(const xmap<K, V>& other);
     inline constexpr xmap<K, V> operator+(const xmap<K, V>& other) const;
@@ -193,20 +193,19 @@ inline constexpr xvector<const K*> xmap<K, V>::GetCache() const
 }
 
 template<typename K, typename V>
-inline constexpr V xmap<K, V>::Key(const K& input) const
+inline const V& xmap<K, V>::Key(const K& input) const
 {
     auto it = this->find(input);
     if (it == this->end())
-        return V();
-    else
-        return it->second;
+        ThrowIt("No Key: ", input);
+    return it->second;
 }
 template<typename K, typename V>
 inline constexpr V xmap<K, V>::GetValueFrom(const K& input) const
 {
     auto it = this->find(input);
     if (it == this->end())
-        return V();
+        ThrowIt("No Key: ", input);
     else
         return it->second;
 }
@@ -272,25 +271,27 @@ inline void xmap<K, V>::operator=(const O& other)
     this->clear();
     this->insert(other.begin(), other.end());
 }
+
 template<typename K, typename V>
 template<typename O>
 inline void xmap<K, V>::operator=(O&& other)
 {
     this->clear();
-    this->insert(other.begin(), other.end());
+    this->insert(std::make_move_iterator(other.begin()), std::make_move_iterator(other.end()));
+    //this->insert(this->begin(), other.begin(), other.end());
 }
 
-template<typename K, typename V>
-inline const V& xmap<K, V>::operator[](const K& key) const
-{
-    return this->at(key);
-}
-
-template<typename K, typename V>
-inline V& xmap<K, V>::operator[](const K& key)
-{
-    return this->at(key);
-}
+//template<typename K, typename V>
+//inline const V& xmap<K, V>::operator[](const K& key) const
+//{
+//    return (*this)[key];
+//}
+//
+//template<typename K, typename V>
+//inline V& xmap<K, V>::operator[](const K& key)
+//{
+//    return (*this)[key];
+//}
 
 template<typename K, typename V>
 inline void xmap<K, V>::operator+=(const xmap<K, V>& other)

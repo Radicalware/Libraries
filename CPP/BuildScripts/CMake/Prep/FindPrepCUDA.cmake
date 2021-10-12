@@ -1,7 +1,7 @@
-﻿
-
-set(CMAKE_CUDA_ARCHITECTURES 61) # Pascal GPUs (aka 1000 Series GPUs)
-set(CUDA_INCLUDE_DIRS "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v${CUDA_VERSION}/include")
+﻿set(CMAKE_CUDA_ARCHITECTURES 61) # Pascal GPUs (aka 1000 Series GPUs)
+set(CUDA_INCLUDE_DIRS   "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v${CUDA_VERSION}/include")
+set(CMAKE_CUDA_COMPILER "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v${CUDA_VERSION}/bin/nvcc.exe")
+set(CUDA_LIB_PATH       "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v${CUDA_VERSION}/lib/x64")
 
 set(CMAKE_CXX_STANDARD  17)
 set(CMAKE_CUDA_STANDARD 17)
@@ -9,26 +9,13 @@ set(CMAKE_CUDA_STANDARD_REQUIRED TRUE)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
 enable_language(CUDA)
+find_package(CUDA REQUIRED)
 
 include_directories(
-        "${VCPKG_ROOT}/installed/x64-windows/include"
-
-        "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v${CUDA_VERSION}/include"
-        "${CUDALIB_DIR}/include"
-
-        "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.29.30037/include"
-        "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.29.30037/atlmfc/include"
-        "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Auxiliary/VS/include"
-        "C:/Program Files (x86)/Windows Kits/10/Include/10.0.19041.0/ucrt"
-        "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Auxiliary/VS/UnitTest/include"
-        "C:/Program Files (x86)/Windows Kits/10/Include/10.0.19041.0/um"
-        "C:/Program Files (x86)/Windows Kits/10/Include/10.0.19041.0/shared"
-        "C:/Program Files (x86)/Windows Kits/10/Include/10.0.19041.0/winrt"
-        "C:/Program Files (x86)/Windows Kits/10/Include/10.0.19041.0/cppwinrt"
-        "C:/Program Files (x86)/Windows Kits/NETFXSDK/4.8/Include/um"
+    "${VCPKG_ROOT}/installed/x64-windows/include"
+    "${CUDALIB_DIR}/include"
+    "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v${CUDA_VERSION}/include"
 )
-
-find_package(CUDA)
 
 link_libraries(
 
@@ -63,3 +50,9 @@ link_libraries(
     "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v${CUDA_VERSION}/lib/x64/nvrtc.lib"
     "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v${CUDA_VERSION}/lib/x64/OpenCL.lib"
 )
+
+
+set_target_properties(
+        ${THIS}
+        PROPERTIES
+        CUDA_SEPARABLE_COMPILATION ON)

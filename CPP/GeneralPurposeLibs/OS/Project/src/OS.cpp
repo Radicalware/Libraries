@@ -292,6 +292,7 @@ void OS::RM(const xstring& del_file)
 
 OS OS::Open(const xstring& new_file_name, const char write_method)
 {
+    Begin();
     // r = read       
     // w = write mode 
     // a = append
@@ -319,6 +320,7 @@ OS OS::Open(const xstring& new_file_name, const char write_method)
 
     m_last_read = 'f'; // 'f' for file opposed to 'c' for command
     return *this;
+    Rescue();
 }
 
 OS OS::Close()

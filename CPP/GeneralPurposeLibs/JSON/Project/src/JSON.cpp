@@ -11,6 +11,11 @@
 void RA::JSON::Print(const web::json::value & FoWebJson)
 {
     Begin();
+    if (FoWebJson.is_null())
+    {
+        cout << "{ null }\n";
+        return;
+    }
     std::cout << nlohmann::json::parse(WTXS(FoWebJson.serialize().c_str()).c_str()).dump(4, ' ', true).c_str() << std::endl;
     RescueThrow();
 }
@@ -98,19 +103,29 @@ void RA::JSON::Set(const BSON::Value& FoBSON, Init FeInit)
 void RA::JSON::Set(const web::json::value& FoJson, Init FeInit)
 {
     Begin();
+    if (FoJson.is_null())
+        return;
     if (FeInit == Init::Default)
         FeInit = Init::Both;
 
-    if (FeInit == Init::Both || FeInit == Init::JSON) // If not exclusivly only BSON
+    try
     {
-        if (!MoFullJsonPtr.get())
-            MoFullJsonPtr = std::make_shared<web::json::value>(FoJson);
-        else
-            *MoFullJsonPtr = FoJson;
+        if (FeInit == Init::Both || FeInit == Init::JSON) // If not exclusivly only BSON
+        {
+            if (!MoFullJsonPtr.get())
+                MoFullJsonPtr = std::make_shared<web::json::value>(FoJson);
+            else
+                *MoFullJsonPtr = FoJson;
+        }
+        if ((FeInit == Init::Both || FeInit == Init::BSON) && !IsNull())
+            SetBSON(bsoncxx::from_json(GetSingleLineJson().c_str()));
     }
-
-    if(FeInit == Init::Both || FeInit == Init::BSON)
-        SetBSON(bsoncxx::from_json(GetSingleLineJson().c_str()));
+    catch (...)
+    {
+        GSS(MoFullJson);
+        RA::JSON Json1;
+        ThrowIt("Error >>\n", Json1.GetPrettyJson());
+    }
     ZoomReset();
     RescueThrow();
 }
@@ -118,16 +133,20 @@ void RA::JSON::Set(const web::json::value& FoJson, Init FeInit)
 xstring RA::JSON::GetPrettyJson(const int FnSpaceCount, const char FcIndentChar, const bool FbEnsureAscii) const
 {
     Begin();
-    ThrowNoJSON();
     const web::json::value& JsonTarget = (MoZoomedJsonPtr) ? *MoZoomedJsonPtr : *MoFullJsonPtr;
-    return nlohmann::json::parse(WTXS(JsonTarget.serialize().c_str()).c_str()).dump(FnSpaceCount, FcIndentChar, FbEnsureAscii).c_str();
+    if (JsonTarget.is_null())
+        return "{ null }\n";
+    return nlohmann::json::parse(WTXS(JsonTarget.serialize().c_str()).c_str())
+        .dump(FnSpaceCount, FcIndentChar, FbEnsureAscii).c_str();
     RescueThrow();
 }
 
 xstring RA::JSON::GetSingleLineJson() const
 {
     Begin();
-    ThrowNoJSON();
+    const web::json::value& JsonTarget = (MoZoomedJsonPtr) ? *MoZoomedJsonPtr : *MoFullJsonPtr;
+    if (JsonTarget.is_null())
+        return "{ null }\n";
     return nlohmann::json::parse(WTXS(GetZoomedObject().serialize().c_str()).c_str()).dump(4, ' ', true).c_str();
     RescueThrow();
 }
@@ -135,8 +154,21 @@ xstring RA::JSON::GetSingleLineJson() const
 void RA::JSON::PrintJson() const
 {
     Begin();
-    ThrowNoJSON();
+    const web::json::value& JsonTarget = (MoZoomedJsonPtr) ? *MoZoomedJsonPtr : *MoFullJsonPtr;
+    if (JsonTarget.is_null())
+    {
+        cout << "{ null }\n";
+        return;
+    }
     std::cout << nlohmann::json::parse(WTXS(GetZoomedObject().serialize().c_str()).c_str()).dump(4, ' ', true).c_str() << std::endl;
+    RescueThrow();
+}
+
+bool RA::JSON::IsNull() const
+{
+    Begin();
+    GSS(MoFullJson);
+    return MoFullJson.is_null();
     RescueThrow();
 }
 
@@ -191,21 +223,13 @@ RA::JSON& RA::JSON::Zoom(const wchar_t* FacObject)
 {
     Begin();
     GSS(MoFullJson);
-    try {
-
-        if (!MoZoomedJsonPtr.get())
-            MoZoomedJsonPtr = std::make_shared<web::json::value>(MoFullJson.at(FacObject));
-        else {
-            GSS(MoZoomedJson);
-            auto Zoomed = MoZoomedJson.at(FacObject);
-            MoZoomedJson = Zoomed;
-        }
-    }
-    catch (...)
+    if (!MoZoomedJsonPtr.get())
+        MoZoomedJsonPtr = std::make_shared<web::json::value>(MoFullJson.at(FacObject));
+    else
     {
-        PrintJson();
-        std::cout << "\n\n FAILED!! \n\n";
-        exit(1);
+        GSS(MoZoomedJson);
+        auto Zoomed = MoZoomedJson.at(FacObject);
+        MoZoomedJson = Zoomed;
     }
     return *this;
     RescueThrow();

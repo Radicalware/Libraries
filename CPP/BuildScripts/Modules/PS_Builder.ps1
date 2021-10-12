@@ -37,9 +37,10 @@ Class PS_Builder
             # $this.module_path   = '/'+$this.part_module_path;
             # $this.comp_args = " -std=c++17 -Wfatal-errors -finput-charset=UTF-8 -fPIC -pthread"
         }else{ # Windows
-            $this.cmake_command = "cmake.exe"
+            $this.cmake_command = "cmake.exe -A x64 "
             $this.win_ver = '10.0.17763.0'
-            $this.vcvars = 'C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Auxiliary/Build/vcvars64.bat'
+            # $this.vcvars = "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Auxiliary/Build/vcvars64.bat"
+            $this.vcvars   = "C:/Program Files/Microsoft Visual Studio/2022/Preview/VC/Auxiliary/Build/vcvars64.bat"
 
             # $this.part_module_path  = 'Source/CMake/Modules'  
             # $this.install_prefix = 'C:/Source/CMake/Radicalware/Libraries'
@@ -141,10 +142,15 @@ Class PS_Builder
             Write-Host -ForegroundColor Green "[+] CL.exe is the Building Project " $this.ArgStruct.name
             
             # Use this for fast small builds
+            
+            # Method 1
+            # MSBuild.exe $($this.ArgStruct.name + '.sln') -t:Rebuild "-p:Configuration=$($this.ArgStruct.build_type)" -Verbosity:minimal | Write-Host
+
+            # Method 2
             Write-Host "devenv $($this.ArgStruct.name + '.sln') /Build $($this.ArgStruct.build_type)"
             devenv $($this.ArgStruct.name + '.sln') /Build $this.ArgStruct.build_type | Write-Host
             
-            # Use this for big large builds
+            # Method 3 (best if you have incredibuild)
             #BuildConsole.exe $($this.ArgStruct.name + '.sln') /cfg="$($this.ArgStruct.build_type)|x64" /NoLogo  | `
             #    Select-String -pattern "^\s|IncrediBuildAlwaysCreate|Temporary license|^\d+\>(Target|(\s+ (Deleting|Touching|Creating|All outputs are up-to-date|Building Custom Rule)))|^\d build system warnings|IncrediBuild|--------------------" -NotMatch | Write-Host
         }

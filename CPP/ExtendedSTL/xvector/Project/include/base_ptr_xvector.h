@@ -68,6 +68,8 @@ public:
     inline T& At(const size_t Idx);
     inline const T& At(const size_t Idx) const;
 
+    inline bool HitRange(const size_t FnSize) const;
+
     inline bool Has(const T& item) const;
     inline bool Has(T&& item) const;
     inline bool Has(char const* item) const;
@@ -98,7 +100,12 @@ public:
     inline bool operator==(const size_t value) const;
     inline bool operator!=(const size_t value) const;
 
-    T* Back(size_t value = 0) const;
+
+    const T& Front(size_t value = 0) const;
+    T& Front(size_t value = 0);
+
+    const T& Back(size_t value = 0) const;
+    T& Back(size_t value = 0);
 
     inline std::pair<T, T> GetPair() const;
 
@@ -149,8 +156,9 @@ public:
 
     // =================================== DESIGNED FOR NUMERIC BASED VECTORS ===================================
 
-    inline T Sum(size_t FnSkipIdx = 0) const;
-    inline T Mul(size_t FnSkipIdx = 0) const;
+    inline T GetSum(size_t FnSkipIdx = 0) const;
+    inline T GetMul(size_t FnSkipIdx = 0) const;
+    inline T GetAvg(size_t FnSkipIdx = 0) const;
 
     // =================================== DESIGNED FOR STRING  BASED VECTORS ===================================
 
@@ -269,7 +277,7 @@ inline void ptr_xvector<T*>::operator=(std::vector<T*>&& vec)
 template<typename T>
 inline T& ptr_xvector<T*>::At(const size_t Idx)
 {
-    if (Size() >= Idx)
+    if (Idx >= Size())
         throw "Index Out Of Range";
     return *(*this)[Idx];
 }
@@ -277,13 +285,22 @@ inline T& ptr_xvector<T*>::At(const size_t Idx)
 template<typename T>
 inline const T& ptr_xvector<T*>::At(const size_t Idx) const
 {
-    if (Size() >= Idx)
+    if (Idx >= Size())
         throw "Index Out Of Range";
     return *(*this)[Idx];
 }
 
 template<typename T>
-bool ptr_xvector<T*>::Has(const T& item)  const {
+bool ptr_xvector<T*>::HitRange(const size_t FnSize) const
+{
+    if (Size() > FnSize)
+        return true;
+    return false;
+}
+
+template<typename T>
+bool ptr_xvector<T*>::Has(const T& item)  const 
+{
     for (auto* el : *this) {
         if (*el == item)
             return true;
@@ -292,12 +309,14 @@ bool ptr_xvector<T*>::Has(const T& item)  const {
 }
 
 template<typename T>
-bool ptr_xvector<T*>::Has(T&& item)  const {
+bool ptr_xvector<T*>::Has(T&& item)  const 
+{
     return this->Has(item);
 }
 
 template<typename T>
-bool ptr_xvector<T*>::Has(char const* item)  const {
+bool ptr_xvector<T*>::Has(char const* item)  const 
+{
     for (auto* el : *this) {
         if (*el == item)
             return true;
@@ -421,9 +440,27 @@ inline bool ptr_xvector<T*>::operator!=(const size_t value) const
 // ------------------------------------------------------------------------------------------------
 
 template<typename T>
-inline T* ptr_xvector<T*>::Back(size_t value) const
+inline const T& ptr_xvector<T*>::Front(size_t value) const
 {
-    return this->operator[](this->size() - value - 1);
+    return *this->operator[](value);
+}
+
+template<typename T>
+inline T& ptr_xvector<T*>::Front(size_t value)
+{
+    return *this->operator[](value);
+}
+
+template<typename T>
+inline const T& ptr_xvector<T*>::Back(size_t value) const
+{
+    return *this->operator[](this->size() - value - 1);
+}
+
+template<typename T>
+inline T& ptr_xvector<T*>::Back(size_t value)
+{
+    return *this->operator[](this->size() - value - 1);
 }
 
 template<typename T>
@@ -589,7 +626,7 @@ inline xvector<N> ptr_xvector<T*>::ForEach(F&& function, A&& ...Args)
 {
     xvector<N> vret;
     for (typename xvector<E*>::iterator it = this->begin(); it != this->end(); it++)
-        vret.push_back(function(*it, Args...));
+        vret.push_back(function(**it, Args...));
     return vret;
 }
 
@@ -599,7 +636,7 @@ inline std::unordered_map<K, V> ptr_xvector<T*>::ForEach(F&& function, A&& ...Ar
 {
     std::unordered_map<K, V> rmap;
     for (typename xvector<E*>::iterator it = this->begin(); it != this->end(); it++)
-        rmap.insert(function(*it, Args...));
+        rmap.insert(function(**it, Args...));
     return rmap;
 }
 
@@ -630,7 +667,7 @@ inline std::unordered_map<K, V> ptr_xvector<T*>::ForEachThread(F&& function, A&&
     Nexus<std::pair<K, V>>* trd = new Nexus<std::pair<K, V>>;
 
     for (typename xvector<E*>::iterator it = this->begin(); it != this->end(); it++)
-        trd->AddJobVal(function, *it, Args...);
+        trd->AddJobVal(function, **it, Args...);
 
     std::unordered_map<K, V> rmap;
     rmap.reserve(trd->size());
@@ -677,7 +714,7 @@ inline bool ptr_xvector<T*>::TasksCompleted() const
 // =============================================================================================================
 
 template<typename T>
-inline T ptr_xvector<T*>::Sum(size_t FnSkipIdx) const
+inline T ptr_xvector<T*>::GetSum(size_t FnSkipIdx) const
 {
     if (!Size())
         return 0;
@@ -694,7 +731,7 @@ inline T ptr_xvector<T*>::Sum(size_t FnSkipIdx) const
 }
 
 template<typename T>
-inline T ptr_xvector<T*>::Mul(size_t FnSkipIdx) const
+inline T ptr_xvector<T*>::GetMul(size_t FnSkipIdx) const
 {
     if (!Size())
         return 0;
@@ -711,6 +748,12 @@ inline T ptr_xvector<T*>::Mul(size_t FnSkipIdx) const
         num *= (**it);
     }
     return num;
+}
+
+template<typename T>
+inline T ptr_xvector<T*>::GetAvg(size_t FnSkipIdx) const
+{
+    return this->Sum(FnSkipIdx) / (this->Size() - FnSkipIdx);
 }
 
 // =============================================================================================================

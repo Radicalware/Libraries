@@ -4,6 +4,18 @@
 
 ---------------------------------------------------------------------
 
+09/18/2021 >> Libs 19.3.0
+
+Builds are now designed to use VS 2022. This comes at the cost of 
+not being able to use CUDA. Due to rapid development right now, 
+I will come back and fix the CUDA Bridge when nVidia fixes/updates 
+their code to use C++20 standard. I will wait to update Nexus to
+use jthread and atomic smart pointers. If nVidia takes too long,
+I may need to go back and use 2019 but I hope that doesn't happen.
+Rapid dev right now so releases will be bumpy atm.
+
+---------------------------------------------------------------------
+
 09/18/2021 >> Libs 19.1.0
 
 There is now a major overhaul to the libs buid platform.

@@ -206,7 +206,7 @@ int Date::GetDaysInMonth()
 
 void Date::ClampDayToMonth()
 {
-    Date::Layout& LoTime = GetLayout();
+    Date::Layout LoTime = GetLayout();
     int LoMaxDays = Date::GetDaysInMonth(LoTime.Year, LoTime.Month);
     if (LoTime.Day > LoMaxDays)
         SetEpochTime(MoEpochTime + ((static_cast<Date::EpochTime>(LoMaxDays) - LoTime.Day) * 60 * 60 * 24));
