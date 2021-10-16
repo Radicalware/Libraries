@@ -6,7 +6,7 @@
 * www.Radicalware.com
 * https://www.youtube.com/channel/UCivwmYxoOdDT3GmDnD0CfQA/playlists
 *
-* Licensed under the Apache License, const V*ersion 2.0 (the "License");
+* Licensed under the Apache License, V*ersion 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
 *
@@ -47,7 +47,7 @@ public:
     inline xmap(const std::map<K*, V*>& other);
     inline xmap(std::map<K*, V*>&& other) noexcept;
 
-    inline void AddPair(const K* one, const V* two);
+    inline void AddPair(const K* one, V* two);
     // ======== INITALIZATION ========================================================================
     // ======== RETREVAL =============================================================================
 
@@ -87,10 +87,10 @@ public:
     // ======== BOOLS ================================================================================
     // ======== Functional ===========================================================================
     inline constexpr xvector<const K*>* AllocateKeys();
-    inline xmap<const V*, const K*>* AllocateReverseMap();
+    inline xmap<V*, const K*>* AllocateReverseMap();
 
     inline constexpr xvector<const K*> GetCachedKeys() const; // remember to allocate 
-    inline xmap<const V*, const K*> GetCachedRevMap() const; // remember to allocate 
+    inline xmap<V*, const K*> GetCachedRevMap() const; // remember to allocate 
 
     template<typename F>
     inline void Sort(F func);
@@ -154,10 +154,23 @@ inline xmap<K*, V*>::xmap(std::map<K*, V*>&& other) noexcept :
 
 
 template<typename K, typename V>
-inline void xmap<K*, V*>::AddPair(const K* one, const V* two)
+inline void xmap<K*, V*>::AddPair(const K* one, V* two)
 {
     this->insert(std::make_pair(one, two));
 }
+
+namespace RA
+{
+    template<typename K, typename V>
+    void XMapAddToArray(xmap<K*, xvector<V*>>& FMap, const K* Key, V* Value)
+    {
+        if (FMap.Has(Key))
+            FMap[Key] << Value;
+        else
+            FMap.AddPair(Key, { Value });
+    }
+};
+
 // ======== INITALIZATION ========================================================================
 // ======== RETREVAL =============================================================================
 
@@ -354,10 +367,10 @@ inline constexpr xvector<const K*>* xmap<K*, V*>::AllocateKeys()
 
 
 template<typename K, typename V>
-inline xmap<const V*, const K*>* xmap<K*, V*>::AllocateReverseMap()
+inline xmap<V*, const K*>* xmap<K*, V*>::AllocateReverseMap()
 {
     if (m_rev_map == nullptr)
-        m_rev_map = new xmap<const V*, const K*>;
+        m_rev_map = new xmap<V*, const K*>;
     else
         m_rev_map->clear();
 
@@ -377,7 +390,7 @@ inline constexpr xvector<const K*> xmap<K*, V*>::GetCachedKeys() const
 }
 
 template<typename K, typename V>
-inline xmap<const V*, const K*> xmap<K*, V*>::GetCachedRevMap() const
+inline xmap<V*, const K*> xmap<K*, V*>::GetCachedRevMap() const
 {
     return *m_rev_map;
 }

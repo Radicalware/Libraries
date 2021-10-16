@@ -8,11 +8,11 @@
 #include<thread>
 #include<utility>
 
-#include "NX_Threads.h"
+#include "RA_Threads.h"
 #include "Task.h"
 
 template<typename T>
-class Job : protected NX_Threads
+class Job : protected RA::Threads
 {
     Task<T> m_task;
     T m_value;
@@ -74,7 +74,7 @@ inline void Job<T>::Init()
     catch (const std::exception&) {
         m_exc_ptr = std::current_exception();
     }
-    s_Threads_Used--;
+    Used--;
     m_done = true;
 }
 

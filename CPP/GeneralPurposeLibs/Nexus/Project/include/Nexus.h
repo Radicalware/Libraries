@@ -22,6 +22,7 @@
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif
+
 #include "Nexus_T.h"
 #include "Nexus_void.h"
 

@@ -68,7 +68,7 @@ public:
     inline T& At(const size_t Idx);
     inline const T& At(const size_t Idx) const;
 
-    inline bool HitRange(const size_t FnSize) const;
+    inline bool HasRange(const size_t FnSize) const;
 
     inline bool Has(const T& item) const;
     inline bool Has(T&& item) const;
@@ -291,7 +291,7 @@ inline const T& ptr_xvector<T*>::At(const size_t Idx) const
 }
 
 template<typename T>
-bool ptr_xvector<T*>::HitRange(const size_t FnSize) const
+bool ptr_xvector<T*>::HasRange(const size_t FnSize) const
 {
     if (Size() > FnSize)
         return true;

@@ -20,6 +20,7 @@ list(APPEND PrivateLibs "xmap")
 
 set(PublicLibs "")
 list(APPEND PublicLibs "SYS")
+list(APPEND PublicLibs "Timer")
 
 BuildRadicalSolution(PrivateLibs PublicLibs)
 link_libraries(${THIS} re2::re2)

@@ -49,7 +49,6 @@ private:
     Nexus<E>* td = nullptr;
 public:
     using std::vector<T, std::allocator<T>>::vector;
-
     inline val_xvector() {};
     inline ~val_xvector();
     inline val_xvector(std::initializer_list<T> lst): std::vector<T>(std::move(lst)) { };
@@ -67,7 +66,7 @@ public:
     inline T& At(const size_t Idx);
     inline const T& At(const size_t Idx) const;
 
-    inline bool HitRange(const size_t FnSize) const;
+    inline bool HasRange(const size_t FnSize) const;
 
     template<typename P = T> 
     inline bool Has(const P* item) const;
@@ -276,7 +275,7 @@ inline const T& val_xvector<T>::At(const size_t Idx) const
 }
 
 template<typename T>
-bool val_xvector<T>::HitRange(const size_t FnSize) const
+bool val_xvector<T>::HasRange(const size_t FnSize) const
 {
     if (Size() > FnSize)
         return true;

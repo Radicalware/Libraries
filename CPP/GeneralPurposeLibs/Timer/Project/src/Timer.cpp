@@ -80,11 +80,11 @@ std::ostream& operator<<(std::ostream& out, const Timer& time)
     return out;
 }
 
-void Timer::Sleep(unsigned long extent)
+void Timer::Sleep(unsigned long FnMilliseconds)
 {
 #if (defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64))
-    ::Sleep(extent);
+    ::Sleep(FnMilliseconds);
 #else
-    ::usleep(extent);
+    ::usleep(FnMilliseconds);
 #endif
 }

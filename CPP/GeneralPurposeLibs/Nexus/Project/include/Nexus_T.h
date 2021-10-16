@@ -23,11 +23,7 @@
 #include<functional>
 #include<type_traits>
 
-#include "NX_Threads.h"
-#include "Task.h"
-#include "Job.h"
-
-#include "NX_Threads.h"
+#include "RA_Threads.h"
 #include "Task.h"
 #include "Job.h"
 
@@ -43,7 +39,7 @@
 // =========================================================================================
 
 template<typename T = void>
-class __single_inheritance Nexus : public NX_Threads
+class __single_inheritance Nexus : public RA::Threads
 {
 private:
     bool m_finish_tasks = false;
@@ -75,9 +71,11 @@ public:
     Nexus();
     ~Nexus();
 
+    // Job: String (for referencing unfinished job) + Function + args
     template <typename F, typename ...A>
     void AddJob(const std::string& key, F&& function, A&& ...Args);
     template <typename F, typename ...A>
+    // Job: char* (for referencing unfinished job) + Function + args
     void AddJob(const char* key, F&& function, A&& ...Args);
     template <typename F, typename ...A>
     inline typename std::enable_if<!std::is_same<F, std::string>::value, void>::type AddJob(F&& function, A&& ...Args);
@@ -85,6 +83,7 @@ public:
     // These are to be used by xvector/xmap
     template <typename F, typename ONE, typename ...A>
     void AddJobVal(F&& function, ONE& element, A&& ...Args); // commonly used by xvector
+
     template <typename K, typename V, typename F, typename ...A>
     void AddJobPair(F&& function, K& key, V& value, A&& ...Args); // commonly used by xmap
 
@@ -115,24 +114,24 @@ inline void Nexus<T>::TaskLooper(int thread_idx)
         {
             std::unique_lock<std::mutex> lock(m_mutex);
             m_sig_deque.wait(lock, [this]() {
-                return ((m_finish_tasks || m_task_deque.size()) && NX_Threads::ThreadsAreAvailable());
+                return ((m_finish_tasks || m_task_deque.size()) && RA::Threads::ThreadsAreAvailable());
             });
 
             if (m_task_deque.empty())
                 return;
 
-            NX_Threads::s_Threads_Used++;
+            RA::Threads::Used++;
             tsk_idx = m_inst_task_count;
             if (m_task_deque.front().IsBlank())
                 continue;
             else
-                (*m_inst_job_mp).insert({ tsk_idx, Job<T>(std::move(m_task_deque.front()), NX_Threads::s_task_count) });
+                (*m_inst_job_mp).insert({ tsk_idx, Job<T>(std::move(m_task_deque.front()), RA::Threads::TaskCount) });
 
             const Task<T>* latest_task = (*m_inst_job_mp)[tsk_idx].TaskPtr();
             if (latest_task->HasName())
                 m_str_inst_mp.insert({ latest_task->GetName(), tsk_idx });
 
-            NX_Threads::s_task_count++;
+            RA::Threads::TaskCount++;
             m_inst_task_count++;
 
             m_task_deque.pop_front();
@@ -170,12 +169,12 @@ template<typename T>
 Nexus<T>::Nexus()
 {
     m_inst_job_mp = new std::unordered_map<size_t, Job<T>>; 
-    NX_Threads::s_Inst_Count++;
-    m_threads.reserve(NX_Threads::s_Thread_Count);
-    for (int i = 0; i < NX_Threads::s_Thread_Count; ++i)
+    RA::Threads::InstanceCount++;
+    m_threads.reserve(RA::Threads::Remaining);
+    for (int i = 0; i < RA::Threads::Remaining; ++i)
         m_threads.emplace_back(std::bind(&Nexus<T>::TaskLooper, std::ref(*this), i));
 
-    NX_Threads::s_Threads_Used = 0;
+    RA::Threads::Used = 0;
 }
 
 template<typename T>
@@ -209,7 +208,8 @@ inline void Nexus<T>::AddJob(const char* key, F&& function, A&& ...Args)
 
 template<typename T>
 template <typename F, typename ...A>
-inline typename std::enable_if<!std::is_same<F, std::string>::value, void>::type Nexus<T>::AddJob(F&& function, A&& ...Args)
+inline typename std::enable_if<!std::is_same<F, std::string>::value, void>::type 
+    Nexus<T>::AddJob(F&& function, A&& ...Args)
 {
     this->Add(function, std::ref(Args)...);
 }
@@ -321,7 +321,7 @@ template<typename T>
 inline void Nexus<T>::WaitAll() const
 {
     while (m_task_deque.size()) Sleep(1);
-    while (NX_Threads::s_Threads_Used > 0) Sleep(1);
+    while (RA::Threads::Used > 0) Sleep(1);
 }
 
 template<typename T>

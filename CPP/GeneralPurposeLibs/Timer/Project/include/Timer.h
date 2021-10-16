@@ -48,7 +48,7 @@ public:
     xvector<double> GetVector() const;
     xmap<xstring, double> GetMap() const;
 
-    static void Sleep(unsigned long extent);
+    static void Sleep(unsigned long FnMilliseconds);
 };
 
 EXI std::ostream& operator<<(std::ostream& out, const Timer& time);

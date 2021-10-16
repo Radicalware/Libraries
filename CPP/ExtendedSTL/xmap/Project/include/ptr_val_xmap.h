@@ -155,6 +155,18 @@ inline void xmap<K*, V>::AddPair(K* one, const V& two)
     this->insert(std::make_pair(one, two));
 }
 
+namespace RA
+{
+    template<typename K, typename V>
+    void XMapAddToArray(xmap<K*, xvector<V>>& FMap, const K* Key, const V& Value)
+    {
+        if (FMap.Has(Key))
+            FMap[Key] << Value;
+        else
+            FMap.AddPair(Key, { Value });
+    }
+}
+
 // ======== INITALIZATION ========================================================================
 // ======== RETREVAL =============================================================================
 

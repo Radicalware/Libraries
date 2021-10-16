@@ -5,7 +5,7 @@ bool   Nexus<void>::s_initialized     = false;
 size_t Nexus<void>::s_inst_task_count = 0;
 bool   Nexus<void>::s_finish_tasks    = false;
 
-std::vector<NX_Mutex*> Nexus<void>::s_lock_lst; // for objects in threads
+std::unordered_map<size_t, xptr<RA::Mutex>> Nexus<void>::s_lock_lst; // for objects in threads
 std::mutex Nexus<void>::s_mutex; // for Nexus
 std::condition_variable Nexus<void>::s_sig_queue;
 

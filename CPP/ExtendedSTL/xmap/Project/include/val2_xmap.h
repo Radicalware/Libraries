@@ -148,6 +148,28 @@ template<typename K, typename V>
 inline xmap<K, V>::xmap(std::map<K, V>&& other) noexcept :
     std::unordered_map<K, V>(std::make_move_iterator(other.begin()), std::make_move_iterator(other.end())) { }
 
+namespace RA
+{
+    template<typename K, typename V>
+    void XMapAddToArray(xmap<K, xvector<V>>& FMap, const K& FKey, const V& FValue)
+    {
+        if (FMap.Has(FKey))
+            FMap[FKey] << FValue;
+        else
+            FMap.AddPair(FKey, { FValue });
+    }
+
+    template<typename K1, typename K2, typename V, 
+        class = typename std::enable_if<!std::is_pointer<V>::value>::type >
+    void XMapAdd(xmap<K1, xmap<K2, V>>& FMap, const K1& FKey1, const K2& FKey2, const V& FValue)
+    {
+        if (FMap.Has(FKey1))
+            FMap[FKey1].AddPair(FKey2, FValue);
+        else
+            FMap.AddPair(FKey1, { {FKey2, FValue} });
+    }
+}
+
 template<typename K, typename V>
 inline void xmap<K, V>::AddPair(const K& one, const V& two){
     this->insert(std::make_pair(one, two));

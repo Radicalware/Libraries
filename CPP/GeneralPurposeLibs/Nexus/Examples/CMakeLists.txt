@@ -15,6 +15,7 @@ find_package(re2 CONFIG REQUIRED)
 list(APPEND PrivateLibs "Nexus")
 list(APPEND PrivateLibs "xvector")
 list(APPEND PrivateLibs "xstring")
+list(APPEND PrivateLibs Macros)
 list(APPEND PrivateLibs "xmap")
 
 set(PublicLibs "")

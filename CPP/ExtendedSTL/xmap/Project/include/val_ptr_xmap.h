@@ -29,7 +29,7 @@ class xmap<K, V*> : public std::unordered_map<K, V*>
 private:
     // All of the pointers are allocated on an "As-Needed Basis"
     xvector<const K*>* m_keys = nullptr;             // used for setting orders to your keys 
-    xmap<const V*, const K*>* m_rev_map = nullptr;   // go from KVPs to VKPs
+    xmap<V*, const K*>* m_rev_map = nullptr;   // go from KVPs to VKPs
 
 public:
     using std::unordered_map<K, V*>::unordered_map;
@@ -46,7 +46,7 @@ public:
     inline xmap(const std::map<K, V*>& other);
     inline xmap(std::map<K, V*>&& other) noexcept;
 
-    inline void AddPair(K one, const V& two);
+    inline void AddPair(const K& one, V* two);
     // ======== INITALIZATION ========================================================================
     // ======== RETREVAL =============================================================================
 
@@ -74,8 +74,9 @@ public:
     template<typename O>
     inline void operator=(O&& other);
 
-    inline V& operator[](const K& key);
-    inline const V& operator[](const K& key) const;
+    // TODO REMOVE
+    //inline V& operator[](const K& key);
+    //inline const V& operator[](const K& key) const;
 
     inline void operator+=(const xmap<K, V*>& other);
     inline xmap<K, V*> operator+(const xmap<K, V*>& other) const;
@@ -85,10 +86,10 @@ public:
     // ======== BOOLS ================================================================================
     // ======== Functional ===========================================================================
     inline constexpr xvector<const K*>* AllocateKeys();
-    inline xmap<const V*, const K*>* AllocateReverseMap();
+    inline xmap<V*, const K*>* AllocateReverseMap();
 
     inline constexpr xvector<const K*> GetCachedKeys() const; // remember to allocate 
-    inline xmap<const V*, const K*> GetCachedRevMap() const; // remember to allocate 
+    inline xmap<V*, const K*> GetCachedRevMap() const; // remember to allocate 
 
     template<typename F>
     inline void Sort(F func);
@@ -150,11 +151,34 @@ template<typename K, typename V>
 inline xmap<K, V*>::xmap(std::map<K, V*>&& other) noexcept :
     std::unordered_map<K, V*>(std::make_move_iterator(other.begin()), std::make_move_iterator(other.end())) { }
 
+
 template<typename K, typename V>
-inline void xmap<K, V*>::AddPair(K one, const V& two)
+inline void xmap<K, V*>::AddPair(const K& one, V* two)
 {
     this->insert(std::make_pair(one, two));
 }
+
+namespace RA
+{
+    template<typename K, typename V>
+    void XMapAddToArray(xmap<K, xvector<V*>>& FMap, const K FKey, V* FValue)
+    {
+        if (FMap.Has(FKey))
+            FMap[FKey] << FValue;
+        else
+            FMap.AddPair(FKey, { FValue });
+    }
+
+    template<typename K1, typename K2, typename V>
+    void XMapAdd(xmap<K1, xmap<K2, V*>>& FMap, const K1& FKey1, const K2& FKey2, V* FValue)
+    {
+        if (FMap.Has(FKey1))
+            FMap[FKey1].AddPair(FKey2, FValue);
+        else
+            FMap.AddPair(FKey1, { {FKey2, FValue} });
+    }
+};
+
 // ======== INITALIZATION ========================================================================
 // ======== RETREVAL =============================================================================
 
@@ -282,17 +306,18 @@ inline void xmap<K, V*>::operator=(O&& other)
     this->insert(std::make_move_iterator(other.begin()), std::make_move_iterator(other.end()));
 }
 
-template<typename K, typename V>
-inline const V& xmap<K, V*>::operator[](const K& key) const
-{
-    return (*this)[key];
-}
-
-template<typename K, typename V>
-inline V& xmap<K, V*>::operator[](const K& key)
-{
-    return (*this)[key];
-}
+// TODO REMOVE
+//template<typename K, typename V>
+//inline const V& xmap<K, V*>::operator[](const K& key) const
+//{
+//    return (*this)[key];
+//}
+//
+//template<typename K, typename V>
+//inline V& xmap<K, V*>::operator[](const K& key)
+//{
+//    return (*this)[key];
+//}
 
 template<typename K, typename V>
 inline void xmap<K, V*>::operator+=(const xmap<K, V*>& other)
@@ -332,10 +357,10 @@ inline constexpr xvector<const K*>* xmap<K, V*>::AllocateKeys()
 
 
 template<typename K, typename V>
-inline xmap<const V*, const K*>* xmap<K, V*>::AllocateReverseMap()
+inline xmap<V*, const K*>* xmap<K, V*>::AllocateReverseMap()
 {
     if (m_rev_map == nullptr)
-        m_rev_map = new xmap<const V*, const K*>;
+        m_rev_map = new xmap<V*, const K*>;
     else
         m_rev_map->clear();
 
@@ -355,7 +380,7 @@ inline constexpr xvector<const K*> xmap<K, V*>::GetCachedKeys() const
 }
 
 template<typename K, typename V>
-inline xmap<const V*, const K*> xmap<K, V*>::GetCachedRevMap() const
+inline xmap<V*, const K*> xmap<K, V*>::GetCachedRevMap() const
 {
     return *m_rev_map;
 }

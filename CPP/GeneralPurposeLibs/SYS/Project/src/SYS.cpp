@@ -30,247 +30,237 @@
 // char key map ---| -- int map --- | --- values
 // str  key map ---|
 
-SYS::SYS(int c_argc, char** c_argv) :
-    m_argc(c_argc), m_argv(c_argv) {
-    (this)->SetArgs(m_argc, m_argv);
-};
-
-
-SYS::SYS() {};
-
-SYS::~SYS() {};
-
-void SYS::AddValueSection(size_t idx_start, size_t idx_end)
+SYS::SYS(int argc, char** argv, char** env)
 {
-    size_t size = m_values.size();
-    m_values.resize(size + 1);
-
-    for (size_t i = idx_start; i < idx_end; i++) 
-        m_values[size] << &m_all_args[i];
-    
-}
+    Begin();
+    (this)->SetArgs(argc, argv);
+    if (env != nullptr)
+    {
+        ThrowIt("Not Implemented Yet");
+    }
+    Rescue();
+};
 
 // ======================================================================================================================
 // >>>> args
 
-void SYS::SetArgs(int argc, char** argv) 
+
+void SYS::SetArgs(int argc, char** argv)
 {
+    Begin();
+    MbArgsSet = true;
+    MvCliArgs.reserve(argc);
+    for (int i = 0; i < argc; i++)
+        MvCliArgs << xstring(argv[i]);
+    MnSize = MvCliArgs.Size();
 
-    m_argc = argc;
+    size_t program_split_loc = MvCliArgs[0].find_last_of("/\\");
+    MsPath = MvCliArgs[0].substr(0, program_split_loc + 1);
+    MsFile = MvCliArgs[0].substr(program_split_loc + 1, MvCliArgs[0].size() - 1);
 
-    if (m_args_set) 
+    for (pint i = 1; i < MnSize; i++)
     {
-        xstring error = "\n\nArgs have already been set!!\n\n";
-        error.Print();
-        throw std::runtime_error(error.c_str());
-    }
-    else {
-        m_args_set = true;
-    }
-
-    m_full_path = xstring(argv[0]);
-    size_t program_split_loc = m_full_path.find_last_of("/\\");
-    m_path = m_full_path.substr(0, program_split_loc + 1);
-    m_file = m_full_path.substr(program_split_loc + 1, m_full_path.size() - 1);
-
-    m_alias.AllocateReverseMap(); // rev goes str>char
-    m_all_args.AddCharStrings(argc, argv);
-
-    size_t last_args_idx = 0;
-    int vec_values_idx = 0;
-
-    // program arg (stage 0)
-    short int stage = 0;
-    m_str_kvps.AddPair(&m_file, vec_values_idx);
-
-    size_t i = 1;
-    for (; i < argc; i++)
-    {
-        if (m_all_args[i][0] == '-' && m_all_args[i][1] == '-') // str key
+        const bool bLastArg = (i == (MnSize - 1));
+        xstring& Arg = MvCliArgs[i];
+        if (HasDoubleDash(Arg))
         {
-            m_key_used = true;
-            vec_values_idx++;
-            this->AddValueSection(last_args_idx, i); 
-            m_str_kvps.AddPair(&m_all_args[i], vec_values_idx);
+            MvKeysStr << &Arg;
+            if (MmAliasChar.Has(Arg))
+                MvKeysChr << MmAliasChar.Key(Arg);
+            if (bLastArg)
+            {
+                RA::XMapAddToArray(MmArgs, MmAliasChar.Key(Arg), xstring::static_class);
+                break;
+            }
 
-            if (m_alias.GetCachedRevMap().Has(m_all_args[i]))  // if we have a char for the string add it
-                m_chr_kvps.AddPair(m_alias.GetCachedRevMap()[m_all_args[i]], vec_values_idx);
-            
-            last_args_idx = i + 1; // +1 to avoid key
-            stage = 1;
+            for (pint j = i + 1; j < MnSize; j++)
+            {
+                xstring& SubArg = MvCliArgs[j];
+                if (IsArgType(SubArg))
+                {
+                    i = j - 1; // -1 because the for-loop will increase it again
+                    break;
+                }
+                if (MmAliasChar.Has(Arg))
+                    RA::XMapAddToArray(MmArgs, MmAliasChar.Key(Arg), SubArg);
+            }
         }
-        else if(m_all_args[i][0] == '-') // char key
+        else if (HasSingleDash(Arg))
         {
-            m_key_used = true;
-            vec_values_idx++;
-            this->AddValueSection(last_args_idx, i);
-            for (size_t char_idx = 1; char_idx < m_all_args[i].size(); char_idx++) { // starts at 1 to avoid the '-'
-                m_chr_kvps.AddPair(m_all_args[i][char_idx], vec_values_idx);
-                if (m_alias.Has(m_all_args[i][char_idx])) { // if the alias has a str for the char key, add the value
-                    m_str_kvps.AddPair(&m_alias.find(m_all_args[i][char_idx])->second, vec_values_idx); 
+            for (const char& ChrArg : Arg(1))
+            {
+                MvKeysChr << ChrArg; // Char Keys
+                for (auto& Pair : MmAliasChar) // Str Keys
+                {
+                    if (Pair.second == ChrArg)
+                        MvKeysStr << &Pair.first;
+                }
+                if (bLastArg) // Map
+                {
+                    RA::XMapAddToArray(MmArgs, ChrArg, xstring::static_class);
+                    continue;
+                }
+
+                // Add args to ever char in char list
+                for (pint j = i + 1; j < MnSize; j++)
+                {
+                    xstring& SubArg = MvCliArgs[j];
+                    if (IsArgType(SubArg))
+                    {
+                        if(&ChrArg == &Arg.back())
+                            i = j - 1;
+                        break;
+                    }
+                    RA::XMapAddToArray(MmArgs, ChrArg, SubArg);
                 }
             }
-            last_args_idx = i + 1; // +1 to avoid key 
-            stage = 2;
         }
     }
-    this->AddValueSection(last_args_idx, i);
-
-    m_str_kvps.AllocateKeys();
-
-    for(char chr : m_chr_kvps.GetKeys())
-        m_chr_lst += chr;
-
-    m_chr_kvps.AllocateKeys();
-    //// for debugging
-    //m_str_kvps.Print();
-    //i = 0;
-    //for (const xvector<xstring*> p_vec : m_values) {
-    //    std::cout << i << " >> " << p_vec.Join(' ') << '\n';
-    //    i++;
-    //}
+    Rescue();
 }
 
-
-void SYS::AddAlias(const char c_arg, const xstring& s_arg) 
+void SYS::AddAlias(const char FChr, const xstring& FStr)
 {
-    if (m_args_set) 
-    {
-        xstring error = "\n\nSetup Alias before Args!!\n\n";
-        error.Print();
-        throw std::runtime_error(error.c_str());
-    }
-    m_alias.AddPair(c_arg, s_arg);
+    MmAliasChar.AddPair(FStr, FChr);
 }
 
 // -------------------------------------------------------------------------------------------------------------------
-int SYS::ArgC() const { return m_argc; }
-xvector<xstring> SYS::ArgV() const { 
-    return m_all_args; 
+int SYS::ArgC() const {
+    return MnSize;
 }
-xstring SYS::ArgV(const size_t Idx) const 
+
+xvector<xstring> SYS::ArgV() const {
+    return MvCliArgs;
+}
+xstring SYS::ArgV(const size_t Idx) const
 {
-    if (!m_all_args.HitRange(Idx))
+    Begin();
+    if (!MvCliArgs.HasRange(Idx))
         ThrowIt("Read the help menu; you have not entered enough arguments");
-    return m_all_args[Idx]; 
+    return MvCliArgs[Idx];
+    Rescue();
 }
-xvector<const xstring*> SYS::GetKeyPtrs() const { return m_str_kvps.GetCache(); }
-xstring SYS::ChrKeys() const { return m_chr_lst; }
+xvector<char> SYS::GetChrKeys() const { return MvKeysChr; }
+xvector<const xstring*> SYS::GetStrKeys() const { return MvKeysStr; }
 // -------------------------------------------------------------------------------------------------------------------
-xstring SYS::FullPath() { return m_full_path; }
-xstring SYS::Path() { return m_path; }
-xstring SYS::File() { return m_file; }
+xstring SYS::FullPath() { return MvCliArgs[0]; }
+xstring SYS::Path() { return MsPath; }
+xstring SYS::File() { return MsFile; }
 // -------------------------------------------------------------------------------------------------------------------
-xvector<xstring*> SYS::Key(const xstring& key) const 
+xvector<xstring> SYS::Key(const xstring& FKey) const
 {
-    if (!m_str_kvps.Has(key))
-        ThrowIt("CLI argument not found for key: ", key);
-    return m_values.At(m_str_kvps[key]); 
+    Begin();
+    if (!MvKeysStr.Has(FKey))
+        ThrowIt("CLI argument not found for key: ", FKey);
+    return MmArgs.Key(MmAliasChar.Key(FKey));
+    Rescue();
 }
-xvector<xstring*> SYS::Key(const char key) const 
-{ 
-    if (!m_chr_kvps.Has(key))
-        ThrowIt("CLI argument not found for key: ", key);
-    return m_values.At(m_chr_kvps.Key(key)); 
+xvector<xstring> SYS::Key(const char FKey) const
+{
+    Begin();
+    if (!MmArgs.Has(FKey))
+        ThrowIt("CLI argument not found for key: ", FKey);
+    return MmArgs.Key(FKey);
+    Rescue();
 }
-bool SYS::HasArgs() const { return m_key_used; }
+bool SYS::HasArgs() const { return MnSize > 1; }
 // -------------------------------------------------------------------------------------------------------------------
 
-bool SYS::Has(const xstring& key) const {
-    return this->m_str_kvps.GetCache().Has(key);
-};
-
-bool SYS::Has(const xstring* key) const {
-    return this->m_str_kvps.GetCache().Has(*key);
+bool SYS::Has(const xstring& FKey) const {
+    return MvKeysStr.Has(FKey);
 }
 
-bool SYS::Has(xstring&& key) const {
-    return this->m_str_kvps.GetCache().Has(key);
-}
-
-bool SYS::Has(const char* key) const {
-    return this->m_str_kvps.GetCache().Has(xstring(key));
-}
-
-bool SYS::Has(const char key) const {
-    return this->m_chr_kvps.GetCache().Has(key);
+bool SYS::Has(const char FKey) const {
+    return MmArgs.Has(FKey);
 }
 
 // -------------------------------------------------------------------------------------------------------------------
 
-xvector<xstring*> SYS::operator[](const xstring& key) 
-{ 
-    if(!m_str_kvps.Has(key))
-        ThrowIt("CLI argument not found for key: ", key);
-    return m_values[m_str_kvps[key]]; 
+xvector<xstring> SYS::operator[](const xstring& FKey)
+{
+    return The.Key(FKey);
 }
 
-xvector<xstring*> SYS::operator[](const char key) 
+xvector<xstring> SYS::operator[](const char FKey)
 {
-    if (!m_chr_kvps.Has(key))
-        ThrowIt("CLI argument not found for key: ", key);
-    return m_values[m_chr_kvps[key]]; 
+    return The.Key(FKey);
 }
 
-xstring SYS::operator[](int key) 
+xstring SYS::operator[](int FKey)
 {
-    if (!m_all_args.HitRange(key))
-        ThrowIt("CLI argument not found for key: ", key);
-    return m_all_args[key];
+    Begin();
+    if (!MvCliArgs.HasRange(FKey))
+        ThrowIt("CLI argument not found for key: ", FKey);
+    return MvCliArgs[FKey];
+    Rescue();
 }
 
-bool SYS::operator()(const xstring& key) const 
+bool SYS::operator()(const xstring& FKey) const
 {
-    return m_str_kvps.Has(key);
+    return MvKeysStr.Has(FKey);
 }
 
-bool SYS::operator()(const xstring& key, const xstring& value) const 
+bool SYS::operator()(const xstring& FKey, const xstring& FValue) const
 {
-    if (!m_str_kvps.Has(key))
-        ThrowIt("CLI argument not found for key: ", key);
-    return m_values[m_str_kvps[key]].Has(value);
+    Begin();
+    const char ChrArg = MmAliasChar.Key(FKey);
+    return The(ChrArg, FValue);
+    Rescue();
 }
 
-bool SYS::operator()(xstring&& key) const 
+bool SYS::operator()(const char FKey) const
 {
-    return m_str_kvps.Has(key);
+    return MvKeysChr.Has(FKey);
 }
 
-bool SYS::operator()(xstring&& key, xstring&& value) const 
+bool SYS::operator()(const char FKey, const xstring& FValue) const
 {
-    if (!m_str_kvps.Has(key))
-        ThrowIt("CLI argument not found for key: ", key);
-    return m_values[m_str_kvps[key]].Has(value);
-}
-
-bool SYS::operator()(const char key) const 
-{
-    return this->m_chr_lst.Has(key);
-}
-
-bool SYS::operator()(const char key, const xstring& value) const 
-{
-    if (!m_chr_kvps.Has(key))
-        ThrowIt("CLI argument not found for key: ", key);
-
-    return m_values[m_chr_kvps.at(key)].Has(value);
+    Begin();
+    if (!MvKeysChr.Has(FKey))
+        return false;
+    if (!MmArgs.Key(FKey).Has(FValue))
+        return false;
+    return true;
+    Rescue();
 }
 
 // -------------------------------------------------------------------------------------------------------------------
 bool SYS::Help()
 {
-    if (m_str_kvps.GetKeys().MatchOne(R"(^[-]{1,2}[hH]((elp)?)$)") || m_argc == 1){
+    Begin();
+    if (MnSize == 1 || MvCliArgs.MatchOne(R"(^[-]{1,2}[hH]((elp)?)$)")) {
         return true;
     }
-    else if (!m_args_set)
+    else if (!MbArgsSet)
     {
-        xstring error = "\n\nRemember SetArgs(int argc, char** argv) !!\n\n";
-        error.Print();
-        throw std::runtime_error(error.c_str());
+        ThrowIt("\n\nRemember SetArgs(int argc, char** argv) !!\n\n");
     }
     else {
         return false;
     }
+    Rescue();
+}
+
+bool SYS::HasSingleDash(const xstring& FsArg) const
+{
+    Begin();
+    if (!FsArg.Size() || FsArg.Match(R"(^\-[\d\.]+$)"))
+        return false;
+    return (FsArg[0] == '-');
+    Rescue();
+}
+
+bool SYS::HasDoubleDash(const xstring& FsArg) const
+{
+    if (FsArg.Size() <= 1)
+        return false;
+    return (FsArg[0] == '-' && FsArg[1] == '-');
+}
+bool SYS::IsArgType(const xstring& FsArg) const
+{
+    Begin();
+    return HasSingleDash(FsArg);
+    Rescue();
 }
 // ======================================================================================================================
 

@@ -87,29 +87,35 @@ struct Bank
     {
         xstring name;
         int balance = 0;
-        NX_Mutex nx_mutex; 
+        xptr<RA::Mutex> MutexPtr = MakePtr<RA::Mutex>();
         // If NX_Mutex goes out of scope and then your job is queued, then your program will crash
         // NX_Mutex makes it so we can update multiple accounts in the same object at the same time!
     };
     Account account1;
     Account account2;
-    size_t looper;
+    inline static const size_t MnLooper = 55;
+    inline static const size_t MnSleep = 50;
 
     Bank() {}
+
+    void instant_inc_account1(int value = 1){
+        account1.balance += value;
+    }
+
     void inc_account1(int value = 1) {
-        Timer::Sleep(10);
+        Timer::Sleep(MnSleep);
         account1.balance += value;
     }
     void inc_account2(int value = 1) {
-        Timer::Sleep(10);
+        Timer::Sleep(MnSleep);
         account2.balance += value;
     }
     void dec_account1(int value = 1) {
-        Timer::Sleep(10);
+        Timer::Sleep(MnSleep);
         account1.balance -= value;
     }
     void dec_account2(int value = 1) {
-        Timer::Sleep(10);
+        Timer::Sleep(MnSleep);
         account2.balance -= value;
     }
 
@@ -129,23 +135,23 @@ int main()
     // -------------------------------------------------------------------------------------
 
     Bank bank;
-    bank.looper = 55;
     bank.account1.name = "account1";
     bank.account2.name = "account2";
 
     // -------------------------------------------------------------------------------------
-
+    // FAST METHOD (EACH ACCOUNT GETS THEIR OWN MUTEX)
     //Nexus<>::SetMutexOn(/* object_index */); this is on by default;
     Timer t;
-    for (int i = 0; i < bank.looper; i++) {
+    for (int i = 0; i < bank.MnLooper; i++) {
         if (i % 3 == 0) { // occurs 1/3 of the time
-            Nexus<>::AddJob(bank.account1.nx_mutex, bank, &Bank::dec_account1, 2);
-            Nexus<>::AddJob(bank.account2.nx_mutex, bank, &Bank::inc_account2, 2);
+            Nexus<>::AddJob(bank.account1.MutexPtr, bank, &Bank::dec_account1, 2);
+            Nexus<>::AddJob(bank.account2.MutexPtr, bank, &Bank::inc_account2, 2);
         }
         else {            // occurs 2/3 of the time
-            Nexus<>::AddJob(bank.account1.nx_mutex, bank, &Bank::inc_account1, 2);
-            Nexus<>::AddJob(bank.account2.nx_mutex, bank, &Bank::dec_account2, 2);
+            Nexus<>::AddJob(bank.account1.MutexPtr, bank, &Bank::inc_account1, 2);
+            Nexus<>::AddJob(bank.account2.MutexPtr, bank, &Bank::dec_account2, 2);
         }
+
     }
     Nexus<>::WaitAll();
     cout << "Timer (Seperate Mutex (Fast)) : " << t.GetElapsedTime() << endl;
@@ -153,11 +159,11 @@ int main()
     cout << bank.account2.name << ": " << bank.account2.balance << "\n\n";
 
     // -------------------------------------------------------------------------------------
-
+    // SLOW METHOD (SAME MUTEX FOR BOTH ACCOUNTS)
     bank.Reset();
     t.Reset();
-    NX_Mutex nx_mutex;
-    for (int i = 0; i < bank.looper; i++) {
+    xptr<RA::Mutex> nx_mutex;
+    for ( int i = 0; i < bank.MnLooper; i++) {
         if (i % 3 == 0) { // occurs 1/3 of the time
             Nexus<>::AddJob(nx_mutex, bank, &Bank::dec_account1, 2);
             Nexus<>::AddJob(nx_mutex, bank, &Bank::inc_account2, 2);
@@ -171,6 +177,32 @@ int main()
     cout << "Timer (Shared Mutex   (Slow)) : " << t.GetElapsedTime() << endl;
     cout << "Account1: " << bank.account1.balance << endl;
     cout << "Account2: " << bank.account2.balance << "\n\n";
+
+    // -------------------------------------------------------------------------------------
+    // USE DATA OUTSIDE A NEXUS FUNCTION
+    cout << "\n\n";
+    bank.Reset();
+    auto& Mutex = *bank.account1.MutexPtr;
+    size_t Modcount = 1;
+    for (int i = 0; i < 12; i++) {
+        if (i % 3 == 0) { // occurs 1/3 of the time
+            Nexus<>::AddJob(bank.account1.MutexPtr, bank, &Bank::instant_inc_account1, 10);
+            Mutex.WaitAndLock();
+            cout << "Account 1 (" << Modcount++ << ") :" << bank.account1.balance << endl;
+            Mutex.SetLockOff();
+        }
+        else {            // occurs 2/3 of the time
+            Nexus<>::AddJob(bank.account1.MutexPtr, bank, &Bank::instant_inc_account1, 5);
+            Mutex.WaitAndLock(); // wait for nexus to finish, lock mutex so Nexus can't roll-over memory space
+            cout << "Account 1 (" << Modcount++ << ") :" << bank.account1.balance << endl; // use memory
+            Mutex.SetLockOff(); // unlock memory for nexus function
+        }
+    }
+    cout << "Account 1 Syncing\n";
+    Nexus<>::WaitAll();
+    Mutex.WaitAndLock();
+    cout << "Account 1 Final (" << Modcount++ << ") :" << bank.account1.balance << "\n\n";
+    Mutex.SetLockOff();
 
     // -------------------------------------------------------------------------------------
 
