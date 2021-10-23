@@ -23,48 +23,39 @@
 #include<functional>
 #include<type_traits>
 
-#include "Nexus_T.h"
-#include "RA_Threads.h"
-#include "RA_Mutex.h"
+#include "Atomic.h"
+#include "Threads.h"
+#include "Mutex.h"
 #include "Task.h"
 #include "Job.h"
-
 
 #define Sync() Nexus<>::WaitAll()
 #define EXIT() exit(Nexus<>::Stop())
 
+template<typename M>
+using IsSharedPtr = std::enable_if<std::is_same<M, RA::SharedPtr<RA::Mutex>>::value || std::is_same<M, xptr<RA::Mutex>>::value, void>::type;
+
 // =========================================================================================
 
+template<typename T> class Nexus;
 
-//template<typename T> class Nexus;
-
-// error C2292: 'Nexus<void>': best case inheritance representation: 'virtual_inheritance' declared but 'single_inheritance' required
+// WARNING: MAKE SURE YOU ONLY USE FUNCTIONS THAT TAKE L-VALUE REFERENCE
 template<>
 class __single_inheritance Nexus<void> : public RA::Threads
 {
-public:
-    struct tsk_st // used when poped from the queue to create a task
-    {
-        Task<void> tsk;
-        size_t mutex_idx = 0; // 0 means never a mutex lock
-        tsk_st() {}
-        tsk_st(const Task<void>& itsk, size_t imutex) :
-            tsk(itsk), mutex_idx(imutex) {}
-    };
-
 private:
-    static bool s_initialized;  // false;
-    static bool s_finish_tasks; // = false
-    static size_t s_inst_task_count; // = 0
+    inline static RA::Mutex SoMutex;
 
-    static std::unordered_map<size_t, xptr<RA::Mutex>> s_lock_lst; // for objects in threads
-    static std::mutex s_mutex;  // for Nexus
-    static std::condition_variable s_sig_queue; // allow the next thread to go when work queued
-
-    static std::vector<std::thread> s_threads; // these threads start in the constructor and don't stop until Nexus is over
-    static std::queue<Nexus<void>::tsk_st> s_task_queue; // This is where tasks are held before being run
-
-    inline static xptr<RA::Mutex> SoBlankMutexPtr;
+    inline static bool SbInitialized = false;
+    inline static std::atomic<bool> SbFinishTasks = false;
+    inline static RA::Atomic<long long int> SnInstTaskCount = 0;
+    
+    inline static std::vector<std::thread> MvThreads; // these threads start in the constructor and don't stop until Nexus is over
+    inline static std::queue<RA::SharedPtr<Task<void>>> ScTaskQueue; // This is where tasks are held before being run
+    // No Getter Mutex/Sig for Nexus<void> because you pass in by ref, you don't pull any stored values
+    inline static std::unordered_map<size_t, RA::SharedPtr<RA::Mutex>> SmMutex; // for objects in threads
+    inline static RA::SharedPtr<RA::Mutex> SoBlankMutexPtr = MakePtr<RA::Mutex>(); // This blank Mutex used when no mutex is given as a param
+    // Nexus<void> can't store output, hance no storage containers here
 
     static void TaskLooper(int thread_idx);
 
@@ -72,27 +63,33 @@ public:
     Nexus();
     virtual ~Nexus();
     static void Start();
-    static int Stop();
+    static int  Stop();
 
-    static void SetMutexOn(size_t nx_mutex); 
-    static void SetMutexOff(size_t nx_mutex);
-
+    static void SetMutexOn(size_t FoMutex); 
+    static void SetMutexOff(size_t FoMutex);
+    // ------------------------------------------------------------------------------------------------------------------------------------------------
     // Job: Function + Args
     template <typename F, typename... A>
-    static inline void AddJob(F&& function, A&& ... Args);
+    static inline typename std::enable_if<!std::is_same<F, RA::SharedPtr<RA::Mutex>>::value && !std::is_same<F, xptr<RA::Mutex>>::value, void>::type
+        AddJob(F&& function, A&& ... Args);
 
     // Job: Object.Function + Args
     template <typename O, typename F, typename... A>
-    static inline typename std::enable_if<!std::is_fundamental<O>::value && !std::is_same<O, RA::Mutex>::value, void>::type
+    static inline typename std::enable_if<std::is_class<O>::value && !std::is_same<O, RA::SharedPtr<RA::Mutex>>::value, void>::type
+        AddJob(O&& object, F&& function, A& ... Args);
+
+    template <typename O, typename F, typename... A>
+    static inline typename std::enable_if<std::is_class<O>::value && !std::is_same<O, RA::SharedPtr<RA::Mutex>>::value, void>::type
         AddJob(O&& object, F&& function, A&& ... Args);
 
-    // Job: Mutex + Object.Function + Args
-    template <typename O, typename F, typename... A>
-    static void AddJob(xptr<RA::Mutex>& nx_mutex, O&& object, F&& function, A&& ... Args);
-
+     // Job: Mutex + Object.Function + Args
+    template <typename M, typename O, typename F, typename... A>
+    static inline typename std::enable_if<std::is_same<M, RA::SharedPtr<RA::Mutex>>::value || std::is_same<M, xptr<RA::Mutex>>::value, void>::type
+        AddJob(M& FoMutex, O&& object, F&& function, A&& ... Args);
+    // ------------------------------------------------------------------------------------------------------------------------------------------------
     // Job: Function + Ref-Arg + Args
     template <typename F, typename V, typename... A>
-    static inline typename std::enable_if<std::is_function<F>::value, void>::type
+    static inline void
         AddJobVal(F&& function, V& element, A&&... Args);
 
     // Job: Function + Ref-(Key/Value) + Args
@@ -100,13 +97,14 @@ public:
     static void AddJobPair(F&& function, K key, V& value, A&& ... Args);
 
     // Required due to Linux not Windows (returns void Job<T>)
-    static Job<short int> GetWithoutProtection(size_t dummy) noexcept;
+    // static Job<short int> GetWithoutProtection(size_t dummy) noexcept;
 
     static size_t Size();
 
     static void WaitAll();
     static bool TaskCompleted();
     static void Clear();
+    static void CheckClearMutexes();
 
     static void Sleep(unsigned int FnMilliseconds);
 };
@@ -115,51 +113,44 @@ public:
 
 inline void Nexus<void>::TaskLooper(int thread_idx)
 {
-    while (true) {
-        size_t mutex_idx = 0;
-        Task<void> tsk;
+    std::atomic<size_t> LnLastCount = 0;
+    while (true)
+    {
+        size_t MutexIdx = 0;
+        RA::SharedPtr<Task<void>> TaskPtr;
         {
-            std::unique_lock<std::mutex> lock(s_mutex);
-            s_sig_queue.wait(lock, []() {
-                return ((Nexus<void>::s_finish_tasks || Nexus<void>::s_task_queue.size()) && RA::Threads::ThreadsAreAvailable());
-            });
+            auto Lock = SoMutex.CreateLock([]() {
+                return ((Nexus<void>::SbFinishTasks || Nexus<void>::ScTaskQueue.size()) && (RA::Threads::GetAllowedThreadCount() - SnInstTaskCount > 0));
+                });
 
-            if (s_task_queue.empty())
+            if (ScTaskQueue.empty())
                 return;
 
-            RA::Threads::Used++;
-            tsk = std::move(s_task_queue.front().tsk);
-            mutex_idx = s_task_queue.front().mutex_idx;
-
-            RA::Threads::TaskCount++;
-            s_inst_task_count++;
-
-            s_task_queue.pop();
+            TaskPtr  = ScTaskQueue.front();
+            MutexIdx = ScTaskQueue.front().Get().GetMutexID();
+            ScTaskQueue.pop();
+            SnInstTaskCount++;
         }
 
-        if (!mutex_idx) // no lock given
-            tsk();
-        else if (s_lock_lst.at(mutex_idx)->MbUseMutex) // lock was given with a mutex set to on
+        if (!MutexIdx) // no lock given
+            TaskPtr.Get()();
+        else if (SmMutex.at(MutexIdx).Get().IsMutexOn()) // lock was given with a mutex set to on
         {
-            RA::Mutex& locker = *s_lock_lst.at(mutex_idx);
-            //std::unique_lock<std::mutex> UL(locker.key);
-            //locker.sig.wait(UL, [&locker]() {return !locker.mutex_locked; });
-            //locker.mutex_locked = true;
-            locker.WaitAndLock();
-            tsk();
-            locker.SetLockOff();
-            //locker.mutex_locked = false;
-            //locker.sig.notify_one();
-
-            if(RA::Threads::Used == 0 && s_task_queue.size() == 0)
-                s_lock_lst.clear();
+            auto Lock = SmMutex.at(MutexIdx).Get().CreateLock();
+            TaskPtr.Get()();
         }
         else // lock was given but the mutex was set to off
-            tsk();
-        
-        RA::Threads::Used--; // protected as atomic
+            TaskPtr.Get()();
+
+        auto Lock = SoMutex.CreateLock();
+        if (SbFinishTasks && !ScTaskQueue.size())
+        {
+            SnInstTaskCount = 0;
+            return;
+        }
+        SnInstTaskCount--;
     }
-}
+};
 
 inline Nexus<void>::Nexus(){
     Nexus<void>::Start();
@@ -170,136 +161,156 @@ inline Nexus<void>::~Nexus(){
 
 inline void Nexus<void>::Start()
 {
-    if (!s_initialized) 
+    if (!SbInitialized) 
     {
-        if (!SoBlankMutexPtr)
-        {
-            SoBlankMutexPtr = MakePtr<RA::Mutex>();
-            SoBlankMutexPtr->SetMutexOff();
-        }
-
-        s_lock_lst.clear();
-        s_lock_lst.insert({ 0, nullptr }); // starts size at 1 and index at 0
-        s_lock_lst.insert({ 1, SoBlankMutexPtr }); // starts size at 1 and index at 0
+        SoBlankMutexPtr.Get().SetMutexOff();
+        SmMutex.clear();
+        SmMutex.insert({ SoBlankMutexPtr.Get().GetID(), SoBlankMutexPtr }); // starts size at 1 and index at 0
 
         RA::Threads::InstanceCount++;
-        s_threads.reserve(RA::Threads::Remaining);
-        for (int i = 0; i < RA::Threads::Remaining; ++i)
-            s_threads.emplace_back(std::bind((void(*)(int)) & Nexus<void>::TaskLooper, i)); // static member function, don't use "this"
+        MvThreads.reserve(RA::Threads::Allowed);
+        for (int i = 0; i < RA::Threads::Allowed; ++i)
+            MvThreads.emplace_back(std::bind((void(*)(int)) & Nexus<void>::TaskLooper, i)); // static member function, don't use "this"
 
         RA::Threads::Used = 0;
     }
-    s_initialized = true;
+    SbInitialized = true;
 }
 
 inline int Nexus<void>::Stop()
 {
-    if (s_initialized)
+    if (SbInitialized)
     {
-        Nexus<>::WaitAll();
-        {
-            std::unique_lock <std::mutex> lock(s_mutex);
-            s_finish_tasks = true;
-            s_sig_queue.notify_all();
-        }
-        for (auto& thrd : s_threads) thrd.join();
-        s_lock_lst.clear();
+        Nexus<void>::WaitAll();
+        SbFinishTasks = true;
+        SoMutex.UnlockAll();
+        for (auto& thrd : MvThreads) thrd.join();
+        SmMutex.clear();
     }
-    s_initialized = false;
+    SbInitialized = false;
     return 0;
 }
 
-inline void Nexus<void>::SetMutexOn(size_t nx_mutex)
+inline void Nexus<void>::SetMutexOn(size_t FoMutex)
 {
-    s_lock_lst.at(nx_mutex)->MbUseMutex = true;
+    SmMutex.at(FoMutex).Get().SetMutexOn();
 }
 
-inline void Nexus<void>::SetMutexOff(size_t nx_mutex)
+inline void Nexus<void>::SetMutexOff(size_t FoMutex)
 {
-    s_lock_lst.at(nx_mutex)->MbUseMutex = false;
+    SmMutex.at(FoMutex).Get().SetMutexOff();
 }
 
 template <typename F, typename... A>
-static inline void Nexus<void>::AddJob(F&& function, A&&... Args)
+static inline typename std::enable_if<!std::is_same<F, RA::SharedPtr<RA::Mutex>>::value && !std::is_same<F, xptr<RA::Mutex>>::value, void>::type
+Nexus<void>::AddJob(F&& function, A&&... Args)
 {
-    auto binded_function = std::bind(function, std::ref(Args)...);
-    std::lock_guard <std::mutex>lock(s_mutex);
-    s_task_queue.emplace(Task<void>(std::move(binded_function)), 0);
-    s_sig_queue.notify_one();
+    auto Lock = SoMutex.CreateLock();
+    auto BindedFunction = std::bind(function, std::ref(Args)...);
+    ScTaskQueue.emplace(MakePtr<Task<void>>(std::move(BindedFunction), 0));
 }
 
 template<typename O, typename F, typename ...A>
-inline typename std::enable_if<!std::is_fundamental<O>::value && !std::is_same<O, RA::Mutex>::value, void>::type
-    Nexus<void>::AddJob(O&& object, F&& function, A&& ...Args)
+inline typename std::enable_if<std::is_class<O>::value && !std::is_same<O, RA::SharedPtr<RA::Mutex>>::value, void>::type
+Nexus<void>::AddJob(O&& object, F&& function, A& ...Args)
 {
-    auto binded_function = std::bind(function, std::ref(object), std::ref(Args)...);
-    std::lock_guard <std::mutex>lock(s_mutex);
-
-    s_task_queue.emplace(Task<void>(std::move(binded_function)), SoBlankMutexPtr->id);
-    s_sig_queue.notify_one();
+    auto Lock = SoMutex.CreateLock();
+    auto BindedFunction = std::bind(function, std::ref(object), std::ref(Args)...);
+    ScTaskQueue.emplace(MakePtr<Task<void>>(std::move(BindedFunction), SoBlankMutexPtr.Get().GetID()));
 }
 
 template<typename O, typename F, typename ...A>
-inline void Nexus<void>::AddJob(xptr<RA::Mutex>& nx_mutex, O&& object, F&& function, A&& ...Args)
+inline typename std::enable_if<std::is_class<O>::value && !std::is_same<O, RA::SharedPtr<RA::Mutex>>::value, void>::type
+Nexus<void>::AddJob(O&& object, F&& function, A&& ...Args)
 {
-    auto binded_function = std::bind(function, std::ref(object), std::ref(Args)...);
-    std::lock_guard <std::mutex>lock(s_mutex);
+    auto Lock = SoMutex.CreateLock();
+    auto BindedFunction = std::bind(function, std::ref(object), std::forward<A>(Args)...);
+    ScTaskQueue.emplace(MakePtr<Task<void>>(std::move(BindedFunction), SoBlankMutexPtr.Get().GetID()));
+}
 
-    if (!nx_mutex)
-        nx_mutex = MakePtr<RA::Mutex>();
+template <typename M, typename O, typename F, typename... A>
+static inline typename std::enable_if<std::is_same<M, RA::SharedPtr<RA::Mutex>>::value || std::is_same<M, xptr<RA::Mutex>>::value, void>::type
+Nexus<void>::AddJob(M& FoMutex, O&& object, F&& function, A&& ...Args)
+{
+    auto Lock = SoMutex.CreateLock();
+    CheckClearMutexes();
+    auto BindedFunction = std::bind(function, std::ref(object), std::ref(Args)...);
 
-    if (s_lock_lst.size() <= nx_mutex->id) // id should never be 'gt' size
-        s_lock_lst.insert({ nx_mutex->id, nx_mutex });
+    auto& LoMutex = *reinterpret_cast<RA::SharedPtr<RA::Mutex>*>(&FoMutex);
+    if (!LoMutex)
+        LoMutex = MakePtr<RA::Mutex>();
 
-    s_task_queue.emplace(Task<void>(std::move(binded_function)), nx_mutex->id);
-    // nxm.id references the location in s_lock_lst
-    s_sig_queue.notify_one();
+    if (SmMutex.size() <= LoMutex.Get().GetID()) // id should never be 'gt' size
+    {
+        if (SmMutex.contains(LoMutex.Get().GetID()))
+            SmMutex[LoMutex.Get().GetID()] = LoMutex;
+        else
+            SmMutex.insert({ LoMutex.Get().GetID(), LoMutex });
+    }
+
+    ScTaskQueue.emplace(MakePtr<Task<void>>(std::move(BindedFunction), LoMutex.Get().GetID()));
+    // nxm.id references the location in SmMutex
 }
 
 template <typename F, typename V, typename... A>
-static inline typename std::enable_if<std::is_function<F>::value, void>::type
+static inline void
     Nexus<void>::AddJobVal(F&& function, V& element, A&&... Args)
 {
-    auto binded_function = std::bind(function, std::ref(element), std::ref(Args)...);
-    std::lock_guard <std::mutex> lock(s_mutex);
-    s_task_queue.emplace(Task<void>(std::move(binded_function)), 0);
-    s_sig_queue.notify_one();
+    auto Lock = SoMutex.CreateLock();
+    CheckClearMutexes();
+    auto BindedFunction = std::bind(function, std::ref(element), std::ref(Args)...);
+    ScTaskQueue.emplace(MakePtr<Task<void>>(std::move(BindedFunction), 0));
 }
 
 template<typename K, typename V, typename F, typename ...A>
 inline void Nexus<void>::AddJobPair(F&& function, K key, V& value, A&& ...Args)
 {
-    auto binded_function = std::bind(function, std::ref(key), std::ref(value), std::ref(Args)...);
-    std::lock_guard <std::mutex> lock(s_mutex);
-    s_task_queue.emplace(Task<void>(std::move(binded_function)), 0);
-    s_sig_queue.notify_one();
+    auto Lock = SoMutex.CreateLock();
+    CheckClearMutexes();
+    auto BindedFunction = std::bind(function, std::ref(key), std::ref(value), std::ref(Args)...);
+    ScTaskQueue.emplace(MakePtr<Task<void>>(std::move(BindedFunction), 0));
 }
 
 // Class required due to Linux (not Windows)
-inline Job<short int> Nexus<void>::GetWithoutProtection(size_t dummy) noexcept { return Job<short int>(); }
+// inline Job<short int> Nexus<void>::GetWithoutProtection(size_t dummy) noexcept { return Job<short int>(); }
 
 inline size_t Nexus<void>::Size(){
-    return s_inst_task_count;
+    return SnInstTaskCount;
 }
 
 inline void Nexus<void>::WaitAll()
 {
-    while (RA::Threads::Used > 0) Nexus<void>::Sleep(1);
-    while (s_task_queue.size())   Nexus<void>::Sleep(1);
+    while (ScTaskQueue.size() || SnInstTaskCount > 0)
+    {
+        Nexus<void>::Sleep(1);
+    }
 }
 
 inline bool Nexus<void>::TaskCompleted()
 {
-    return !s_task_queue.size();
+    return !ScTaskQueue.size();
 }
 
 inline void Nexus<void>::Clear() 
 {
-    s_inst_task_count = 0;
-
     Nexus<void>::WaitAll();
-    s_lock_lst.clear();
-    RA::Mutex::Mutex_Total = 0;
+
+    SnInstTaskCount = 0;
+    if (RA::Threads::Used == 0 && ScTaskQueue.size() == 0)
+    {
+        SmMutex.clear();
+        SmMutex.insert({ SoBlankMutexPtr.Get().GetID(), SoBlankMutexPtr});
+    }
+    RA::Mutex::ResetTotalMutexCount();
+}
+
+inline void Nexus<void>::CheckClearMutexes()
+{
+    if (RA::Threads::Used == 0 && ScTaskQueue.size() == 0)
+    {
+        SmMutex.clear();
+        SmMutex.insert({ SoBlankMutexPtr.Get().GetID(), SoBlankMutexPtr });
+    }
 }
 
 inline void Nexus<void>::Sleep(unsigned int FnMilliseconds)

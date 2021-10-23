@@ -80,7 +80,13 @@ int main()
     cout << "its value is BBBB = " << smap.GetValueFrom("hash222").Is("BBBB") << endl; // true
     cout << "its value is BBBB = " << smap.Key("hash222").Is("BBBB") << endl; // true
     cout << "its value is BBBB = " << smap("hash222", "BBBB") << endl; // true, alternate method
-    cout << "its value is BBBB = " << smap("I don't exist", "BBBB") << endl; // false
+    try {
+        cout << "its value is BBBB = " << smap("I don't exist", "BBBB") << endl; // false
+    }
+    catch (...)
+    {
+        cout << "Exception Caught\n";
+    }
     
     cout << "no cache allocated; size = " << smap.GetCachedKeys().size() << endl;
 

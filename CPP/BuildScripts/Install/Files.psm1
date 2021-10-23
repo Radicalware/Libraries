@@ -9,6 +9,7 @@ class Files
 
         "../../GeneralPurposeLibs/Nexus/install.ps1",
         
+        "../../ExtendedSTL/Memory/install.ps1",
         "../../ExtendedSTL/xvector/install.ps1",
         "../../ExtendedSTL/xstring/install.ps1",
         "../../ExtendedSTL/xmap/install.ps1",
@@ -34,6 +35,7 @@ class Files
 
         "../../GeneralPurposeLibs/Nexus/Examples/run.ps1",
 
+        "../../ExtendedSTL/Memory/Examples/run.ps1",
         "../../ExtendedSTL/xvector/Examples/run.ps1",
         "../../ExtendedSTL/xstring/Examples/run.ps1",
         "../../ExtendedSTL/xmap/Examples/run.ps1",

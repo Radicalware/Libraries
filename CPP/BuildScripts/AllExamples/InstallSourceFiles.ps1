@@ -9,7 +9,7 @@ Write-Host "Copying Project Folders: "
 Write-Host "1. GeneralPurposeLibs :  Macros, Nexus, Socket, OS"
 Write-Host "                          SYS, Iterator, Timer, Date"
 Write-Host "                          CudaBridge, Stash, JSON"
-Write-Host "2. ExtendedSTL         : xvector, xstring, xmap"
+Write-Host "2. ExtendedSTL         : Memory, xvector, xstring, xmap"
 Write-Host "3. FunctionalSTL       : re, ac, mc"
 Write-Host "4. ModdedObjects       : cc"
 
@@ -55,6 +55,7 @@ $Handler.CopyProject("Stash")
 $Handler.CopyProject("CudaBridge")
 
 $Handler.ProjectFolder = $ExtendedSTL
+$Handler.CopyProject("Memory")
 $Handler.CopyProject("xvector")
 $Handler.CopyProject("xstring")
 $Handler.CopyProject("xmap")

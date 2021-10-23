@@ -151,7 +151,7 @@ xstring Date::GetStr() const
     return Copy.GetStr();
 }
 
-Date::Layout Date::GetLayout()
+Date::Layout& Date::GetLayout()
 {
     if (MoTime.Year)
         return MoTime;

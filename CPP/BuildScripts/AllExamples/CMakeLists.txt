@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 SET(THIS ${ArgProjectName})
+set(BuildAll ON)
 
 # -------------------------- PRE-CONFIG -------------------------------------------------
 
@@ -12,7 +13,6 @@ endif()
 
 include("${RADICAL_PATH}/Radical-App-Config.cmake")
 
-set(BuildAll ON)
 
 # cp `
 #   "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.3\extras\visual_studio_integration\MSBuildExtensions"
@@ -37,9 +37,10 @@ set(BuildAll ON)
 
 # -------------------------- BUILD ------------------------------------------------------
 
-project(${THIS} LANGUAGES CXX CUDA)
+project(${THIS})
+#project(${THIS} LANGUAGES CXX CUDA) # TODO: RE-ADD
 set(CUDA_VERSION "11.3")
-find_package(PrepareCuda)
+#find_package(PrepareCuda) # TODO: RE-ADD
 
 SetLocalInstallDirs()
 
@@ -63,17 +64,20 @@ macro(AddExecutable ExePathPart ExeName)
     list(APPEND      EXES          EX_${ExeName})
 endmacro(AddExecutable)
 
+# !!!! ADD LIBS TO ALL 3 LOCATIONS !!!!
+#       (This is location 1 of 3)
 AddExecutable("FunctionalSTL" "AC")
 AddExecutable("FunctionalSTL" "RE")
 AddExecutable("FunctionalSTL" "MC")
 
+AddExecutable("ExtendedSTL" "Memory")
 AddExecutable("ExtendedSTL" "xvector")
 AddExecutable("ExtendedSTL" "xstring")
 AddExecutable("ExtendedSTL" "xmap")
 
 AddExecutable("GeneralPurposeLibs" "Macros")
 AddExecutable("GeneralPurposeLibs" "Nexus")
-AddExecutable("GeneralPurposeLibs" "CudaBridge")
+# AddExecutable("GeneralPurposeLibs" "CudaBridge") # TODO: RE-ADD
 AddExecutable("GeneralPurposeLibs" "Timer")
 AddExecutable("GeneralPurposeLibs" "Date")
 AddExecutable("GeneralPurposeLibs" "OS")
@@ -94,11 +98,12 @@ find_package(RE)
 find_package(AC)
 find_package(MC)
 
+find_package(Memory)
 find_package(Nexus)
 find_package(xvector)
 find_package(xstring)
-find_package(xmap)
 find_package(Macros)
+find_package(xmap)
 
 find_package(OS)
 find_package(SYS)
@@ -108,7 +113,7 @@ find_package(cc)
 find_package(JSON)
 find_package(Stash)
 find_package(Socket)
-find_package(CudaBridge)
+# find_package(CudaBridge) # TODO: RE-ADD
 
 find_package(cpprestsdk CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
@@ -126,6 +131,7 @@ foreach(EXE ${EXES})
             Radical::AC
             Radical::MC
 
+            Radical::Memory
             Radical::Nexus
             Radical::xvector
             Radical::xstring
@@ -134,7 +140,7 @@ foreach(EXE ${EXES})
             Radical::JSON
             Radical::Stash
             Radical::Socket
-            Radical::CudaBridge
+            # Radical::CudaBridge # TODO: RE-ADD
             # -----------------------------------------
             re2::re2
             

@@ -23,8 +23,11 @@
 #define NOMINMAX
 #endif
 
+template<typename T = void> class Nexus;
+
 #include "Nexus_T.h"
 #include "Nexus_void.h"
+
 
 //NEXUSPTR->WaitAll(); \
 //NEXUSPTR->Clear(); \

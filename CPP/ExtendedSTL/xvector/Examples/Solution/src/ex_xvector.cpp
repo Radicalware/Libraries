@@ -140,8 +140,8 @@ int main(int argc, char** argv)
     auto sub_function_val2 = [](xstring& elem, xstring& junk, xstring& str) -> xstring {
         return elem.Sub("gmail", str);
     };
-    auto sub_function_ptr = [](xstring* elem, xstring& str) -> xstring {
-        return elem->Sub("gmail", str);
+    auto sub_function_ptr = [](xstring& elem, xstring& str) -> xstring {
+        return elem.Sub("gmail", str);
     };
 
     xvector<xstring>arr = { "one@gmail.com","two@gmail.com","three@gmail.com" };
@@ -162,7 +162,7 @@ int main(int argc, char** argv)
     arr.ForEachThread([](auto& elem, xstring def_replace = "default") {return elem.Sub("gmail", def_replace); }).Join('\n').Print(2);
 
     xvector<xstring*> arr_ptr = arr.GetPtrs();
-    arr_ptr.ForEach([](xstring* elem, xstring str = "mod_ptr1") {return elem->Sub("gmail", str); }).Join('\n').Print();
+    arr_ptr.ForEach([](xstring& elem, xstring str = "mod_ptr1") {return elem.Sub("gmail", str); }).Join('\n').Print();
     arr_ptr.ForEach(sub_function_ptr, xstring("mod_ptr2")).Join('\n').Print();
 
     arr_ptr.ForEachThread([](xstring& elem, xstring str = "mod_ptr3") {return elem.Sub("gmail", str); }).Join('\n').Print();
@@ -194,10 +194,10 @@ int main(int argc, char** argv)
 
     int counter = 0;
     xmap<xstring*, xstring> xmp_ptr = un_nested_vec_ptrs.ForEach<xstring*, xstring>(
-        [&counter](xstring* item)
+        [&counter](xstring& item)
     {
         counter++;
-        return std::pair<xstring*, xstring>(item, ToXString(counter));
+        return std::pair<xstring*, xstring>(&item, ToXString(counter));
     });
     xmp_ptr.Print();
 

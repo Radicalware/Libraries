@@ -10,4 +10,9 @@ include("${RADICAL_PATH}/Radical-Lib-Build.cmake")
 set(THIS ${ArgProjectName})
 project(${THIS})
 
-BuildRadicalProject("STATIC" "" "")
+set(PrivateLibs "")
+find_package(re2 CONFIG REQUIRED)
+list(APPEND PrivateLibs "Memory")
+
+BuildRadicalProject("STATIC" PrivateLibs "")
+link_libraries(${THIS} re2::re2)

@@ -23,7 +23,9 @@
 #include<functional>
 #include<type_traits>
 
-#include "RA_Threads.h"
+#include "Atomic.h"
+#include "SharedPtr.h"
+#include "Threads.h"
 #include "Task.h"
 #include "Job.h"
 
@@ -38,24 +40,22 @@
 
 // =========================================================================================
 
-template<typename T = void>
+template<typename T>
 class __single_inheritance Nexus : public RA::Threads
 {
 private:
-    bool m_finish_tasks = false;
-    size_t m_inst_task_count = 0;
+    RA::Mutex MoMutex;
 
-    std::mutex m_mutex;
-    std::condition_variable m_sig_deque;
-    std::mutex m_get_mutex;
-    std::condition_variable m_sig_get;
+    std::atomic<bool>         MbFinishTasks = false;
+    RA::Atomic<long long int> MnInstTaskCount = 0;
 
-    std::vector<std::thread> m_threads; // these threads start in the constructor and don't stop until Nexus is over
-    std::deque<Task<T>> m_task_deque; // This is where tasks are held before being run
-    // deque chosen over queue because the deque has an iterator
+    std::vector<std::thread>           MvThreads;     // these threads start in the constructor and don't stop until Nexus is over
+    std::deque<RA::SharedPtr<Task<T>>> McTaskDeque;   // This is where tasks are held before being run
+                                            // deque chosen over queue because the deque has an iterator
 
-    std::unordered_map<std::string,  const size_t> m_str_inst_mp; // KVP (std::string >> job inst)
-    std::unordered_map<size_t, Job<T>>* m_inst_job_mp = nullptr;  //                    (job inst >> Job)
+    // These values are used for pulling outpu tdata from your jobs.
+    std::unordered_map<std::string, RA::SharedPtr<Job<T>>> MmStrJob;
+    std::unordered_map<size_t, RA::SharedPtr<Job<T>>>      MmIdxJob;
 
     void TaskLooper(int thread_idx);
 
@@ -88,18 +88,20 @@ public:
     void AddJobPair(F&& function, K& key, V& value, A&& ...Args); // commonly used by xmap
 
     // Getters can't be const due to the mutex
-    Job<T> operator()(const std::string& val);
-    Job<T> operator()(const size_t val);
+    Job<T>& operator()(const std::string& val);
+    Job<T>& operator()(const size_t val);
 
     // Getters can't be const due to the mutex
-    Job<T> Get(const std::string& val);
-    Job<T> Get(const size_t val);
-    Job<T> Get(const char* input);
-    Job<T> GetWithoutProtection(const size_t val) noexcept; 
+    std::vector<T> GetAll();
+    Job<T>& Get(const std::string& val);
+    Job<T>& Get(const size_t val);
+    Job<T>& Get(const char* Input);
+    Job<T>& GetWithoutProtection(const size_t val) noexcept;
 
     size_t Size() const;
-    void WaitAll() const;
+    void WaitAll();
     bool TaskCompleted() const;
+    void CheckAndClear();
     void Clear();
     void Sleep(unsigned int extent) const;
 };
@@ -109,35 +111,41 @@ public:
 template<typename T>
 inline void Nexus<T>::TaskLooper(int thread_idx)
 {
-    while (true) {
-        size_t tsk_idx;
+    std::atomic<size_t> LnLastTaskIdx = 0;
+    while (true) 
+    {
+        std::atomic<size_t>  LnTaskIdx = 0;
         {
-            std::unique_lock<std::mutex> lock(m_mutex);
-            m_sig_deque.wait(lock, [this]() {
-                return ((m_finish_tasks || m_task_deque.size()) && RA::Threads::ThreadsAreAvailable());
-            });
+            auto Lock = MoMutex.CreateLock([this]() {
+                return ((MbFinishTasks || McTaskDeque.size()) && RA::Threads::GetAllowedThreadCount() - MnInstTaskCount > 0); });
 
-            if (m_task_deque.empty())
+            if (McTaskDeque.empty())
                 return;
 
-            RA::Threads::Used++;
-            tsk_idx = m_inst_task_count;
-            if (m_task_deque.front().IsBlank())
+            LnTaskIdx = MmIdxJob.size();
+            if (LnLastTaskIdx != 0 && LnLastTaskIdx == LnTaskIdx)
                 continue;
-            else
-                (*m_inst_job_mp).insert({ tsk_idx, Job<T>(std::move(m_task_deque.front()), RA::Threads::TaskCount) });
 
-            const Task<T>* latest_task = (*m_inst_job_mp)[tsk_idx].TaskPtr();
-            if (latest_task->HasName())
-                m_str_inst_mp.insert({ latest_task->GetName(), tsk_idx });
+            RA::SharedPtr<Job<T>> JobPtr = MakePtr<Job<T>>(McTaskDeque.front(), RA::Threads::TotalTasksCounted);
+            McTaskDeque.pop_front();
+            MmIdxJob.insert({ LnTaskIdx, JobPtr });
 
-            RA::Threads::TaskCount++;
-            m_inst_task_count++;
+            if (JobPtr.Get().GetTask().HasName())
+                MmStrJob.insert({ JobPtr.Get().GetTask().GetName(), JobPtr });
 
-            m_task_deque.pop_front();
-            m_sig_get.notify_all();
+            MnInstTaskCount++;
         }
-        (*m_inst_job_mp)[tsk_idx].Init();
+
+        MmIdxJob.at(LnTaskIdx).Get().Run();
+
+        auto Lock = MoMutex.CreateLock();
+        if (MbFinishTasks && !McTaskDeque.size())
+        {
+            MnInstTaskCount = 0;
+            return;
+        }
+        LnLastTaskIdx = LnTaskIdx.load();
+        MnInstTaskCount--;
     }
 }
 
@@ -145,49 +153,36 @@ template<typename T>
 template<typename F, typename ...A>
 inline void Nexus<T>::Add(F& function, A&& ...Args)
 {
-    std::lock_guard<std::mutex> glock(m_get_mutex);
-    auto binded_function = std::bind(function, std::ref(Args)...);
-    std::lock_guard <std::mutex> lock(m_mutex);
-    m_task_deque.emplace_back(std::move(binded_function));
-    m_sig_deque.notify_one();
-    m_sig_get.notify_all();
+    auto BindedFunction = std::bind(function, std::ref(Args)...);
+    McTaskDeque.emplace_back(MakePtr<Task<T>>(std::move(BindedFunction)));
 }
 
 template<typename T>
 template<typename F, typename ...A>
 inline void Nexus<T>::AddKVP(const std::string& key, F& function, A&& ...Args)
 {
-    std::lock_guard<std::mutex> glock(m_get_mutex);
-    auto binded_function = std::bind(function, std::ref(Args)...);
-    std::lock_guard <std::mutex> lock(m_mutex);
-    m_task_deque.emplace_back(std::move(binded_function), key);
-    m_sig_deque.notify_one();
-    m_sig_get.notify_all();
+    auto BindedFunction = std::bind(function, std::ref(Args)...);
+    McTaskDeque.emplace_back(MakePtr<Task<T>>(std::move(BindedFunction), key));
 }
 // ------------------------------------------------------------------------------------------
 template<typename T>
 Nexus<T>::Nexus()
 {
-    m_inst_job_mp = new std::unordered_map<size_t, Job<T>>; 
     RA::Threads::InstanceCount++;
-    m_threads.reserve(RA::Threads::Remaining);
-    for (int i = 0; i < RA::Threads::Remaining; ++i)
-        m_threads.emplace_back(std::bind(&Nexus<T>::TaskLooper, std::ref(*this), i));
-
+    MvThreads.reserve(RA::Threads::Allowed);
+    for (int i = 0; i < RA::Threads::Allowed; ++i)
+        MvThreads.emplace_back(std::bind(&Nexus<T>::TaskLooper, std::ref(*this), i));
     RA::Threads::Used = 0;
 }
 
 template<typename T>
 Nexus<T>::~Nexus()
 {
-    {
-        std::unique_lock <std::mutex> lock(m_mutex);
-        m_finish_tasks = true;
-        m_sig_deque.notify_all();
-    }
-    for (auto& t : m_threads) t.join();
-    if(m_inst_job_mp != nullptr)
-        delete m_inst_job_mp;
+    The.WaitAll();
+    MbFinishTasks = true;
+    MoMutex.UnlockAll();
+    for (auto& t : MvThreads) 
+        t.join();
 }
 
 
@@ -196,14 +191,18 @@ template<typename T>
 template<typename F, typename ...A>
 inline void Nexus<T>::AddJob(const std::string& key, F&& function, A&& ...Args)
 {
-    this->AddKVP(key, function, std::ref(Args)...);
+    auto Lock = MoMutex.CreateLock();
+    CheckAndClear();
+    The.AddKVP(key, function, std::ref(Args)...);
 }
 
 template<typename T>
 template<typename F, typename ...A>
 inline void Nexus<T>::AddJob(const char* key, F&& function, A&& ...Args)
 {
-    this->AddKVP(std::string(key), function, std::ref(Args)...);
+    auto Lock = MoMutex.CreateLock();
+    CheckAndClear();
+    The.AddKVP(std::string(key), function, std::ref(Args)...);
 }
 
 template<typename T>
@@ -211,101 +210,103 @@ template <typename F, typename ...A>
 inline typename std::enable_if<!std::is_same<F, std::string>::value, void>::type 
     Nexus<T>::AddJob(F&& function, A&& ...Args)
 {
-    this->Add(function, std::ref(Args)...);
+    auto Lock = MoMutex.CreateLock();
+    CheckAndClear();
+    The.Add(function, std::ref(Args)...);
 }
 
 template<typename T>
 template <typename F, typename ONE, typename ...A>
 inline void Nexus<T>::AddJobVal(F&& function, ONE& element, A&& ...Args)
 {
-    std::lock_guard<std::mutex> glock(m_get_mutex);
-    auto binded_function = std::bind(function, std::ref(element), Args...);
-    std::lock_guard <std::mutex> lock(m_mutex);
-
-    m_task_deque.emplace_back(std::move(binded_function));
-
-    m_sig_deque.notify_one();
-    m_sig_get.notify_all();
+    auto Lock = MoMutex.CreateLock();
+    CheckAndClear();
+    auto BindedFunction = std::bind(function, std::ref(element), Args...);
+    McTaskDeque.emplace_back(MakePtr<Task<T>>(std::move(BindedFunction)));
 }
 
 template<typename T>
 template<typename K, typename V, typename F, typename ...A>
 inline void Nexus<T>::AddJobPair(F&& function, K& key, V& value, A&& ...Args)
 {
-    std::lock_guard<std::mutex> glock(m_get_mutex);
-    auto binded_function = std::bind(function, std::ref(key), std::ref(value), Args...);
-    std::lock_guard <std::mutex> lock(m_mutex);
-
-    m_task_deque.emplace_back(std::move(binded_function));
-
-    m_sig_deque.notify_one();
-    m_sig_get.notify_all();
+    auto Lock = MoMutex.CreateLock();
+    CheckAndClear();
+    auto BindedFunction = std::bind(function, std::ref(key), std::ref(value), Args...);
+    McTaskDeque.emplace_back(MakePtr<Task<T>>(std::move(BindedFunction)));
 }
 // ------------------------------------------------------------------------------------------
 
 template<typename T>
-inline Job<T> Nexus<T>::operator()(const std::string& input)
+inline Job<T>& Nexus<T>::operator()(const std::string& Input)
 {
-    std::unique_lock<std::mutex> glock(m_get_mutex);
-    if (m_task_deque.size())
-        m_sig_get.wait(glock);
+    auto Lock = MoMutex.CreateLock();
 
     // If it is not already cached, is it queued?
-    if (!m_str_inst_mp.count(input)) {
-        for (const Task<T>& t : m_task_deque) {
-            if (*t.GetNamePtr() == input)
-                break;
-        }
+    if (!MmStrJob.count(Input))
         throw std::runtime_error("Nexus Key Not Found!");
-    }
-    // wait until it is cached
-    while (!m_str_inst_mp.count(input))
-        this->Sleep(1);
 
-    size_t loc = m_str_inst_mp.at(input);
-    while (!(*m_inst_job_mp)[loc].IsDone()) 
-        this->Sleep(1);
+    auto& Target = MmStrJob[Input].Get();
+    while (!Target.IsDone()) The.Sleep(1);
 
-    (*m_inst_job_mp)[loc].ThrowException();
-    return (*m_inst_job_mp)[loc];
+    Target.TestException();
+    return Target;
 }
 
 
 template<typename T>
-inline Job<T> Nexus<T>::operator()(const size_t input)
+inline Job<T>& Nexus<T>::operator()(const size_t Input)
 {
-    std::unique_lock<std::mutex> glock(m_get_mutex);
-    if (m_task_deque.size())
-        m_sig_get.wait(glock);
+    auto Lock = MoMutex.CreateLock();
 
-    if (m_inst_task_count + m_task_deque.size() < input + 1)
+    if (Input > MmIdxJob.size()) // Idx is baesd on Job-Hold Size
         throw std::runtime_error("Requested Job is Out of Range\n");
 
-    while (!(*m_inst_job_mp).count(input)) this->Sleep(1);
-    while (!(*m_inst_job_mp)[input].IsDone()) this->Sleep(1);
+    while (!MmIdxJob.count(Input))          The.Sleep(1);
 
-    (*m_inst_job_mp)[input].ThrowException();
-    return (*m_inst_job_mp)[input];
+    auto& Target = MmIdxJob[Input].Get();
+    while (!Target.IsDone()) The.Sleep(1);
+
+    Target.TestException();
+    return Target;
 }
 
 template<typename T>
-inline Job<T> Nexus<T>::Get(const std::string& input) {
-    return this->operator()(input);
+inline std::vector<T> Nexus<T>::GetAll() 
+{
+    The.WaitAll();
+    auto Lock = MoMutex.CreateLock();
+    std::vector<T> Captures;
+    for (std::pair<const size_t, RA::SharedPtr<Job<T>>> & Target : MmIdxJob)
+    {
+        Target.second.Get().TestException();
+        Captures.push_back(Target.second.Get().Move());
+    }
+    for (std::pair<const std::string, RA::SharedPtr<Job<T>>>& Target : MmStrJob)
+    {
+        Target.second.Get().TestException();
+        Captures.push_back(Target.second.Get().Move());
+    }
+    return Captures;
 }
 
 template<typename T>
-inline Job<T> Nexus<T>::Get(const char* input) {
-    return this->operator()(std::string(input));
+inline Job<T>& Nexus<T>::Get(const std::string& Input) {
+    return The.operator()(Input);
 }
 
 template<typename T>
-inline Job<T> Nexus<T>::GetWithoutProtection(const size_t val) noexcept{
-    return (*m_inst_job_mp)[val];
+inline Job<T>& Nexus<T>::Get(const char* Input) {
+    return The.operator()(std::string(Input));
 }
 
 template<typename T>
-inline Job<T> Nexus<T>::Get(const size_t input) {
-    return this->operator()(input);
+inline Job<T>& Nexus<T>::GetWithoutProtection(const size_t val) noexcept{
+    return *MmIdxJob[val];
+}
+
+template<typename T>
+inline Job<T>& Nexus<T>::Get(const size_t Input) {
+    return The.operator()(Input);
 }
 
 
@@ -314,27 +315,37 @@ inline Job<T> Nexus<T>::Get(const size_t input) {
 template<typename T>
 inline size_t Nexus<T>::Size() const
 {
-    return m_inst_task_count;
+    return MmIdxJob.size();
 }
 
 template<typename T>
-inline void Nexus<T>::WaitAll() const
+inline void Nexus<T>::WaitAll()
 {
-    while (m_task_deque.size()) Sleep(1);
-    while (RA::Threads::Used > 0) Sleep(1);
+    while (McTaskDeque.size() || MnInstTaskCount > 0)
+    {
+        The.Sleep(1);
+    }
 }
 
 template<typename T>
 inline bool Nexus<T>::TaskCompleted() const
 {
-    return !m_task_deque.size();
+    return !McTaskDeque.size();
+}
+
+template<typename T>
+inline void Nexus<T>::CheckAndClear()
+{
+    if (McTaskDeque.size() || MnInstTaskCount > 0)
+        The.Clear();
 }
 
 template<typename T>
 inline void Nexus<T>::Clear()
 {
-    m_inst_job_mp->clear();
-    m_inst_task_count = 0;
+    //MmIdxJob.clear();
+    //MmStrJob.clear();
+    MnInstTaskCount = 0;
 }
 
 template<typename T>

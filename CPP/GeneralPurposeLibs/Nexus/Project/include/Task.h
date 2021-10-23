@@ -2,53 +2,41 @@
 
 #include<functional>
 #include<string>
+#include<any>
 
 template<typename T>
 class Task
 {
-    std::string* m_name = nullptr; // set as pointer because it isn't always used
-    std::function<T()> m_method;
-    bool m_blank = false;
+protected:
+    std::string*        m_name = nullptr; // set as pointer because it isn't always used
+    std::function<T()>  m_method;
+    size_t              MnMutexID = 0;
 
 public:
-    Task();
-    Task(      Task&& task) noexcept;
-    Task(const Task&  task);
-    Task(      std::function<T()>&& i_method);
-    Task(const std::function<T()>&  i_method);
-    Task(      std::function<T()>&& i_method,       std::string&& i_name);
-    Task(const std::function<T()>&  i_method, const std::string&  i_name);
+    Task(      Task&& task) = delete; // Used Shared Pointer
+    Task(const Task&  task) = delete; // Used Shared Pointer
+    Task(      std::function<T()>&&    i_method);
+    Task(const std::function<T()>&     i_method);
+    Task(      std::function<T()>&&    i_method,       std::string&& i_name);
+    Task(const std::function<T()>&     i_method, const std::string&  i_name);
+    Task(      std::function<T()>&&    i_method, const size_t i_mutex_id);
+    Task(const std::function<T()>&     i_method, const size_t i_mutex_id);
     ~Task();
 
-    void operator=(const Task& task);
-    void operator=(Task&& task) noexcept;
+    // Use Shared Pointers
+    void operator=(const Task& task) = delete;
+    void operator=(Task&& task)      = delete;
 
     void AddMethod(const std::function<T()>& i_method);
 
     bool IsBlank() const;
     bool HasName() const;
     const std::string* GetNamePtr() const;
-    const std::string GetName() const;
+    const std::string  GetName() const;
+    const size_t       GetMutexID() const;
     T operator()();
 };
 
-
-template<typename T>
-inline Task<T>::Task()
-{
-    m_blank = true;
-}
-// ----------------------------------------------------------------------------------------------------
-
-template<typename T>
-inline Task<T>::Task(Task&& task) noexcept{
-    this->operator=(std::move(task));
-}
-
-template<typename T>
-inline Task<T>::Task(const Task& task){
-    this->operator=(task);
-}
 // ----------------------------------------------------------------------------------------------------
 template<typename T>
 inline Task<T>::Task(std::function<T()>&& i_method) : m_method(std::move(i_method))
@@ -58,38 +46,23 @@ inline Task<T>::Task(const std::function<T()>& i_method) : m_method(i_method)
 {   }
 // ----------------------------------------------------------------------------------------------------
 template<typename T>
-inline Task<T>::Task(std::function<T()>&& i_method, std::string&& i_name): m_method(std::move(i_method))
+inline Task<T>::Task(std::function<T()>&& i_method, std::string&& i_name) : m_method(std::move(i_method))
 {
     m_name = new std::string(std::move(i_name));
 }
 template<typename T>
-inline Task<T>::Task(const std::function<T()>& i_method, const std::string& i_name): m_method(i_method)
+inline Task<T>::Task(const std::function<T()>& i_method, const std::string& i_name) : m_method(i_method)
 {
     m_name = new std::string(i_name);
 }
 
 template<typename T>
-inline void Task<T>::operator=(const Task& task)
+inline Task<T>::Task(std::function<T()>&& i_method, size_t i_mutex_id) : m_method(std::move(i_method)), MnMutexID(i_mutex_id)
 {
-    if (task.m_name != nullptr) {
-        if(m_name != nullptr)
-            delete m_name;
-        m_name = new std::string(*task.m_name);
-    }
-    m_method = task.m_method;
-    m_blank = false;
 }
-
 template<typename T>
-inline void Task<T>::operator=(Task&& task) noexcept
+inline Task<T>::Task(const std::function<T()>& i_method, const size_t i_mutex_id) : m_method(i_method), MnMutexID(i_mutex_id)
 {
-    if (task.m_name != nullptr) {
-        if (m_name != nullptr)
-            delete m_name;
-        m_name = new std::string(std::move(*task.m_name));
-    }
-    m_method = std::move(task.m_method);
-    m_blank = false;
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -105,13 +78,6 @@ template<typename T>
 inline void Task<T>::AddMethod(const std::function<T()>& i_method)
 {
     m_method = i_method;
-    m_blank = false;
-}
-
-template<typename T>
-inline bool Task<T>::IsBlank() const
-{
-    return m_blank;
 }
 
 template<typename T>
@@ -130,6 +96,12 @@ template<typename T>
 inline const std::string Task<T>::GetName() const
 {
     return *m_name;
+}
+
+template<typename T>
+inline const size_t Task<T>::GetMutexID() const
+{
+    return MnMutexID;
 }
 
 template<typename T>

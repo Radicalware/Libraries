@@ -8,65 +8,62 @@
 #include<thread>
 #include<utility>
 
-#include "RA_Threads.h"
+#include "SharedPtr.h"
+#include "Threads.h"
 #include "Task.h"
 
 template<typename T>
 class Job : protected RA::Threads
 {
-    Task<T> m_task;
-    T m_value;
+    RA::SharedPtr<Task<T>> MoTaskPtr = nullptr;
+    T                      MoValue;
     
-    std::exception_ptr m_exc_ptr = nullptr;
+    std::exception_ptr  m_exc_ptr = nullptr;
     
-    size_t m_index = 0;
-    bool m_done = false;
-    bool m_removed = false;
-    static std::string Default_STR;
+    size_t              Idx = 0;
+    bool                MbDone = false;
+    bool                MbRemoved = false;
+    static std::string  Default_STR;
 
 public:
-    Job(); // required by Linux
-    Job(      Task<T>&& task, size_t index);
-    Job(const Task<T>&  task, size_t index);
-    void Init();
-    Task<T> GetTask() const;
-    const Task<T>* TaskPtr() const;
-    T Move();
-    T GetValue() const;
-    T* GetValuePtr() const;
+    // Job(); // required by Linux
+    Job(const Job<T>& Other) = delete; // Use Shared Pointer
+    Job(const RA::SharedPtr<Task<T>>&  task, size_t index);
+    void Run();
+    const Task<T>& GetTask() const;
+    const RA::SharedPtr<Task<T>> TaskPtr() const;
+    T   Move();
+    T&  GetValue();
+    T*  GetValuePtr();
     std::exception_ptr Exception() const;
-    void ThrowException() const;
+    void TestException() const;
     bool IsDone() const;
     size_t GetIndex() const;
 
-    bool operator> (const Job<T> other) const;
-    bool operator< (const Job<T> other) const;
-    bool operator==(const Job<T> other) const;
+    void operator=(const Job<T>& Other) const = delete;
+
+    bool operator> (const Job<T>& Other) const;
+    bool operator< (const Job<T>& Other) const;
+    bool operator==(const Job<T>& Other) const;
 };
 template<typename T> std::string Job<T>::Default_STR = "";
 
 template<typename T>
-inline Job<T>::Job()
+inline Job<T>::Job(const RA::SharedPtr<Task<T>>& task, size_t index) : 
+    MoTaskPtr(task), Idx(index)
 {
 }
 
 template<typename T>
-inline Job<T>::Job(Task<T>&& task, size_t index) : 
-    m_task(std::move(task)), m_index(std::move(index))
+inline void Job<T>::Run()
 {
-}
+    if (MbDone && MbRemoved == false)
+        return;
 
-template<typename T>
-inline Job<T>::Job(const Task<T>& task, size_t index) : 
-    m_task(task), m_index(index)
-{
-}
-
-template<typename T>
-inline void Job<T>::Init()
-{
+    RA::Threads::Used++;
+    RA::Threads::TotalTasksCounted++;
     try {
-        m_value = m_task();
+        MoValue = MoTaskPtr.Get()();
     }
     catch (const char*) {
         m_exc_ptr = std::current_exception();
@@ -74,46 +71,46 @@ inline void Job<T>::Init()
     catch (const std::exception&) {
         m_exc_ptr = std::current_exception();
     }
-    Used--;
-    m_done = true;
+
+    RA::Threads::Used--;
+    MbDone = true;
 }
 
 template<typename T>
-inline Task<T> Job<T>::GetTask() const
+inline const Task<T>& Job<T>::GetTask() const
 {
-    return m_task;
+    return MoTaskPtr.Get();
 }
 
 template<typename T>
-inline const Task<T>* Job<T>::TaskPtr() const
+inline const RA::SharedPtr<Task<T>> Job<T>::TaskPtr() const
 {
-    if (m_removed)
+    if (MbRemoved)
         throw std::runtime_error("The Task Object Has Been Moved!\n");
-    return &m_task;
+    return MoTaskPtr;
 }
 
 template<typename T>
-inline T Job<T>::GetValue() const 
+inline T Job<T>::Move()
 {
-    if (m_removed)
+    MbRemoved = true;
+    return std::move(MoValue);
+}
+
+template<typename T>
+inline T& Job<T>::GetValue() 
+{
+    if (MbRemoved)
         throw std::runtime_error("The Task Object Has Been Moved!\n");
-    return m_value;
-}
-
-
-template<typename T>
-inline T Job<T>::Move() 
-{
-    m_removed = true;
-    return std::move(m_value);
+    return MoValue;
 }
 
 template<typename T>
-inline T* Job<T>::GetValuePtr() const
+inline T* Job<T>::GetValuePtr()
 {
-    if (m_removed)
+    if (MbRemoved)
         throw std::runtime_error("The Task Object Has Been Moved!\n");
-    return &m_value;
+    return &MoValue;
 }
 
 template<typename T>
@@ -123,7 +120,7 @@ inline std::exception_ptr Job<T>::Exception() const
 }
 
 template<typename T>
-inline void Job<T>::ThrowException() const
+inline void Job<T>::TestException() const
 {
     if(m_exc_ptr != nullptr)
         std::rethrow_exception(m_exc_ptr);
@@ -132,36 +129,36 @@ inline void Job<T>::ThrowException() const
 template<typename T>
 inline bool Job<T>::IsDone() const
 {
-    return m_done;
+    return MbDone;
 }
 
 template<typename T>
 inline size_t Job<T>::GetIndex() const
 {
-    return m_index;
+    return Idx;
 }
 
 template<typename T>
-inline bool Job<T>::operator>(const Job<T> other) const
+inline bool Job<T>::operator>(const Job<T>& Other) const
 {
-    return m_index > other.m_index;
+    return Idx > Other.Idx;
 }
 
 template<typename T>
-inline bool Job<T>::operator<(const Job<T> other) const
+inline bool Job<T>::operator<(const Job<T>& Other) const
 {
-    return m_index < other.m_index;
+    return Idx < Other.Idx;
 }
 
 template<typename T>
-inline bool Job<T>::operator==(const Job<T> other) const
+inline bool Job<T>::operator==(const Job<T>& Other) const
 {
-    return m_index == other.m_index;
+    return Idx == Other.Idx;
 }
 
 // Below are NOT Member Functions
 template<typename T>
-std::ostream& operator<<(std::ostream& out, const Job<T>& job)
+std::ostream& operator<<(std::ostream& out, Job<T>& job)
 {
     out << job.GetValue();
     return out;

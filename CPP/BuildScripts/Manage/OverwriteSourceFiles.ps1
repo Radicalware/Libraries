@@ -15,7 +15,7 @@ Write-Host "Copying Project Folders: "
 Write-Host "1. GeneralPurposeLibs :  Macros, Nexus, Socket, OS"
 Write-Host "                          SYS, Iterator, Timer, Date"
 Write-Host "                          CudaBridge, Stash, JSON"
-Write-Host "2. ExtendedSTL         : xvector, xstring, xmap"
+Write-Host "2. ExtendedSTL         : Memory, xvector, xstring, xmap"
 Write-Host "3. FunctionalSTL       : re, ac, mc"
 Write-Host "4. ModdedObjects       : cc"
 
@@ -73,6 +73,7 @@ $handler.CopyLib("Stash")
 $handler.CopyLib("CudaBridge")
 
 $handler.dir = $ExtendedSTL
+$handler.CopyLib("Memory")
 $handler.CopyLib("xvector")
 $handler.CopyLib("xstring")
 $handler.CopyLib("xmap")
