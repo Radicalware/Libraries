@@ -140,6 +140,18 @@ xstring SYS::ArgV(const size_t Idx) const
     return MvCliArgs[Idx];
     Rescue();
 }
+
+bool SYS::Arg(const size_t Idx, const char FChar) const
+{
+    if (!MvCliArgs.HasRange(Idx))
+        return false;
+    if (MvCliArgs[Idx].Size() < 2)
+        return false;
+    if (MvCliArgs[Idx][0] == '-' && MvCliArgs[Idx][1] != '-')
+        return MvCliArgs[Idx].Has(FChar);
+    else
+        return MmArgs.Has(FChar) && MmArgs.at(FChar).Has(MvCliArgs[Idx]);
+}
 xvector<char> SYS::GetChrKeys() const { return MvKeysChr; }
 xvector<const xstring*> SYS::GetStrKeys() const { return MvKeysStr; }
 // -------------------------------------------------------------------------------------------------------------------
@@ -167,11 +179,11 @@ bool SYS::HasArgs() const { return MnSize > 1; }
 // -------------------------------------------------------------------------------------------------------------------
 
 bool SYS::Has(const xstring& FKey) const {
-    return MvKeysStr.Has(FKey);
+    return MvKeysStr.Has(FKey) || MmArgs.Has(MmAliasChar.at(FKey)) || MvKeysChr.Has(MmAliasChar.at(FKey));
 }
 
 bool SYS::Has(const char FKey) const {
-    return MmArgs.Has(FKey);
+    return MmArgs.Has(FKey) || MvKeysChr.Has(FKey);
 }
 
 // -------------------------------------------------------------------------------------------------------------------

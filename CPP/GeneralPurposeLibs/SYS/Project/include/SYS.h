@@ -86,6 +86,7 @@ public:
     int ArgC() const;
     xvector<xstring> ArgV() const;
     xstring ArgV(const size_t Idx) const;
+    bool    Arg(const size_t Idx, const char FChar) const;
 
     xvector<char>           GetChrKeys() const;
     xvector<const xstring*> GetStrKeys() const;

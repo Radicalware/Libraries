@@ -234,7 +234,7 @@ int Date::GetEpochTimeInt() const
 }
 
 xstring Date::GetEpochTimeStr() const {
-    return ToXString(MoEpochTime);
+    return RA::ToXString(MoEpochTime);
 }
 
 xstring Date::GetNumericTimeStr()

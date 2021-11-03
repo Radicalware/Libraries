@@ -35,8 +35,9 @@
 //template<typename K, typename V> class xmap<K*, V >;
 //template<typename K, typename V> class xmap<K , V*>;
 
-#include "val2_xmap.h"
-#include "ptr2_xmap.h"
-#include "ptr_val_xmap.h"
-#include "val_ptr_xmap.h"
+#include "BaseXMap.h"
+#include "ValValXMap.h"
+#include "PtrPtrXMap.h"
+#include "PtrValXMap.h"
+#include "ValPtrXMap.h"
 

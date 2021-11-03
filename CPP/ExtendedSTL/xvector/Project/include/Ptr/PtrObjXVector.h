@@ -20,38 +20,22 @@
 * limitations under the License.
 */
 
-#include "base_ptr_xvector.h"
+#include "BasePtrXVector.h"
 #include <type_traits>
 
-template<typename T> class ptr_xvector;
+template<typename T> class PtrXVector;
 template<typename T, typename enabler_t> class xvector;
 
 template<typename T>
-class xvector<T*, typename std::enable_if_t<std::is_class<std::remove_pointer_t<T*>>::value>> : public ptr_xvector<T*>
+class xvector<T*, typename std::enable_if_t<std::is_class<std::remove_pointer_t<T*>>::value>> : public PtrXVector<T*>
 {
-private:
-    typedef typename std::remove_const<T>::type E;// E for Erratic
-
 public:
-    using ptr_xvector<T*>::ptr_xvector;
-    using ptr_xvector<T*>::operator=;
+    using PtrXVector<T*>::PtrXVector;
+    using PtrXVector<T*>::operator=;
+    using E = std::remove_const<T>::type; // E for Erratic
 
     typedef T value_type;
-    inline xvector() = default;
-    inline xvector(std::initializer_list<T*> lst): ptr_xvector<T*>(std::move(lst)) { };
-    inline xvector(const std::vector<T*>& vec) : ptr_xvector<T*>(vec) { };
-    inline xvector(std::vector<T*>&& vec) noexcept : ptr_xvector<T*>(std::move(vec)) { };
-    inline xvector(const xvector<T*>& vec) : ptr_xvector<T*>(vec) { };
-    inline xvector(xvector<T*>&& vec) noexcept : ptr_xvector<T*>(std::move(vec)) { };
 
-    inline void operator=(const xvector<T*>& vec) { ptr_xvector<T*>::operator=(vec); };
-    inline void operator=(const std::vector<T*>& vec) { ptr_xvector<T*>::operator=(vec); };
-
-    inline void operator=(xvector<T*>&& vec) { ptr_xvector<T*>::operator=(std::move(vec)); };
-    inline void operator=(std::vector<T*>&& vec) { ptr_xvector<T*>::operator=(std::move(vec)); };
-
-    // Go from xvector<xvector<N>*> to xvector<N*>
-    //         xvector<T*>          to xvector<N*>
     template<typename N = typename E::value_type> // Nested Type
     inline xvector<N*> Expand() const;
 

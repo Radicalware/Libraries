@@ -168,8 +168,8 @@ xvector<int> OS::GetConsoleSize() // [columns, rows]
 
     GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &screen_info);
     return xvector<int>{
-        screen_info.srWindow.Right - screen_info.srWindow.Left + 1, // columns
-            screen_info.srWindow.Bottom - screen_info.srWindow.Top + 1  // rows
+        static_cast<int>(1) + screen_info.srWindow.Right  - screen_info.srWindow.Left, // columns
+        static_cast<int>(1) + screen_info.srWindow.Bottom - screen_info.srWindow.Top   // rows
     };
 #else
     struct winsize w;
@@ -356,7 +356,7 @@ xstring OS::InstRead()
             File.m_data += line + '\n';
     }
     else {
-        xstring err("Error (" + ToXString(errno) + "): Could Not Open Text File: ");
+        xstring err("Error (" + RA::ToXString(errno) + "): Could Not Open Text File: ");
         err += File.m_name;
         throw std::runtime_error(err.c_str());
     }
@@ -377,7 +377,7 @@ xstring OS::ReadFastMethod(const xstring& file_name, bool re_try)
     fp = fopen(file_name.c_str(), "rb");
 #endif
     if (fp == nullptr && !re_try) {
-        xstring err("Error (" + ToXString(errno) + "): Could Not Open Text File: ");
+        xstring err("Error (" + RA::ToXString(errno) + "): Could Not Open Text File: ");
         err += file_name;
         throw std::runtime_error(err.c_str());
     }
@@ -475,7 +475,7 @@ xstring OS::ReadStreamMethod(const xstring& file_name)
         os_file.close();
     }
     else {
-        xstring err("Error (" + ToXString(errno) + "): Could Not Open Text File: ");
+        xstring err("Error (" + RA::ToXString(errno) + "): Could Not Open Text File: ");
         err += file_name;
         throw std::runtime_error(err.c_str());
     }
@@ -492,7 +492,7 @@ OS OS::Write(const xstring& content, bool store /* = false */)
 
     errno = 0;
     if (!File.m_out_stream.is_open())
-        throw std::runtime_error("Error (" + ToXString(errno) + ") Unable to Open File: " + File.m_name + "\n");
+        throw std::runtime_error("Error (" + RA::ToXString(errno) + ") Unable to Open File: " + File.m_name + "\n");
 
     if (store)
         File.m_data = content;
@@ -539,7 +539,7 @@ xvector<xstring> OS::Dir(const xstring& folder_start, const char mod1, const cha
         set_mods(options[i]);
 
     if (files == 0 && directories == 0) {
-        return xvector<xstring>{ "" };
+        return xvector<xstring>(1, xstring());
     }
     Dir_Continued(search_path, track_vec, directories, files, recursive);
     delete[] options;
@@ -731,7 +731,7 @@ void OS::RemoveFile(const xstring& item)
             throw;
     }
     catch (...) {
-        xstring err = "Failed (" + ToXString(errno) + "): Failed to delete file: '" + fitem + "'\n";
+        xstring err = "Failed (" + RA::ToXString(errno) + "): Failed to delete file: '" + fitem + "'\n";
         throw std::runtime_error(err);
     }
 }

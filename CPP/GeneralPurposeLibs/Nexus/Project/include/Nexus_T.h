@@ -93,6 +93,7 @@ public:
 
     // Getters can't be const due to the mutex
     std::vector<T> GetAll();
+    std::vector<T> GetMoveAllIndices();
     Job<T>& Get(const std::string& val);
     Job<T>& Get(const size_t val);
     Job<T>& Get(const char* Input);
@@ -101,7 +102,6 @@ public:
     size_t Size() const;
     void WaitAll();
     bool TaskCompleted() const;
-    void CheckAndClear();
     void Clear();
     void Sleep(unsigned int extent) const;
 };
@@ -126,7 +126,7 @@ inline void Nexus<T>::TaskLooper(int thread_idx)
             if (LnLastTaskIdx != 0 && LnLastTaskIdx == LnTaskIdx)
                 continue;
 
-            RA::SharedPtr<Job<T>> JobPtr = MakePtr<Job<T>>(McTaskDeque.front(), RA::Threads::TotalTasksCounted);
+            auto JobPtr = RA::MakeShared<Job<T>>(McTaskDeque.front(), RA::Threads::TotalTasksCounted);
             McTaskDeque.pop_front();
             MmIdxJob.insert({ LnTaskIdx, JobPtr });
 
@@ -154,7 +154,7 @@ template<typename F, typename ...A>
 inline void Nexus<T>::Add(F& function, A&& ...Args)
 {
     auto BindedFunction = std::bind(function, std::ref(Args)...);
-    McTaskDeque.emplace_back(MakePtr<Task<T>>(std::move(BindedFunction)));
+    McTaskDeque.emplace_back(RA::MakeShared<Task<T>>(std::move(BindedFunction)));
 }
 
 template<typename T>
@@ -162,7 +162,7 @@ template<typename F, typename ...A>
 inline void Nexus<T>::AddKVP(const std::string& key, F& function, A&& ...Args)
 {
     auto BindedFunction = std::bind(function, std::ref(Args)...);
-    McTaskDeque.emplace_back(MakePtr<Task<T>>(std::move(BindedFunction), key));
+    McTaskDeque.emplace_back(RA::MakeShared<Task<T>>(std::move(BindedFunction), key));
 }
 // ------------------------------------------------------------------------------------------
 template<typename T>
@@ -178,7 +178,7 @@ Nexus<T>::Nexus()
 template<typename T>
 Nexus<T>::~Nexus()
 {
-    The.WaitAll();
+    This.WaitAll();
     MbFinishTasks = true;
     MoMutex.UnlockAll();
     for (auto& t : MvThreads) 
@@ -192,8 +192,7 @@ template<typename F, typename ...A>
 inline void Nexus<T>::AddJob(const std::string& key, F&& function, A&& ...Args)
 {
     auto Lock = MoMutex.CreateLock();
-    CheckAndClear();
-    The.AddKVP(key, function, std::ref(Args)...);
+    This.AddKVP(key, function, std::ref(Args)...);
 }
 
 template<typename T>
@@ -201,8 +200,7 @@ template<typename F, typename ...A>
 inline void Nexus<T>::AddJob(const char* key, F&& function, A&& ...Args)
 {
     auto Lock = MoMutex.CreateLock();
-    CheckAndClear();
-    The.AddKVP(std::string(key), function, std::ref(Args)...);
+    This.AddKVP(std::string(key), function, std::ref(Args)...);
 }
 
 template<typename T>
@@ -211,8 +209,7 @@ inline typename std::enable_if<!std::is_same<F, std::string>::value, void>::type
     Nexus<T>::AddJob(F&& function, A&& ...Args)
 {
     auto Lock = MoMutex.CreateLock();
-    CheckAndClear();
-    The.Add(function, std::ref(Args)...);
+    This.Add(function, std::ref(Args)...);
 }
 
 template<typename T>
@@ -220,9 +217,8 @@ template <typename F, typename ONE, typename ...A>
 inline void Nexus<T>::AddJobVal(F&& function, ONE& element, A&& ...Args)
 {
     auto Lock = MoMutex.CreateLock();
-    CheckAndClear();
     auto BindedFunction = std::bind(function, std::ref(element), Args...);
-    McTaskDeque.emplace_back(MakePtr<Task<T>>(std::move(BindedFunction)));
+    McTaskDeque.emplace_back(RA::MakeShared<Task<T>>(std::move(BindedFunction)));
 }
 
 template<typename T>
@@ -230,24 +226,21 @@ template<typename K, typename V, typename F, typename ...A>
 inline void Nexus<T>::AddJobPair(F&& function, K& key, V& value, A&& ...Args)
 {
     auto Lock = MoMutex.CreateLock();
-    CheckAndClear();
     auto BindedFunction = std::bind(function, std::ref(key), std::ref(value), Args...);
-    McTaskDeque.emplace_back(MakePtr<Task<T>>(std::move(BindedFunction)));
+    McTaskDeque.emplace_back(RA::MakeShared<Task<T>>(std::move(BindedFunction)));
 }
 // ------------------------------------------------------------------------------------------
 
 template<typename T>
 inline Job<T>& Nexus<T>::operator()(const std::string& Input)
 {
-    auto Lock = MoMutex.CreateLock();
-
     // If it is not already cached, is it queued?
     if (!MmStrJob.count(Input))
-        throw std::runtime_error("Nexus Key Not Found!");
+        throw std::runtime_error("Nexus Key(str) Not Found!");
 
+    auto Lock = MoMutex.CreateLock([this, &Input]()
+        { return MmStrJob.count(Input) && MmStrJob[Input].Get().IsDone(); });
     auto& Target = MmStrJob[Input].Get();
-    while (!Target.IsDone()) The.Sleep(1);
-
     Target.TestException();
     return Target;
 }
@@ -256,27 +249,23 @@ inline Job<T>& Nexus<T>::operator()(const std::string& Input)
 template<typename T>
 inline Job<T>& Nexus<T>::operator()(const size_t Input)
 {
-    auto Lock = MoMutex.CreateLock();
+    if (!MmIdxJob.count(Input))
+        throw std::runtime_error("Nexus Key(int) Not Found!");
 
-    if (Input > MmIdxJob.size()) // Idx is baesd on Job-Hold Size
-        throw std::runtime_error("Requested Job is Out of Range\n");
-
-    while (!MmIdxJob.count(Input))          The.Sleep(1);
-
+    auto Lock = MoMutex.CreateLock([this, &Input]() 
+        { return MmIdxJob.count(Input) && MmIdxJob[Input].Get().IsDone(); });
     auto& Target = MmIdxJob[Input].Get();
-    while (!Target.IsDone()) The.Sleep(1);
-
     Target.TestException();
     return Target;
 }
 
 template<typename T>
-inline std::vector<T> Nexus<T>::GetAll() 
+inline std::vector<T> Nexus<T>::GetAll()
 {
-    The.WaitAll();
+    This.WaitAll();
     auto Lock = MoMutex.CreateLock();
     std::vector<T> Captures;
-    for (std::pair<const size_t, RA::SharedPtr<Job<T>>> & Target : MmIdxJob)
+    for (std::pair<const size_t, RA::SharedPtr<Job<T>>>& Target : MmIdxJob)
     {
         Target.second.Get().TestException();
         Captures.push_back(Target.second.Get().Move());
@@ -286,17 +275,34 @@ inline std::vector<T> Nexus<T>::GetAll()
         Target.second.Get().TestException();
         Captures.push_back(Target.second.Get().Move());
     }
+    Clear();
+    return Captures;
+}
+
+template<typename T>
+inline std::vector<T> Nexus<T>::GetMoveAllIndices()
+{
+    This.WaitAll();
+    auto Lock = MoMutex.CreateLock();
+    std::vector<T> Captures;
+    Captures.reserve(Size());
+    for (std::pair<const size_t, RA::SharedPtr<Job<T>>>& Target : MmIdxJob)
+    {
+        Target.second.Get().TestException();
+        Captures.push_back(std::move(Target.second.Get().GetValue()));
+    }
+    Clear();
     return Captures;
 }
 
 template<typename T>
 inline Job<T>& Nexus<T>::Get(const std::string& Input) {
-    return The.operator()(Input);
+    return This.operator()(Input);
 }
 
 template<typename T>
 inline Job<T>& Nexus<T>::Get(const char* Input) {
-    return The.operator()(std::string(Input));
+    return This.operator()(std::string(Input));
 }
 
 template<typename T>
@@ -306,7 +312,7 @@ inline Job<T>& Nexus<T>::GetWithoutProtection(const size_t val) noexcept{
 
 template<typename T>
 inline Job<T>& Nexus<T>::Get(const size_t Input) {
-    return The.operator()(Input);
+    return This.operator()(Input);
 }
 
 
@@ -323,7 +329,7 @@ inline void Nexus<T>::WaitAll()
 {
     while (McTaskDeque.size() || MnInstTaskCount > 0)
     {
-        The.Sleep(1);
+        This.Sleep(1);
     }
 }
 
@@ -334,18 +340,15 @@ inline bool Nexus<T>::TaskCompleted() const
 }
 
 template<typename T>
-inline void Nexus<T>::CheckAndClear()
-{
-    if (McTaskDeque.size() || MnInstTaskCount > 0)
-        The.Clear();
-}
-
-template<typename T>
 inline void Nexus<T>::Clear()
 {
-    //MmIdxJob.clear();
-    //MmStrJob.clear();
-    MnInstTaskCount = 0;
+
+    if (MnInstTaskCount == 0 && McTaskDeque.size() == 0)
+    {
+        MmIdxJob.clear();
+        MmStrJob.clear();
+        MnInstTaskCount = 0;
+    }
 }
 
 template<typename T>

@@ -5,6 +5,8 @@
 #include "xvector.h"
 #include "xstring.h"
 #include "xmap.h"
+#include "Macros.h"
+#include "SharedPtr.h"
 
 using std::cout;
 using std::endl;
@@ -48,8 +50,12 @@ void move_xvec()
 
 int main(int argc, char** argv) 
 {
-
+    Begin();
     Nexus<>::Start();
+
+    xvector<xp<xstring>> Ptrs;
+
+    EXIT();
 
     xvector<Abs*> abs = { new Der };
     abs[0]->Print();
@@ -88,7 +94,7 @@ int main(int argc, char** argv)
     cout << "xstring : " << vec_str.Join(' ') << endl;
     cout << "chars   : " << vec_char.Convert<xstring>().Join(' ') << endl;
     cout << "char arr: " << vec_chara.Convert<xstring>([](const char* val) {return xstring(val); }).Join(' ') << endl;
-    cout << "ints    : " << vec_int.Convert<xstring>([](int val) {return ToXString(val); }).Join(' ') << endl;
+    cout << "ints    : " << vec_int.Convert<xstring>([](int val) {return RA::ToXString(val); }).Join(' ') << endl;
 
     xstring three = "three";
 
@@ -171,7 +177,7 @@ int main(int argc, char** argv)
     arr_ptr.ForEachThread([&mod5](xstring& elem) {return elem.Sub("gmail", mod5); }).Join('\n').Print();
 
 
-    arr_ptr.ThreadProc([&mod5](xstring& elem) {return elem.Sub("gmail", mod5); }); // executes but returns nothing
+    arr_ptr.ProcThread([&mod5](xstring& elem) {return elem.Sub("gmail", mod5); }); // executes but returns nothing
 
     cout << "============================================\n";
 
@@ -183,7 +189,7 @@ int main(int argc, char** argv)
     cout << "common values: " << vec_common_values.Join(' ') << endl;
 
 
-    xvector<xstring> first = { "one" , "two", "three" };
+    xvector<xstring> first  = { "one" , "two", "three" };
     xvector<xstring> second = { "four", "five", "six" };
 
     xvector<xvector<xstring>> nested_vecs = { first, second };
@@ -197,11 +203,11 @@ int main(int argc, char** argv)
         [&counter](xstring& item)
     {
         counter++;
-        return std::pair<xstring*, xstring>(&item, ToXString(counter));
+        return std::pair<xstring*, xstring>(&item, RA::ToXString(counter));
     });
     xmp_ptr.Print();
 
-
+    RescuePrint();
     Nexus<>::Stop();
     return 0;
 }

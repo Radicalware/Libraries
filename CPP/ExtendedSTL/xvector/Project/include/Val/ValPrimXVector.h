@@ -19,34 +19,21 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-#include "base_val_xvector.h"
+#include "BaseValXVector.h"
 #include <type_traits>
 
-template<typename T> class val_xvector;
+template<typename T> class ValXVector;
 template<typename T, typename enabler_t> class xvector;
 
 template<typename T>
-class xvector<T, typename std::enable_if_t<!std::is_class<T>::value && !std::is_pointer<T>::value>> : public val_xvector<T>
+class xvector<T, typename std::enable_if_t<!std::is_class<T>::value && !std::is_pointer<T>::value>> : public ValXVector<T>
 {
-private:
-    typedef typename std::remove_const<T>::type E;// E for Erratic
-
 public:
-    using val_xvector<T>::val_xvector;
-    using val_xvector<T>::operator=;
+    using ValXVector<T>::ValXVector;
+    using ValXVector<T>::operator=;
+    using E = std::remove_const<T>::type; // E for Erratic
 
     typedef T value_type;
-    inline xvector(std::initializer_list<T> lst) : val_xvector<T>(std::move(lst)) { };
-    inline xvector(const std::vector<T>& vec) : val_xvector<T>(vec) { };
-    inline xvector(std::vector<T>&& vec) noexcept : val_xvector<T>(std::move(vec)) { };
-    inline xvector(const xvector<T>& vec) : val_xvector<T>(vec) { };
-    inline xvector(xvector<T>&& vec) noexcept : val_xvector<T>(std::move(vec)) { };
-
-    inline void operator=(const xvector<T>& vec) { val_xvector<T>::operator=(vec); };
-    inline void operator=(const std::vector<T>& vec) { val_xvector<T>::operator=(vec); };
-
-    inline void operator=(xvector<T>&& vec) { val_xvector<T>::operator=(std::move(vec)); };
-    inline void operator=(std::vector<T>&& vec) { val_xvector<T>::operator=(std::move(vec)); };
 
     inline T GetCommonItems(char const* item);
     template<typename S = std::string>

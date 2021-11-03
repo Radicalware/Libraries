@@ -60,17 +60,38 @@ xstring::xstring(const unsigned char* chrs)
 
 xstring::xstring(const wchar_t* chrs)
 {
-    *this = WTXS(chrs);
+    *this = RA::WTXS(chrs);
 }
 
 xstring::xstring(const std::wstring& wstr)
 {
-    *this = WTXS(wstr.c_str());
+    *this = RA::WTXS(wstr.c_str());
 }
 
-void xstring::operator+=(const char chr)
-{
+
+void xstring::operator+=(const char chr) {
     this->insert(this->end(), chr);
+}
+
+void xstring::operator+=(const char* chr)
+{
+    this->reserve(Size() + strlen(chr));
+    for (const auto* Ptr = &chr[0]; *Ptr != '\0'; Ptr++)
+        this->insert(this->end(), *Ptr);
+}
+
+void xstring::operator+=(const unsigned char* chr)
+{
+    for (const auto* Ptr = &chr[0]; *Ptr != '\0'; Ptr++)
+        this->insert(this->end(), *Ptr);
+}
+
+void xstring::operator+=(const std::string& str) {
+    this->insert(this->end(), str.begin(), str.end());
+}
+
+void xstring::operator+=(std::string&& str){
+    this->insert(this->end(), std::make_move_iterator(str.begin()), std::make_move_iterator(str.end()));
 }
 
 xstring xstring::operator+(const char chr)
@@ -78,11 +99,6 @@ xstring xstring::operator+(const char chr)
     xstring rstr = *this;
     rstr.insert(rstr.end(), chr);
     return rstr;
-}
-
-void xstring::operator+=(const char* chr)
-{
-    *this += xstring(chr);
 }
 
 xstring xstring::operator+(const char* chr)
@@ -94,11 +110,6 @@ xstring xstring::operator+(const char* chr)
     return retr;
 }
 
-void xstring::operator+=(const unsigned char* chr)
-{
-    *this += xstring(chr);
-}
-
 xstring xstring::operator+(const unsigned char* chr)
 {
     xstring retr;
@@ -108,10 +119,6 @@ xstring xstring::operator+(const unsigned char* chr)
     return retr;
 }
 
-void xstring::operator+=(const std::string& str) {
-    this->insert(this->end(), str.begin(), str.end());
-}
-
 xstring xstring::operator+(const std::string& str)
 {
     xstring rstr;
@@ -119,11 +126,6 @@ xstring xstring::operator+(const std::string& str)
     rstr += *this;
     rstr += str;
     return rstr;
-}
-
-void xstring::operator+=(std::string&& str)
-{
-    this->insert(this->end(), std::make_move_iterator(str.begin()), std::make_move_iterator(str.end()));
 }
 
 xstring xstring::operator+(std::string&& str)
@@ -217,6 +219,23 @@ xstring xstring::ToLower() const
     std::locale loc;
     for (xstring::const_iterator it = this->begin(); it != this->end(); it++)
         ret_str += std::tolower((*it), loc);
+    return ret_str;
+}
+
+xstring xstring::ToProper() const
+{
+    xstring ret_str;
+    std::locale loc;
+    bool FirstPass = true;
+    for (xstring::const_iterator it = this->begin(); it != this->end(); it++)
+    {
+        if (FirstPass)
+        {
+            ret_str += std::toupper((*it), loc);
+            FirstPass = false;
+        }else
+            ret_str += std::tolower((*it), loc);
+    }
     return ret_str;
 }
 
@@ -1024,7 +1043,7 @@ xstring xstring::ToInvertedColor() const {
 
 // =================================================================================================================================
 
-xstring WTXS(const wchar_t* wstr) {
+xstring RA::WTXS(const wchar_t* wstr) {
     if (!wstr)
         return xstring::static_class;
     xstring str;

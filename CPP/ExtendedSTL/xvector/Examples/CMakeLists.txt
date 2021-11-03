@@ -21,3 +21,4 @@ list(APPEND PrivateLibs "xmap")
 
 BuildRadicalSolution(PrivateLibs "")
 link_libraries(${THIS} re2::re2)
+

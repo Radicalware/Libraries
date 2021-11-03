@@ -3,8 +3,8 @@
 #include<thread>
 #include<atomic>
 
-#ifndef __THE__
-#define The (*this)
+#ifndef __THIS__
+#define This (*this)
 #endif
 
 namespace RA

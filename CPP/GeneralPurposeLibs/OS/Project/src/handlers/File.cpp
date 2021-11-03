@@ -109,7 +109,7 @@ void OS_O::File::RM()
             throw;
     }
     catch (...) {
-        xstring err = "Failed (" + ToXString(errno) + "): Failed to delete file: '" + m_name + "'\n";
+        xstring err = "Failed (" + RA::ToXString(errno) + "): Failed to delete file: '" + m_name + "'\n";
         throw std::runtime_error(err);
     }
 }

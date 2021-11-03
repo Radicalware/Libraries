@@ -40,23 +40,35 @@
 #include "re2/re2.h"
 #include "Nexus.h"
 
-template<typename T> class val_xvector;
-template<typename T> class ptr_xvector;
 
-template<typename T, typename enabler_t = void> class xvector;
-    
-// Values (Object/Primitive)
-template<typename T> class xvector<T, typename std::enable_if< std::is_class<T>::value && !std::is_pointer<T>::value>::type>; // val_obj_xvector
-template<typename T> class xvector<T, typename std::enable_if<!std::is_class<T>::value && !std::is_pointer<T>::value>::type>; // val_prim_xvector
 
-// Pointers (Object/Primitive)
-template<typename T> class xvector<T*, typename std::enable_if< std::is_class<std::remove_pointer_t<T*>>::value>::type>; // ptr_obj_xvector
-template<typename T> class xvector<T*, typename std::enable_if<!std::is_class<std::remove_pointer_t<T*>>::value>::type>; // ptr_prim_xvector
 
-#include "base_val_xvector.h"
-#include "val_obj_xvector.h"
-#include "val_prim_xvector.h"
+//#include "BaseXVector.h"
+//
+//#include "Val/BaseValXVector.h"
+#include "Val/ValObjXVector.h"
+#include "Val/ValPrimXVector.h"
 
-#include "base_ptr_xvector.h"
-#include "ptr_obj_xvector.h"
-#include "ptr_prim_xvector.h"
+//#include "Ptr/BasePtrXVector.h"
+#include "Ptr/PtrObjXVector.h"
+#include "Ptr/PtrPrimXVector.h"
+
+
+//template<typename T> class BaseXVector;
+//    
+//template<typename T> class ValXVector;
+//template<typename T> class PtrXVector;
+//
+//template<typename T, typename enabler_t = void> class xvector;
+//    
+//// Values (Object/Primitive)
+//template<typename T> class xvector<T, typename std::enable_if< std::is_class<T>::value && !std::is_pointer<T>::value>::type>; // val_obj_xvector
+//template<typename T> class xvector<T, typename std::enable_if<!std::is_class<T>::value && !std::is_pointer<T>::value>::type>; // val_prim_xvector
+//
+//// Pointers (Object/Primitive)
+//template<typename T> class xvector<T*, typename std::enable_if< std::is_class<std::remove_pointer_t<T*>>::value>::type>; // ptr_obj_xvector
+//template<typename T> class xvector<T*, typename std::enable_if<!std::is_class<std::remove_pointer_t<T*>>::value>::type>; // ptr_prim_xvector
+//
+
+
+

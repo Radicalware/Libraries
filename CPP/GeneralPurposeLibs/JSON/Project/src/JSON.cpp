@@ -1,6 +1,7 @@
 #include "JSON.h"
 #include "Macros.h"
 #include <nlohmann/json.hpp>
+#include <cpprest/json.h>
 
 #define ThrowNoJSON() \
     if (!MoFullJsonPtr.get())  ThrowIt("No JSON");
@@ -8,7 +9,7 @@
 #define ThrowNoBSON() \
     if (!MoBsonValuePtr.get()) ThrowIt("No BSON");
 
-void RA::JSON::Print(const web::json::value & FoWebJson)
+void RA::JSON::Print(const web::json::value& FoWebJson)
 {
     Begin();
     if (FoWebJson.is_null())
@@ -47,6 +48,25 @@ RA::JSON::JSON(const web::json::value& FoJson, Init FeInit)
     Set(FoJson, FeInit);
 }
 
+void RA::JSON::operator=(const RA::JSON& Other)
+{
+    MoBsonValuePtr.Clone(Other.MoBsonValuePtr);
+    MoFullJsonPtr.Clone(Other.MoFullJsonPtr);
+    MoZoomedJsonPtr.Clone(Other.MoZoomedJsonPtr);
+}
+
+void RA::JSON::operator=(JSON&& Other)
+{
+    if (MoBsonValuePtr != nullptr)
+        MoBsonValuePtr = std::move(Other.MoBsonValuePtr);
+
+    if (MoFullJsonPtr != nullptr)
+        MoFullJsonPtr = std::move(Other.MoFullJsonPtr);
+
+    if (MoZoomedJsonPtr != nullptr)
+        MoZoomedJsonPtr = std::move(Other.MoZoomedJsonPtr);
+}
+
 void RA::JSON::SetJSON(const xstring& FoString)
 {
     Begin();
@@ -57,8 +77,8 @@ void RA::JSON::SetJSON(const xstring& FoString)
     StringStream << JsonStr.c_str();
     
     web::json::value JsonValue = web::json::value::parse(StringStream);
-    if (!MoFullJsonPtr.get())
-        MoFullJsonPtr = std::make_shared<web::json::value>(JsonValue);
+    if (!MoFullJsonPtr)
+        MoFullJsonPtr = RA::MakeShared<web::json::value>(JsonValue);
     else
         *MoFullJsonPtr = JsonValue;
     ZoomReset();
@@ -68,8 +88,8 @@ void RA::JSON::SetJSON(const xstring& FoString)
 void RA::JSON::SetBSON(const BSON::Value& FoBSON)
 {
     Begin();
-    if (!MoBsonValuePtr.get())
-        MoBsonValuePtr = std::make_shared<BSON::Value>(FoBSON);
+    if (!MoBsonValuePtr)
+        MoBsonValuePtr = RA::MakeShared<BSON::Value>(FoBSON);
     else
         *MoBsonValuePtr = FoBSON;
     ZoomReset();
@@ -79,6 +99,9 @@ void RA::JSON::SetBSON(const BSON::Value& FoBSON)
 void RA::JSON::Set(const xstring& FoString, Init FeInit)
 {
     Begin();
+    if (FoString == "null")
+        return;
+
     if(FeInit == Init::Both || FeInit == Init::JSON) // not exclusive to only JSON
         SetJSON(FoString);
     
@@ -112,8 +135,8 @@ void RA::JSON::Set(const web::json::value& FoJson, Init FeInit)
     {
         if (FeInit == Init::Both || FeInit == Init::JSON) // If not exclusivly only BSON
         {
-            if (!MoFullJsonPtr.get())
-                MoFullJsonPtr = std::make_shared<web::json::value>(FoJson);
+            if (!MoFullJsonPtr)
+                MoFullJsonPtr = RA::MakeShared<web::json::value>(FoJson);
             else
                 *MoFullJsonPtr = FoJson;
         }
@@ -133,6 +156,8 @@ void RA::JSON::Set(const web::json::value& FoJson, Init FeInit)
 xstring RA::JSON::GetPrettyJson(const int FnSpaceCount, const char FcIndentChar, const bool FbEnsureAscii) const
 {
     Begin();
+    if (!MoFullJsonPtr)
+        return "null";
     const web::json::value& JsonTarget = (MoZoomedJsonPtr) ? *MoZoomedJsonPtr : *MoFullJsonPtr;
     if (JsonTarget.is_null())
         return "{ null }\n";
@@ -167,6 +192,8 @@ void RA::JSON::PrintJson() const
 bool RA::JSON::IsNull() const
 {
     Begin();
+    if (!MoFullJsonPtr)
+        return true;
     GSS(MoFullJson);
     return MoFullJson.is_null();
     RescueThrow();
@@ -197,16 +224,42 @@ pint RA::JSON::Size() const
     RescueThrow();
 }
 
+RA::JSON& RA::JSON::ZoomIdx(const pint Idx)
+{
+    Begin();
+    GSS(MoFullJson);
+    if (MoFullJson.to_string() == L"null")
+        return *this;
+    if (!MoZoomedJsonPtr)
+    {
+        try
+        {
+            MoZoomedJsonPtr = RA::MakeShared<web::json::value>(MoFullJson.at(Idx));
+        }
+        catch (...)
+        {
+            cout << "Start of Failed JSON: " << WTXS(MoFullJson.to_string().c_str())(0, 100) << endl;
+            ThrowIt("Failed to Get JSON");
+        }
+    }
+    else
+    {
+        GSS(MoZoomedJson);
+        MoZoomedJson = MoZoomedJson.at(Idx);
+    }
+    return *this;
+    RescueThrow();
+}
+
 RA::JSON& RA::JSON::Zoom(const char* FacObject)
 {
     Begin();
     ThrowNoJSON();
     size_t Size = strlen(FacObject) + 1;
-    wchar_t* LacWideChar = new wchar_t[Size];
-    mbstowcs_s(NULL, LacWideChar, strlen(FacObject) + 1, FacObject, strlen(FacObject));
-    LacWideChar[Size - 1] = L'\0';
-    Zoom(LacWideChar);
-    delete[] LacWideChar;
+    auto LacWideCharSPtr = RA::SharedPtr<wchar_t[]>(new wchar_t[Size]); auto LacWideCharPtr = LacWideCharSPtr.Ptr();
+    mbstowcs_s(NULL, LacWideCharPtr, strlen(FacObject) + 1, FacObject, strlen(FacObject));
+    LacWideCharPtr[Size - 1] = L'\0';
+    Zoom(LacWideCharPtr);
     return *this;
     RescueThrow();
 }
@@ -223,13 +276,29 @@ RA::JSON& RA::JSON::Zoom(const wchar_t* FacObject)
 {
     Begin();
     GSS(MoFullJson);
-    if (!MoZoomedJsonPtr.get())
-        MoZoomedJsonPtr = std::make_shared<web::json::value>(MoFullJson.at(FacObject));
+    if (MoFullJson.to_string() == L"null")
+        return *this;
+    if (!MoZoomedJsonPtr)
+    {
+        try
+        {
+            if (MoFullJson.to_string()[0] == L'[')
+            {
+                The.ZoomIdx(0);
+                MoZoomedJsonPtr = RA::MakeShared<web::json::value>(MoZoomedJsonPtr.Get().at(FacObject));
+            }else
+                MoZoomedJsonPtr = RA::MakeShared<web::json::value>(MoFullJson.at(FacObject));
+        }
+        catch (...)
+        {
+            cout << "Start of Failed JSON: " << WTXS(MoFullJson.to_string().c_str())(0, 100) << endl;
+            ThrowIt("Failed to Get JSON");
+        }
+    }
     else
     {
         GSS(MoZoomedJson);
-        auto Zoomed = MoZoomedJson.at(FacObject);
-        MoZoomedJson = Zoomed;
+        MoZoomedJson = MoZoomedJson.at(FacObject);
     }
     return *this;
     RescueThrow();
@@ -287,9 +356,9 @@ const web::json::value& RA::JSON::GetZoomedObject() const
 {
     Begin();
     ThrowNoJSON();
-    if (MoZoomedJsonPtr.get())
-        return *MoZoomedJsonPtr.get();
-    else
+    if (!MoZoomedJsonPtr)
         return *MoFullJsonPtr;
+    else
+        return MoZoomedJsonPtr.Get();
     RescueThrow();
 }

@@ -33,6 +33,8 @@
 #include<string.h>
 #include<ctype.h>
 #include<type_traits>
+#include<iomanip>
+#include<sstream>
 
 #include "re2/re2.h"
 
@@ -55,25 +57,24 @@ public:
     xstring(const std::string& str)          : std::string(str) {};
     xstring(std::string&& str) noexcept      : std::string(std::move(str)) {};
     xstring(size_t repeat, const char chr)   : std::string(repeat, chr) {};
-    xstring(std::stringstream& Stream)       : std::string(std::move(Stream.str())) {}
+    xstring(std::stringstream&  Stream)      : std::string(std::move(Stream.str())) {}
+    xstring(std::ostringstream& Stream)      : std::string(std::move(Stream.str())) {}
     xstring(const char chr);
     xstring(const char* chrs);
     xstring(const unsigned char* chrs);
     xstring(const wchar_t* chrs);
     xstring(const std::wstring& wstr);
 
-    // operator=(&&) tests positive for moving in the examples
-
     void operator+=(const char chr);
-    xstring operator+(const char chr);
     void operator+=(const char* chr);
-    xstring operator+(const char* chr);
     void operator+=(const unsigned char* chr);
-    xstring operator+(const unsigned char* chr);
-
     void operator+=(const std::string& str);
-    xstring operator+(const std::string& str);
     void operator+=(std::string&& str);
+
+    xstring operator+(const char chr);
+    xstring operator+(const char* chr);
+    xstring operator+(const unsigned char* chr);
+    xstring operator+(const std::string& str);
     xstring operator+(std::string&& str);
 
     const char& At(size_t Idx) const;
@@ -91,8 +92,9 @@ public:
     std::string  ToStdString() const;
     std::wstring ToStdWString() const;
 
-    xstring ToUpper() const;
-    xstring ToLower() const;
+    xstring ToUpper()  const;
+    xstring ToLower()  const;
+    xstring ToProper() const;
 
     xstring operator*(int total) const;
     void operator*=(int total);
@@ -249,46 +251,88 @@ public:
     // =================================================================================================================================
 };
 
-// stand-alone function
-template<typename T>
-inline typename std::enable_if< std::is_class<T>::value && !std::is_pointer<T>::value, xstring>::type
-ToXString(const T& obj)
+namespace RA
 {
-    std::ostringstream ostr;
-    ostr << obj;
-    return xstring(ostr.str().c_str());
+    // stand-alone function
+
+    // Object
+    template<typename T>
+    inline typename std::enable_if<std::is_class<T>::value && !std::is_pointer<T>::value, xstring>::type
+        ToXString(const T& obj)
+    {
+        std::ostringstream ostr;
+        ostr << obj;
+        return xstring(ostr.str().c_str());
+    }
+
+    // Number
+    template<typename T>
+    inline typename std::enable_if<!std::is_class<T>::value && !std::is_pointer<T>::value, xstring>::type
+        ToXString(const T& obj)
+    {
+        std::ostringstream ostr;
+        ostr << obj;
+        return xstring(ostr.str().c_str());
+    }
+
+    // Number
+    template<typename T>
+    inline typename std::enable_if<!std::is_class<T>::value && !std::is_pointer<T>::value, xstring>::type
+        ToXString(const T& obj, const size_t FnPercision, const bool FbFixed = true)
+    {
+        std::ostringstream ostr;
+        if (FbFixed)
+            ostr << std::fixed << std::setprecision(FnPercision) << obj;
+        else
+            ostr << std::setprecision(FnPercision) << obj;
+        return xstring(ostr.str().c_str());
+    }
+
+
+    // Object Pointer
+    template<typename T>
+    inline typename std::enable_if<std::is_class<T>::value && std::is_pointer<T>::value, xstring>::type
+        ToXString(const T& obj)
+    {
+        std::ostringstream ostr;
+        ostr << *obj;
+        return xstring(ostr.str().c_str());
+    }
+
+    // Fundamental Pointer (probably a pointer array)
+    template<typename T>
+    inline typename std::enable_if<!std::is_class<T>::value&& std::is_pointer<T>::value, xstring>::type
+        ToXString(const T& obj)
+    {
+        throw "Do Not Use!!";
+    }
+
+    template<class T>
+    xstring FormatNum(T value, const size_t FnPercision = 0)
+    {
+        if (FnPercision)
+            std::cout.precision(FnPercision);
+        std::ostringstream SS;
+        SS.imbue(std::locale(""));
+        SS << std::fixed << value;
+        return SS;
+    }
+
+    template<class T>
+    xstring FormatInt(T value, const size_t FnPercision = 0)
+    {
+        if(FnPercision)
+            std::cout.precision(FnPercision);
+        static const re2::RE2 StripDouble(R"(\..*$)");
+        std::ostringstream SS;
+        SS.imbue(std::locale(""));
+        SS << std::fixed << value;
+        xstring Out = SS;
+        return Out.Sub(StripDouble, "");
+    }
+
+    // wide string to xstring
+    xstring WTXS(const wchar_t* wstr);
 }
-
-template<typename T>
-inline typename std::enable_if<!std::is_class<T>::value && !std::is_pointer<T>::value, xstring>::type
-ToXString(const T& obj)
-{
-    std::ostringstream ostr;
-    ostr << obj;
-    return xstring(ostr.str().c_str());
-}
-
-
-template<typename T>
-inline typename std::enable_if< std::is_class<T>::value && std::is_pointer<T>::value, xstring>::type
-ToXString(const T& obj)
-{
-    std::ostringstream ostr;
-    ostr << obj;
-    return xstring(ostr.str().c_str());
-}
-
-template<typename T>
-inline typename std::enable_if<!std::is_class<T>::value && std::is_pointer<T>::value, xstring>::type
-ToXString(const T& obj)
-{
-    std::ostringstream ostr;
-    ostr << obj;
-    return xstring(ostr.str().c_str());
-}
-
-// wide string to xstring
-xstring WTXS(const wchar_t* wstr);
-
 
 #include "std_xstring.h"

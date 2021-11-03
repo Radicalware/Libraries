@@ -54,7 +54,7 @@ private:
     inline static std::queue<RA::SharedPtr<Task<void>>> ScTaskQueue; // This is where tasks are held before being run
     // No Getter Mutex/Sig for Nexus<void> because you pass in by ref, you don't pull any stored values
     inline static std::unordered_map<size_t, RA::SharedPtr<RA::Mutex>> SmMutex; // for objects in threads
-    inline static RA::SharedPtr<RA::Mutex> SoBlankMutexPtr = MakePtr<RA::Mutex>(); // This blank Mutex used when no mutex is given as a param
+    inline static RA::SharedPtr<RA::Mutex> SoBlankMutexPtr = RA::MakeShared<RA::Mutex>(); // This blank Mutex used when no mutex is given as a param
     // Nexus<void> can't store output, hance no storage containers here
 
     static void TaskLooper(int thread_idx);
@@ -68,33 +68,41 @@ public:
     static void SetMutexOn(size_t FoMutex); 
     static void SetMutexOff(size_t FoMutex);
     // ------------------------------------------------------------------------------------------------------------------------------------------------
+
+#define IsFunction(__TempObj__) std::is_function<typename std::remove_pointer<__TempObj__>::type>::value
+#define IsClass(__TempObj__)    std::is_class<__TempObj__>::value
+#define IsMutexPtr(__TempObj__) std::is_same<__TempObj__, RA::SharedPtr<RA::Mutex>>::value
+
     // Job: Function + Args
+
+    template <typename F>
+    static inline void
+        AddJob(F&& Function);
     template <typename F, typename... A>
-    static inline typename std::enable_if<!std::is_same<F, RA::SharedPtr<RA::Mutex>>::value && !std::is_same<F, xptr<RA::Mutex>>::value, void>::type
-        AddJob(F&& function, A&& ... Args);
+    static inline typename std::enable_if<IsFunction(F) && !IsClass(F) && !IsMutexPtr(F), void>::type
+        AddJob(F&& Function, A&& ... Args);
 
-    // Job: Object.Function + Args
+    // Job Object.Function + Args
     template <typename O, typename F, typename... A>
-    static inline typename std::enable_if<std::is_class<O>::value && !std::is_same<O, RA::SharedPtr<RA::Mutex>>::value, void>::type
-        AddJob(O&& object, F&& function, A& ... Args);
+    static inline typename std::enable_if<IsClass(O) && !IsFunction(O) && !IsMutexPtr(O), void>::type
+        AddJob(O& object, F&& Function, A&& ... Args);
+    template <typename O, typename F>
+    static inline typename std::enable_if<IsClass(O) && !IsFunction(O) && !IsMutexPtr(O), void>::type
+        AddJob(O& object, F&& Function);
 
-    template <typename O, typename F, typename... A>
-    static inline typename std::enable_if<std::is_class<O>::value && !std::is_same<O, RA::SharedPtr<RA::Mutex>>::value, void>::type
-        AddJob(O&& object, F&& function, A&& ... Args);
-
-     // Job: Mutex + Object.Function + Args
+    //  Job: Mutex + Object.Function + Args
     template <typename M, typename O, typename F, typename... A>
-    static inline typename std::enable_if<std::is_same<M, RA::SharedPtr<RA::Mutex>>::value || std::is_same<M, xptr<RA::Mutex>>::value, void>::type
-        AddJob(M& FoMutex, O&& object, F&& function, A&& ... Args);
+    static inline typename std::enable_if<IsMutexPtr(M) && !IsFunction(M), void>::type
+        AddJob(M& FoMutex, O& object, F&& Function, A&& ... Args);
     // ------------------------------------------------------------------------------------------------------------------------------------------------
     // Job: Function + Ref-Arg + Args
     template <typename F, typename V, typename... A>
     static inline void
-        AddJobVal(F&& function, V& element, A&&... Args);
+        AddJobVal(F&& Function, V& element, A&&... Args);
 
     // Job: Function + Ref-(Key/Value) + Args
     template <typename K, typename V, typename F, typename... A>
-    static void AddJobPair(F&& function, K key, V& value, A&& ... Args);
+    static void AddJobPair(F&& Function, K key, V& value, A&& ... Args);
 
     // Required due to Linux not Windows (returns void Job<T>)
     // static Job<short int> GetWithoutProtection(size_t dummy) noexcept;
@@ -170,7 +178,7 @@ inline void Nexus<void>::Start()
         RA::Threads::InstanceCount++;
         MvThreads.reserve(RA::Threads::Allowed);
         for (int i = 0; i < RA::Threads::Allowed; ++i)
-            MvThreads.emplace_back(std::bind((void(*)(int)) & Nexus<void>::TaskLooper, i)); // static member function, don't use "this"
+            MvThreads.emplace_back(std::bind((void(*)(int)) & Nexus<void>::TaskLooper, i)); // static member Function, don't use "this"
 
         RA::Threads::Used = 0;
     }
@@ -201,74 +209,95 @@ inline void Nexus<void>::SetMutexOff(size_t FoMutex)
     SmMutex.at(FoMutex).Get().SetMutexOff();
 }
 
-template <typename F, typename... A>
-static inline typename std::enable_if<!std::is_same<F, RA::SharedPtr<RA::Mutex>>::value && !std::is_same<F, xptr<RA::Mutex>>::value, void>::type
-Nexus<void>::AddJob(F&& function, A&&... Args)
+//template <typename F, typename... A>
+//inline typename std::enable_if<
+//    std::is_function<F>::value
+//    && !std::is_class<F>::value
+//    && !std::is_same<F, RA::SharedPtr<RA::Mutex>>::value
+//    && !std::is_pointer<F>::value, void>::type
+//Nexus<void>::AddJob(F&& Function, A&&... Args)
+//{
+//    auto Lock = SoMutex.CreateLock();
+//    auto BindedFunction = std::bind(std::move(Function), std::forward<A>(Args)...);
+//    ScTaskQueue.emplace(RA::MakeShared<Task<void>>(std::move(BindedFunction), 0));
+//}
+
+template<typename F>
+inline typename void
+Nexus<void>::AddJob(F&& Function)
 {
     auto Lock = SoMutex.CreateLock();
-    auto BindedFunction = std::bind(function, std::ref(Args)...);
-    ScTaskQueue.emplace(MakePtr<Task<void>>(std::move(BindedFunction), 0));
+    auto BindedFunction = std::bind(std::move(Function));
+    ScTaskQueue.emplace(RA::MakeShared<Task<void>>(std::move(BindedFunction), 0));
+}
+
+template<typename F, typename ...A>
+inline typename typename std::enable_if<IsFunction(F) && !IsClass(F) && !IsMutexPtr(F), void>::type
+Nexus<void>::AddJob(F&& Function, A&& ...Args)
+{
+    auto Lock = SoMutex.CreateLock();
+    auto BindedFunction = std::bind(std::move(Function), std::forward<A>(Args)...);
+    ScTaskQueue.emplace(RA::MakeShared<Task<void>>(std::move(BindedFunction), 0));
 }
 
 template<typename O, typename F, typename ...A>
-inline typename std::enable_if<std::is_class<O>::value && !std::is_same<O, RA::SharedPtr<RA::Mutex>>::value, void>::type
-Nexus<void>::AddJob(O&& object, F&& function, A& ...Args)
+inline typename std::enable_if<IsClass(O) && !IsFunction(O) && !IsMutexPtr(O), void>::type
+Nexus<void>::AddJob(O& object, F&& Function, A&& ...Args)
 {
     auto Lock = SoMutex.CreateLock();
-    auto BindedFunction = std::bind(function, std::ref(object), std::ref(Args)...);
-    ScTaskQueue.emplace(MakePtr<Task<void>>(std::move(BindedFunction), SoBlankMutexPtr.Get().GetID()));
+    auto BindedFunction = std::bind(std::move(Function), std::ref(object), std::forward<A>(Args)...);
+    ScTaskQueue.emplace(RA::MakeShared<Task<void>>(std::move(BindedFunction), SoBlankMutexPtr.Get().GetID()));
 }
 
-template<typename O, typename F, typename ...A>
-inline typename std::enable_if<std::is_class<O>::value && !std::is_same<O, RA::SharedPtr<RA::Mutex>>::value, void>::type
-Nexus<void>::AddJob(O&& object, F&& function, A&& ...Args)
+template<typename O, typename F>
+inline typename std::enable_if<IsClass(O) && !IsFunction(O) && !IsMutexPtr(O), void>::type
+Nexus<void>::AddJob(O& object, F&& Function)
 {
     auto Lock = SoMutex.CreateLock();
-    auto BindedFunction = std::bind(function, std::ref(object), std::forward<A>(Args)...);
-    ScTaskQueue.emplace(MakePtr<Task<void>>(std::move(BindedFunction), SoBlankMutexPtr.Get().GetID()));
+    auto BindedFunction = std::bind(std::move(Function), std::ref(object));
+    ScTaskQueue.emplace(RA::MakeShared<Task<void>>(std::move(BindedFunction), SoBlankMutexPtr.Get().GetID()));
 }
 
 template <typename M, typename O, typename F, typename... A>
-static inline typename std::enable_if<std::is_same<M, RA::SharedPtr<RA::Mutex>>::value || std::is_same<M, xptr<RA::Mutex>>::value, void>::type
-Nexus<void>::AddJob(M& FoMutex, O&& object, F&& function, A&& ...Args)
+static inline typename std::enable_if<IsMutexPtr(M) && !IsFunction(M), void>::type
+Nexus<void>::AddJob(M& FoMutex, O& object, F&& Function, A&& ...Args)
 {
     auto Lock = SoMutex.CreateLock();
     CheckClearMutexes();
-    auto BindedFunction = std::bind(function, std::ref(object), std::ref(Args)...);
+    auto BindedFunction = std::bind(std::move(Function), std::ref(object), std::forward<A>(Args)...);
 
-    auto& LoMutex = *reinterpret_cast<RA::SharedPtr<RA::Mutex>*>(&FoMutex);
-    if (!LoMutex)
-        LoMutex = MakePtr<RA::Mutex>();
+    if (!FoMutex)
+        FoMutex = RA::MakeShared<RA::Mutex>();
 
-    if (SmMutex.size() <= LoMutex.Get().GetID()) // id should never be 'gt' size
+    if (SmMutex.size() <= FoMutex.Get().GetID()) // id should never be 'gt' size
     {
-        if (SmMutex.contains(LoMutex.Get().GetID()))
-            SmMutex[LoMutex.Get().GetID()] = LoMutex;
+        if (SmMutex.contains(FoMutex.Get().GetID()))
+            SmMutex[FoMutex.Get().GetID()] = FoMutex;
         else
-            SmMutex.insert({ LoMutex.Get().GetID(), LoMutex });
+            SmMutex.insert({ FoMutex.Get().GetID(), FoMutex });
     }
 
-    ScTaskQueue.emplace(MakePtr<Task<void>>(std::move(BindedFunction), LoMutex.Get().GetID()));
+    ScTaskQueue.emplace(RA::MakeShared<Task<void>>(std::move(BindedFunction), FoMutex.Get().GetID()));
     // nxm.id references the location in SmMutex
 }
 
 template <typename F, typename V, typename... A>
 static inline void
-    Nexus<void>::AddJobVal(F&& function, V& element, A&&... Args)
+    Nexus<void>::AddJobVal(F&& Function, V& element, A&&... Args)
 {
     auto Lock = SoMutex.CreateLock();
     CheckClearMutexes();
-    auto BindedFunction = std::bind(function, std::ref(element), std::ref(Args)...);
-    ScTaskQueue.emplace(MakePtr<Task<void>>(std::move(BindedFunction), 0));
+    auto BindedFunction = std::bind(std::move(Function), std::ref(element), std::ref(Args)...);
+    ScTaskQueue.emplace(RA::MakeShared<Task<void>>(std::move(BindedFunction), 0));
 }
 
 template<typename K, typename V, typename F, typename ...A>
-inline void Nexus<void>::AddJobPair(F&& function, K key, V& value, A&& ...Args)
+inline void Nexus<void>::AddJobPair(F&& Function, K key, V& value, A&& ...Args)
 {
     auto Lock = SoMutex.CreateLock();
     CheckClearMutexes();
-    auto BindedFunction = std::bind(function, std::ref(key), std::ref(value), std::ref(Args)...);
-    ScTaskQueue.emplace(MakePtr<Task<void>>(std::move(BindedFunction), 0));
+    auto BindedFunction = std::bind(std::move(Function), std::ref(key), std::ref(value), std::ref(Args)...);
+    ScTaskQueue.emplace(RA::MakeShared<Task<void>>(std::move(BindedFunction), 0));
 }
 
 // Class required due to Linux (not Windows)

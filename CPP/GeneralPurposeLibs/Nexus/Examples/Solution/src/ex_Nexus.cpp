@@ -24,7 +24,7 @@ using std::bind;
 
 int main() 
 {
-
+    Begin();
     Nexus<>::Start(); // note: you could just make an instance of type void
     // and it would do the same thing, then when it would go out of scope (the main function)
     // it would automatically get deleted. I did what is above because I like keeping
@@ -33,8 +33,8 @@ int main()
 
 
     ObjectHandling();
-    //Benchmark();
-
+    Benchmark();
+    RescuePrint();
     Nexus<>::Stop();
     return 0;
 }
