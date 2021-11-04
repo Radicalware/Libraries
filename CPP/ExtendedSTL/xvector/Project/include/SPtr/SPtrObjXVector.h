@@ -20,22 +20,22 @@
 * limitations under the License.
 */
 
-#include "BaseValXVector.h"
+#include "BaseSPtrXVector.h"
 #include <type_traits>
 
-template<typename T> class ValXVector;
+template<typename T> class SPtrXVector;
 template<typename T, typename enabler_t> class xvector;
 class xstring;
 
-#define ValObjXVectorAPI xvector<T, typename std::enable_if_t<IsClass(T) && !IsPointer(T) && !IsSharedPtr(T)>>
+#define SPtrObjXVectorAPI xvector<xp<T>, typename std::enable_if_t<IsClass(T) && !IsPointer(T)>>
 
 template<typename T>
-class ValObjXVectorAPI : public ValXVector<T>
+class SPtrObjXVectorAPI : public SPtrXVector<xp<T>>
 {
 public:
-    using ValXVector<T>::ValXVector;
-    using ValXVector<T>::operator=;
-    using E = std::remove_const<T>::type; // E for Erratic
+    using SPtrXVector<xp<T>>::SPtrXVector;
+    using SPtrXVector<xp<T>>::operator=;
+    using E = std::remove_const<xp<T>>::type; // E for Erratic
 
     inline T Expand() const;
 
@@ -47,9 +47,9 @@ public:
 
 
 template<typename T>
-inline T ValObjXVectorAPI::Expand() const
+inline T SPtrObjXVectorAPI::Expand() const
 {   // go from xvector<xvector<xstring>> to xvector<xstring>
-    E expanded_vec;
+    T expanded_vec;
     for (typename xvector<T>::const_iterator double_vec = this->begin(); double_vec != this->end(); double_vec++) {
         for (typename T::const_iterator single_vec = double_vec->begin(); single_vec != double_vec->end(); single_vec++)
             expanded_vec << *single_vec;
@@ -58,11 +58,11 @@ inline T ValObjXVectorAPI::Expand() const
 }
 
 template<typename T>
-inline T ValObjXVectorAPI::Join(const T& str) const
+inline T SPtrObjXVectorAPI::Join(const T& str) const
 {
-    E ret;
+    T ret;
     for (typename xvector<T>::const_iterator it = this->begin(); it != this->end(); it++)
-        ret += *it + str;
+        ret += (*it).Get() + str;
 
     size_t Diff = ret.size() - str.size();
     if (Diff > 0)
@@ -71,11 +71,11 @@ inline T ValObjXVectorAPI::Join(const T& str) const
 }
 
 template<typename T>
-inline T ValObjXVectorAPI::Join(const char str) const
+inline T SPtrObjXVectorAPI::Join(const char str) const
 {
-    E ret;
+    T ret;
     for (typename xvector<E>::const_iterator it = this->begin(); it != this->end(); it++)
-        ret += *it + str;
+        ret += (*it).Get() + str;
 
     if (ret.size() > 1)
         return ret.substr(0, ret.size() - 1);
@@ -83,11 +83,11 @@ inline T ValObjXVectorAPI::Join(const char str) const
 }
 
 template<typename T>
-inline T ValObjXVectorAPI::Join(const char* str) const
+inline T SPtrObjXVectorAPI::Join(const char* str) const
 {
-    E ret;
+    T ret;
     for (typename xvector<T>::const_iterator it = this->begin(); it != this->end(); it++)
-        ret += *it + str;
+        ret += (*it).Get() + str;
 
     long long int Diff = ret.size() - strlen(str);
     if(Diff > 0)

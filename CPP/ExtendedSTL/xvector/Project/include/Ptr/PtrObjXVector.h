@@ -26,8 +26,10 @@
 template<typename T> class PtrXVector;
 template<typename T, typename enabler_t> class xvector;
 
+#define PtrObjXVectorAPI xvector<T*, typename std::enable_if_t<std::is_class<std::remove_pointer_t<T*>>::value>>
+
 template<typename T>
-class xvector<T*, typename std::enable_if_t<std::is_class<std::remove_pointer_t<T*>>::value>> : public PtrXVector<T*>
+class PtrObjXVectorAPI : public PtrXVector<T*>
 {
 public:
     using PtrXVector<T*>::PtrXVector;
@@ -47,7 +49,7 @@ public:
 
 template<typename T>
 template<typename N /* = typename E::value_type*/>
-inline xvector<N*> xvector<T*, typename std::enable_if_t<std::is_class<std::remove_pointer_t<T*>>::value>>::Expand() const
+inline xvector<N*> PtrObjXVectorAPI::Expand() const
 {
     // Go from xvector<xvector<N>*> to xvector<N*>
     xvector<N*> expanded_vec;
@@ -59,7 +61,7 @@ inline xvector<N*> xvector<T*, typename std::enable_if_t<std::is_class<std::remo
 }
 
 template<typename T>
-inline T xvector<T*, typename std::enable_if_t<std::is_class<std::remove_pointer_t<T*>>::value>>::Join(const T& str) const
+inline T PtrObjXVectorAPI::Join(const T& str) const
 {
     E ret;
     for (typename xvector<T*>::const_iterator it = this->begin(); it != this->end(); it++)
@@ -72,7 +74,7 @@ inline T xvector<T*, typename std::enable_if_t<std::is_class<std::remove_pointer
 }
 
 template<typename T>
-inline T xvector<T*, typename std::enable_if_t<std::is_class<std::remove_pointer_t<T*>>::value>>::Join(const char str) const
+inline T PtrObjXVectorAPI::Join(const char str) const
 {
     E ret;
     for (typename xvector<T*>::const_iterator it = this->begin(); it != this->end(); it++)
@@ -84,7 +86,7 @@ inline T xvector<T*, typename std::enable_if_t<std::is_class<std::remove_pointer
 }
 
 template<typename T>
-inline T xvector<T*, typename std::enable_if_t<std::is_class<std::remove_pointer_t<T*>>::value>>::Join(const char* str) const
+inline T PtrObjXVectorAPI::Join(const char* str) const
 {
     E ret;
     for (typename xvector<T*>::const_iterator it = this->begin(); it != this->end(); it++)

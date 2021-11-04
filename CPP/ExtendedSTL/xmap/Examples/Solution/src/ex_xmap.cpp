@@ -27,6 +27,8 @@ int main()
 {   
     Nexus<>::Start();
 
+    xmap<xstring, xp<xstring>> MapPtrs;
+
     std::map<xstring, int> smap1 = { { "one", 1}, { "two", 2 }, { "Three", 3 } };
     std::unordered_map<xstring, int> sumap1 = { { "one", 1}, { "two", 2 }, { "Three", 3 } };
     xmap<xstring, int> xxmap = { { "one", 1}, { "two", 2 }, { "Three", 3 } };
@@ -88,16 +90,6 @@ int main()
         cout << "Exception Caught\n";
     }
     
-    cout << "no cache allocated; size = " << smap.GetCachedKeys().size() << endl;
-
-    cout << "========================================\n";
-    cout << "starting order of keys \n" << smap.GetKeys().Join("\n") << endl;
-    cout << "========================================\n";
-    cout << "orderd by key size \n";
-    smap.AllocateKeys()->Sort([](const auto* first, const auto* second) { return first->size() < second->size(); });
-    smap.GetCachedKeys().Join('\n').Print();
-    cout << "========================================\n";
-    
     xstring key_values1;
     smap.Proc([&key_values1](const auto& key, const auto& value) {
         if (value.size())
@@ -135,7 +127,6 @@ int main()
     cout << "========================================\n";
 
     smap.Print(2);
-    smap.AllocateReverseMap()->Print(2);
 
     xmap<xstring, int> awd_cars = {
         { "Ford RS", 350 },
@@ -145,7 +136,7 @@ int main()
     };
 
     awd_cars.ForEachThread([](const xstring& key, const int& value) {
-        return key + " = " + ToXString(value) + " HP";
+        return key + " = " + RA::ToXString(value) + " HP";
     }).Join('\n').Print(2);
 
     xmap<xstring, xstring> tmp_mp;

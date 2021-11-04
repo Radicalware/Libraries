@@ -44,7 +44,10 @@
 
 
 //#include "BaseXVector.h"
-//
+
+
+#include "SPtr/SPtrObjXVector.h"
+
 //#include "Val/BaseValXVector.h"
 #include "Val/ValObjXVector.h"
 #include "Val/ValPrimXVector.h"

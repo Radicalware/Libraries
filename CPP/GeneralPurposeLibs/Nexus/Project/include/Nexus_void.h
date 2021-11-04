@@ -23,6 +23,7 @@
 #include<functional>
 #include<type_traits>
 
+#include "RawMapping.h"
 #include "Atomic.h"
 #include "Threads.h"
 #include "Mutex.h"
@@ -68,13 +69,7 @@ public:
     static void SetMutexOn(size_t FoMutex); 
     static void SetMutexOff(size_t FoMutex);
     // ------------------------------------------------------------------------------------------------------------------------------------------------
-
-#define IsFunction(__TempObj__) std::is_function<typename std::remove_pointer<__TempObj__>::type>::value
-#define IsClass(__TempObj__)    std::is_class<__TempObj__>::value
-#define IsMutexPtr(__TempObj__) std::is_same<__TempObj__, RA::SharedPtr<RA::Mutex>>::value
-
     // Job: Function + Args
-
     template <typename F>
     static inline void
         AddJob(F&& Function);

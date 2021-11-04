@@ -36,6 +36,7 @@
 //template<typename K, typename V> class xmap<K , V*>;
 
 #include "BaseXMap.h"
+#include "ValSPtrXMap.h"
 #include "ValValXMap.h"
 #include "PtrPtrXMap.h"
 #include "PtrValXMap.h"

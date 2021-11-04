@@ -25,8 +25,10 @@
 template<typename T> class ValXVector;
 template<typename T, typename enabler_t> class xvector;
 
+#define ValPrimXVectorAPI xvector<T, typename std::enable_if_t<!IsClass(T) && !IsPointer(T) && !IsSharedPtr(T)>>
+
 template<typename T>
-class xvector<T, typename std::enable_if_t<!std::is_class<T>::value && !std::is_pointer<T>::value>> : public ValXVector<T>
+class ValPrimXVectorAPI : public ValXVector<T>
 {
 public:
     using ValXVector<T>::ValXVector;
@@ -44,7 +46,7 @@ public:
 
 
 template<typename T>
-inline T xvector<T, typename std::enable_if_t<!std::is_class<T>::value && !std::is_pointer<T>::value>>::GetCommonItems(char const* item)
+inline T ValPrimXVectorAPI::GetCommonItems(char const* item)
 {
     size_t size = strlen(item);
     xvector<T> c_vec(size);
@@ -57,7 +59,7 @@ inline T xvector<T, typename std::enable_if_t<!std::is_class<T>::value && !std::
 
 template<typename T>
 template<typename S>
-inline S xvector<T, typename std::enable_if_t<!std::is_class<T>::value && !std::is_pointer<T>::value>>::Join(const S& str) const
+inline S ValPrimXVectorAPI::Join(const S& str) const
 {
     std::ostringstream ostr;
     for (const auto& i : *this) {
@@ -68,7 +70,7 @@ inline S xvector<T, typename std::enable_if_t<!std::is_class<T>::value && !std::
 }
 
 template<typename T>
-inline std::string xvector<T, typename std::enable_if_t<!std::is_class<T>::value && !std::is_pointer<T>::value>>::Join(const char str) const
+inline std::string ValPrimXVectorAPI::Join(const char str) const
 {
     std::string val;
     val.insert(val.begin(), str);
@@ -76,7 +78,7 @@ inline std::string xvector<T, typename std::enable_if_t<!std::is_class<T>::value
 }
 
 template<typename T>
-inline std::string xvector<T, typename std::enable_if_t<!std::is_class<T>::value && !std::is_pointer<T>::value>>::Join(const char* str) const
+inline std::string ValPrimXVectorAPI::Join(const char* str) const
 {
     return this->Join(std::string(str));
 }

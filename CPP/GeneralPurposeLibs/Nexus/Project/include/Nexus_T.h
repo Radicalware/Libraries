@@ -23,6 +23,7 @@
 #include<functional>
 #include<type_traits>
 
+#include "RawMapping.h"
 #include "Atomic.h"
 #include "SharedPtr.h"
 #include "Threads.h"
@@ -78,7 +79,7 @@ public:
     // Job: char* (for referencing unfinished job) + Function + args
     void AddJob(const char* key, F&& function, A&& ...Args);
     template <typename F, typename ...A>
-    inline typename std::enable_if<!std::is_same<F, std::string>::value, void>::type AddJob(F&& function, A&& ...Args);
+    inline typename std::enable_if<!IsSame(F, std::string), void>::type AddJob(F&& function, A&& ...Args);
 
     // These are to be used by xvector/xmap
     template <typename F, typename ONE, typename ...A>
@@ -205,7 +206,7 @@ inline void Nexus<T>::AddJob(const char* key, F&& function, A&& ...Args)
 
 template<typename T>
 template <typename F, typename ...A>
-inline typename std::enable_if<!std::is_same<F, std::string>::value, void>::type 
+inline typename std::enable_if<!IsSame(F, std::string), void>::type
     Nexus<T>::AddJob(F&& function, A&& ...Args)
 {
     auto Lock = MoMutex.CreateLock();

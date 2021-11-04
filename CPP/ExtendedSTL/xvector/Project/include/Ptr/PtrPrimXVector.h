@@ -26,8 +26,10 @@
 template<typename T> class PtrXVector;
 template<typename T, typename enabler_t> class xvector;
 
+#define PtrPrimXVectorAPI xvector<T*, typename std::enable_if_t<!std::is_class<std::remove_pointer_t<T*>>::value>>
+
 template<typename T>
-class xvector<T*, typename std::enable_if_t<!std::is_class<std::remove_pointer_t<T*>>::value>> : public PtrXVector<T*>
+class PtrPrimXVectorAPI : public PtrXVector<T*>
 {
 public:
     using PtrXVector<T*>::PtrXVector;
@@ -45,7 +47,7 @@ public:
 
 template<typename T>
 template<typename S>
-inline auto xvector<T*, typename std::enable_if_t<!std::is_class<std::remove_pointer_t<T*>>::value>>::Join(const S& str)
+inline auto PtrPrimXVectorAPI::Join(const S& str)
     ->std::enable_if_t<!std::is_same_v<S, char>, S>
 {
     std::string ret;
@@ -55,7 +57,7 @@ inline auto xvector<T*, typename std::enable_if_t<!std::is_class<std::remove_poi
 }
 
 template<typename T>
-inline std::string xvector<T*, typename std::enable_if_t<!std::is_class<std::remove_pointer_t<T*>>::value>>::Join(const char str) const
+inline std::string PtrPrimXVectorAPI::Join(const char str) const
 {
     std::ostringstream ostr;
     for (typename xvector<T*>::const_iterator it = this->begin(); it != this->end(); it++) 
@@ -68,7 +70,7 @@ inline std::string xvector<T*, typename std::enable_if_t<!std::is_class<std::rem
 }
 
 template<typename T>
-inline std::string xvector<T*, typename std::enable_if_t<!std::is_class<std::remove_pointer_t<T*>>::value>>::Join(const char* str) const
+inline std::string PtrPrimXVectorAPI::Join(const char* str) const
 {
     std::string retstr;
     for (typename xvector<T*>::const_iterator it = this->begin(); it != this->end(); it++)

@@ -53,9 +53,10 @@ int main(int argc, char** argv)
     Begin();
     Nexus<>::Start();
 
-    xvector<xp<xstring>> Ptrs;
-
-    EXIT();
+    xvector<xp<xstring>> SharedPtrs;
+    SharedPtrs.Emplace("hello");
+    SharedPtrs.Emplace("again\n");
+    SharedPtrs.Join(' ').Print();
 
     xvector<Abs*> abs = { new Der };
     abs[0]->Print();

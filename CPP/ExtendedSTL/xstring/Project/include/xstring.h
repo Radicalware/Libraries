@@ -54,11 +54,15 @@ public:
     using std::string::basic_string;
 
     xstring(std::initializer_list<char> lst) : std::string(std::move(lst)) {};
+
+    xstring(const xp<std::string>& str)      : std::string(str.Get()) {};
     xstring(const std::string& str)          : std::string(str) {};
     xstring(std::string&& str) noexcept      : std::string(std::move(str)) {};
     xstring(size_t repeat, const char chr)   : std::string(repeat, chr) {};
+
     xstring(std::stringstream&  Stream)      : std::string(std::move(Stream.str())) {}
     xstring(std::ostringstream& Stream)      : std::string(std::move(Stream.str())) {}
+
     xstring(const char chr);
     xstring(const char* chrs);
     xstring(const unsigned char* chrs);
