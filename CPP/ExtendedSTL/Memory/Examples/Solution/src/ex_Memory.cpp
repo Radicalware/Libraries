@@ -142,15 +142,13 @@ xstring BenchSharedPtr()
     Rescue();
 }
 
-
-
-
 void TestFunction(xstring&& Input)
 { 
     Input.Print(); 
     Input += " appended"; 
     Input.Print(); 
 }
+
 
 int main()
 {   

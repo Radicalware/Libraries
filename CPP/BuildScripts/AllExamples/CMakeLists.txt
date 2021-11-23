@@ -16,7 +16,7 @@ include("${RADICAL_PATH}/Radical-App-Config.cmake")
 
 # cp `
 #   "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.3\extras\visual_studio_integration\MSBuildExtensions"
-#   "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\BuildCustomizations"
+#   "C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v160\BuildCustomizations"
 
 # Env Vars
     # CUDA_PATH             = C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.3
@@ -84,6 +84,7 @@ AddExecutable("GeneralPurposeLibs" "OS")
 AddExecutable("GeneralPurposeLibs" "SYS")
 AddExecutable("GeneralPurposeLibs" "Socket")
 AddExecutable("GeneralPurposeLibs" "Stash")
+AddExecutable("GeneralPurposeLibs" "AES")
 
 AddExecutable("ModdedObjects" "CC")
 
@@ -94,6 +95,7 @@ include_directories(${THIS} PRIVATE
 
 find_package(re2 CONFIG REQUIRED)
 
+#       (This is location 2 of 3)
 find_package(RE)
 find_package(AC)
 find_package(MC)
@@ -112,6 +114,7 @@ find_package(Date)
 find_package(cc)
 find_package(JSON)
 find_package(Stash)
+find_package(AES)
 find_package(Socket)
 # find_package(CudaBridge) # TODO: RE-ADD
 
@@ -128,6 +131,8 @@ set(FirstLoop ON)
 foreach(EXE ${EXES})
     target_link_libraries(${EXE}
 
+            #       (This is location 3 of 3)
+            
             Radical::AC
             Radical::MC
 

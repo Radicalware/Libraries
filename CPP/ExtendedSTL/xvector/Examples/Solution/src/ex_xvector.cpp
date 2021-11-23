@@ -41,26 +41,42 @@ void move_xvec()
 {
     cout << "\ntesting xvector\n";
     xvector<xstring> vec1{ "zero","one","two","three","four","five" };
-    cout << "vec1.size() = " << vec1.size() << endl;
+    cout << "vec1.size() = " << vec1.Length() << endl;
     xvector<xstring> vec2 = std::move(vec1);
-    cout << "vec1.size() = " << vec1.size() << endl;
-    cout << "vec2.size() = " << vec2.size() << endl;
+    cout << "vec1.size() = " << vec1.Length() << endl;
+    cout << "vec2.size() = " << vec2.Length() << endl;
 }
-
 
 int main(int argc, char** argv) 
 {
     Begin();
     Nexus<>::Start();
 
+    
+
     xvector<xp<xstring>> SharedPtrs;
     SharedPtrs.Emplace("hello");
-    SharedPtrs.Emplace("again\n");
+    SharedPtrs.Emplace("again");
+    SharedPtrs.Emplace("There");
     SharedPtrs.Join(' ').Print();
 
+    auto SplitPtrs = SharedPtrs.Split(2);
+    cout << SplitPtrs [0][1] << endl;
+
+    xstring val = "hello";
+    if (SharedPtrs.HasTruth([&val](auto& Item) { return val == Item; })){
+        cout << "Has: 'Hello'" << endl;
+    }
+
+    if (SharedPtrs.LacksTruth([](auto& Item, xstring Test = "Test") { return Item == Test; })){
+        cout << "Does not have: 'Test'" << endl;
+    }
+
+
+
     xvector<Abs*> abs = { new Der };
-    abs[0]->Print();
-    delete abs[0];
+    abs.SetDeleteAllOnExit(true);
+    abs[0].Print();
 
     cout << "-----------------------------------------" << endl;
     move_vec();
@@ -105,7 +121,9 @@ int main(int argc, char** argv)
     xvector<xstring> vec_str_vals = vec_str_ptrs.GetVals();
     cout << "print vals: " << vec_str_vals.Join(' ') << "\n\n";
 
+    RA::PrintAttributes(three);
     cout << "true  => " << vec_str.Has(three) << endl;
+    cout << "true  => " << vec_str.HasTruth([&three](const xstring& Item) { return Item == three; }) << endl;
     cout << "      => " << vec_str.Take(three).Join(' ') << endl;
     cout << "true  => " << vec_str.Has("two") << endl;
     cout << "false => " << vec_str.Has("twenty") << endl;
@@ -178,7 +196,8 @@ int main(int argc, char** argv)
     arr_ptr.ForEachThread([&mod5](xstring& elem) {return elem.Sub("gmail", mod5); }).Join('\n').Print();
 
 
-    arr_ptr.ProcThread([&mod5](xstring& elem) {return elem.Sub("gmail", mod5); }); // executes but returns nothing
+    // TODO FIX
+    //arr_ptr.ProcThread([&mod5](xstring& elem) {return elem.Sub("gmail", mod5); }); // executes but returns nothing
 
     cout << "============================================\n";
 

@@ -56,8 +56,8 @@ struct Full
         xstring hello_world("Hello World");
         Print(hello_world.Split(' ').Join(" ** "));
 
-        Print(xstring("Result 'World' Found: ") + ToXString(hello_world.Scan("[wW][0oO]rld$")));
-        Print(xstring("Result 'World' Found: ") + ToXString(hello_world.Match("^.*[wW][0oO]rld$")));
+        Print(xstring("Result 'World' Found: ") + RA::ToXString(hello_world.Scan("[wW][0oO]rld$")));
+        Print(xstring("Result 'World' Found: ") + RA::ToXString(hello_world.Match("^.*[wW][0oO]rld$")));
 
         xvector<xstring> vec1;
         vec1 << "one";

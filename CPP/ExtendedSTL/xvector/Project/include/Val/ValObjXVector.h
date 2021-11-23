@@ -27,8 +27,6 @@ template<typename T> class ValXVector;
 template<typename T, typename enabler_t> class xvector;
 class xstring;
 
-#define ValObjXVectorAPI xvector<T, typename std::enable_if_t<IsClass(T) && !IsPointer(T) && !IsSharedPtr(T)>>
-
 template<typename T>
 class ValObjXVectorAPI : public ValXVector<T>
 {

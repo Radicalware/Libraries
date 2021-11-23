@@ -21,19 +21,24 @@
 
 class EXI Timer
 {
-    xvector<double>       m_laps_xv;
-    xmap<xstring, double> m_laps_xm;
+    xvector<pint>       m_laps_xv;
+    xmap<xstring, pint> m_laps_xm;
 
-    using Timer_clock_t = std::chrono::steady_clock;
-    using Timer_second_t = std::chrono::duration<double, std::ratio<1> >;
-    std::chrono::time_point<Timer_clock_t> m_beg = Timer_clock_t::now();
+    // SteadyClock = Stopwatch   Use Case
+    // SystemClock = Wrist-Watch Use Case
+
+    using SteadyClock     = std::chrono::steady_clock;
+    std::chrono::time_point<SteadyClock> m_beg = SteadyClock::now();
 
 public:
     Timer();
     void Reset();
-    double GetElapsedTime() const;
+    INL pint GetElapsedTimeSeconds() const;
+    INL pint GetElapsedTimeMilliseconds() const;
+    INL pint GetElapsedTime() const; // Milliseconds
+    INL pint GetElapsedTimeMicroseconds() const;
 
-    void WaitSeconds(double extent) const;
+    void WaitSeconds(pint extent) const;
     void WaitMilliseconds(unsigned long extent) const;
     void Wait(unsigned long extent) const; // wait_milliseconds
 
@@ -42,13 +47,29 @@ public:
     void Lap(xstring&& key);
     void Clear();
 
-    double Get(size_t idx) const;
-    double Get(const xstring& key) const;
+    pint Get(size_t idx) const;
+    pint Get(const xstring& key) const;
 
-    xvector<double> GetVector() const;
-    xmap<xstring, double> GetMap() const;
+    xvector<pint> GetVector() const;
+    xmap<xstring, pint> GetMap() const;
 
     static void Sleep(unsigned long FnMilliseconds);
 };
 
 EXI std::ostream& operator<<(std::ostream& out, const Timer& time);
+
+INL pint Timer::GetElapsedTimeSeconds() const {
+    return static_cast<pint>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - m_beg).count());
+}
+
+INL pint Timer::GetElapsedTimeMilliseconds() const {
+    return static_cast<pint>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - m_beg).count());
+}
+
+INL pint Timer::GetElapsedTime() const {
+    return static_cast<pint>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - m_beg).count());
+}
+
+INL pint Timer::GetElapsedTimeMicroseconds() const {
+    return static_cast<pint>(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - m_beg).count());
+}

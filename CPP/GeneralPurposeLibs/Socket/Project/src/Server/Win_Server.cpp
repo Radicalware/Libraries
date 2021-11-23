@@ -25,7 +25,7 @@ Server& Win_Server::Listen(const xstring& port)
     m_result = WSAStartup(MAKEWORD(2, 2), &wsaData);
     if (m_result != 0)
     {
-        xstring err_str("! (WSAStartup) Failed with Error: " + ToXString(m_result) + '\n');
+        xstring err_str("! (WSAStartup) Failed with Error: " + RA::ToXString(m_result) + '\n');
         throw std::runtime_error(err_str);
     }
 
@@ -46,7 +46,7 @@ Server& Win_Server::Listen(const xstring& port)
     m_result = getaddrinfo(NULL, m_port.c_str(), &addr, &addr_data);
     if (m_result != 0)
     {
-        xstring err_str("! (getaddrinfo) Failed with Error: " + ToXString(m_result) + '\n');
+        xstring err_str("! (getaddrinfo) Failed with Error: " + RA::ToXString(m_result) + '\n');
         WSACleanup();
         throw std::runtime_error(err_str);
     }
@@ -55,7 +55,7 @@ Server& Win_Server::Listen(const xstring& port)
     m_listen_socket = socket(addr_data->ai_family, addr_data->ai_socktype, addr_data->ai_protocol);
     if (m_listen_socket == INVALID_SOCKET)
     {
-        xstring err_str("! (socket) Failed with Error: " + ToXString(WSAGetLastError()) + '\n');
+        xstring err_str("! (socket) Failed with Error: " + RA::ToXString(WSAGetLastError()) + '\n');
         freeaddrinfo(addr_data);
         WSACleanup();
         throw std::runtime_error(err_str);
@@ -65,7 +65,7 @@ Server& Win_Server::Listen(const xstring& port)
     m_result = bind(m_listen_socket, addr_data->ai_addr, (int)addr_data->ai_addrlen);
     if (m_result == SOCKET_ERROR)
     {
-        xstring err_str("! (bind) Failed with Error: " + ToXString(WSAGetLastError()) + '\n');
+        xstring err_str("! (bind) Failed with Error: " + RA::ToXString(WSAGetLastError()) + '\n');
         freeaddrinfo(addr_data);
         closesocket(m_listen_socket);
         WSACleanup();
@@ -77,7 +77,7 @@ Server& Win_Server::Listen(const xstring& port)
     m_result = ::listen(m_listen_socket, SOMAXCONN);
     if (m_result == SOCKET_ERROR)
     {
-        xstring err_str("! (listen) Failed with Error: " + ToXString(WSAGetLastError()) + '\n');
+        xstring err_str("! (listen) Failed with Error: " + RA::ToXString(WSAGetLastError()) + '\n');
         closesocket(m_listen_socket);
         WSACleanup();
         throw std::runtime_error(err_str);
@@ -92,7 +92,7 @@ Server& Win_Server::Accept()
     m_client_socket = ::accept(m_listen_socket, NULL, NULL);
     if (m_client_socket == INVALID_SOCKET)
     {
-        xstring err_str("! (accept) Failed with Error: " + ToXString(WSAGetLastError()) + '\n');
+        xstring err_str("! (accept) Failed with Error: " + RA::ToXString(WSAGetLastError()) + '\n');
         closesocket(m_listen_socket);
         WSACleanup();
         throw std::runtime_error(err_str);
@@ -148,11 +148,11 @@ Server& Win_Server::Recv(int size)
         {
 
             if (m_verbose)
-                xstring("Server >> Bytes received: " + ToXString(m_result)).ToBold().ToRed().ResetColor().Print();
+                xstring("Server >> Bytes received: " + RA::ToXString(m_result)).ToBold().ToRed().ResetColor().Print();
 
             if (m_result == SOCKET_ERROR)
             {
-                xstring err_str("send Failed with Error: " + ToXString(WSAGetLastError()) + '\n');
+                xstring err_str("send Failed with Error: " + RA::ToXString(WSAGetLastError()) + '\n');
                 closesocket(m_listen_socket);
                 WSACleanup();
                 throw std::runtime_error(err_str);
@@ -164,7 +164,7 @@ Server& Win_Server::Recv(int size)
                 xstring("Server >> Connection closing...").ToBold().ToRed().ResetColor().Print();
         }
         else {
-            xstring err_str("! (send) Failed with Error: " + ToXString(WSAGetLastError()) + '\n');
+            xstring err_str("! (send) Failed with Error: " + RA::ToXString(WSAGetLastError()) + '\n');
             closesocket(m_listen_socket);
             WSACleanup();
             throw std::runtime_error(err_str);
@@ -196,7 +196,7 @@ Server& Win_Server::Respond()
             count += m_mtu;
 
             if(m_verbose)
-                xstring("Server >> Bytes sent: " + ToXString(m_result)).ToBold().ToRed().ResetColor().Print();
+                xstring("Server >> Bytes sent: " + RA::ToXString(m_result)).ToBold().ToRed().ResetColor().Print();
         }
     }
     else
@@ -204,12 +204,12 @@ Server& Win_Server::Respond()
         m_result = send(m_client_socket, buffer.send.c_str(), buffer.send.size(), 0);
 
         if (m_verbose)
-            xstring("Server >> Bytes sent: " + ToXString(m_result) + '\n').ToBold().ToRed().ResetColor().Print();
+            xstring("Server >> Bytes sent: " + RA::ToXString(m_result) + '\n').ToBold().ToRed().ResetColor().Print();
     }
 
     if (m_result == SOCKET_ERROR)
     {
-        xstring err_str("! (send) Failed with Error: " + ToXString(WSAGetLastError()) + '\n');
+        xstring err_str("! (send) Failed with Error: " + RA::ToXString(WSAGetLastError()) + '\n');
         closesocket(m_listen_socket);
         WSACleanup();
         throw std::runtime_error(err_str);
@@ -224,7 +224,7 @@ Server& Win_Server::Close()
     m_result = shutdown(m_client_socket, SD_SEND);
     if (m_result == SOCKET_ERROR)
     {
-        xstring err_str("! (send) Failed with Error: " + ToXString(WSAGetLastError()) + '\n');
+        xstring err_str("! (send) Failed with Error: " + RA::ToXString(WSAGetLastError()) + '\n');
         closesocket(m_client_socket);
         WSACleanup();
         throw std::runtime_error(err_str);

@@ -168,9 +168,12 @@ int main()
     Date LoShortTimeLocal(LoShortTimeUTC, Date::Offset::ToLocal);
     PrintDate(LoShortTimeLocal);
     cout << "=======================================================\n";
+    Date CurrentDate;
+    cout << "Date Seconds:      " << CurrentDate.GetEpochTimeStr() << endl;
+    cout << "Date Milliseconds: " << CurrentDate.GetEpochTimeMillisecondsStr() << endl;
+    cout << "=======================================================\n";
 
     Loop();
-
     Test();
 
     Nexus<>::Stop();

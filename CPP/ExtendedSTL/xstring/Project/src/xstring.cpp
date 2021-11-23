@@ -39,64 +39,87 @@ xstring Color::Mod::Hide = "\033[08m";
 
 xstring::xstring(const char chr)
 {
-    this->insert(this->begin(), chr);
+    The.insert(The.begin(), chr);
 }
 
 xstring::xstring(const char* chrs)
 {
     size_t len = strlen(chrs) + 1;
-    this->resize(len);
-    this->insert(this->begin(), chrs, &chrs[len]);
+    The.resize(len);
+    The.insert(The.begin(), chrs, &chrs[len]);
     RemoveNulls();
 }
 
 xstring::xstring(const unsigned char* chrs)
 {
+    //for (const unsigned char* ptr = chrs; static_cast<char>(*ptr) != '\0'; ptr++)
+    //    The.insert(The.end(), static_cast<char>(*ptr));
     size_t len = strlen(reinterpret_cast<const char*>(chrs));
-    this->resize(len);
-    this->insert(this->begin(), chrs, &chrs[len]);
-    RemoveNulls();
+    The.resize(len);
+    The.insert(The.begin(), chrs, &chrs[len]);
+    // RemoveNulls(); // unsigned char is often uesd for byte-arrays
+}
+
+xstring::xstring(const unsigned char* chrs, size_t len)
+{
+    // Does not Terminate Correctly
+    //The.reserve(len);
+    //The.insert(The.begin(), chrs, &chrs[len]);
+
+    // Does Not Size correctly (resize may add more size than you want)
+    //The.resize(len);
+    //size_t Start = 0;
+    //const unsigned char* ptr = chrs;
+    //for (size_t idx = 0; idx < len; idx++)
+    //    The[idx] = static_cast<char>(*(ptr++));
+    //The[len] = '\0';
+
+    The.reserve(len);
+    size_t Start = 0;
+    const unsigned char* ptr = chrs;
+    for (size_t idx = 0; idx < len; idx++)
+        The.insert(The.end(), static_cast<char>(*(ptr++)));
 }
 
 xstring::xstring(const wchar_t* chrs)
 {
-    *this = RA::WTXS(chrs);
+    The = RA::WTXS(chrs);
 }
 
 xstring::xstring(const std::wstring& wstr)
 {
-    *this = RA::WTXS(wstr.c_str());
+    The = RA::WTXS(wstr.c_str());
 }
 
 
 void xstring::operator+=(const char chr) {
-    this->insert(this->end(), chr);
+    The.insert(The.end(), chr);
 }
 
 void xstring::operator+=(const char* chr)
 {
-    this->reserve(Size() + strlen(chr));
+    The.reserve(Size() + strlen(chr));
     for (const auto* Ptr = &chr[0]; *Ptr != '\0'; Ptr++)
-        this->insert(this->end(), *Ptr);
+        The.insert(The.end(), *Ptr);
 }
 
 void xstring::operator+=(const unsigned char* chr)
 {
     for (const auto* Ptr = &chr[0]; *Ptr != '\0'; Ptr++)
-        this->insert(this->end(), *Ptr);
+        The.insert(The.end(), *Ptr);
 }
 
 void xstring::operator+=(const std::string& str) {
-    this->insert(this->end(), str.begin(), str.end());
+    The.insert(The.end(), str.begin(), str.end());
 }
 
 void xstring::operator+=(std::string&& str){
-    this->insert(this->end(), std::make_move_iterator(str.begin()), std::make_move_iterator(str.end()));
+    The.insert(The.end(), std::make_move_iterator(str.begin()), std::make_move_iterator(str.end()));
 }
 
 xstring xstring::operator+(const char chr)
 {
-    xstring rstr = *this;
+    xstring rstr = The;
     rstr.insert(rstr.end(), chr);
     return rstr;
 }
@@ -104,8 +127,8 @@ xstring xstring::operator+(const char chr)
 xstring xstring::operator+(const char* chr)
 {
     xstring retr;
-    retr.reserve(this->size() + strlen(chr));
-    retr += *this;
+    retr.reserve(The.size() + strlen(chr));
+    retr += The;
     retr += chr;
     return retr;
 }
@@ -113,8 +136,8 @@ xstring xstring::operator+(const char* chr)
 xstring xstring::operator+(const unsigned char* chr)
 {
     xstring retr;
-    retr.reserve(this->size() + strlen(reinterpret_cast<const char*>(chr)));
-    retr += *this;
+    retr.reserve(The.size() + strlen(reinterpret_cast<const char*>(chr)));
+    retr += The;
     retr += chr;
     return retr;
 }
@@ -122,8 +145,8 @@ xstring xstring::operator+(const unsigned char* chr)
 xstring xstring::operator+(const std::string& str)
 {
     xstring rstr;
-    rstr.reserve(this->size() + str.size());
-    rstr += *this;
+    rstr.reserve(The.size() + str.size());
+    rstr += The;
     rstr += str;
     return rstr;
 }
@@ -131,8 +154,8 @@ xstring xstring::operator+(const std::string& str)
 xstring xstring::operator+(std::string&& str)
 {
     xstring rstr;
-    rstr.reserve(this->size() + str.size());
-    rstr += *this;
+    rstr.reserve(The.size() + str.size());
+    rstr += The;
     rstr += std::move(str);
     return rstr;
 }
@@ -147,6 +170,34 @@ char& xstring::At(size_t Idx)
     return at(Idx);
 }
 
+const char xstring::First(size_t Idx) const
+{
+    if (!(This.Size() - 1 >= Idx))
+        throw "Index Out Of Range";
+    return The.operator[](Idx);
+}
+
+char& xstring::First(size_t Idx)
+{
+    if (!(This.Size() - 1 >= Idx))
+        throw "Index Out Of Range";
+    return The.operator[](Idx);
+}
+
+const char xstring::Last(size_t Idx) const
+{
+    if (!(This.Size() - 1 >= Idx))
+        throw "Index Out Of Range";
+    return The.operator[](this->size() - Idx - 1);
+}
+
+char& xstring::Last(size_t Idx)
+{
+    if (!(This.Size() - 1 >= Idx))
+        throw "Index Out Of Range";
+    return The.operator[](this->size() - Idx - 1);
+}
+
 size_t xstring::Size() const
 {
     return size();
@@ -159,12 +210,12 @@ const char* xstring::Ptr() const
 
 void xstring::Print() const
 {
-    std::cout << *this << '\n';
+    std::cout << The << '\n';
 }
 
 void xstring::Print(int num) const
 {
-    std::cout << *this;
+    std::cout << The;
     char* new_lines = static_cast<char*>(calloc(static_cast<size_t>(num) + 1, sizeof(char)));
     // calloc was used instead of "new" because "new" would give un-wanted after-effects.
     for (int i = 0; i < num; i++)
@@ -175,40 +226,87 @@ void xstring::Print(int num) const
 }
 
 void xstring::Print(const xstring& front, const xstring& end) const {
-    std::cout << front << *this << end << '\n';
+    std::cout << front << The << end << '\n';
 }
 
 void xstring::Print(const char chr1, const char chr2) const
 {
-    std::cout << chr1 << *this << chr2 << '\n';
+    std::cout << chr1 << The << chr2 << '\n';
 }
 
 void xstring::Print(const char* chr1, const char* chr2) const
 {
     if(strlen(chr2))
-        std::cout << chr1 << *this << chr2 << '\n';
+        std::cout << chr1 << The << chr2 << '\n';
     else
-        std::cout << *this << chr1 << '\n';
+        std::cout << The << chr1 << '\n';
 }
 
 std::string xstring::ToStdString() const {
-    return std::string(this->c_str()); // todo: return only from the base class
+    return std::string(The.c_str()); // todo: return only from the base class
 }
 
 std::wstring xstring::ToStdWString() const
 {
     std::wstring LsWideStr(size(), L' ');
     for(size_t i = 0; i < size(); i++)
-        LsWideStr[i] = static_cast<wchar_t>((*this)[i]);
+        LsWideStr[i] = static_cast<wchar_t>((The)[i]);
 
     return LsWideStr;
+}
+
+RA::SharedPtr<unsigned char[]> xstring::ToUnsignedChar() const
+{
+    const auto LnSize = The.Size();
+    auto UnsignedChar = MKPA<unsigned char>(LnSize);
+    for (int i = 0; i < LnSize; i++)
+        UnsignedChar[i] = The[i];
+    return UnsignedChar;
+}
+
+xstring xstring::ToByteString() const
+{
+    auto DataPtr = The.ToUnsignedChar();
+    auto UData = DataPtr.Ptr();
+
+    static const char* NibbleToHexMapping = "0123456789ABCDEF";
+    static const char* HexSplit = "\\x";
+
+    int BufSize = The.Size();
+    xstring Buffer;
+    Buffer.resize(BufSize * 2 * 2 + 1);
+    for (int i = 0; i < BufSize * 2; i += 2)
+    {
+        // divide by 16
+        Buffer[2 * i] = HexSplit[0];
+        Buffer[2 * i + 1] = HexSplit[1];
+        int Nibble = UData[i / 2] >> 4;
+        Buffer[2 * i + 2] = NibbleToHexMapping[Nibble];
+
+        Nibble = UData[i / 2] & 0x0F;
+        Buffer[2 * i + 3] = NibbleToHexMapping[Nibble];
+    }
+    Buffer[Buffer.Size() - 1] = '\0';
+    return Buffer;
+}
+
+xstring xstring::FromByteStringToASCII() const
+{
+    xstring Ascii = "";
+    for (size_t i = 0; i < The.length(); i += 4)
+    {
+        xstring part = The.substr(i + 2, i + 4);
+        char Chr = stoul(part, nullptr, 16);
+        Ascii += Chr;
+    }
+    return Ascii;
 }
 
 xstring xstring::ToUpper() const
 {
     xstring ret_str;
     std::locale loc;
-    for (xstring::const_iterator it = this->begin(); it != this->end(); it++)
+    for (xstring::const_iterator it = The.begin(); it != The.end(); it++)
         ret_str += std::toupper((*it), loc);
     return ret_str;
 }
@@ -217,7 +315,7 @@ xstring xstring::ToLower() const
 {
     xstring ret_str;
     std::locale loc;
-    for (xstring::const_iterator it = this->begin(); it != this->end(); it++)
+    for (xstring::const_iterator it = The.begin(); it != The.end(); it++)
         ret_str += std::tolower((*it), loc);
     return ret_str;
 }
@@ -227,7 +325,7 @@ xstring xstring::ToProper() const
     xstring ret_str;
     std::locale loc;
     bool FirstPass = true;
-    for (xstring::const_iterator it = this->begin(); it != this->end(); it++)
+    for (xstring::const_iterator it = The.begin(); it != The.end(); it++)
     {
         if (FirstPass)
         {
@@ -241,24 +339,24 @@ xstring xstring::ToProper() const
 
 xstring xstring::operator*(int total) const
 {
-    xstring ret_str = *this;
+    xstring ret_str = The;
     for (int i = 0; i < total; i++)
-        ret_str.insert(ret_str.end(), this->begin(), this->end());
+        ret_str.insert(ret_str.end(), The.begin(), The.end());
     return ret_str;
 }
 
 void xstring::operator*=(int total)
 {
-    xstring str_copy = *this;
+    xstring str_copy = The;
     for (int i = 0; i < total; i++)
-        this->insert(this->end(), str_copy.begin(), str_copy.end());
+        The.insert(The.end(), str_copy.begin(), str_copy.end());
 }
 
 xstring xstring::Remove(const char val) const
 {
     xstring str;
-    str.reserve(this->size());
-    for (xstring::const_iterator it = this->begin(); it != this->end(); it++)
+    str.reserve(The.size());
+    for (xstring::const_iterator it = The.begin(); it != The.end(); it++)
     {
         if (val != *it)
             str += *it;
@@ -269,12 +367,12 @@ xstring xstring::Remove(const char val) const
 xstring xstring::Reverse() const
 {
     xstring str;
-    str.resize(this->size());
+    str.resize(The.size());
 
-    xstring::const_reverse_iterator from_it = this->rbegin();
+    xstring::const_reverse_iterator from_it = The.rbegin();
     xstring::iterator to_it = str.begin();
 
-    for (; from_it != this->rend();)
+    for (; from_it != The.rend();)
     {
         *to_it = *from_it;
         from_it++;
@@ -289,8 +387,8 @@ xvector<xstring> xstring::Split(size_t loc) const
 {
     xvector<xstring> ret_vec;
     ret_vec.reserve(4);
-    ret_vec << this->substr(0, loc);
-    ret_vec << this->substr(loc, this->size() - loc);
+    ret_vec << The.substr(0, loc);
+    ret_vec << The.substr(loc, The.size() - loc);
 
     return ret_vec;
 }
@@ -298,24 +396,24 @@ xvector<xstring> xstring::Split(size_t loc) const
 xvector<xstring> xstring::Split(const std::regex& rex) const
 {
     xvector<xstring> split_content;
-    for (std::sregex_token_iterator iter(this->begin(), this->end(), rex, -1); iter != std::sregex_token_iterator(); ++iter)
+    for (std::sregex_token_iterator iter(The.begin(), The.end(), rex, -1); iter != std::sregex_token_iterator(); ++iter)
         split_content << xstring(*iter);
 
     return split_content;
 }
 
 xvector<xstring> xstring::Split(const xstring& pattern, rxm::type mod) const {
-    return this->Split(std::regex(pattern.c_str(), rxm::ECMAScript | mod));
+    return The.Split(std::regex(pattern.c_str(), rxm::ECMAScript | mod));
 }
 
 xvector<xstring> xstring::Split(const char splitter, rxm::type mod) const {
-    return this->Split(xstring({ splitter }), mod);
+    return The.Split(xstring({ splitter }), mod);
 }
 
 xvector<xstring> xstring::InclusiveSplit(const std::regex& rex, bool single) const
 {
     xvector<xstring> retv;
-    for (std::sregex_token_iterator iter(this->begin(), this->end(), rex, { -1, 0 }); iter != std::sregex_token_iterator(); ++iter)
+    for (std::sregex_token_iterator iter(The.begin(), The.end(), rex, { -1, 0 }); iter != std::sregex_token_iterator(); ++iter)
         retv << xstring(*iter);
 
     if (!single) {
@@ -332,15 +430,15 @@ xvector<xstring> xstring::InclusiveSplit(const xstring& splitter, rxm::type mod,
     // -1       grab NOT regex
     //  0       grab regex
     //  1       grab blank
-    return this->InclusiveSplit(rex, single);
+    return The.InclusiveSplit(rex, single);
 }
 
 xvector<xstring> xstring::InclusiveSplit(const char* splitter, rxm::type mod, bool aret) const {
-    return this->InclusiveSplit(xstring(splitter), mod, aret);
+    return The.InclusiveSplit(xstring(splitter), mod, aret);
 }
 
 xvector<xstring> xstring::InclusiveSplit(const char splitter, rxm::type mod, bool aret) const {
-    return this->InclusiveSplit(xstring({ splitter }), mod, aret);
+    return The.InclusiveSplit(xstring({ splitter }), mod, aret);
 }
 
 // =========================================================================================================================
@@ -363,7 +461,7 @@ bool xstring::Match(const char* str, rxm::type mod) const {
 
 bool xstring::MatchLine(const std::regex& rex) const
 {
-    std::vector<xstring> lines = this->Split('\n');
+    std::vector<xstring> lines = The.Split('\n');
     for (std::vector<xstring>::iterator iter = lines.begin(); iter != lines.end(); iter++) {
         if (std::regex_match(*iter, rex)) {
             return true;
@@ -374,7 +472,7 @@ bool xstring::MatchLine(const std::regex& rex) const
 
 bool xstring::MatchLine(const re2::RE2& rex) const
 {
-    std::vector<xstring> lines = this->Split('\n');
+    std::vector<xstring> lines = The.Split('\n');
     for (std::vector<xstring>::iterator iter = lines.begin(); iter != lines.end(); iter++) {
         if (RE2::FullMatch(*iter, rex)) {
             return true;
@@ -384,16 +482,16 @@ bool xstring::MatchLine(const re2::RE2& rex) const
 }
 
 bool xstring::MatchLine(const xstring& pattern, rxm::type mod) const {
-    return this->MatchLine(std::regex(pattern.c_str(), rxm::ECMAScript | mod));
+    return The.MatchLine(std::regex(pattern.c_str(), rxm::ECMAScript | mod));
 }
 
 bool xstring::MatchLine(const char* str, rxm::type mod) const {
-    return this->MatchLine(std::regex(str, mod));
+    return The.MatchLine(std::regex(str, mod));
 }
 
 bool xstring::MatchAllLines(const std::regex& rex) const
 {
-    std::vector<xstring> lines = this->Split('\n');
+    std::vector<xstring> lines = The.Split('\n');
     for (std::vector<xstring>::iterator iter = lines.begin(); iter != lines.end(); iter++) {
         if (!std::regex_match(*iter, rex)) {
             return false;
@@ -404,7 +502,7 @@ bool xstring::MatchAllLines(const std::regex& rex) const
 
 bool xstring::MatchAllLines(const re2::RE2& rex) const
 {
-    std::vector<xstring> lines = this->Split('\n');
+    std::vector<xstring> lines = The.Split('\n');
     for (std::vector<xstring>::iterator iter = lines.begin(); iter != lines.end(); iter++) {
         if (!RE2::FullMatch(*iter, rex)) {
             return false;
@@ -414,25 +512,25 @@ bool xstring::MatchAllLines(const re2::RE2& rex) const
 }
 
 bool xstring::MatchAllLines(const xstring& pattern, rxm::type mod) const {
-    return this->MatchAllLines(std::regex(pattern.c_str(), rxm::ECMAScript | mod));
+    return The.MatchAllLines(std::regex(pattern.c_str(), rxm::ECMAScript | mod));
 }
 
 bool xstring::MatchAllLines(const char* str, rxm::type mod) const {
-    return this->MatchAllLines(std::regex(str, rxm::ECMAScript | mod));
+    return The.MatchAllLines(std::regex(str, rxm::ECMAScript | mod));
 }
 
 // =========================================================================================================================
 
 bool xstring::Scan(const std::regex& rex) const {
-    return bool(std::regex_search(this->c_str(), rex));
+    return bool(std::regex_search(The.c_str(), rex));
 }
 
 bool xstring::Scan(const re2::RE2& rex) const {
-    return re2::RE2::PartialMatch(this->c_str(), rex);
+    return re2::RE2::PartialMatch(The.c_str(), rex);
 }
 
 bool xstring::Scan(const char pattern, rxm::type mod) const {
-    return (std::find(this->begin(), this->end(), pattern) != this->end());
+    return (std::find(The.begin(), The.end(), pattern) != The.end());
 }
 
 bool xstring::Scan(const xstring& pattern, rxm::type mod) const {
@@ -446,7 +544,7 @@ bool xstring::Scan(const char* str, rxm::type mod) const
 
 bool xstring::ScanLine(const std::regex& rex) const
 {
-    std::vector<xstring> lines = this->Split('\n');
+    std::vector<xstring> lines = The.Split('\n');
     for (std::vector<xstring>::iterator iter = lines.begin(); iter != lines.end(); iter++)
     {
         if (std::regex_search(*iter, rex))
@@ -457,7 +555,7 @@ bool xstring::ScanLine(const std::regex& rex) const
 
 bool xstring::ScanLine(const re2::RE2& rex) const
 {
-    std::vector<xstring> lines = this->Split('\n');
+    std::vector<xstring> lines = The.Split('\n');
     for (std::vector<xstring>::iterator iter = lines.begin(); iter != lines.end(); iter++)
     {
         if (re2::RE2::PartialMatch(*iter, rex))
@@ -469,16 +567,16 @@ bool xstring::ScanLine(const re2::RE2& rex) const
 bool xstring::ScanLine(const xstring& pattern, rxm::type mod) const
 {
     std::regex rex(pattern.c_str(), rxm::ECMAScript | mod);
-    return this->ScanLine(rex);
+    return The.ScanLine(rex);
 }
 
 bool xstring::ScanLine(const char* str, rxm::type mod) const {
-    return this->ScanLine(std::regex(str, rxm::ECMAScript | mod));
+    return The.ScanLine(std::regex(str, rxm::ECMAScript | mod));
 }
 
 bool xstring::ScanAllLines(const std::regex& rex) const
 {
-    std::vector<xstring> lines = this->Split('\n');
+    std::vector<xstring> lines = The.Split('\n');
     for (std::vector<xstring>::iterator iter = lines.begin(); iter != lines.end(); iter++) {
         if (!std::regex_search(*iter, rex))
             return false;
@@ -488,7 +586,7 @@ bool xstring::ScanAllLines(const std::regex& rex) const
 
 bool xstring::ScanAllLines(const re2::RE2& rex) const
 {
-    std::vector<xstring> lines = this->Split('\n');
+    std::vector<xstring> lines = The.Split('\n');
     for (std::vector<xstring>::iterator iter = lines.begin(); iter != lines.end(); iter++) {
         if (!re2::RE2::PartialMatch(*iter, rex))
             return false;
@@ -497,10 +595,10 @@ bool xstring::ScanAllLines(const re2::RE2& rex) const
 }
 
 bool xstring::ScanAllLines(const xstring& pattern, rxm::type mod) const {
-    return this->ScanAllLines(std::regex(pattern.c_str(), rxm::ECMAScript | mod));
+    return The.ScanAllLines(std::regex(pattern.c_str(), rxm::ECMAScript | mod));
 }
 bool xstring::ScanAllLines(const char* str, rxm::type mod) const {
-    return this->ScanAllLines(std::regex(str, rxm::ECMAScript | mod));
+    return The.ScanAllLines(std::regex(str, rxm::ECMAScript | mod));
 }
 // =========================================================================================================================
 
@@ -576,21 +674,21 @@ bool xstring::ScanList(const xvector<xstring*>& lst, rxm::type mod) const
 // =========================================================================================================================
 
 bool xstring::Is(const xstring& other) const {
-    return (*this) == other;
+    return (The) == other;
 }
 
 size_t xstring::hash() const {
-    return std::hash<std::string>()(*this);
+    return std::hash<std::string>()(The);
 }
 
 // =========================================================================================================================
 
 int xstring::HasNonAscii(int front_skip, int end_skip, int threshold) const
 {
-    if (!this->size())
+    if (!The.size())
         return 0;
 
-    for (xstring::const_iterator it = this->begin() + front_skip; it < this->end() - end_skip; it++) {
+    for (xstring::const_iterator it = The.begin() + front_skip; it < The.end() - end_skip; it++) {
         if (!isascii(*it)) { // not always reliable but fast
             threshold--;
             if (threshold < 1)
@@ -602,7 +700,7 @@ int xstring::HasNonAscii(int front_skip, int end_skip, int threshold) const
 
 bool xstring::HasNulls() const
 {
-    for (xstring::const_iterator it = this->begin(); it < this->end(); it++) {
+    for (xstring::const_iterator it = The.begin(); it < The.end(); it++) {
         if (*it == '\0')
             return true;
     }
@@ -613,7 +711,7 @@ bool xstring::HasDualNulls() const
 {
     bool null_set = false;
 
-    for (xstring::const_iterator it = this->begin(); it < this->end(); it++)
+    for (xstring::const_iterator it = The.begin(); it < The.end(); it++)
     {
         if (*it != '\0')
             null_set = false;
@@ -636,8 +734,8 @@ void xstring::RemoveNulls()
 xstring xstring::RemoveNonAscii() const
 {
     xstring clean_data;
-    clean_data.reserve(this->size());
-    for (xstring::const_iterator it = this->begin(); it < this->end(); it++) {
+    clean_data.reserve(The.size());
+    for (xstring::const_iterator it = The.begin(); it < The.end(); it++) {
         if (isascii(*it))
             clean_data += *it;
     }
@@ -649,7 +747,7 @@ xstring xstring::RemoveNonAscii() const
 xvector<xstring> xstring::Findall(const std::regex& rex) const
 {
     xvector<xstring> retv;
-    for (std::sregex_token_iterator iter(this->begin(), this->end(), rex, 1); iter != std::sregex_token_iterator(); ++iter)
+    for (std::sregex_token_iterator iter(The.begin(), The.end(), rex, 1); iter != std::sregex_token_iterator(); ++iter)
         retv << xstring(*iter);
     return retv;
 }
@@ -657,7 +755,7 @@ xvector<xstring> xstring::Findall(const std::regex& rex) const
 xvector<xstring> xstring::Findall(const re2::RE2& rex) const
 {
     xvector<xstring> retv;
-    re2::StringPiece data_cpy = *this;
+    re2::StringPiece data_cpy = The;
     xstring out;
     while (re2::RE2::FindAndConsume(&data_cpy, rex, reinterpret_cast<std::string*>(&out)))
         retv << out;
@@ -666,28 +764,28 @@ xvector<xstring> xstring::Findall(const re2::RE2& rex) const
 }
 
 xvector<xstring> xstring::Findall(const xstring& pattern, rxm::type mod) const {
-    return this->Findall(std::regex(pattern, rxm::ECMAScript | mod));
+    return The.Findall(std::regex(pattern, rxm::ECMAScript | mod));
 }
 
 xvector<xstring> xstring::Findall(const char* pattern, rxm::type mod) const {
-    return this->Findall(std::regex(pattern, mod));
+    return The.Findall(std::regex(pattern, mod));
 }
 
 xvector<xstring> xstring::Findwalk(const std::regex& rex) const
 {
     xvector<xstring> retv;
-    xvector<xstring> lines = this->Split('\n');
+    xvector<xstring> lines = The.Split('\n');
     for (const auto& line : lines) {
         for (std::sregex_token_iterator iter(line.begin(), line.end(), rex, 1); iter != std::sregex_token_iterator(); ++iter)
             retv << xstring(*iter);
     }
-    return std::move(retv);
+    return retv;
 }
 
 xvector<xstring> xstring::Findwalk(const re2::RE2& rex) const
 {
     xvector<xstring> retv;
-    xvector<xstring> lines = this->Split('\n');
+    xvector<xstring> lines = The.Split('\n');
     for (const auto& line : lines) {
         for (const xstring& val : line.Findall(rex))
             retv << val;
@@ -696,18 +794,18 @@ xvector<xstring> xstring::Findwalk(const re2::RE2& rex) const
 }
 
 xvector<xstring> xstring::Findwalk(const xstring& pattern, rxm::type mod) const {
-    return this->Findwalk(std::regex(pattern, rxm::ECMAScript | mod));
+    return The.Findwalk(std::regex(pattern, rxm::ECMAScript | mod));
 }
 
 xvector<xstring> xstring::Findwalk(const char* pattern, rxm::type mod) const {
-    return this->Findwalk(std::regex(pattern, rxm::ECMAScript | mod));
+    return The.Findwalk(std::regex(pattern, rxm::ECMAScript | mod));
 }
 
 xvector<xstring> xstring::Search(const std::regex& rex, int count) const
 {
     xvector<xstring> retv;
     std::smatch matcher;
-    if (std::regex_search(*this, matcher, rex))
+    if (std::regex_search(The, matcher, rex))
     {
         size_t sz = matcher.size();
         std::smatch::iterator it = matcher.begin() + 1;
@@ -726,35 +824,35 @@ xvector<xstring> xstring::Search(const std::regex& rex, int count) const
 //}
 
 xvector<xstring> xstring::Search(const xstring& pattern, rxm::type mod, int count) const {
-    return this->Search(std::regex(pattern, mod), count);
+    return The.Search(std::regex(pattern, mod), count);
 }
 
 xvector<xstring> xstring::Search(const char* pattern, rxm::type mod, int count) const {
-    return this->Search(std::regex(pattern, mod), count);
+    return The.Search(std::regex(pattern, mod), count);
 }
 
 // =========================================================================================================================
 
 bool xstring::Has(const char var_char) const {
-    if ((std::find(this->begin(), this->end(), var_char) != this->end()))
+    if ((std::find(The.begin(), The.end(), var_char) != The.end()))
         return true;
     return false;
 }
 
 bool xstring::Lacks(const char var_char) const {
 
-    if ((std::find(this->begin(), this->end(), var_char) != this->end()))
+    if ((std::find(The.begin(), The.end(), var_char) != The.end()))
         return false;
     return true;
 }
 
 size_t xstring::Count(const char var_char) const {
-    size_t n = std::count(this->begin(), this->end(), var_char);
+    size_t n = std::count(The.begin(), The.end(), var_char);
     return n;
 }
 
 size_t xstring::Count(const xstring& pattern) const {
-    size_t n = this->Split(pattern).size();
+    size_t n = The.Split(pattern).size();
     return n;
 }
 
@@ -766,23 +864,23 @@ xstring xstring::Sub(const std::regex& rex, const std::string& replacement) cons
 
 xstring xstring::Sub(const RE2& rex, const std::string& replacement) const
 {
-    xstring ret = *this;
+    xstring ret = The;
     RE2::GlobalReplace(reinterpret_cast<std::string*>(&ret), rex, replacement);
-    return std::move(ret);
+    return ret;
 }
 
 xstring xstring::Sub(const RE2& rex, const re2::StringPiece& replacement) const
 {
-    xstring ret = *this;
+    xstring ret = The;
     RE2::GlobalReplace(reinterpret_cast<std::string*>(&ret), rex, replacement);
-    return std::move(ret);
+    return ret;
 }
 
 xstring xstring::Sub(const RE2& rex, const char* replacement) const
 {
-    xstring ret = *this;
+    xstring ret = The;
     RE2::GlobalReplace(reinterpret_cast<std::string*>(&ret), rex, re2::StringPiece(replacement));
-    return std::move(ret);
+    return ret;
 }
 
 xstring xstring::Sub(const std::string& pattern, const std::string& replacement, rxm::type mod) const {
@@ -799,45 +897,45 @@ xstring xstring::Sub(const char* pattern, const char* replacement, rxm::type mod
 
 xstring& xstring::Trim()
 {
-    this->erase(0, this->find_first_not_of(" \t\r\n"));
-    this->erase(this->find_last_not_of(" \t\r\n") + 1);
-    return *this;
+    The.erase(0, The.find_first_not_of(" \t\r\n"));
+    The.erase(The.find_last_not_of(" \t\r\n") + 1);
+    return The;
 }
 
 xstring& xstring::LeftTrim()
 {
-    this->erase(0, this->find_first_not_of(" \t\r\n"));
-    return *this;
+    The.erase(0, The.find_first_not_of(" \t\r\n"));
+    return The;
 }
 
 xstring& xstring::RightTrim()
 {
-    this->erase(this->find_last_not_of(" \t\r\n") + 1);
-    return *this;
+    The.erase(The.find_last_not_of(" \t\r\n") + 1);
+    return The;
 }
 
 xstring& xstring::Trim(const xstring& trim)
 {
-    this->erase(0, this->find_first_not_of(trim));
-    this->erase(this->find_last_not_of(trim) + 1);
-    return *this;
+    The.erase(0, The.find_first_not_of(trim));
+    The.erase(The.find_last_not_of(trim) + 1);
+    return The;
 }
 
 xstring& xstring::LeftTrim(const xstring& trim)
 {
-    this->erase(0, this->find_first_not_of(trim));
-    return *this;
+    The.erase(0, The.find_first_not_of(trim));
+    return The;
 }
 
 xstring& xstring::RightTrim(const xstring& trim)
 {
-    this->erase(this->find_last_not_of(trim) + 1);
-    return *this;
+    The.erase(The.find_last_not_of(trim) + 1);
+    return The;
 }
 
 xstring xstring::operator()(long double x, long double y, long double z, const char removal_method) const
 {
-    size_t m_size = this->size();
+    size_t m_size = The.size();
     xstring n_arr;
     n_arr.reserve(m_size + 4);
 
@@ -853,8 +951,8 @@ xstring xstring::operator()(long double x, long double y, long double z, const c
 
         if (x > y) { return n_arr; }
 
-        typename xstring::const_iterator iter = this->begin();
-        typename xstring::const_iterator stop = this->begin() + static_cast<ull>(y);
+        typename xstring::const_iterator iter = The.begin();
+        typename xstring::const_iterator stop = The.begin() + static_cast<ull>(y);
 
         if (z == 0) { // forward direction with no skipping
             for (iter += static_cast<ull>(x); iter != stop; ++iter)
@@ -901,8 +999,8 @@ xstring xstring::operator()(long double x, long double y, long double z, const c
         // x = static_cast<size_t>(x);
         // y = static_cast<size_t>(y);
 
-        typename xstring::const_reverse_iterator iter = this->rend() - static_cast<ull>(x) - 1;
-        typename xstring::const_reverse_iterator stop = this->rend() - static_cast<ull>(y);
+        typename xstring::const_reverse_iterator iter = The.rend() - static_cast<ull>(x) - 1;
+        typename xstring::const_reverse_iterator stop = The.rend() - static_cast<ull>(y);
 
         double iter_insert = 0;
 
@@ -942,103 +1040,103 @@ xstring xstring::operator()(long double x, long double y, long double z, const c
 
 int xstring::ToInt() const
 {
-    return std::atoi(this->c_str());
+    return std::atoi(The.c_str());
 }
 
 long xstring::ToLong() const
 {
-    return std::atol(this->c_str());
+    return std::atol(The.c_str());
 }
 
 long long xstring::ToLongLong() const
 {
-    return std::atoll(this->c_str());
+    return std::atoll(The.c_str());
 }
 
 size_t xstring::To64() const
 {
-    return std::atoll(this->c_str());
+    return std::atoll(The.c_str());
 }
 
 double xstring::ToDouble() const
 {
-    return std::atof(this->c_str());
+    return std::atof(The.c_str());
 }
 
 float xstring::ToFloat() const
 {
-    return static_cast<float>(std::atof(this->c_str()));
+    return static_cast<float>(std::atof(The.c_str()));
 }
 
 // =================================================================================================================================
 
 xstring xstring::ToBlack() const {
-    return Color::Black + *this;
+    return Color::Black + The;
 }
 xstring xstring::ToRed() const {
-    return Color::Red + *this;
+    return Color::Red + The;
 }
 xstring xstring::ToGreen() const {
-    return Color::Green + *this;
+    return Color::Green + The;
 }
 xstring xstring::ToYellow() const {
-    return Color::Yellow + *this;
+    return Color::Yellow + The;
 }
 xstring xstring::ToBlue() const {
-    return Color::Blue + *this;
+    return Color::Blue + The;
 }
 xstring xstring::ToMegenta() const {
-    return Color::Magenta + *this;
+    return Color::Magenta + The;
 }
 xstring xstring::ToCyan() const {
-    return Color::Cyan + *this;
+    return Color::Cyan + The;
 }
 xstring xstring::ToGrey() const {
-    return Color::Grey + *this;
+    return Color::Grey + The;
 }
 xstring xstring::ToWhite() const {
-    return Color::White + *this;
+    return Color::White + The;
 }
 // --------------------------------------
 xstring xstring::ToOnBlack() const {
-    return Color::On::Black + *this;
+    return Color::On::Black + The;
 }
 xstring xstring::ToOnRed() const {
-    return Color::On::Red + *this;
+    return Color::On::Red + The;
 }
 xstring xstring::ToOnGreen() const {
-    return Color::On::Green + *this;
+    return Color::On::Green + The;
 }
 xstring xstring::ToOnYellow() const {
-    return Color::On::Yellow + *this;
+    return Color::On::Yellow + The;
 }
 xstring xstring::ToOnBlue() const {
-    return Color::On::Blue + *this;
+    return Color::On::Blue + The;
 }
 xstring xstring::ToOnMegenta() const {
-    return Color::On::Magenta + *this;
+    return Color::On::Magenta + The;
 }
 xstring xstring::ToOnCyan() const {
-    return Color::On::Cyan + *this;
+    return Color::On::Cyan + The;
 }
 xstring xstring::ToOnGrey() const {
-    return Color::On::Grey + *this;
+    return Color::On::Grey + The;
 }
 xstring xstring::ToOnWhite() const {
-    return Color::On::White + *this;
+    return Color::On::White + The;
 }
 // --------------------------------------
 xstring xstring::ResetColor() const {
-    return *this + Color::Mod::Reset;
+    return The + Color::Mod::Reset;
 }
 xstring xstring::ToBold() const {
-    return Color::Mod::Bold + *this;
+    return Color::Mod::Bold + The;
 }
 xstring xstring::ToUnderline() const {
-    return Color::Mod::Underline + *this;
+    return Color::Mod::Underline + The;
 }
 xstring xstring::ToInvertedColor() const {
-    return Color::Mod::Reverse + *this;
+    return Color::Mod::Reverse + The;
 }
 
 // =================================================================================================================================
@@ -1058,3 +1156,17 @@ xstring RA::WTXS(const wchar_t* wstr) {
 }
 
 // =================================================================================================================================
+
+xstring operator+(const char First, const xstring& Second)
+{
+    xstring RetStr = First;
+    RetStr += Second;
+    return RetStr;
+}
+
+xstring operator+(const char First, xstring&& Second)
+{
+    xstring RetStr = First;
+    RetStr += std::move(Second);
+    return RetStr;
+}

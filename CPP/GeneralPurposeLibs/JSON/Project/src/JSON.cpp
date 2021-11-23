@@ -55,7 +55,7 @@ void RA::JSON::operator=(const RA::JSON& Other)
     MoZoomedJsonPtr.Clone(Other.MoZoomedJsonPtr);
 }
 
-void RA::JSON::operator=(JSON&& Other)
+void RA::JSON::operator=(JSON&& Other) noexcept
 {
     if (MoBsonValuePtr != nullptr)
         MoBsonValuePtr = std::move(Other.MoBsonValuePtr);
@@ -88,7 +88,7 @@ void RA::JSON::SetJSON(const xstring& FoString)
 void RA::JSON::SetBSON(const BSON::Value& FoBSON)
 {
     Begin();
-    if (!MoBsonValuePtr)
+    if (MoBsonValuePtr == nullptr)
         MoBsonValuePtr = RA::MakeShared<BSON::Value>(FoBSON);
     else
         *MoBsonValuePtr = FoBSON;
@@ -192,7 +192,7 @@ void RA::JSON::PrintJson() const
 bool RA::JSON::IsNull() const
 {
     Begin();
-    if (!MoFullJsonPtr)
+    if (MoFullJsonPtr == nullptr)
         return true;
     GSS(MoFullJson);
     return MoFullJson.is_null();
@@ -224,13 +224,13 @@ pint RA::JSON::Size() const
     RescueThrow();
 }
 
-RA::JSON& RA::JSON::ZoomIdx(const pint Idx)
+RA::JSON& RA::JSON::Zoom(const pint Idx)
 {
     Begin();
     GSS(MoFullJson);
     if (MoFullJson.to_string() == L"null")
         return *this;
-    if (!MoZoomedJsonPtr)
+    if (MoZoomedJsonPtr == nullptr)
     {
         try
         {
@@ -278,13 +278,13 @@ RA::JSON& RA::JSON::Zoom(const wchar_t* FacObject)
     GSS(MoFullJson);
     if (MoFullJson.to_string() == L"null")
         return *this;
-    if (!MoZoomedJsonPtr)
+    if (MoZoomedJsonPtr == nullptr)
     {
         try
         {
             if (MoFullJson.to_string()[0] == L'[')
             {
-                The.ZoomIdx(0);
+                The.Zoom();
                 MoZoomedJsonPtr = RA::MakeShared<web::json::value>(MoZoomedJsonPtr.Get().at(FacObject));
             }else
                 MoZoomedJsonPtr = RA::MakeShared<web::json::value>(MoFullJson.at(FacObject));
@@ -310,6 +310,11 @@ RA::JSON& RA::JSON::ZoomReset()
     MoZoomedJsonPtr.reset();
     return *this;
     RescueThrow();
+}
+
+xstring RA::JSON::GetString(const std::wstring& FwObject) const
+{
+    return RA::WTXS(This.GetZoomedObject().as_object().at(FwObject).as_string().c_str());
 }
 
 const web::json::value& RA::JSON::GetFullObject() const
@@ -356,9 +361,9 @@ const web::json::value& RA::JSON::GetZoomedObject() const
 {
     Begin();
     ThrowNoJSON();
-    if (!MoZoomedJsonPtr)
+    if (MoZoomedJsonPtr == nullptr)
         return *MoFullJsonPtr;
     else
-        return MoZoomedJsonPtr.Get();
+        return *MoZoomedJsonPtr;
     RescueThrow();
 }

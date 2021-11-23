@@ -3,12 +3,12 @@
 #include <stdlib.h>
 #include <iomanip>
 #include <ctime>
+#include <chrono>
 #include <sstream>
 
 
 bool Date::SbAppliedLocalOffset = false;
 int  Date::SnLocalOffset = 0;
-
 
 Date::Date(Offset FeOffset)
 {
@@ -26,6 +26,8 @@ Date::Date(const Date& Other, Offset FeOffset)
 
 Date::Date(uint FnEpochTime, Offset FeOffset)
 {
+    if (FnEpochTime > 9999999999)
+        FnEpochTime = FnEpochTime / 1000;
     const long long int LnSecondsOffset = GetSecondsOffset(FeOffset);
 
     if (!FnEpochTime)
@@ -233,6 +235,21 @@ int Date::GetEpochTimeInt() const
     return static_cast<int>(MoEpochTime);
 }
 
+pint Date::GetEpochTimePint() const
+{
+    return static_cast<pint>(MoEpochTime);
+}
+
+pint Date::GetEpochTimeMilliseconds() const
+{
+    auto Rounded = GetEpochTimePint();
+    size_t Milliseconds =  static_cast<pint>(
+        std::chrono::duration_cast<std::chrono::microseconds>(
+            std::chrono::system_clock::now().time_since_epoch()
+        ).count()) % 1000;
+    return Rounded * 1000 + Milliseconds;
+}
+
 xstring Date::GetEpochTimeStr() const {
     return RA::ToXString(MoEpochTime);
 }
@@ -262,6 +279,11 @@ xstring Date::GetNumericTimeStr()
     AddStreamValue(LoTime.Sec);
 
     return LoSS.str();
+}
+
+xstring Date::GetEpochTimeMillisecondsStr() const
+{
+    return RA::ToXString(This.GetEpochTimeMilliseconds());
 }
 
 int Date::GetSecondsOffset()

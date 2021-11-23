@@ -7,7 +7,7 @@
 endmacro()
 
 function(LinkStatic TARGET_FILE STATIC_LIB)
-    if(${IsApp} AND (${debug} OR ${BuildAll}))
+    if((${IsApp} AND ${debug}) OR ${BuildAll})
         set(LocalInstalldir "${CMAKE_SOURCE_DIR}/Build/${OS_TYPE}/${BUILD_TYPE}/${BUILD_TYPE}")
         target_link_libraries(${TARGET_FILE} ${LocalInstalldir}/lib/${PF}${STATIC_LIB}.${ST})
     else()

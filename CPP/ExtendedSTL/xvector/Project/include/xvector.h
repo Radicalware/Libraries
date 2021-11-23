@@ -38,14 +38,33 @@
 #include<type_traits>
 
 #include "re2/re2.h"
+#include "SharedPtr.h"
 #include "Nexus.h"
 
 
+// Declared in xvector.h && BaseXVector.h
+#ifndef __XVECTOR_TYPES__
+#define __XVECTOR_TYPES__
+template<typename T, typename enabler_t = void> class xvector;
 
+// Values (Object/Primitive)
+#define ValObjXVectorAPI  xvector<T, typename std::enable_if_t<!IsFundamental(T) && !IsPointer(T) && !IsSharedPtr(T)>>
+#define ValPrimXVectorAPI xvector<T, typename std::enable_if_t< IsFundamental(T) && !IsPointer(T)>>
+template<typename T> class ValObjXVectorAPI;
+template<typename T> class ValPrimXVectorAPI;
+
+// Pointers (Object/Primitive)
+#define PtrObjXVectorAPI  xvector<T*, typename std::enable_if_t<!IsFundamental(RemovePtr(T*))>>
+#define PtrPrimXVectorAPI xvector<T*, typename std::enable_if_t< IsFundamental(RemovePtr(T*))>>
+template<typename T> class PtrObjXVectorAPI;
+template<typename T> class PtrPrimXVectorAPI;
+
+// Shared Pointers
+#define SPtrObjXVectorAPI xvector<xp<T>, typename std::enable_if_t<!IsFundamental(T) && IsClass(T)>>
+template<typename T> class SPtrObjXVectorAPI;
+#endif
 
 //#include "BaseXVector.h"
-
-
 #include "SPtr/SPtrObjXVector.h"
 
 //#include "Val/BaseValXVector.h"

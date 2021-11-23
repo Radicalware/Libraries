@@ -66,6 +66,7 @@ public:
     xstring(const char chr);
     xstring(const char* chrs);
     xstring(const unsigned char* chrs);
+    xstring(const unsigned char* chrs, size_t len);
     xstring(const wchar_t* chrs);
     xstring(const std::wstring& wstr);
 
@@ -84,6 +85,12 @@ public:
     const char& At(size_t Idx) const;
     char& At(size_t Idx);
 
+    const char First(size_t Idx = 0) const;
+    char& First(size_t Idx = 0);
+
+    const char Last(size_t Idx = 0) const;
+    char& Last(size_t Idx = 0);
+
     size_t Size() const;
     const char* Ptr() const;
 
@@ -93,8 +100,11 @@ public:
     void Print(const char chr1, const char chr2 = ' ') const;
     void Print(const char* chr1, const char* chr2 = "\0") const;
 
-    std::string  ToStdString() const;
-    std::wstring ToStdWString() const;
+    std::string   ToStdString() const;
+    std::wstring  ToStdWString() const;
+    RA::SharedPtr<unsigned char []> ToUnsignedChar() const;
+    xstring       ToByteString() const;
+    xstring       FromByteStringToASCII() const;
 
     xstring ToUpper()  const;
     xstring ToLower()  const;
@@ -255,6 +265,9 @@ public:
     // =================================================================================================================================
 };
 
+xstring operator+(const char First, const xstring& Second);
+xstring operator+(const char First, xstring&& Second);
+
 namespace RA
 {
     // stand-alone function
@@ -285,10 +298,11 @@ namespace RA
         ToXString(const T& obj, const size_t FnPercision, const bool FbFixed = true)
     {
         std::ostringstream ostr;
+        ostr.precision(FnPercision);
         if (FbFixed)
-            ostr << std::fixed << std::setprecision(FnPercision) << obj;
+            ostr << std::fixed << obj;
         else
-            ostr << std::setprecision(FnPercision) << obj;
+            ostr << obj;
         return xstring(ostr.str().c_str());
     }
 
@@ -312,25 +326,45 @@ namespace RA
     }
 
     template<class T>
-    xstring FormatNum(T value, const size_t FnPercision = 0)
+    xstring FormatNum(T Value, const size_t FnPercision = 0)
     {
-        if (FnPercision)
-            std::cout.precision(FnPercision);
         std::ostringstream SS;
+        if (FnPercision)
+            SS.precision(FnPercision);
+        else
+            SS.precision(17);
         SS.imbue(std::locale(""));
-        SS << std::fixed << value;
-        return SS;
+        auto ValueLong = Value;
+        auto ValueShort = Value + 0.00000000000002;
+        //                        0.00399999999999
+        auto GetNumStr = [&SS](const T Num) ->xstring
+        {
+            SS.str("");
+            SS.clear();
+            SS << std::defaultfloat << Num;
+            xstring RetStr = SS;
+            const static RE2 TrailingZeroPattern(R"((0{5,}\d*)$)"); // find trailnig 0s and unreliable trailers
+            if (RetStr.Count('.')) // only if it is a decimal number
+                return RetStr.Sub(TrailingZeroPattern, ""); // and remove them
+            return RetStr;
+        };
+        auto LongNumStr = GetNumStr(ValueLong);
+        auto ShortNumStr = GetNumStr(ValueShort);
+        // return the shortest number
+        return (LongNumStr.Size() > ShortNumStr.Size()) ? ShortNumStr : LongNumStr;
     }
 
     template<class T>
-    xstring FormatInt(T value, const size_t FnPercision = 0)
+    xstring FormatInt(T Value, const size_t FnPercision = 0)
     {
-        if(FnPercision)
-            std::cout.precision(FnPercision);
         static const re2::RE2 StripDouble(R"(\..*$)");
         std::ostringstream SS;
+        if (FnPercision)
+            SS.precision(FnPercision);
+        else
+            SS.precision(17);
         SS.imbue(std::locale(""));
-        SS << std::fixed << value;
+        SS << std::fixed << Value;
         xstring Out = SS;
         return Out.Sub(StripDouble, "");
     }

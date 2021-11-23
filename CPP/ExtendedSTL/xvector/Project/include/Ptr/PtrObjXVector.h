@@ -26,8 +26,6 @@
 template<typename T> class PtrXVector;
 template<typename T, typename enabler_t> class xvector;
 
-#define PtrObjXVectorAPI xvector<T*, typename std::enable_if_t<std::is_class<std::remove_pointer_t<T*>>::value>>
-
 template<typename T>
 class PtrObjXVectorAPI : public PtrXVector<T*>
 {
@@ -37,6 +35,10 @@ public:
     using E = std::remove_const<T>::type; // E for Erratic
 
     typedef T value_type;
+
+    virtual ~xvector();
+
+    void DeleteAll();
 
     template<typename N = typename E::value_type> // Nested Type
     inline xvector<N*> Expand() const;
@@ -58,6 +60,26 @@ inline xvector<N*> PtrObjXVectorAPI::Expand() const
             expanded_vec.push_back(&*single_vec);
     }
     return expanded_vec;
+}
+
+template<typename T>
+inline PtrObjXVectorAPI::~xvector()
+{
+    if (The.MbDeleteAllOnExit)
+        DeleteAll();
+}
+
+template<typename T>
+inline void PtrObjXVectorAPI::DeleteAll()
+{
+    for (int i = 0; i < The.Size(); i++)
+    {
+        T* PtrVal = The.RawPtr(i);
+        if (!PtrVal)
+            continue;
+        delete PtrVal;
+        PtrVal = nullptr;
+    }
 }
 
 template<typename T>

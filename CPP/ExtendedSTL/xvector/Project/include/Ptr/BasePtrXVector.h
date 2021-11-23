@@ -37,18 +37,32 @@ public:
     inline const T& At(const size_t Idx) const;
 
     inline bool Has(const T& item) const;
-    inline bool Has(T&& item) const;
     inline bool Has(char const* item) const;
+    template<typename F, typename ...A>
+    inline bool HasTruth(F&& Function, A&& ...Args) const;
+    template<typename F, typename ...A>
+    inline const T& GetTruth(F&& Function, A&& ...Args) const;
+    template<typename F, typename ...A>
+    inline T& GetTruth(F&& Function, A&& ...Args);
+    template<typename F, typename ...A>
+    inline xvector<const T*> GetTruths(F&& Function, A&& ...Args) const;
 
     inline bool Lacks(const T& item) const;
-    inline bool Lacks(T&& item) const;
     inline bool Lacks(char const* item) const;
+    template<typename F, typename ...A>
+    inline bool LacksTruth(F&& Function, A&& ...Args) const;
 
-    const T& First(size_t value = 0) const;
-    T& First(size_t value = 0);
 
-    const T& Last(size_t value = 0) const;
-    T& Last(size_t value = 0);
+    const T* RawPtr(size_t Idx) const;
+    T* RawPtr(size_t Idx);
+    const T& operator[](size_t Idx) const;
+    T& operator[](size_t Idx);
+
+    const T& First(size_t Idx = 0) const;
+    T& First(size_t Idx = 0);
+
+    const T& Last(size_t Idx = 0) const;
+    T& Last(size_t Idx = 0);
 
     inline std::pair<T, T> GetPair() const;
 
@@ -162,8 +176,13 @@ public:
     
     // =================================== DESIGNED FOR STRING BASED VECTORS ===================================
 
+    inline void SetDeleteAllOnExit(const bool Truth) { MbDeleteAllOnExit = Truth; }
+
+protected:
+    bool MbDeleteAllOnExit = false;
 };
 // =============================================================================================================
+
 
 template<typename T>
 inline T& PtrXVector<T*>::At(const size_t Idx)
@@ -182,7 +201,7 @@ inline const T& PtrXVector<T*>::At(const size_t Idx) const
 }
 
 template<typename T>
-bool PtrXVector<T*>::Has(const T& item)  const 
+inline bool PtrXVector<T*>::Has(const T& item)  const
 {
     for (auto* el : *this) {
         if (*el == item)
@@ -192,13 +211,7 @@ bool PtrXVector<T*>::Has(const T& item)  const
 }
 
 template<typename T>
-bool PtrXVector<T*>::Has(T&& item)  const 
-{
-    return this->Has(item);
-}
-
-template<typename T>
-bool PtrXVector<T*>::Has(char const* item)  const 
+inline bool PtrXVector<T*>::Has(char const* item)  const
 {
     for (auto* el : *this) {
         if (*el == item)
@@ -207,46 +220,138 @@ bool PtrXVector<T*>::Has(char const* item)  const
     return false;
 }
 
+template<typename T>
+template<typename F, typename ...A>
+inline bool PtrXVector<T*>::HasTruth(F&& Function, A&& ...Args) const
+{
+    for (typename xvector<E>::const_iterator it = this->begin(); it != this->end(); it++) {
+        if (Function((**it), std::forward<A>(Args)...))
+            return true;
+    }
+    return false;
+}
 
 template<typename T>
-bool PtrXVector<T*>::Lacks(T&& item) const {
+template<typename F, typename ...A>
+inline const T& PtrXVector<T*>::GetTruth(F&& Function, A && ...Args) const
+{
+    for (typename xvector<E>::const_iterator it = this->begin(); it != this->end(); it++) {
+        if (Function(**it, std::forward<A>(Args)...))
+            return **it;
+    }
+    throw "Truth Not Found";
+}
+
+template<typename T>
+template<typename F, typename ...A>
+inline T& PtrXVector<T*>::GetTruth(F&& Function, A && ...Args)
+{
+    for (typename xvector<E>::const_iterator it = this->begin(); it != this->end(); it++) {
+        if (Function(**it, std::forward<A>(Args)...))
+            return **it;
+    }
+    throw "Truth Not Found";
+}
+
+template<typename T>
+template<typename F, typename ...A>
+inline xvector<const T*> PtrXVector<T*>::GetTruths(F&& Function, A && ...Args) const
+{
+    xvector<T*> RetVec;
+    for (typename xvector<E>::const_iterator it = this->begin(); it != this->end(); it++) {
+        if (Function(**it, std::forward<A>(Args)...))
+            RetVec << **it;
+    }
+    return RetVec;
+}
+
+template<typename T>
+inline bool PtrXVector<T*>::Lacks(const T& item) const {
     return !(bool(std::find(this->begin(), this->end(), &item) != this->end()));
 }
 
 template<typename T>
-bool PtrXVector<T*>::Lacks(const T& item) const {
+inline bool PtrXVector<T*>::Lacks(char const* item) const {
     return !(bool(std::find(this->begin(), this->end(), &item) != this->end()));
 }
 
 template<typename T>
-bool PtrXVector<T*>::Lacks(char const* item) const {
-    return !(bool(std::find(this->begin(), this->end(), &item) != this->end()));
+template<typename F, typename ...A>
+inline bool PtrXVector<T*>::LacksTruth(F&& Function, A&& ...Args) const
+{
+    for (typename xvector<E>::const_iterator it = this->begin(); it != this->end(); it++) {
+        if (Function((**it), std::forward<A>(Args)...))
+            return false;
+    }
+    return true;
 }
 
 // ------------------------------------------------------------------------------------------------
 
 template<typename T>
-inline const T& PtrXVector<T*>::First(size_t value) const
+inline const T* PtrXVector<T*>::RawPtr(size_t Idx) const
 {
-    return *this->operator[](value);
+    if (!The.HasIndex(Idx))
+        throw "Index out of range";
+    return BaseXVector<T*>::operator[](Idx);
 }
 
 template<typename T>
-inline T& PtrXVector<T*>::First(size_t value)
+inline T* PtrXVector<T*>::RawPtr(size_t Idx)
 {
-    return *this->operator[](value);
+    if (!The.HasIndex(Idx))
+        throw "Index out of range";
+    return BaseXVector<T*>::operator[](Idx);
 }
 
 template<typename T>
-inline const T& PtrXVector<T*>::Last(size_t value) const
+inline const T& PtrXVector<T*>::operator[](size_t Idx) const
 {
-    return *this->operator[](this->size() - value - 1);
+    const T* RetPtr = The.RawPtr(Idx);
+    if (!RetPtr)
+        throw "Nullptr Hit";
+    return *RetPtr;
 }
 
 template<typename T>
-inline T& PtrXVector<T*>::Last(size_t value)
+inline T& PtrXVector<T*>::operator[](size_t Idx)
 {
-    return *this->operator[](this->size() - value - 1);
+    T* RetPtr = The.RawPtr(Idx);
+    if (!RetPtr)
+        throw "Nullptr Hit";
+    return *RetPtr;
+}
+
+template<typename T>
+inline const T& PtrXVector<T*>::First(size_t Idx) const
+{
+    if (!The.HasIndex(Idx))
+        throw "Index Out Of Range";
+    return The.operator[](Idx);
+}
+
+template<typename T>
+inline T& PtrXVector<T*>::First(size_t Idx)
+{
+    if (!The.HasIndex(Idx))
+        throw "Index Out Of Range";
+    return The.operator[](Idx);
+}
+
+template<typename T>
+inline const T& PtrXVector<T*>::Last(size_t Idx) const
+{
+    if (!The.HasIndex(Idx))
+        throw "Index Out Of Range";
+    return The.operator[](this->size() - Idx - 1);
+}
+
+template<typename T>
+inline T& PtrXVector<T*>::Last(size_t Idx)
+{
+    if (!The.HasIndex(Idx))
+        throw "Index Out Of Range";
+    return The.operator[](this->size() - Idx - 1);
 }
 
 template<typename T>
@@ -457,7 +562,7 @@ inline xvector<N> PtrXVector<T*>::ForEachThread(F&& function, A&& ...Args)
 {
     if constexpr (std::is_same_v<N, std::remove_pointer_t<T>>)
     {
-        CheckRenewObject(VectorPool);
+        CheckRenewObj(VectorPool);
         for (typename xvector<E*>::iterator it = this->begin(); it != this->end(); it++)
             VectorPool.AddJobVal(function, **it, std::ref(Args)...);
 
@@ -499,7 +604,7 @@ template<typename T>
 template <typename N, typename F, typename ...A>
 inline void PtrXVector<T*>::StartTasks(F&& function, A&& ...Args)
 {
-    CheckRenewObject(VectorPool);
+    CheckRenewObj(VectorPool);
     for (typename xvector<E>::iterator it = this->begin(); it != this->end(); it++)
         VectorPool.AddJobVal(function, **it, std::ref(Args)...);
 }

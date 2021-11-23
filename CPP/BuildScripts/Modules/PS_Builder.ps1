@@ -18,6 +18,7 @@ Class PS_Builder
     [string] $install_prefix;
     [string] $vcvars;
     [string] $cmake_command
+    [string] $CustomArgs;
     [string] $win_ver;
     [string] $comp_args;
 
@@ -39,14 +40,14 @@ Class PS_Builder
         }else{ # Windows
             $this.cmake_command = "cmake.exe -A x64 "
             $this.win_ver = '10.0.17763.0'
-            # $this.vcvars = "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Auxiliary/Build/vcvars64.bat"
-            $this.vcvars   = "C:/Program Files/Microsoft Visual Studio/2022/Preview/VC/Auxiliary/Build/vcvars64.bat"
+            $this.vcvars = "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Auxiliary/Build/vcvars64.bat"
 
             # $this.part_module_path  = 'Source/CMake/Modules'  
             # $this.install_prefix = 'C:/Source/CMake/Radicalware/Libraries'
             # $this.module_path   = 'C:/'+$this.part_module_path;
             # $this.comp_args = " /EHsc"
         }
+        $this.CustomArgs = $ArgStruct.CustomArgs;
         # build_dir = "Build \ <Windows/Nix> \ <Debug/Release>
     }
 
@@ -95,10 +96,12 @@ Class PS_Builder
         $this.cmake_command += " -DBUILD_TYPE=" + $this.ArgStruct.build_type.ToString();
         $this.cmake_command += " -DArgProjectName=" + $this.ArgStruct.name.ToString();
         if($this.ArgStruct.BuildAll){
-            $this.cmake_command += " -DBUILD_ALL_PROJECTS=ON";
+            $this.cmake_command += " -DBuildAll=ON";
         }else{
-            $this.cmake_command += " -DBUILD_ALL_PROJECTS=OFF";
+            $this.cmake_command += " -DBuildAll=OFF";
         }
+
+        $this.cmake_command += " " + $this.CustomArgs;
         
         $this.cmake_command += " ../../../";
         Write-Host $this.cmake_command;

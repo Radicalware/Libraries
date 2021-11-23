@@ -37,12 +37,13 @@ GeneralPurposeLibs
     15. CudaBridge  - Handles memory between host and device
     16. JSON        - Moves data between API JSON and DB BSON
     17. Stash       - Easy tool to manage your Mongo DB
+    18. AES         - Manage AES Cipher Text for Password Managment
 ModdedObjects
-    18. cc          - A modified version of termcolor by Ihor Kalnytskyi
-    19. re2         - Modded version deleted in favor of vcpkg's version
+    19. cc          - A modified version of termcolor by Ihor Kalnytskyi
+    20. re2         - Modded version deleted in favor of vcpkg's version
 Modules
     Qt
-        20. QtImage - Formats the image to fill and perserve aspect ratio
+        21. QtImage - Formats the image to fill and perserve aspect ratio
 
 --------------------------------------------------------------------------------------------
 On Nix, add the following to your bash env (bashrc/bash_profile/etc)

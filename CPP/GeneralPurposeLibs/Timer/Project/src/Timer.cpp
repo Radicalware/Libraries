@@ -4,41 +4,38 @@
 
 #include <chrono>
 
-Timer::Timer() : m_beg(Timer_clock_t::now()) {   }
+Timer::Timer() : m_beg(SteadyClock::now()) {   }
 
 void Timer::Reset() {
-    m_beg = Timer_clock_t::now();
+    m_beg = SteadyClock::now();
 }
 
-double Timer::GetElapsedTime() const {
-    return static_cast<double>(std::chrono::duration_cast<Timer_second_t>(Timer_clock_t::now() - m_beg).count());
-}
 
-void Timer::WaitSeconds(double extent) const
+void Timer::WaitSeconds(pint extent) const
 {
-    while (this->GetElapsedTime() < extent)
+    while (This.GetElapsedTimeMilliseconds() < extent)
         Timer::Sleep(1);
 }
 
 void Timer::WaitMilliseconds(unsigned long extent) const
 {
-    while (this->GetElapsedTime() < extent / static_cast<double>(1000))
+    while (This.GetElapsedTimeMilliseconds() < extent / static_cast<pint>(1000))
         Timer::Sleep(1);
 }
 
 void Timer::Wait(unsigned long extent) const
 {
-    this->WaitMilliseconds(extent);
+    This.WaitMilliseconds(extent);
 }
 
 void Timer::Lap()
 {
-    m_laps_xv << this->GetElapsedTime();
+    m_laps_xv << This.GetElapsedTimeMilliseconds();
 }
 
 void Timer::Lap(const xstring& key)
 {
-    double val = this->GetElapsedTime();
+    pint val = This.GetElapsedTimeMilliseconds();
     m_laps_xm.AddPair(key, val);
     m_laps_xv.push_back(val);
 }
@@ -54,29 +51,29 @@ void Timer::Clear()
     m_laps_xm.clear();
 }
 
-double Timer::Get(size_t idx) const
+pint Timer::Get(size_t idx) const
 {
     return m_laps_xv[idx];
 }
 
-double Timer::Get(const xstring& key) const
+pint Timer::Get(const xstring& key) const
 {
     return m_laps_xm.at(key);
 }
 
-xvector<double> Timer::GetVector() const
+xvector<pint> Timer::GetVector() const
 {
     return m_laps_xv;
 }
 
-xmap<xstring, double> Timer::GetMap() const
+xmap<xstring, pint> Timer::GetMap() const
 {
     return m_laps_xm;
 }
 
 std::ostream& operator<<(std::ostream& out, const Timer& time)
 {
-    out << time.GetElapsedTime();
+    out << time.GetElapsedTimeMilliseconds();
     return out;
 }
 

@@ -356,7 +356,7 @@ xstring OS::InstRead()
             File.m_data += line + '\n';
     }
     else {
-        xstring err("Error (" + RA::ToXString(errno) + "): Could Not Open Text File: ");
+        xstring err("Error (" + RA::ToXString(errno) + "): File Locked: ");
         err += File.m_name;
         throw std::runtime_error(err.c_str());
     }
@@ -377,7 +377,7 @@ xstring OS::ReadFastMethod(const xstring& file_name, bool re_try)
     fp = fopen(file_name.c_str(), "rb");
 #endif
     if (fp == nullptr && !re_try) {
-        xstring err("Error (" + RA::ToXString(errno) + "): Could Not Open Text File: ");
+        xstring err("Error (" + RA::ToXString(errno) + "): File Locked: ");
         err += file_name;
         throw std::runtime_error(err.c_str());
     }
@@ -475,7 +475,7 @@ xstring OS::ReadStreamMethod(const xstring& file_name)
         os_file.close();
     }
     else {
-        xstring err("Error (" + RA::ToXString(errno) + "): Could Not Open Text File: ");
+        xstring err("Error (" + RA::ToXString(errno) + "): File Locked: ");
         err += file_name;
         throw std::runtime_error(err.c_str());
     }

@@ -40,10 +40,10 @@ if(WIN32) # --------------------------------------------------------------------
     set(OS_TYPE "Windows")
     set(IsWindows ON)
     
-    set(MSVC_TOOLSET_VERSION "142")
-    set(WINDOWS_SDK "10.0.18362.0")
-    set(CMAKE_SYSTEM_VERSION ${WINDOWS_SDK})
-    set(CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION ${WINDOWS_SDK})
+    # set(MSVC_TOOLSET_VERSION "142")
+    # set(WINDOWS_SDK "10.0.18362.0")
+    # set(CMAKE_SYSTEM_VERSION ${WINDOWS_SDK})
+    # set(CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION ${WINDOWS_SDK})
 
     set(RADICAL_BASE   "C:/Source/CMake/Radicalware")
     set(CMAKE_PATH     "C:/Program Files/CMake/share/cmake-3.20/Modules")
@@ -120,7 +120,7 @@ elseif(NOT WIN32) # and debug
     #set(${C_ARGS}   " ${C_ARGS}   -g3 -ggdb")
 endif()
 
-if(BUILD_ALL_PROJECTS STREQUAL "ON" OR CMAKE_BUILD_TYPE STREQUAL "Debug")
+if(BuildAll STREQUAL "ON" OR CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(BuildAll ON)
 else()
     set(BuildAll OFF)

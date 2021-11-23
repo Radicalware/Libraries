@@ -58,13 +58,13 @@ private:
     std::unordered_map<std::string, RA::SharedPtr<Job<T>>> MmStrJob;
     std::unordered_map<size_t, RA::SharedPtr<Job<T>>>      MmIdxJob;
 
-    void TaskLooper(int thread_idx);
+    INL void TaskLooper(int thread_idx);
 
     template <typename F, typename ...A>
-    void Add(F& function, A&& ...Args);
+    INL void Add(F& function, A&& ...Args);
 
     template<typename F, typename ...A>
-    inline void AddKVP(const std::string& key, F& function, A&& ...Args);
+    INL void AddKVP(const std::string& key, F& function, A&& ...Args);
 
 public:
     typedef T value_type;
@@ -74,43 +74,44 @@ public:
 
     // Job: String (for referencing unfinished job) + Function + args
     template <typename F, typename ...A>
-    void AddJob(const std::string& key, F&& function, A&& ...Args);
-    template <typename F, typename ...A>
+    INL UsingFunction(void) AddJob(const std::string& key, F&& function, A&& ...Args);
     // Job: char* (for referencing unfinished job) + Function + args
-    void AddJob(const char* key, F&& function, A&& ...Args);
     template <typename F, typename ...A>
-    inline typename std::enable_if<!IsSame(F, std::string), void>::type AddJob(F&& function, A&& ...Args);
+    INL UsingFunction(void) AddJob(const char* key, F&& function, A&& ...Args);
+
+    template <typename F, typename ...A>
+    INL UsingFunction(void) AddJob(F&& function, A&& ...Args);
 
     // These are to be used by xvector/xmap
     template <typename F, typename ONE, typename ...A>
-    void AddJobVal(F&& function, ONE& element, A&& ...Args); // commonly used by xvector
+    INL void AddJobVal(F&& function, ONE& element, A&& ...Args); // commonly used by xvector
 
     template <typename K, typename V, typename F, typename ...A>
-    void AddJobPair(F&& function, K& key, V& value, A&& ...Args); // commonly used by xmap
+    INL void AddJobPair(F&& function, K& key, V& value, A&& ...Args); // commonly used by xmap
 
     // Getters can't be const due to the mutex
-    Job<T>& operator()(const std::string& val);
-    Job<T>& operator()(const size_t val);
+    INL Job<T>& operator()(const std::string& val);
+    INL Job<T>& operator()(const size_t val);
 
     // Getters can't be const due to the mutex
-    std::vector<T> GetAll();
-    std::vector<T> GetMoveAllIndices();
-    Job<T>& Get(const std::string& val);
-    Job<T>& Get(const size_t val);
-    Job<T>& Get(const char* Input);
-    Job<T>& GetWithoutProtection(const size_t val) noexcept;
+    INL std::vector<T> GetAll();
+    INL std::vector<T> GetMoveAllIndices();
+    INL Job<T>& Get(const std::string& val);
+    INL Job<T>& Get(const size_t val);
+    INL Job<T>& Get(const char* Input);
+    INL Job<T>& GetWithoutProtection(const size_t val) noexcept;
 
-    size_t Size() const;
-    void WaitAll();
-    bool TaskCompleted() const;
-    void Clear();
-    void Sleep(unsigned int extent) const;
+    INL size_t Size() const;
+    INL void WaitAll();
+    INL bool TaskCompleted() const;
+    INL void Clear();
+    INL void Sleep(unsigned int extent) const;
 };
 
 // =========================================================================================
 
 template<typename T>
-inline void Nexus<T>::TaskLooper(int thread_idx)
+INL void Nexus<T>::TaskLooper(int thread_idx)
 {
     std::atomic<size_t> LnLastTaskIdx = 0;
     while (true) 
@@ -152,7 +153,7 @@ inline void Nexus<T>::TaskLooper(int thread_idx)
 
 template<typename T>
 template<typename F, typename ...A>
-inline void Nexus<T>::Add(F& function, A&& ...Args)
+INL void Nexus<T>::Add(F& function, A&& ...Args)
 {
     auto BindedFunction = std::bind(function, std::ref(Args)...);
     McTaskDeque.emplace_back(RA::MakeShared<Task<T>>(std::move(BindedFunction)));
@@ -160,14 +161,14 @@ inline void Nexus<T>::Add(F& function, A&& ...Args)
 
 template<typename T>
 template<typename F, typename ...A>
-inline void Nexus<T>::AddKVP(const std::string& key, F& function, A&& ...Args)
+INL void Nexus<T>::AddKVP(const std::string& key, F& function, A&& ...Args)
 {
     auto BindedFunction = std::bind(function, std::ref(Args)...);
     McTaskDeque.emplace_back(RA::MakeShared<Task<T>>(std::move(BindedFunction), key));
 }
 // ------------------------------------------------------------------------------------------
 template<typename T>
-Nexus<T>::Nexus()
+INL Nexus<T>::Nexus()
 {
     RA::Threads::InstanceCount++;
     MvThreads.reserve(RA::Threads::Allowed);
@@ -177,7 +178,7 @@ Nexus<T>::Nexus()
 }
 
 template<typename T>
-Nexus<T>::~Nexus()
+INL Nexus<T>::~Nexus()
 {
     This.WaitAll();
     MbFinishTasks = true;
@@ -190,7 +191,7 @@ Nexus<T>::~Nexus()
 // ------------------------------------------------------------------------------------------
 template<typename T>
 template<typename F, typename ...A>
-inline void Nexus<T>::AddJob(const std::string& key, F&& function, A&& ...Args)
+INL UsingFunction(void) Nexus<T>::AddJob(const std::string& key, F&& function, A&& ...Args)
 {
     auto Lock = MoMutex.CreateLock();
     This.AddKVP(key, function, std::ref(Args)...);
@@ -198,7 +199,7 @@ inline void Nexus<T>::AddJob(const std::string& key, F&& function, A&& ...Args)
 
 template<typename T>
 template<typename F, typename ...A>
-inline void Nexus<T>::AddJob(const char* key, F&& function, A&& ...Args)
+INL UsingFunction(void) Nexus<T>::AddJob(const char* key, F&& function, A&& ...Args)
 {
     auto Lock = MoMutex.CreateLock();
     This.AddKVP(std::string(key), function, std::ref(Args)...);
@@ -206,8 +207,7 @@ inline void Nexus<T>::AddJob(const char* key, F&& function, A&& ...Args)
 
 template<typename T>
 template <typename F, typename ...A>
-inline typename std::enable_if<!IsSame(F, std::string), void>::type
-    Nexus<T>::AddJob(F&& function, A&& ...Args)
+INL UsingFunction(void) Nexus<T>::AddJob(F&& function, A&& ...Args)
 {
     auto Lock = MoMutex.CreateLock();
     This.Add(function, std::ref(Args)...);
@@ -215,7 +215,7 @@ inline typename std::enable_if<!IsSame(F, std::string), void>::type
 
 template<typename T>
 template <typename F, typename ONE, typename ...A>
-inline void Nexus<T>::AddJobVal(F&& function, ONE& element, A&& ...Args)
+INL void Nexus<T>::AddJobVal(F&& function, ONE& element, A&& ...Args)
 {
     auto Lock = MoMutex.CreateLock();
     auto BindedFunction = std::bind(function, std::ref(element), Args...);
@@ -224,7 +224,7 @@ inline void Nexus<T>::AddJobVal(F&& function, ONE& element, A&& ...Args)
 
 template<typename T>
 template<typename K, typename V, typename F, typename ...A>
-inline void Nexus<T>::AddJobPair(F&& function, K& key, V& value, A&& ...Args)
+INL void Nexus<T>::AddJobPair(F&& function, K& key, V& value, A&& ...Args)
 {
     auto Lock = MoMutex.CreateLock();
     auto BindedFunction = std::bind(function, std::ref(key), std::ref(value), Args...);
@@ -233,7 +233,7 @@ inline void Nexus<T>::AddJobPair(F&& function, K& key, V& value, A&& ...Args)
 // ------------------------------------------------------------------------------------------
 
 template<typename T>
-inline Job<T>& Nexus<T>::operator()(const std::string& Input)
+INL Job<T>& Nexus<T>::operator()(const std::string& Input)
 {
     // If it is not already cached, is it queued?
     if (!MmStrJob.count(Input))
@@ -248,7 +248,7 @@ inline Job<T>& Nexus<T>::operator()(const std::string& Input)
 
 
 template<typename T>
-inline Job<T>& Nexus<T>::operator()(const size_t Input)
+INL Job<T>& Nexus<T>::operator()(const size_t Input)
 {
     if (!MmIdxJob.count(Input))
         throw std::runtime_error("Nexus Key(int) Not Found!");
@@ -261,7 +261,7 @@ inline Job<T>& Nexus<T>::operator()(const size_t Input)
 }
 
 template<typename T>
-inline std::vector<T> Nexus<T>::GetAll()
+INL std::vector<T> Nexus<T>::GetAll()
 {
     This.WaitAll();
     auto Lock = MoMutex.CreateLock();
@@ -281,7 +281,7 @@ inline std::vector<T> Nexus<T>::GetAll()
 }
 
 template<typename T>
-inline std::vector<T> Nexus<T>::GetMoveAllIndices()
+INL std::vector<T> Nexus<T>::GetMoveAllIndices()
 {
     This.WaitAll();
     auto Lock = MoMutex.CreateLock();
@@ -297,22 +297,22 @@ inline std::vector<T> Nexus<T>::GetMoveAllIndices()
 }
 
 template<typename T>
-inline Job<T>& Nexus<T>::Get(const std::string& Input) {
+INL Job<T>& Nexus<T>::Get(const std::string& Input) {
     return This.operator()(Input);
 }
 
 template<typename T>
-inline Job<T>& Nexus<T>::Get(const char* Input) {
+INL Job<T>& Nexus<T>::Get(const char* Input) {
     return This.operator()(std::string(Input));
 }
 
 template<typename T>
-inline Job<T>& Nexus<T>::GetWithoutProtection(const size_t val) noexcept{
+INL Job<T>& Nexus<T>::GetWithoutProtection(const size_t val) noexcept{
     return *MmIdxJob[val];
 }
 
 template<typename T>
-inline Job<T>& Nexus<T>::Get(const size_t Input) {
+INL Job<T>& Nexus<T>::Get(const size_t Input) {
     return This.operator()(Input);
 }
 
@@ -320,13 +320,13 @@ inline Job<T>& Nexus<T>::Get(const size_t Input) {
 // ------------------------------------------------------------------------------------------
 
 template<typename T>
-inline size_t Nexus<T>::Size() const
+INL size_t Nexus<T>::Size() const
 {
     return MmIdxJob.size();
 }
 
 template<typename T>
-inline void Nexus<T>::WaitAll()
+INL void Nexus<T>::WaitAll()
 {
     while (McTaskDeque.size() || MnInstTaskCount > 0)
     {
@@ -335,13 +335,13 @@ inline void Nexus<T>::WaitAll()
 }
 
 template<typename T>
-inline bool Nexus<T>::TaskCompleted() const
+INL bool Nexus<T>::TaskCompleted() const
 {
     return !McTaskDeque.size();
 }
 
 template<typename T>
-inline void Nexus<T>::Clear()
+INL void Nexus<T>::Clear()
 {
 
     if (MnInstTaskCount == 0 && McTaskDeque.size() == 0)
@@ -353,7 +353,7 @@ inline void Nexus<T>::Clear()
 }
 
 template<typename T>
-inline void Nexus<T>::Sleep(unsigned int extent) const
+INL void Nexus<T>::Sleep(unsigned int extent) const
 {
 #if (defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64))
     ::Sleep(extent);

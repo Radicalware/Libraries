@@ -25,6 +25,7 @@ class Files
         "../../GeneralPurposeLibs/Date/install.ps1",
         "../../GeneralPurposeLibs/JSON/install.ps1",
         "../../GeneralPurposeLibs/Stash/install.ps1",
+        "../../GeneralPurposeLibs/AES/install.ps1",
         "../../GeneralPurposeLibs/CudaBridge/install.ps1"
     )
         # --------------------------------------------------
@@ -49,6 +50,7 @@ class Files
         "../../GeneralPurposeLibs/Socket/Examples/run.ps1",
         "../../GeneralPurposeLibs/Date/Examples/run.ps1",
         "../../GeneralPurposeLibs/Stash/Examples/run.ps1",
+        "../../GeneralPurposeLibs/AES/Examples/run.ps1",
         "../../GeneralPurposeLibs/CudaBridge/Examples/run.ps1"
     )
 }

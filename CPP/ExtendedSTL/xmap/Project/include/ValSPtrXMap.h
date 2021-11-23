@@ -42,21 +42,25 @@ public:
     //inline xmap(const std::map<K, xp<V>>& other);
     //inline xmap(std::map<K, xp<V>>&& other) noexcept;
 
-    inline void AddPair(const K& one, const V&  two);
-    inline void AddPair(const K& one,       V&& two);
+    template<typename ...R>
+    inline void AddPairEmplace(const K& one, R&& ...ValueArgs);
+
+    inline void AddPair(const K& one, const xp<V>& two);
+    inline void AddPair(const K& one,       xp<V>&& two);
     // ======== INITALIZATION ========================================================================
     // ======== RETREVAL =============================================================================
 
     inline constexpr xvector<K> GetKeys() const;
     inline constexpr xvector<xp<V>> GetValues() const;
 
-    inline constexpr K& GetKeyFromValue(const V& input) const; // for Key-Value-Pairs
-    inline const V& Key(const K& input) const; // ------|
-    inline constexpr V& GetValueFrom(const K& input) const;//--|--all 3 are the same
+    inline const V& Key(const K& input) const; // ----------------|
+    inline constexpr K& GetKeyFromValue(const V& input) const; //-| // for Key-Value-Pairs
+    inline constexpr V& GetValueFrom(const K& input) const;//-----|--all 3 are the same
 
-    inline K& GetKeyFromValue(const V& input); // for Key-Value-Pairs
-    inline V& Key(const K& input); // ------|
-    inline V& GetValueFrom(const K& input) ;//--|--all 3 are the same
+    inline xp<V> KeyPtr(const K& input) const; //
+    inline V& Key(const K& input); // ------------|
+    inline K& GetKeyFromValue(const V& input);// -| for Key-Value-Pairs
+    inline V& GetValueFrom(const K& input) ;//----|--all 3 are the same
 
     // ======== RETREVAL =============================================================================
     // ======== BOOLS ================================================================================
@@ -89,8 +93,9 @@ public:
     inline xvector<K> GetSortedKeys(F&& Function) const;
     inline xvector<K> GetSortedKeys() const;
     template<typename F>
-    inline xvector<xp<V>> GetSortedValues(F&& Function) const;
-    inline xvector<xp<V>> GetSortedValues() const;
+    inline xvector<xp<V>>  GetSortedValues(F&& Function) const;
+    inline xvector<xp<V>>  GetSortedValues() const;
+    inline std::set<xp<V>> GetSortedValuesSet() const;
     template<typename F>
     inline xvector<K> GetReverseSortedKeys(F&& Function) const;
     inline xvector<K> GetReverseSortedKeys() const;
@@ -165,11 +170,18 @@ namespace RA
 }
 
 template<typename K, typename V>
-inline void xmap<K, xp<V>>::AddPair(const K& one, const V&  two) {
+template<typename ...R>
+inline void xmap<K, xp<V>>::AddPairEmplace(const K& one, R&& ...ValueArgs)
+{
+    this->insert(std::make_pair(one, RA::MakeShared(std::forward(ValueArgs)...)));
+}
+
+template<typename K, typename V>
+inline void xmap<K, xp<V>>::AddPair(const K& one, const xp<V>&  two) {
     this->insert(std::make_pair(one, two));
 }
 template<typename K, typename V>
-inline void xmap<K, xp<V>>::AddPair(const K& one,       V&& two) {
+inline void xmap<K, xp<V>>::AddPair(const K& one,       xp<V>&& two) {
     this->insert(std::make_pair(one, std::move(two)));
 }
 // ======== INITALIZATION ========================================================================
@@ -194,6 +206,15 @@ inline constexpr xvector<xp<V>> xmap<K, xp<V>>::GetValues() const
 }
 
 template<typename K, typename V>
+inline const V& xmap<K, xp<V>>::Key(const K& input) const
+{
+    auto it = this->find(input);
+    if (it == this->end())
+        ThrowIt("No Key: ", input);
+    return it->second.Get();
+}
+
+template<typename K, typename V>
 inline constexpr K& xmap<K, xp<V>>::GetKeyFromValue(const V& input) const
 {
     for (typename std::unordered_map<K, xp<V>>::const_iterator iter = this->begin(); iter != this->end(); ++iter) {
@@ -204,14 +225,6 @@ inline constexpr K& xmap<K, xp<V>>::GetKeyFromValue(const V& input) const
 }
 
 template<typename K, typename V>
-inline const V& xmap<K, xp<V>>::Key(const K& input) const
-{
-    auto it = this->find(input);
-    if (it == this->end())
-        ThrowIt("No Key: ", input);
-    return it->second.Get();
-}
-template<typename K, typename V>
 inline constexpr V& xmap<K, xp<V>>::GetValueFrom(const K& input) const
 {
     auto it = this->find(input);
@@ -221,6 +234,23 @@ inline constexpr V& xmap<K, xp<V>>::GetValueFrom(const K& input) const
         return it->second.Get();
 }
 
+template<typename K, typename V>
+inline xp<V> xmap<K, xp<V>>::KeyPtr(const K& input) const
+{
+    auto it = this->find(input);
+    if (it == this->end())
+        ThrowIt("No Key: ", input);
+    return it->second;
+}
+
+template<typename K, typename V>
+inline V& xmap<K, xp<V>>::Key(const K& input)
+{
+    auto it = this->find(input);
+    if (it == this->end())
+        ThrowIt("No Key: ", input);
+    return it->second.Get();
+}
 
 template<typename K, typename V>
 inline K& xmap<K, xp<V>>::GetKeyFromValue(const V& input)
@@ -232,14 +262,6 @@ inline K& xmap<K, xp<V>>::GetKeyFromValue(const V& input)
     ThrowIt("Has No Value: ", input);
 }
 
-template<typename K, typename V>
-inline V& xmap<K, xp<V>>::Key(const K& input)
-{
-    auto it = this->find(input);
-    if (it == this->end())
-        ThrowIt("No Key: ", input);
-    return it->second.Get();
-}
 template<typename K, typename V>
 inline V& xmap<K, xp<V>>::GetValueFrom(const K& input)
 {
@@ -396,6 +418,16 @@ inline xvector<xp<V>> xmap<K, xp<V>>::GetSortedValues() const
         Sorted << (*iter).second;
     }
     return Sorted.Sort();
+}
+
+template<typename K, typename V>
+inline std::set<xp<V>> xmap<K, xp<V>>::GetSortedValuesSet() const
+{
+    std::set<xp<V>> Sorted;
+    for (typename xmap<K, xp<V>>::const_iterator iter = this->begin(); iter != this->end(); ++iter) {
+        Sorted.emplace((*iter).second);
+    }
+    return Sorted;
 }
 // -------------------------------------------------------------------------------------------------
 template<typename K, typename V>

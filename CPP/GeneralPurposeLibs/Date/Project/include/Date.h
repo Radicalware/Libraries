@@ -29,7 +29,8 @@ using uint = size_t;
 class EXI Date
 {
 public:
-    typedef std::time_t EpochTime;
+    using SteadyClock = std::chrono::steady_clock;
+    using EpochTime   = std::time_t ;
 
     enum class Offset
     {
@@ -103,9 +104,14 @@ public:
     bool            IsLeapYear();
 
     Date::EpochTime GetEpochTime() const;
+
     int             GetEpochTimeInt() const;
+    pint            GetEpochTimePint() const;
+    pint            GetEpochTimeMilliseconds() const;
+
     xstring         GetEpochTimeStr() const;
     xstring         GetNumericTimeStr();
+    xstring         GetEpochTimeMillisecondsStr() const;
 
     static int      GetSecondsOffset();
     static int      GetHoursOffset();

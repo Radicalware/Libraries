@@ -135,7 +135,7 @@ xvector<xstring> SYS::ArgV() const {
 xstring SYS::ArgV(const size_t Idx) const
 {
     Begin();
-    if (!MvCliArgs.HasRange(Idx))
+    if (!MvCliArgs.HasIndex(Idx))
         ThrowIt("Read the help menu; you have not entered enough arguments");
     return MvCliArgs[Idx];
     Rescue();
@@ -143,7 +143,7 @@ xstring SYS::ArgV(const size_t Idx) const
 
 bool SYS::Arg(const size_t Idx, const char FChar) const
 {
-    if (!MvCliArgs.HasRange(Idx))
+    if (!MvCliArgs.HasIndex(Idx))
         return false;
     if (MvCliArgs[Idx].Size() < 2)
         return false;
@@ -201,7 +201,7 @@ xvector<xstring> SYS::operator[](const char FKey)
 xstring SYS::operator[](int FKey)
 {
     Begin();
-    if (!MvCliArgs.HasRange(FKey))
+    if (!MvCliArgs.HasIndex(FKey))
         ThrowIt("CLI argument not found for key: ", FKey);
     return MvCliArgs[FKey];
     Rescue();

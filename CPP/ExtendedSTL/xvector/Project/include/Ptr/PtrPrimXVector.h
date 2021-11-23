@@ -26,7 +26,6 @@
 template<typename T> class PtrXVector;
 template<typename T, typename enabler_t> class xvector;
 
-#define PtrPrimXVectorAPI xvector<T*, typename std::enable_if_t<!std::is_class<std::remove_pointer_t<T*>>::value>>
 
 template<typename T>
 class PtrPrimXVectorAPI : public PtrXVector<T*>
@@ -38,10 +37,15 @@ public:
 
     typedef T value_type;
 
+    ~xvector();
+
+    void DeleteAll();
+
     template<typename S>
     inline auto Join(const S& str)->std::enable_if_t<!std::is_same_v<S, char>, S>;
     inline std::string Join(const char str) const;
     inline std::string Join(const char* str) const;
+
 };
 
 
@@ -54,6 +58,26 @@ inline auto PtrPrimXVectorAPI::Join(const S& str)
     for (typename xvector<T*>::const_iterator it = this->begin(); it != this->end(); it++)
         ret += std::to_string(**it) + str.c_str();
     return S(ret.substr(0, ret.size() - str.size()));
+}
+
+template<typename T>
+inline PtrPrimXVectorAPI::~xvector()
+{
+    if (The.MbDeleteAllOnExit)
+        DeleteAll();
+}
+
+template<typename T>
+inline void PtrPrimXVectorAPI::DeleteAll()
+{
+    for (int i = 0; i < The.Size(); i++)
+    {
+        T* PtrVal = The.RawPtr(i);
+        if (!PtrVal)
+            continue;
+        delete[] PtrVal;
+        PtrVal = nullptr;
+    }
 }
 
 template<typename T>

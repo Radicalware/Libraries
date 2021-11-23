@@ -16,16 +16,17 @@ class Arg_Struct
     [bool]   $noInstall;
     # ---------------------------------
     [string] $build_type;
+    [string] $CustomArgs; 
     [bool]   $is_unix;
 
     [string] $base_dir;
     [string] $build_dir;
     # ---------------------------------
 
-    Arg_Struct([string] $proj_name, [string] $base_dir, [bool[]]$bool_args)
+    [void] Init([string] $proj_name, [string] $base_dir, [string] $CustomArgs, [bool[]]$bool_args)
     {
-        $this.base_dir = $base_dir;
-
+        $this.base_dir   = $base_dir;
+        $this.CustomArgs = $CustomArgs
         if($proj_name -eq ""){
             Write-Host "No project given";
             exit(0);
@@ -39,7 +40,7 @@ class Arg_Struct
         $this.debug =       $bool_args[1];
         $this.clean =       $bool_args[2];
         $this.Overwrite =   $bool_args[3];
-        $this.BuildAll =     $bool_args[4];
+        $this.BuildAll =    $bool_args[4];
 
         $this.noCmake =     $bool_args[5];
         $this.noMake =      $bool_args[6];
@@ -65,5 +66,14 @@ class Arg_Struct
         if(!(Test-Path $this.build_dir)){
             New-Item $this.build_dir -ItemType Directory | Out-Null
         }
+    }
+
+    Arg_Struct([string] $proj_name, [string] $base_dir, [bool[]]$bool_args)
+    {
+        $this.Init($proj_name, $base_dir, "", $bool_args);
+    }
+    Arg_Struct([string] $proj_name, [string] $base_dir, [string] $CustomArgs, [bool[]]$bool_args)
+    {
+        $this.Init($proj_name, $base_dir, $CustomArgs, $bool_args);
     }
 }

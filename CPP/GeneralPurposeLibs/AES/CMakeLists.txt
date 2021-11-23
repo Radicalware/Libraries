@@ -12,32 +12,18 @@ project(${THIS})
 
 set(PrivateLibs "")
 find_package(re2 CONFIG REQUIRED)
+find_package(OpenSSL REQUIRED)
+
 list(APPEND PrivateLibs "Memory")
 list(APPEND PrivateLibs "Nexus")
 list(APPEND PrivateLibs "xvector")
 list(APPEND PrivateLibs "xstring")
 list(APPEND PrivateLibs "Macros")
 list(APPEND PrivateLibs "xmap")
-list(APPEND PrivateLibs "JSON")
 
-BuildRadicalProject("STATIC" PrivateLibs "")
-
-find_package(cpprestsdk CONFIG REQUIRED)
-find_package(nlohmann_json CONFIG REQUIRED)
-
-find_package(bsoncxx CONFIG REQUIRED)
-find_package(mongocxx CONFIG REQUIRED)
-
-link_libraries(
-
-    cpprestsdk::cpprest 
-    cpprestsdk::cpprestsdk_zlib_internal 
-    cpprestsdk::cpprestsdk_boost_internal 
-    cpprestsdk::cpprestsdk_brotli_internal
-
-    nlohmann_json
-    nlohmann_json::nlohmann_json
-
-    mongo::bsoncxx_shared
-    mongo::mongocxx_shared
+BuildRadicalProject("MODULE" PrivateLibs "")
+target_link_libraries(${THIS} 
+    re2::re2
+    OpenSSL::SSL 
+    OpenSSL::Crypto
 )

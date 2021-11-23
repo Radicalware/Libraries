@@ -22,10 +22,10 @@
 #include "BaseValXVector.h"
 #include <type_traits>
 
+class xstring;
 template<typename T> class ValXVector;
 template<typename T, typename enabler_t> class xvector;
 
-#define ValPrimXVectorAPI xvector<T, typename std::enable_if_t<!IsClass(T) && !IsPointer(T) && !IsSharedPtr(T)>>
 
 template<typename T>
 class ValPrimXVectorAPI : public ValXVector<T>

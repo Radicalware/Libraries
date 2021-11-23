@@ -27,8 +27,6 @@ template<typename T> class SPtrXVector;
 template<typename T, typename enabler_t> class xvector;
 class xstring;
 
-#define SPtrObjXVectorAPI xvector<xp<T>, typename std::enable_if_t<IsClass(T) && !IsPointer(T)>>
-
 template<typename T>
 class SPtrObjXVectorAPI : public SPtrXVector<xp<T>>
 {

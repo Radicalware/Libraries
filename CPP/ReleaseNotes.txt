@@ -4,6 +4,23 @@
 
 ---------------------------------------------------------------------
 
+11/23/2021 >> Libs 21.0.0
+
+AES is now a new library for easily managing Cipher Text with
+the Open SSL Library!
+
+---------------------------------------------------------------------
+
+11/03/2021 >> Libs v20.2.0
+
+xmap and xvector now have RA::SharedPtr versions.
+This will make life easier by automatically de-referencing your
+pointers when you call most functions. Also, if you can get the
+underlying pointer type by calling KeyPtr (instead of just Key)
+or AtPtr (instead of just At).
+
+---------------------------------------------------------------------
+
 10/22/2021 >> Libs 20.0.0
 
 Memory has been added which is a collection of extended memory
