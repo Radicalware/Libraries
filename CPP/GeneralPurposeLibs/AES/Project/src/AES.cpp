@@ -136,9 +136,6 @@ RA::AES& RA::AES::Encrypt()
     MsTag = xstring(MsTagPtr.Raw(), TagLen);
     MsCipherText = xstring(CipherTextPtr.Raw(), MnEncryptionSize);
 
-    MsCipherText.ToByteString().Print("Ciphertext is:\n", "\n\n");
-    MsTag.ToByteString().Print("Tag is:\n", "\n\n");
-
     return This;
     Rescue();
 }

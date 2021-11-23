@@ -54,7 +54,7 @@ namespace RA
 
 		INL void SetAAD(const xstring& Input) { MsAAD = Input; }
 		INL void SetKey(const xstring& Input) { MsKey = Input; }
-		INL void SetIV(const xstring& Input)  { MsIV  = Input; }
+		INL void SetIV( const xstring& Input) { MsIV  = Input; }
 		INL void SetTag(const xstring& Input) { MsTag = Input; }
 
 		INL xstring GetAAD() const { return MsAAD; }
