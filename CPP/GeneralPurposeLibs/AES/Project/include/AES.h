@@ -64,8 +64,10 @@ namespace RA
 
 		INL xstring GetPlainText()  const { return MsPlaintext;  }
 		INL xstring GetCipherText() const { return MsCipherText; }
+		INL xstring GetCipherTextByteCode() const { return MsCipherText.ToByteCode().Sub(NullByteRex.Get(), ""); }
 
 	private:
+		inline static xp<RE2> NullByteRex = MKP<RE2>(R"((\\x00))");
 		RA::SharedPtr<unsigned char[]> MsTagPtr;
 		xstring MsPlaintext;
 		xstring MsCipherText;

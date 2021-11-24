@@ -16,7 +16,7 @@
 // ----- Radicalware Libs -------------------
 
 
-SYS sys;
+RA::SYS Args;
 
 using std::cout;
 using std::endl;
@@ -31,15 +31,15 @@ int main(int argc, char** argv)
 {
     Begin();
     Nexus<>::Start();
-    Timer Time;
-    sys.AddAlias('a', "--key-A");
-    sys.AddAlias('b', "--key-B");
-    sys.AddAlias('f', "--key-F");
-    sys.AddAlias('x', "--key-X");
+    RA::Timer Time;
+    Args.AddAlias('a', "--key-A");
+    Args.AddAlias('b', "--key-B");
+    Args.AddAlias('f', "--key-F");
+    Args.AddAlias('x', "--key-X");
 
-    sys.AddAlias('p', "--port");
+    Args.AddAlias('p', "--port");
 
-    sys.SetArgs(argc, argv);
+    Args.SetArgs(argc, argv);
     cout << "Arg Parse Time: " << Time.GetElapsedTime() << endl;
 
     // based on the folowing arguments you pass
@@ -68,46 +68,46 @@ int main(int argc, char** argv)
     // they were both used which in most cases is not intended
     // this is to show you that even if the user does that, the program still works fine.
     
-    cout << "\n\n all args = " << sys.ArgV()(1).Join(' ');
+    cout << "\n\n all args = " << Args.ArgV()(1).Join(' ');
     // we skipped the first arg (which is the program) using a slice
 
     //// and see the count via
-    cout << "\n\n argv count = " << sys.ArgC();
+    cout << "\n\n argv count = " << Args.ArgC();
     cout << "\n true argc  = " << argc;
     cout << "\n program start the count at 1, then add 1 for every arg.";
 
     // if we are using a small script use the [] operator
-    cout << "\n\n sys[5]      = " << sys[5];
+    cout << "\n\n Args[5]      = " << Args[5];
 
-    cout << "\n sys values for key '--key-B' = " << sys["--key-B"].Join(' ');
+    cout << "\n Args values for key '--key-B' = " << Args["--key-B"].Join(' ');
 
-    cout << "\n full path   = " << sys.FullPath();
-    cout << "\n path        = " << sys.Path();
-    cout << "\n file        = " << sys.File() << "\n\n\n";
+    cout << "\n full path   = " << Args.FullPath();
+    cout << "\n path        = " << Args.Path();
+    cout << "\n file        = " << Args.File() << "\n\n\n";
 
     // ----------------------------------------------------------------
-    if ( sys.Has("--key-B") && sys("--key-B")) {  // both methods are the same
+    if ( Args.Has("--key-B") && Args("--key-B")) {  // both methods are the same
         cout << "--key-B exists\n"; 
     }
     else {
         cout << "error: --key-B does not exists\n"; exit(1);
     }
     // ----------------------------------------------------------------
-    if (sys.Has("--key-D") || sys("--key-D")) { // both methods are the same
+    if (Args.Has("--key-D") || Args("--key-D")) { // both methods are the same
         cout << "error: --key-D exists\n"; exit(1);
     }
     else {
         cout << "--key-D does not exist\n";  
     }
     // ----------------------------------------------------------------
-    if (sys('n') && sys('x')) {
+    if (Args('n') && Args('x')) {
         cout << "-n and -x options are both used\n";
     }
     else {
         cout << "error: -n and -x are not used together or not at all \n"; exit(1);
     }
     // ----------------------------------------------------------------
-    if (sys('x') && sys("--key-X")) { 
+    if (Args('x') && Args("--key-X")) { 
         // note: both were given (this is ok because thare are no associated values with either x or --key-X)
         cout << "-x and the alias --key-X are both used\n";
     }
@@ -115,14 +115,14 @@ int main(int argc, char** argv)
         cout << "error: -x and the alias --key-X are not found together\n"; exit(1);
     }
     // ----------------------------------------------------------------
-    if (sys('f') && sys("--key-F")) {
+    if (Args('f') && Args("--key-F")) {
         cout << "-f and the alias --key-F are both usable but only one was given\n";
     }
     else {
         cout << "error: -f and the alias --key-F are not found together\n"; exit(1);
     }
     // ----------------------------------------------------------------
-    if (sys('b') && sys("--key-B")) { 
+    if (Args('b') && Args("--key-B")) { 
         cout << "-b and the alias --key-B are both usable but only --key-B was given\n";
     }
     else {
@@ -130,10 +130,10 @@ int main(int argc, char** argv)
     }
     // ----------------------------------------------------------------
     bool pass = false;
-    if (sys('p') && sys("--port")){
+    if (Args('p') && Args("--port")){
         cout << "we have the port key\n";
-        if (sys ['p'][0] == "8080" && sys["--port"][0] == "8080") {
-            cout << "port designated by -p is on " << sys['p'].Join(' ') << endl;
+        if (Args ['p'][0] == "8080" && Args["--port"][0] == "8080") {
+            cout << "port designated by -p is on " << Args['p'].Join(' ') << endl;
             pass = true;
         }
     }
@@ -141,21 +141,21 @@ int main(int argc, char** argv)
         cout << "error: -p is not set" << endl; exit(1);
     }
     // ----------------------------------------------------------------
-    if (sys.Key("--key-A").Has("sub-B-2") || sys("--key-A", "sub-B-2")) {
+    if (Args.Key("--key-A").Has("sub-B-2") || Args("--key-A", "sub-B-2")) {
         cout << "error: value sub-B-2 exist in --key-A\n"; exit(1);
     }
     else {
         cout << "value sub-B-2 does not exist in --key-A\n";
     }
     // ----------------------------------------------------------------
-    if (sys.Key("--key-A").Has("sub-A-2") && sys("--key-A", "sub-A-3") ) {
+    if (Args.Key("--key-A").Has("sub-A-2") && Args("--key-A", "sub-A-3") ) {
         cout << "value sub-A-2 and sub-A-3 exist under --key-A\n";
     }
     else {
         cout << "error: value sub-A-2 and sub-A-3 not found under --key-A\n"; exit(1);
     }
     // ----------------------------------------------------------------
-    if (sys["--key-A"][1] == "sub-A-2" && sys['p'][1] == "9090") {
+    if (Args["--key-A"][1] == "sub-A-2" && Args['p'][1] == "9090") {
         cout << "the 2nd elements for targed str and char keys passed\n";
     }
     else {
@@ -168,17 +168,17 @@ int main(int argc, char** argv)
     // 1. returning  key-values
     // 2. validating key-values
     cout << "\n\n";
-    cout << R"(sys["--key-A"].Join(' ')  ==  )" << sys["--key-A"].Join(' ') << endl;
-    cout << R"(sys("--key-A", "sub-A-1") ==  )" << sys("--key-A", "sub-A-1") << endl;
-    cout << R"(sys("--key-A", "sub-A-5") ==  )" << sys("--key-A", "sub-A-5") << "\n\n";
+    cout << R"(Args["--key-A"].Join(' ')  ==  )" << Args["--key-A"].Join(' ') << endl;
+    cout << R"(Args("--key-A", "sub-A-1") ==  )" << Args("--key-A", "sub-A-1") << endl;
+    cout << R"(Args("--key-A", "sub-A-5") ==  )" << Args("--key-A", "sub-A-5") << "\n\n";
 
 
-    cout << R"(*sys["--key-A"][0] == )" << sys["--key-A"][0] << endl;
-    cout << R"(*sys["--key-A"][1] == )" << sys["--key-A"][1] << endl;
-    cout << R"(*sys["--key-A"][2] == )" << sys["--key-A"][2] << "\n\n";
+    cout << R"(*Args["--key-A"][0] == )" << Args["--key-A"][0] << endl;
+    cout << R"(*Args["--key-A"][1] == )" << Args["--key-A"][1] << endl;
+    cout << R"(*Args["--key-A"][2] == )" << Args["--key-A"][2] << "\n\n";
 
-    cout << R"(*sys["--key-B"][0] == )" << sys["--key-B"][0] << endl;
-    cout << R"(*sys["--key-B"][1] == )" << sys["--key-B"][1] << endl;
+    cout << R"(*Args["--key-B"][0] == )" << Args["--key-B"][0] << endl;
+    cout << R"(*Args["--key-B"][1] == )" << Args["--key-B"][1] << endl;
 
     cout << xstring().ToGreen() << "Success" << xstring().ToWhite() << endl;
 

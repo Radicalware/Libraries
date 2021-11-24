@@ -54,68 +54,77 @@
 // ----- eXtended STL Functionality ---------
 // ----- Radicalware Libs -------------------
 
-class EXI SYS
+namespace RA
 {
-private:
-    bool MbArgsSet = false;
+    class EXI SYS
+    {
+    private:
+        bool MbArgsSet = false;
 
-    pint MnSize = 0;
-    xvector<xstring> MvCliArgs;
-    xmap<xstring, char> MmAliasChar; // Alias
-    xmap<char,    xvector<xstring>> MmArgs;
-    xvector<const xstring*> MvKeysStr;
-    xvector<char>     MvKeysChr;
-    xmap<xstring, xstring>  MmENV;
+        pint MnSize = 0;
+        xvector<xstring> MvCliArgs;
+        xmap<xstring, char> MmAliasChar; // Alias
+        xmap<char, xvector<xstring>> MmArgs;
+        xvector<const xstring*> MvKeysStr;
+        xvector<char>     MvKeysChr;
+        xmap<xstring, xstring>  MmENV;
 
-    xstring MsFile;
-    xstring MsPath;
+        xstring MsFile;
+        xstring MsPath;
 
-    // (From Str) = MmChrArgs.Key(MmAliasStrChar.Get("--Account"))
-    // (From Chr) = MmCharArgs.Key('a')
-    // ======================================================================================================================
-public:
+        // (From Str) = MmChrArgs.Key(MmAliasStrChar.Get("--Account"))
+        // (From Chr) = MmCharArgs.Key('a')
+        // ======================================================================================================================
+    public:
 
-    SYS() {}
-    SYS(int argc, char** argv, char** env = nullptr); 
-    ~SYS() {}
-    // -------------------------------------------------------------------------------------------------------------------
-    // >>>> args
-    void SetArgs(int argc, char** argv);
-    void AddAlias(const char FChr, const xstring& FStr); // char_arg, string_arg
-    // -------------------------------------------------------------------------------------------------------------------
-    int ArgC() const;
-    xvector<xstring> ArgV() const;
-    xstring ArgV(const size_t Idx) const;
-    bool    Arg(const size_t Idx, const char FChar) const;
+        SYS() {}
+        SYS(int argc, char** argv, char** env = nullptr);
+        ~SYS() {}
+        // -------------------------------------------------------------------------------------------------------------------
+        // >>>> args
+        void SetArgs(int argc, char** argv);
+        void AddAlias(const char FChr, const xstring& FStr); // char_arg, string_arg
+        // -------------------------------------------------------------------------------------------------------------------
+        int ArgC() const;
+        xvector<xstring> ArgV() const;
+        xstring ArgV(const size_t Idx) const;
+        bool    Arg(const size_t Idx, const char FChar) const;
 
-    xvector<char>           GetChrKeys() const;
-    xvector<const xstring*> GetStrKeys() const;
-    // -------------------------------------------------------------------------------------------------------------------
-    xstring FullPath();
-    xstring Path();
-    xstring File();
-    // -------------------------------------------------------------------------------------------------------------------
-    xvector<xstring> Key(const xstring& FKey) const;
-    xvector<xstring> Key(const char FKey) const;
-    bool HasArgs() const;
-    // -------------------------------------------------------------------------------------------------------------------
-    bool Has(const xstring& FKey) const;
-    bool Has(const char FKey) const;
-    //// -----------------------------------------------------------------------------------------------------------------
-    // Almost everything above can be handled using the operator overloading below and is the prefered method
-    xvector<xstring> operator[](const xstring& FKey);                     // Return Key-Values
-    xvector<xstring> operator[](const char FKey);                         // Return Key-Values
-    xstring operator[](const int FKey);                                   // Return value by arg location in argv
-    bool operator()(const xstring& FKey) const;                           // Test boolean for key or Key
-    bool operator()(const xstring& FKey, const xstring& FValue) const;    // Test boolean for key or KVP
-    bool operator()(const char FKey) const;                               // Test boolean for Key
-    bool operator()(const char FKey, const xstring& FValue) const;        // Test boolean for KVP
-    // ------------------------------------------------------------------------------------------------------------------
-    bool Help();
-    // ======================================================================================================================
-private:
-    bool HasSingleDash(const xstring& FsArg) const;
-    bool HasDoubleDash(const xstring& FsArg) const;
-    bool IsArgType(const xstring& FsArg) const;
+        xvector<char>           GetChrKeys() const;
+        xvector<const xstring*> GetStrKeys() const;
+        // -------------------------------------------------------------------------------------------------------------------
+        xstring FullPath();
+        xstring Path();
+        xstring File();
+        // -------------------------------------------------------------------------------------------------------------------
+        xvector<xstring> Key(const xstring& FKey) const;
+        xvector<xstring> Key(const char FKey) const;
+        bool HasArgs() const;
+        // -------------------------------------------------------------------------------------------------------------------
+        // Used for str/bool
+        bool Has(const xstring& FKey) const;
+        bool Has(const char FKey) const;
+        // -------------------------------------------------------------------------------------------------------------------
+        // Used for str/str key-value args (not str/str[]) key-value args
+        bool HasVal(const xstring& FKey) const;
+        bool HasVal(const char FKey) const;
+        xstring GetVal(const xstring& FKey) const;
+        xstring GetVal(const char FKey) const;
+        //// -----------------------------------------------------------------------------------------------------------------
+        // Almost everything above can be handled using the operator overloading below and is the prefered method
+        xvector<xstring> operator[](const xstring& FKey);                     // Return Key-Values
+        xvector<xstring> operator[](const char FKey);                         // Return Key-Values
+        xstring operator[](const int FKey);                                   // Return value by arg location in argv
+        bool operator()(const xstring& FKey) const;                           // Test boolean for key or Key
+        bool operator()(const xstring& FKey, const xstring& FValue) const;    // Test boolean for key or KVP
+        bool operator()(const char FKey) const;                               // Test boolean for Key
+        bool operator()(const char FKey, const xstring& FValue) const;        // Test boolean for KVP
+        // ------------------------------------------------------------------------------------------------------------------
+        bool Help();
+        // ======================================================================================================================
+    private:
+        bool HasSingleDash(const xstring& FsArg) const;
+        bool HasDoubleDash(const xstring& FsArg) const;
+        bool IsArgType(const xstring& FsArg) const;
+    };
 };
-

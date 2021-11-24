@@ -103,8 +103,9 @@ public:
     std::string   ToStdString() const;
     std::wstring  ToStdWString() const;
     RA::SharedPtr<unsigned char []> ToUnsignedChar() const;
-    xstring       ToByteString() const;
-    xstring       FromByteStringToASCII() const;
+    xstring       ToByteCode() const;
+    bool          IsByteCode() const;
+    xstring       FromByteCodeToASCII() const;
 
     xstring ToUpper()  const;
     xstring ToLower()  const;
@@ -117,7 +118,8 @@ public:
 
     xstring Reverse() const;
     // =================================================================================================================================
-    
+
+    xvector<xstring> SingleSplit(size_t loc) const;
     xvector<xstring> Split(size_t loc) const;
     xvector<xstring> Split(const std::regex& rex) const;
     xvector<xstring> Split(const xstring& pattern, rxm::type mod = rxm::ECMAScript) const;
@@ -265,8 +267,11 @@ public:
     // =================================================================================================================================
 };
 
-xstring operator+(const char First, const xstring& Second);
-xstring operator+(const char First, xstring&& Second);
+xstring operator+(const char First, const xstring&  Second);
+xstring operator+(const char First,       xstring&& Second);
+
+xstring operator+(const char* const First, const xstring& Second);
+xstring operator+(const char* const First, xstring&& Second);
 
 namespace RA
 {

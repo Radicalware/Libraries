@@ -43,7 +43,7 @@ int main(int arc, char *argv[])
     Nexus<>::Start();
 
     auto EncryptedAES = Encryption();
-    EncryptedAES.GetCipherText().ToByteString().Print("\n\n");
+    EncryptedAES.GetCipherText().ToByteCode().Print("\n\n");
 
     auto DecryptedAES = Decryption(EncryptedAES);
     DecryptedAES.GetPlainText().Print("\n\n");

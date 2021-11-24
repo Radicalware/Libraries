@@ -23,36 +23,36 @@ int main(int argc, char** argv)
     Nexus<>::Start();
 
     cout << "Wait 1/10 second\n";
-    Timer timer;
-    Timer::Sleep(100);
-    cout << timer << "\n\n";
+    RA::Timer Timer;
+    RA::Timer::Sleep(100);
+    cout << Timer << "\n\n";
 
     // -----------------------------------------------------------
     cout << "Reset and wait 2/10 sec, lap and wait 1/10 second\n";
-    timer.Reset();
+    Timer.Reset();
     
-    Timer::Sleep(200);
-    timer.Lap();
+    RA::Timer::Sleep(200);
+    Timer.Lap();
 
-    Timer::Sleep(100);
+    RA::Timer::Sleep(100);
 
     xstring TmpStr("3/10");
-    timer.Lap(TmpStr);
+    Timer.Lap(TmpStr);
 
-    //timer.Lap("3/10");
+    //Timer.Lap("3/10");
 
-    cout << timer.Get(0) << "\n";
-    //cout << timer.Get("3/10") << "\n";
-    cout << timer.Get(1) << "\n\n";
+    cout << Timer.Get(0) << "\n";
+    //cout << Timer.Get("3/10") << "\n";
+    cout << Timer.Get(1) << "\n\n";
     // -----------------------------------------------------------
 
     cout << "Pause until we lap at 4/10 sec\n";
-    timer.WaitSeconds(0.4);
-    cout << timer << endl;
+    Timer.WaitSeconds(0.4);
+    cout << Timer << endl;
 
     cout << "Pause until we lap at 6/10 sec\n";
-    timer.Wait(600);
-    cout << timer << endl;
+    Timer.Wait(600);
+    cout << Timer << endl;
 
     return Nexus<>::Stop();
 }

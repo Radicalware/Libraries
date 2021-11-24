@@ -2,25 +2,32 @@
 
 #include "Macros.h"
 
-class EXI OS;
-namespace OS_O // OS Object
+namespace RA
 {
-    class EXI CMD
+    class EXI OS;
+}
+
+namespace RA
+{
+    namespace OS_O // OS Object
     {
-        friend class ::OS;
+        class EXI CMD
+        {
+            friend class RA::OS;
 
-        xstring m_cmd;
-        xstring m_out;
-        xstring m_err;
-        xstring m_err_message;
+            xstring m_cmd;
+            xstring m_out;
+            xstring m_err;
+            xstring m_err_message;
 
-    public:
-        CMD();
-        CMD(const CMD& cmd);
-        void operator=(const CMD& cmd);
-        xstring GetCommand() const;
-        xstring GetOutput() const;
-        xstring GetError() const;
-        xstring GetErrorMessage() const;
+        public:
+            CMD();
+            CMD(const CMD& cmd);
+            void operator=(const CMD& cmd);
+            xstring GetCommand() const;
+            xstring GetOutput() const;
+            xstring GetError() const;
+            xstring GetErrorMessage() const;
+        };
     };
-};
+}

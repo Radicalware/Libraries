@@ -19,7 +19,7 @@ xstring BenchAtomicClass()
     auto RunBench = []()
     {
         Bench::ClassAtomic Obj;
-        Timer t;
+        RA::Timer t;
         RA::SharedPtr<RA::Mutex> LoMutex; // REMOVE REMOVE REMOVE REMOVE REMOVE
         for (int i = 0; i < Obj.MnLooper; i++) {
             if (i % 3 == 0) { // occurs 1/3 of the time
@@ -62,7 +62,7 @@ xstring BenchAtomicFundamental()
     auto RunBench = []()
     {
         Bench::FundamentalAtomic Obj;
-        Timer t;
+        RA::Timer t;
         RA::SharedPtr<RA::Mutex> LoMutex; // REMOVE REMOVE REMOVE REMOVE REMOVE
         for (int i = 0; i < Obj.MnLooper; i++) {
             if (i % 3 == 0) { // occurs 1/3 of the time
@@ -105,7 +105,7 @@ xstring BenchSharedPtr()
     auto RunBench = []()
     {
         Bench::NoAtomic Obj;
-        Timer t;
+        RA::Timer t;
         RA::SharedPtr<RA::Mutex> LoMutex; // REMOVE REMOVE REMOVE REMOVE REMOVE
         for (int i = 0; i < Obj.MnLooper; i++) {
             if (i % 3 == 0) { // occurs 1/3 of the time

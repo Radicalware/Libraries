@@ -264,7 +264,7 @@ RA::SharedPtr<unsigned char[]> xstring::ToUnsignedChar() const
     return UnsignedChar;
 }
 
-xstring xstring::ToByteString() const
+xstring xstring::ToByteCode() const
 {
     auto DataPtr = The.ToUnsignedChar();
     auto UData = DataPtr.Ptr();
@@ -290,14 +290,24 @@ xstring xstring::ToByteString() const
     return Buffer;
 }
 
-xstring xstring::FromByteStringToASCII() const
+bool xstring::IsByteCode() const
+{
+    static const RE2 ByteStringRex(R"(^(\\x[A-Fa-f0-9]{2})*$)");
+    if (The.Match(ByteStringRex))
+        return true;
+    return false;
+}
+
+xstring xstring::FromByteCodeToASCII() const
 {
     xstring Ascii = "";
-    for (size_t i = 0; i < The.length(); i += 4)
+    xstring part;
+    part.resize(2);
+    for (size_t i = 0; i < The.length() - 2; i += 4)
     {
-        xstring part = The.substr(i + 2, i + 4);
-        char Chr = stoul(part, nullptr, 16);
-        Ascii += Chr;
+        part[0] = The[i + 2];
+        part[1] = The[i + 3];
+        Ascii += stoul(part, nullptr, 16);
     }
     return Ascii;
 }
@@ -383,7 +393,7 @@ xstring xstring::Reverse() const
 
 // ---------------------------------------------------------------
 
-xvector<xstring> xstring::Split(size_t loc) const
+xvector<xstring> xstring::SingleSplit(size_t loc) const
 {
     xvector<xstring> ret_vec;
     ret_vec.reserve(4);
@@ -391,6 +401,34 @@ xvector<xstring> xstring::Split(size_t loc) const
     ret_vec << The.substr(loc, The.size() - loc);
 
     return ret_vec;
+}
+
+xvector<xstring> xstring::Split(size_t SegSize) const
+{
+    if (!SegSize)
+        throw "Seg Size is Zero";
+    xvector<xstring> Vec;
+    Vec.reserve(This.Size() / SegSize + 1);
+    xstring CurrentStr;
+    CurrentStr.resize(SegSize + 1);
+    size_t Idx = 0;
+    for (xstring::const_iterator It = This.cbegin(); It != This.cend(); It++)
+    {
+        if (SegSize > Idx)
+        {
+            CurrentStr[Idx] = *It;
+        }
+        else
+        {
+            Vec << CurrentStr;
+            Idx = 0;
+            CurrentStr[Idx] = *It;
+        }
+        Idx++;
+    }
+    if(This.Size() % SegSize > 0)
+        Vec << CurrentStr.substr(0, Idx);
+    return Vec;
 }
 
 xvector<xstring> xstring::Split(const std::regex& rex) const
@@ -1159,14 +1197,20 @@ xstring RA::WTXS(const wchar_t* wstr) {
 
 xstring operator+(const char First, const xstring& Second)
 {
-    xstring RetStr = First;
-    RetStr += Second;
-    return RetStr;
+    return xstring(First) + Second;
 }
 
 xstring operator+(const char First, xstring&& Second)
 {
-    xstring RetStr = First;
-    RetStr += std::move(Second);
-    return RetStr;
+    return xstring(First) + std::move(Second);
+}
+
+xstring operator+(const char* const First, const xstring& Second)
+{
+    return xstring(First) + Second;
+}
+
+xstring operator+(const char* const First, xstring&& Second)
+{
+    return xstring(First) + std::move(Second);
 }

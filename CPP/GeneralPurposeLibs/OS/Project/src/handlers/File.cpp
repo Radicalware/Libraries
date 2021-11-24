@@ -1,46 +1,46 @@
 #include "handlers/File.h"
 
 
-RE2 OS_O::File::s_get_file(R"(^.*[\\/])");
-RE2 OS_O::File::s_forwardslash(R"(/)");
+RE2 RA::OS_O::File::s_get_file(R"(^.*[\\/])");
+RE2 RA::OS_O::File::s_forwardslash(R"(/)");
 
-OS_O::File::File()
+RA::OS_O::File::File()
 {
 }
 
-void OS_O::File::SetFile(const xstring& iname) {
+void RA::OS_O::File::SetFile(const xstring& iname) {
     m_name = File::FullPath(iname);
 }
 
 
-OS_O::File::File(const File& file)
+RA::OS_O::File::File(const File& file)
 {
     *this = file;
 }
 
-OS_O::File::File(const xstring& iname)
+RA::OS_O::File::File(const xstring& iname)
 {
     m_name = iname;
 }
 
-void OS_O::File::operator=(const File& file)
+void RA::OS_O::File::operator=(const File& file)
 {
     this->Close();
     m_name = file.m_name;
     m_data = file.m_data;
 }
 
-xstring OS_O::File::GetName() const
+xstring RA::OS_O::File::GetName() const
 {
     return m_name;
 }
 
-xstring OS_O::File::GetData() const
+xstring RA::OS_O::File::GetData() const
 {
     return m_data;
 }
 
-void OS_O::File::SetRead()
+void RA::OS_O::File::SetRead()
 {
     Begin();
     this->Close();
@@ -49,7 +49,7 @@ void OS_O::File::SetRead()
     Rescue();
 }
 
-void OS_O::File::SetWrite()
+void RA::OS_O::File::SetWrite()
 {
     Begin();
     Close();
@@ -61,7 +61,7 @@ void OS_O::File::SetWrite()
     Rescue();
 }
 
-void OS_O::File::SetAppend()
+void RA::OS_O::File::SetAppend()
 {
     Begin();
     this->Close();
@@ -73,7 +73,7 @@ void OS_O::File::SetAppend()
     Rescue();
 }
 
-void OS_O::File::Close()
+void RA::OS_O::File::Close()
 {
     Begin();
     if (m_in_stream.is_open())
@@ -84,15 +84,15 @@ void OS_O::File::Close()
     Rescue();
 }
 
-void OS_O::File::Clear(){
+void RA::OS_O::File::Clear(){
     this->SetWrite();
 }
 
-void OS_O::File::Remove(){
+void RA::OS_O::File::Remove(){
     this->RM();
 }
 
-void OS_O::File::RM()
+void RA::OS_O::File::RM()
 {
     this->Close();
     errno = 0;
@@ -114,11 +114,11 @@ void OS_O::File::RM()
     }
 }
 
-void OS_O::File::Copy(const xstring& location){
+void RA::OS_O::File::Copy(const xstring& location){
     this->CP(location);
 }
 
-void OS_O::File::CP(const xstring& location)
+void RA::OS_O::File::CP(const xstring& location)
 {
     xstring new_path = FullPath(location);
     try {
@@ -132,18 +132,18 @@ void OS_O::File::CP(const xstring& location)
     }
 }
 
-void OS_O::File::Move(const xstring& location){
+void RA::OS_O::File::Move(const xstring& location){
     this->MV(location);
 }
 
-void OS_O::File::MV(const xstring& location)
+void RA::OS_O::File::MV(const xstring& location)
 {
     this->CP(location);
     this->RM();
 }
 
 
-void OS_O::File::operator<<(const xstring& FnWriteData)
+void RA::OS_O::File::operator<<(const xstring& FnWriteData)
 {
     m_out_stream << FnWriteData;
 }

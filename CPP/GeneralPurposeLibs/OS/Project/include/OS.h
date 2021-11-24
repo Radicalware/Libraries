@@ -68,86 +68,88 @@
 #include "dir_support/Dir_Type.h"
 
 // Note: All Static Functions / Objects start with a CAP
-class EXI OS : public OS_O::Dir_Type
+namespace RA
 {
-private:
-    char m_last_read;
+    class EXI OS : public OS_O::Dir_Type
+    {
+    private:
+        char m_last_read;
 
-    static void Dir_Continued(const xstring scan_start, xvector<xstring>& vec_track, \
-        const bool folders, const bool files, const bool recursive);
+        static void Dir_Continued(const xstring scan_start, xvector<xstring>& vec_track, \
+            const bool folders, const bool files, const bool recursive);
 
-public:
+    public:
 
-    OS_O::File File;
-    OS_O::CMD  CMD;
+        OS_O::File File;
+        OS_O::CMD  CMD;
 
-    OS();
-    ~OS();
+        OS();
+        ~OS();
 
-    static xvector<int> GetConsoleSize(); // columns, rows
+        static xvector<int> GetConsoleSize(); // columns, rows
 
-    static bool HasFileSyntax(const xstring& file);
-    static bool AllHaveFileSyntax(const xvector<xstring>& files);
+        static bool HasFileSyntax(const xstring& file);
+        static bool AllHaveFileSyntax(const xvector<xstring>& files);
 
-    // ---------------------------------------------------------------------------------------------
-    // Bash Style OS Commands
+        // ---------------------------------------------------------------------------------------------
+        // Bash Style OS Commands
 
-    void Touch(const xstring& new_file = "");
-    static void MKDIR(const xstring& folder = "");
+        void Touch(const xstring& new_file = "");
+        static void MKDIR(const xstring& folder = "");
 
-    static void CP(const xstring& old_location, const xstring& new_location);
-    static void MV(const xstring& old_location, const xstring& new_location);
-    static void RM(const xstring& del_file);
-    
-    // ---------------------------------------------------------------------------------------------
-    // Open & Read/Write Files
+        static void CP(const xstring& old_location, const xstring& new_location);
+        static void MV(const xstring& old_location, const xstring& new_location);
+        static void RM(const xstring& del_file);
 
-    // r = read,     w = write,     a = append,     d = default (read)
-    OS Open(const xstring& new_file_name, const char write_method = 'd');
-    OS Close();
+        // ---------------------------------------------------------------------------------------------
+        // Open & Read/Write Files
 
-    xstring Read(const char content = 'd', bool close_file = false);
-private:
-    xstring InstRead();
+        // r = read,     w = write,     a = append,     d = default (read)
+        OS Open(const xstring& new_file_name, const char write_method = 'd');
+        OS Close();
 
-public:
-    static xstring ReadFastMethod(const xstring& file_name, bool re_try = false); // Good for reading files text only
-    static xstring ReadStatMethod(const xstring& file_name);   // Good for text and binaries on Linux
-    static xstring ReadStreamMethod(const xstring& file_name); // Good for text and binaries on Linux and Windows
+        xstring Read(const char content = 'd', bool close_file = false);
+    private:
+        xstring InstRead();
 
-    OS Write(const xstring& content = "", bool store = false);
+    public:
+        static xstring ReadFastMethod(const xstring& file_name, bool re_try = false); // Good for reading files text only
+        static xstring ReadStatMethod(const xstring& file_name);   // Good for text and binaries on Linux
+        static xstring ReadStreamMethod(const xstring& file_name); // Good for text and binaries on Linux and Windows
 
-    // ---------------------------------------------------------------------------------------------
-    // Dir Parsing
+        OS Write(const xstring& content = "", bool store = false);
 
-    static xvector<xstring> Dir(const xstring& folder_start, \
-        const char mod1 = 'n', const char mod2 = 'n', const char mod3 = 'n');
-    // dir(folder_to_start_search_from, mod can match for any of the following 3);
-    // r = recursive = search dirs recursivly
-    // f = files     = return files in search
-    // d = directory = return dirs in search
+        // ---------------------------------------------------------------------------------------------
+        // Dir Parsing
 
-    // ---------------------------------------------------------------------------------------------
-    // Console Command and Return
-    OS& RunConsoleCommand(const xstring& command, char leave = 'd'); 
-    xstring operator()(const xstring& command, const char leave = 'd');
+        static xvector<xstring> Dir(const xstring& folder_start, \
+            const char mod1 = 'n', const char mod2 = 'n', const char mod3 = 'n');
+        // dir(folder_to_start_search_from, mod can match for any of the following 3);
+        // r = recursive = search dirs recursivly
+        // f = files     = return files in search
+        // d = directory = return dirs in search
 
-    // ============================================================================================
-    // Filesystem Managment (use "Bash style OS commands" above for shorthand)
+        // ---------------------------------------------------------------------------------------------
+        // Console Command and Return
+        OS& RunConsoleCommand(const xstring& command, char leave = 'd');
+        xstring operator()(const xstring& command, const char leave = 'd');
 
-    static void AssertFolderSyntax(const xstring& folder1);
+        // ============================================================================================
+        // Filesystem Managment (use "Bash style OS commands" above for shorthand)
 
-    static void MoveFile(const xstring& old_location, const xstring& new_location);
-    static void MoveDir(const xstring& old_location, const xstring& new_location);
+        static void AssertFolderSyntax(const xstring& folder1);
 
-    static void CopyFile(const xstring& old_location, const xstring& new_location);
-    static void CopyDir(const xstring& old_location, const xstring& new_location);
+        static void MoveFile(const xstring& old_location, const xstring& new_location);
+        static void MoveDir(const xstring& old_location, const xstring& new_location);
 
-    static void RemoveFile(const xstring& content = "");
-    static void RemoveDir(const xstring& folder = "");
+        static void CopyFile(const xstring& old_location, const xstring& new_location);
+        static void CopyDir(const xstring& old_location, const xstring& new_location);
 
-    static void ClearFile(const xstring& content = "");
-    // ============================================================================================
-};
+        static void RemoveFile(const xstring& content = "");
+        static void RemoveDir(const xstring& folder = "");
 
+        static void ClearFile(const xstring& content = "");
+        // ============================================================================================
+    };
+}
 // Radicalware Product

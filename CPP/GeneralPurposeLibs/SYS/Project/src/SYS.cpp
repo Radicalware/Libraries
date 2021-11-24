@@ -30,7 +30,7 @@
 // char key map ---| -- int map --- | --- values
 // str  key map ---|
 
-SYS::SYS(int argc, char** argv, char** env)
+RA::SYS::SYS(int argc, char** argv, char** env)
 {
     Begin();
     (this)->SetArgs(argc, argv);
@@ -45,7 +45,7 @@ SYS::SYS(int argc, char** argv, char** env)
 // >>>> args
 
 
-void SYS::SetArgs(int argc, char** argv)
+void RA::SYS::SetArgs(int argc, char** argv)
 {
     Begin();
     MbArgsSet = true;
@@ -119,20 +119,20 @@ void SYS::SetArgs(int argc, char** argv)
     Rescue();
 }
 
-void SYS::AddAlias(const char FChr, const xstring& FStr)
+void RA::SYS::AddAlias(const char FChr, const xstring& FStr)
 {
     MmAliasChar.AddPair(FStr, FChr);
 }
 
 // -------------------------------------------------------------------------------------------------------------------
-int SYS::ArgC() const {
+int RA::SYS::ArgC() const {
     return MnSize;
 }
 
-xvector<xstring> SYS::ArgV() const {
+xvector<xstring> RA::SYS::ArgV() const {
     return MvCliArgs;
 }
-xstring SYS::ArgV(const size_t Idx) const
+xstring RA::SYS::ArgV(const size_t Idx) const
 {
     Begin();
     if (!MvCliArgs.HasIndex(Idx))
@@ -141,7 +141,7 @@ xstring SYS::ArgV(const size_t Idx) const
     Rescue();
 }
 
-bool SYS::Arg(const size_t Idx, const char FChar) const
+bool RA::SYS::Arg(const size_t Idx, const char FChar) const
 {
     if (!MvCliArgs.HasIndex(Idx))
         return false;
@@ -152,14 +152,14 @@ bool SYS::Arg(const size_t Idx, const char FChar) const
     else
         return MmArgs.Has(FChar) && MmArgs.at(FChar).Has(MvCliArgs[Idx]);
 }
-xvector<char> SYS::GetChrKeys() const { return MvKeysChr; }
-xvector<const xstring*> SYS::GetStrKeys() const { return MvKeysStr; }
+xvector<char> RA::SYS::GetChrKeys() const { return MvKeysChr; }
+xvector<const xstring*> RA::SYS::GetStrKeys() const { return MvKeysStr; }
 // -------------------------------------------------------------------------------------------------------------------
-xstring SYS::FullPath() { return MvCliArgs[0]; }
-xstring SYS::Path() { return MsPath; }
-xstring SYS::File() { return MsFile; }
+xstring RA::SYS::FullPath() { return MvCliArgs[0]; }
+xstring RA::SYS::Path() { return MsPath; }
+xstring RA::SYS::File() { return MsFile; }
 // -------------------------------------------------------------------------------------------------------------------
-xvector<xstring> SYS::Key(const xstring& FKey) const
+xvector<xstring> RA::SYS::Key(const xstring& FKey) const
 {
     Begin();
     if (!MvKeysStr.Has(FKey))
@@ -167,7 +167,7 @@ xvector<xstring> SYS::Key(const xstring& FKey) const
     return MmArgs.Key(MmAliasChar.Key(FKey));
     Rescue();
 }
-xvector<xstring> SYS::Key(const char FKey) const
+xvector<xstring> RA::SYS::Key(const char FKey) const
 {
     Begin();
     if (!MmArgs.Has(FKey))
@@ -175,30 +175,58 @@ xvector<xstring> SYS::Key(const char FKey) const
     return MmArgs.Key(FKey);
     Rescue();
 }
-bool SYS::HasArgs() const { return MnSize > 1; }
+bool RA::SYS::HasArgs() const { return MnSize > 1; }
 // -------------------------------------------------------------------------------------------------------------------
 
-bool SYS::Has(const xstring& FKey) const {
+bool RA::SYS::Has(const xstring& FKey) const {
     return MvKeysStr.Has(FKey) || MmArgs.Has(MmAliasChar.at(FKey)) || MvKeysChr.Has(MmAliasChar.at(FKey));
 }
 
-bool SYS::Has(const char FKey) const {
+bool RA::SYS::Has(const char FKey) const {
     return MmArgs.Has(FKey) || MvKeysChr.Has(FKey);
+}
+
+bool RA::SYS::HasVal(const xstring& FKey) const
+{
+    return Has(FKey) && Key(FKey).HasRange(1);
+}
+
+bool RA::SYS::HasVal(const char FKey) const
+{
+    return Has(FKey) && Key(FKey).HasRange(1);
+}
+
+xstring RA::SYS::GetVal(const xstring& FKey) const
+{
+    Begin();
+    if (!HasVal(FKey))
+        ThrowIt("Does not have Arg: ", FKey);
+    return Key(FKey)[0];
+    Rescue();
+}
+
+xstring RA::SYS::GetVal(const char FKey) const
+{
+    Begin();
+    if (!HasVal(FKey))
+        ThrowIt("Does not have Arg: ", FKey);
+    return Key(FKey)[0];
+    Rescue();
 }
 
 // -------------------------------------------------------------------------------------------------------------------
 
-xvector<xstring> SYS::operator[](const xstring& FKey)
+xvector<xstring> RA::SYS::operator[](const xstring& FKey)
 {
     return The.Key(FKey);
 }
 
-xvector<xstring> SYS::operator[](const char FKey)
+xvector<xstring> RA::SYS::operator[](const char FKey)
 {
     return The.Key(FKey);
 }
 
-xstring SYS::operator[](int FKey)
+xstring RA::SYS::operator[](int FKey)
 {
     Begin();
     if (!MvCliArgs.HasIndex(FKey))
@@ -207,12 +235,12 @@ xstring SYS::operator[](int FKey)
     Rescue();
 }
 
-bool SYS::operator()(const xstring& FKey) const
+bool RA::SYS::operator()(const xstring& FKey) const
 {
     return MvKeysStr.Has(FKey);
 }
 
-bool SYS::operator()(const xstring& FKey, const xstring& FValue) const
+bool RA::SYS::operator()(const xstring& FKey, const xstring& FValue) const
 {
     Begin();
     const char ChrArg = MmAliasChar.Key(FKey);
@@ -220,12 +248,12 @@ bool SYS::operator()(const xstring& FKey, const xstring& FValue) const
     Rescue();
 }
 
-bool SYS::operator()(const char FKey) const
+bool RA::SYS::operator()(const char FKey) const
 {
     return MvKeysChr.Has(FKey);
 }
 
-bool SYS::operator()(const char FKey, const xstring& FValue) const
+bool RA::SYS::operator()(const char FKey, const xstring& FValue) const
 {
     Begin();
     if (!MvKeysChr.Has(FKey))
@@ -237,7 +265,7 @@ bool SYS::operator()(const char FKey, const xstring& FValue) const
 }
 
 // -------------------------------------------------------------------------------------------------------------------
-bool SYS::Help()
+bool RA::SYS::Help()
 {
     Begin();
     if (MnSize == 1 || MvCliArgs.MatchOne(R"(^[-]{1,2}[hH]((elp)?)$)")) {
@@ -253,7 +281,7 @@ bool SYS::Help()
     Rescue();
 }
 
-bool SYS::HasSingleDash(const xstring& FsArg) const
+bool RA::SYS::HasSingleDash(const xstring& FsArg) const
 {
     Begin();
     if (!FsArg.Size() || FsArg.Match(R"(^\-[\d\.]+$)"))
@@ -262,13 +290,13 @@ bool SYS::HasSingleDash(const xstring& FsArg) const
     Rescue();
 }
 
-bool SYS::HasDoubleDash(const xstring& FsArg) const
+bool RA::SYS::HasDoubleDash(const xstring& FsArg) const
 {
     if (FsArg.Size() <= 1)
         return false;
     return (FsArg[0] == '-' && FsArg[1] == '-');
 }
-bool SYS::IsArgType(const xstring& FsArg) const
+bool RA::SYS::IsArgType(const xstring& FsArg) const
 {
     Begin();
     return HasSingleDash(FsArg);

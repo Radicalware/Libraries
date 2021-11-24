@@ -29,7 +29,7 @@
 
 // -------------------------------------------------------------------------------------------
 #if defined(NIX_BASE)
-void OS::Dir_Continued(const xstring scan_start, xvector<xstring>& track_vec, \
+void RA::OS::Dir_Continued(const xstring scan_start, xvector<xstring>& track_vec, \
     const bool folders, const bool files, const bool recursive)
 {
     DIR* current_dir = opendir(scan_start.c_str());
@@ -46,7 +46,7 @@ void OS::Dir_Continued(const xstring scan_start, xvector<xstring>& track_vec, \
                     track_vec.push_back(scan_start + "/" + dir_item + "/");
                 }
                 if (recursive) {
-                    OS::Dir_Continued(scan_start + "/" + dir_item, \
+                    RA::OS::Dir_Continued(scan_start + "/" + dir_item, \
                         track_vec, folders, files, recursive);
                     // recursive function
                 }
@@ -62,7 +62,7 @@ void OS::Dir_Continued(const xstring scan_start, xvector<xstring>& track_vec, \
     closedir(current_dir);
 }
 #elif defined(WIN_BASE)
-void OS::Dir_Continued(const xstring folder_start, xvector<xstring>& track_vec, \
+void RA::OS::Dir_Continued(const xstring folder_start, xvector<xstring>& track_vec, \
     const bool folders, const bool files, const bool recursive)
 {
 
@@ -78,7 +78,7 @@ void OS::Dir_Continued(const xstring folder_start, xvector<xstring>& track_vec, 
     //std::wstring wstr(item.begin(), item.end());
 
     if (folder_start.size() >= MAX_PATH - 3) {
-        std::cerr << "OS::Dir_Continued >> (folder_start.size() >= MAX_PATH - 3) >> should be false";
+        std::cerr << "RA::OS::Dir_Continued >> (folder_start.size() >= MAX_PATH - 3) >> should be false";
         return;
     }
 
@@ -151,16 +151,16 @@ void OS::Dir_Continued(const xstring folder_start, xvector<xstring>& track_vec, 
 
 // -------------------------------------------------------------------------------------------
 
-OS::OS()
+RA::OS::OS()
 {
     m_last_read = 'n';
 };
 
-OS::~OS() {
+RA::OS::~OS() {
     File.Close();
 };
 
-xvector<int> OS::GetConsoleSize() // [columns, rows]
+xvector<int> RA::OS::GetConsoleSize() // [columns, rows]
 {
 #if (defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64))
 
@@ -178,7 +178,7 @@ xvector<int> OS::GetConsoleSize() // [columns, rows]
 #endif
 }
 
-bool OS::HasFileSyntax(const xstring& i_file) {
+bool RA::OS::HasFileSyntax(const xstring& i_file) {
     if (!i_file.Match(R"(^([\./\\]+?)[\-\d\w\.\\/]+$)"))
         return false;
     else if (i_file.Scan(R"([^\\]\s)"))
@@ -187,10 +187,10 @@ bool OS::HasFileSyntax(const xstring& i_file) {
         return true;
 }
 
-bool OS::AllHaveFileSyntax(const xvector<xstring>& i_files)
+bool RA::OS::AllHaveFileSyntax(const xvector<xstring>& i_files)
 {
     for (const xstring& i_file : i_files) {
-        if (!(OS::HasFileSyntax(i_file)))
+        if (!(RA::OS::HasFileSyntax(i_file)))
             return false;
     }return true;
 }
@@ -198,23 +198,23 @@ bool OS::AllHaveFileSyntax(const xvector<xstring>& i_files)
 
 // ---------------------------------------------------------------------------------------------
 
-void OS::Touch(const xstring& new_file)
+void RA::OS::Touch(const xstring& new_file)
 {
     if (new_file.size())
-        File.m_name = OS::FullPath(new_file);
+        File.m_name = RA::OS::FullPath(new_file);
 
-    if (OS::Has(File.m_name))
+    if (RA::OS::Has(File.m_name))
         return;
 
     File.SetWrite();
 }
 
 
-void OS::MKDIR(const xstring& folder)
+void RA::OS::MKDIR(const xstring& folder)
 {
     if (!folder.size()) return;
 
-    xstring new_folder = OS::FullPath(folder);
+    xstring new_folder = RA::OS::FullPath(folder);
 
     xvector<xstring> folder_names = new_folder.Split(R"([\\/](?=[^\\/]|$))");
     //std::cout << '\n';
@@ -243,54 +243,54 @@ void OS::MKDIR(const xstring& folder)
 }
 
 
-void OS::CP(const xstring& old_location, const xstring& new_location)
+void RA::OS::CP(const xstring& old_location, const xstring& new_location)
 {
     if (!(old_location.size() || new_location.size())) return;
 
-    xstring old_path = OS::FullPath(old_location);
-    xstring new_path = OS::FullPath(new_location);
+    xstring old_path = RA::OS::FullPath(old_location);
+    xstring new_path = RA::OS::FullPath(new_location);
 
-    if (OS::HasFile(old_path))
-        OS::CopyFile(old_path, new_path);
-    else if (OS::HasDir(new_path))
-        OS::CopyDir(old_path, new_path);
+    if (RA::OS::HasFile(old_path))
+        RA::OS::CopyFile(old_path, new_path);
+    else if (RA::OS::HasDir(new_path))
+        RA::OS::CopyDir(old_path, new_path);
     else
         throw std::runtime_error("Location of Copy Not Found: " + old_location);
 }
 
 
-void OS::MV(const xstring& old_location, const xstring& new_location)
+void RA::OS::MV(const xstring& old_location, const xstring& new_location)
 {
-    xstring old_path = OS::FullPath(old_location);
-    xstring new_path = OS::FullPath(new_location);
+    xstring old_path = RA::OS::FullPath(old_location);
+    xstring new_path = RA::OS::FullPath(new_location);
 
     if (!(old_location.size() || new_location.size())) return;
 
-    if (OS::HasFile(old_path))
-        OS::MoveFile(old_path, new_path);
-    else if (OS::HasDir(old_path))
-        OS::MoveDir(old_path, new_path);
+    if (RA::OS::HasFile(old_path))
+        RA::OS::MoveFile(old_path, new_path);
+    else if (RA::OS::HasDir(old_path))
+        RA::OS::MoveDir(old_path, new_path);
     else
         throw std::runtime_error("Move Start Location Not Found: " + old_location);
 }
 
 
-void OS::RM(const xstring& del_file)
+void RA::OS::RM(const xstring& del_file)
 {
     if (!del_file.size()) return;
 
-    xstring bad_file = OS::FullPath(del_file);
+    xstring bad_file = RA::OS::FullPath(del_file);
 
-    if (OS::HasFile(bad_file))
-        OS::RemoveFile(bad_file);
+    if (RA::OS::HasFile(bad_file))
+        RA::OS::RemoveFile(bad_file);
 
-    else if (OS::HasDir(bad_file))
-        OS::RemoveDir(bad_file);
+    else if (RA::OS::HasDir(bad_file))
+        RA::OS::RemoveDir(bad_file);
 }
 
 // ---------------------------------------------------------------------------------------------
 
-OS OS::Open(const xstring& new_file_name, const char write_method)
+RA::OS RA::OS::Open(const xstring& new_file_name, const char write_method)
 {
     Begin();
     // r = read       
@@ -323,7 +323,7 @@ OS OS::Open(const xstring& new_file_name, const char write_method)
     Rescue();
 }
 
-OS OS::Close()
+RA::OS RA::OS::Close()
 {
     File.Close();
     return *this;
@@ -331,7 +331,7 @@ OS OS::Close()
 
 // os.Open(file_name).Read()
 // os.RunConsoleCommand(command).Read()
-xstring OS::Read(char content, bool close_file /* = false */)
+xstring RA::OS::Read(char content, bool close_file /* = false */)
 {
     content = (content == 'd') ? m_last_read : content;
     switch (content) {
@@ -343,7 +343,7 @@ xstring OS::Read(char content, bool close_file /* = false */)
         this->Close();
 }
 
-xstring OS::InstRead()
+xstring RA::OS::InstRead()
 {
     if (File.m_handler != 'r')
         File.SetRead();
@@ -364,7 +364,7 @@ xstring OS::InstRead()
 }
 
 
-xstring OS::ReadFastMethod(const xstring& file_name, bool re_try)
+xstring RA::OS::ReadFastMethod(const xstring& file_name, bool re_try)
 {
     if (!file_name.size())
         return xstring();
@@ -384,7 +384,7 @@ xstring OS::ReadFastMethod(const xstring& file_name, bool re_try)
     else if ((errno || fp == nullptr) && re_try)
     {
         if (fp) fclose(fp);
-        return OS::ReadStatMethod(file_name);
+        return RA::OS::ReadStatMethod(file_name);
     }
 
     fseek(fp, 0, SEEK_END);
@@ -422,7 +422,7 @@ xstring OS::ReadFastMethod(const xstring& file_name, bool re_try)
     return rets;
 }
 
-xstring OS::ReadStatMethod(const xstring& file_name)
+xstring RA::OS::ReadStatMethod(const xstring& file_name)
 {
 
     if (!file_name.size())
@@ -457,13 +457,13 @@ xstring OS::ReadStatMethod(const xstring& file_name)
     return rets;
 }
 
-xstring OS::ReadStreamMethod(const xstring& file_name)
+xstring RA::OS::ReadStreamMethod(const xstring& file_name)
 {
 
     if (!file_name.size())
         return xstring();
 
-    std::ifstream os_file(file_name, std::ios::in | std::ios::binary); // ios::in for data intake 
+    std::ifstream os_file(file_name, std::ios::in | std::ios::binary); // iRA::OS::in for data intake 
 
     xstring file_data;
     xstring line;
@@ -483,7 +483,7 @@ xstring OS::ReadStreamMethod(const xstring& file_name)
 }
 
 // you must use open before write
-OS OS::Write(const xstring& content, bool store /* = false */)
+RA::OS RA::OS::Write(const xstring& content, bool store /* = false */)
 {
     if (File.m_handler == 'a')
         File.SetAppend();
@@ -506,7 +506,7 @@ OS OS::Write(const xstring& content, bool store /* = false */)
 }
 
 
-xvector<xstring> OS::Dir(const xstring& folder_start, const char mod1, const char mod2, const char mod3)
+xvector<xstring> RA::OS::Dir(const xstring& folder_start, const char mod1, const char mod2, const char mod3)
 {
     // recursive = search foldres recursivly
     // folders   = return folders in search
@@ -514,10 +514,10 @@ xvector<xstring> OS::Dir(const xstring& folder_start, const char mod1, const cha
 
     if (!folder_start.size()) return xvector<xstring>();
 
-    xstring search_path = OS::FullPath(folder_start);
+    xstring search_path = RA::OS::FullPath(folder_start);
     xvector<xstring> track_vec;
 
-    if (folder_start == "" || (!OS::HasDir(search_path))) {
+    if (folder_start == "" || (!RA::OS::HasDir(search_path))) {
         return track_vec;
     }
 
@@ -550,7 +550,7 @@ xvector<xstring> OS::Dir(const xstring& folder_start, const char mod1, const cha
     return track_vec;
 }
 
-OS& OS::RunConsoleCommand(const xstring& command, char leave)
+RA::OS& RA::OS::RunConsoleCommand(const xstring& command, char leave)
 {
     // leave styles
     // p = pass (nothing happens = defult)
@@ -608,13 +608,13 @@ OS& OS::RunConsoleCommand(const xstring& command, char leave)
     return *this;
 }
 
-xstring OS::operator()(const xstring& command, const char leave) {
+xstring RA::OS::operator()(const xstring& command, const char leave) {
     return this->RunConsoleCommand(command, leave).Read();
 };
 
 // ============================================================================================
 
-void OS::AssertFolderSyntax(const xstring& folder)
+void RA::OS::AssertFolderSyntax(const xstring& folder)
 {
     if (!folder.Match(R"(^([\./\\]+?)[\-\d\w\.\\/]+$)")) {
         throw std::runtime_error("Failed Dir Syntax = "
@@ -628,12 +628,12 @@ void OS::AssertFolderSyntax(const xstring& folder)
     }
 }
 
-void OS::MoveFile(const xstring& old_location, const xstring& new_location)
+void RA::OS::MoveFile(const xstring& old_location, const xstring& new_location)
 {
     if (!(old_location.size() || new_location.size())) return;
 
-    xstring old_path = OS::FullPath(old_location);
-    xstring new_path = OS::FullPath(new_location);
+    xstring old_path = RA::OS::FullPath(old_location);
+    xstring new_path = RA::OS::FullPath(new_location);
     try {
         std::ifstream  in(old_path, std::ios::in | std::ios::binary);
         std::ofstream out(new_path, std::ios::out | std::ios::binary);
@@ -643,27 +643,27 @@ void OS::MoveFile(const xstring& old_location, const xstring& new_location)
         if (out.is_open()) out.close();
     }
     catch (std::runtime_error & err) {
-        throw std::runtime_error(xstring("OS::move_file Failed: ") + err.what());
+        throw std::runtime_error(xstring("RA::OS::move_file Failed: ") + err.what());
     }
 
-    OS::RemoveFile(old_path);
+    RA::OS::RemoveFile(old_path);
 }
 
-void OS::MoveDir(const xstring& old_location, const xstring& new_location) {
+void RA::OS::MoveDir(const xstring& old_location, const xstring& new_location) {
 
     if (!(old_location.size() || new_location.size())) return;
 
-    OS::CopyDir(old_location, new_location);
-    OS::RemoveDir(old_location);
+    RA::OS::CopyDir(old_location, new_location);
+    RA::OS::RemoveDir(old_location);
 }
 
 
-void OS::CopyFile(const xstring& old_location, const xstring& new_location)
+void RA::OS::CopyFile(const xstring& old_location, const xstring& new_location)
 {
     if (!(old_location.size() || new_location.size())) return;
 
-    xstring old_path = OS::FullPath(old_location);
-    xstring new_path = OS::FullPath(new_location);
+    xstring old_path = RA::OS::FullPath(old_location);
+    xstring new_path = RA::OS::FullPath(new_location);
 
     std::ifstream  in(old_path, std::ios::in | std::ios::binary);
     std::ofstream out(new_path, std::ios::out | std::ios::binary);
@@ -673,48 +673,48 @@ void OS::CopyFile(const xstring& old_location, const xstring& new_location)
     if (out.is_open()) out.close();
 }
 
-void OS::CopyDir(const xstring& old_location, const xstring& new_location)
+void RA::OS::CopyDir(const xstring& old_location, const xstring& new_location)
 {
 
     if (!(old_location.size() || new_location.size()))
         return;
 
-    xstring old_path = OS::FullPath(old_location);
-    xstring new_path = OS::FullPath(new_location);
+    xstring old_path = RA::OS::FullPath(old_location);
+    xstring new_path = RA::OS::FullPath(new_location);
 
-    if (!OS::HasDir(old_path))
+    if (!RA::OS::HasDir(old_path))
         throw std::runtime_error("\nThis is not a folder\n" + old_path + '\n');
 
 
-    if (OS::HasFile(new_path))
+    if (RA::OS::HasFile(new_path))
         throw std::runtime_error("\nA file exists there\n" + new_path + '\n');
 
-    xvector<xstring> old_folders = OS::Dir(old_path, 'r', 'd');
-    xvector<xstring> old_files = OS::Dir(old_path, 'r', 'f');
+    xvector<xstring> old_folders = RA::OS::Dir(old_path, 'r', 'd');
+    xvector<xstring> old_files = RA::OS::Dir(old_path, 'r', 'f');
     size_t old_size = old_path.size();
 
     xstring nested_dir_item;
     if (old_folders.size()) {
         for (xvector<xstring>::const_iterator it = old_folders.begin(); it < old_folders.end(); it++) {
             nested_dir_item = (*it).substr(old_size, (*it).size() - old_size);
-            OS::MKDIR(new_path + nested_dir_item);
+            RA::OS::MKDIR(new_path + nested_dir_item);
         }
     }
     else {
-        OS::MKDIR(new_path);
+        RA::OS::MKDIR(new_path);
     }
 
     if (old_files.size()) {
         for (xvector<xstring>::const_iterator it = old_files.begin(); it < old_files.end(); it++) {
             nested_dir_item = (*it).substr(old_size, (*it).size() - old_size);
-            OS::CopyFile(*it, new_path + nested_dir_item);
+            RA::OS::CopyFile(*it, new_path + nested_dir_item);
         }
     }
 }
 
-void OS::RemoveFile(const xstring& item)
+void RA::OS::RemoveFile(const xstring& item)
 {
-    xstring fitem = OS::FullPath(item);
+    xstring fitem = RA::OS::FullPath(item);
 
     if (!OS_O::Dir_Type::HasFile(fitem))
         throw std::runtime_error(std::string("Error Filename: ") + fitem + " Does Not Exist!\n");
@@ -737,13 +737,13 @@ void OS::RemoveFile(const xstring& item)
 }
 
 
-void OS::RemoveDir(const xstring& folder)
+void RA::OS::RemoveDir(const xstring& folder)
 {
     if (!folder.size()) return;
 
-    xstring del_path = OS::FullPath(folder);
+    xstring del_path = RA::OS::FullPath(folder);
 
-    xvector<xstring> dir_items = OS::Dir(del_path, 'r', 'f', 'd');
+    xvector<xstring> dir_items = RA::OS::Dir(del_path, 'r', 'f', 'd');
     dir_items.push_back(del_path);
 
     std::multimap<size_t, xstring> dir_size_mp; // I only have a unordered_map of the extended stl at this time
@@ -756,15 +756,15 @@ void OS::RemoveDir(const xstring& folder)
     auto delete_dir_item = [&dir_item]() -> void
     {
 #if defined(NIX_BASE)
-        if (OS::HasDir(dir_item->second))
+        if (RA::OS::HasDir(dir_item->second))
             ::rmdir(dir_item->second.c_str());
-        else if (OS::HasFile(dir_item->second))
+        else if (RA::OS::HasFile(dir_item->second))
             remove(dir_item->second.c_str());
 
 #elif defined(WIN_BASE)
-        if (OS::HasDir(dir_item->second))
+        if (RA::OS::HasDir(dir_item->second))
             RemoveDirectoryA(dir_item->second.c_str());
-        else if (OS::HasFile(dir_item->second))
+        else if (RA::OS::HasFile(dir_item->second))
             DeleteFileA(dir_item->second.c_str());
 
 #endif
@@ -774,12 +774,12 @@ void OS::RemoveDir(const xstring& folder)
         delete_dir_item();
 }
 
-void OS::ClearFile(const xstring& i_file)
+void RA::OS::ClearFile(const xstring& i_file)
 {
     if (!i_file.size())
         return;
 
-    xstring file = OS::FullPath(i_file);
+    xstring file = RA::OS::FullPath(i_file);
     std::ofstream ofs;
     ofs.open(file.c_str(), std::ofstream::out | std::ofstream::trunc);
     if (ofs.is_open())

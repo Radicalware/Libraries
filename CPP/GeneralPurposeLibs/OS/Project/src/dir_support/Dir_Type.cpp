@@ -13,18 +13,18 @@
 #endif
 
 
-const unsigned char OS_O::Dir_Type::IsFile   = 0x8;
-const unsigned char OS_O::Dir_Type::IsFolder = 0x4;
+const unsigned char RA::OS_O::Dir_Type::IsFile   = 0x8;
+const unsigned char RA::OS_O::Dir_Type::IsFolder = 0x4;
 
-RE2 OS_O::Dir_Type::s_backslash(R"((\\\\))");
-RE2 OS_O::Dir_Type::s_back_n_forward_slashes(R"([\\\\/]+)");
-RE2 OS_O::Dir_Type::s_forwardslash(R"(/)");
+RE2 RA::OS_O::Dir_Type::s_backslash(R"((\\\\))");
+RE2 RA::OS_O::Dir_Type::s_back_n_forward_slashes(R"([\\\\/]+)");
+RE2 RA::OS_O::Dir_Type::s_forwardslash(R"(/)");
 
-OS_O::Dir_Type::Dir_Type() {}
-OS_O::Dir_Type::~Dir_Type() {}
+RA::OS_O::Dir_Type::Dir_Type() {}
+RA::OS_O::Dir_Type::~Dir_Type() {}
 
 
-OS_O::Dir_Type::DT OS_O::Dir_Type::GetDirType(const xstring& input) {
+RA::OS_O::Dir_Type::DT RA::OS_O::Dir_Type::GetDirType(const xstring& input) {
 
 #if defined(NIX_BASE)
 
@@ -62,28 +62,28 @@ OS_O::Dir_Type::DT OS_O::Dir_Type::GetDirType(const xstring& input) {
     return DT::none;
 }
 
-bool OS_O::Dir_Type::Has(const xstring& item)
+bool RA::OS_O::Dir_Type::Has(const xstring& item)
 {
     return (Dir_Type::HasFile(item) || Dir_Type::HasDir(item));
 }
 
-bool OS_O::Dir_Type::HasFile(const xstring& file) {
+bool RA::OS_O::Dir_Type::HasFile(const xstring& file) {
     return (Dir_Type::GetDirType(file) == DT::file);
 }
 
-bool OS_O::Dir_Type::HasDir(const xstring& folder) {
+bool RA::OS_O::Dir_Type::HasDir(const xstring& folder) {
     return (Dir_Type::GetDirType(folder) == DT::directory);
 }
 
-bool OS_O::Dir_Type::HasFile(xstring&& file) {
+bool RA::OS_O::Dir_Type::HasFile(xstring&& file) {
     return (Dir_Type::GetDirType(file) == DT::file);
 }
 
-bool OS_O::Dir_Type::HasDir(xstring&& folder) {
+bool RA::OS_O::Dir_Type::HasDir(xstring&& folder) {
     return (Dir_Type::GetDirType(folder) == DT::directory);
 }
 
-xstring OS_O::Dir_Type::GetDirItem(const xstring& input) {
+xstring RA::OS_O::Dir_Type::GetDirItem(const xstring& input) {
 
     DT dt = DT::none;
     dt = Dir_Type::GetDirType(input);
@@ -97,7 +97,7 @@ xstring OS_O::Dir_Type::GetDirItem(const xstring& input) {
 }
 
 
-xstring OS_O::Dir_Type::BWD() {
+xstring RA::OS_O::Dir_Type::BWD() {
     xstring bwd;
 #if defined(NIX_BASE)
     char result[FILENAME_MAX];
@@ -113,7 +113,7 @@ xstring OS_O::Dir_Type::BWD() {
     return bwd;
 }
 
-xstring OS_O::Dir_Type::PWD() {
+xstring RA::OS_O::Dir_Type::PWD() {
     xstring pwd;
 #if defined(NIX_BASE)
     char c_pwd[256];
@@ -137,7 +137,7 @@ xstring OS_O::Dir_Type::PWD() {
 }
 
 
-xstring OS_O::Dir_Type::Home() {
+xstring RA::OS_O::Dir_Type::Home() {
     xstring home_str;
 #if defined(NIX_BASE)
     struct passwd *pw = getpwuid(getuid());
@@ -155,7 +155,7 @@ xstring OS_O::Dir_Type::Home() {
     return home_str;
 }
 
-xstring OS_O::Dir_Type::FullPath(const xstring& file)
+xstring RA::OS_O::Dir_Type::FullPath(const xstring& file)
 {
     if (file[0] != '.') // no path traversal
         return file;
