@@ -91,8 +91,8 @@ public:
     const char Last(size_t Idx = 0) const;
     char& Last(size_t Idx = 0);
 
-    size_t Size() const;
-    const char* Ptr() const;
+    constexpr size_t Size() const { return this->size(); }
+    constexpr const char* Ptr() const { return this->c_str(); }
 
     void Print() const;
     void Print(int num) const;
@@ -227,10 +227,16 @@ public:
 
     // =================================================================================================================================
 
-    xstring operator()(long double x = 0, long double y = 0, long double z = 0, const char removal_method = 's') const;
+    xstring operator()(const long long int x) const;
+    xstring operator()(
+        const long long int x,
+        const long long int y,
+        const long long int z = 0,
+        const char removal_method = 's') const;
 
     // =================================================================================================================================
 
+    bool        BxNumber() const;
     int         ToInt() const;
     long        ToLong() const;
     long long   ToLongLong() const;
@@ -264,6 +270,28 @@ public:
     xstring ToBold() const;
     xstring ToUnderline() const;
     xstring ToInvertedColor() const;
+
+    
+    INL static xstring Black()       { return static_class.ToBlack(); }
+    INL static xstring Red()         { return static_class.ToRed(); }
+    INL static xstring Green()       { return static_class.ToGreen(); }
+    INL static xstring Yellow()      { return static_class.ToYellow(); }
+    INL static xstring Blue()        { return static_class.ToBlue(); }
+    INL static xstring Megenta()     { return static_class.ToMegenta(); }
+    INL static xstring Cyan()        { return static_class.ToCyan(); }
+    INL static xstring Grey()        { return static_class.ToGrey(); }
+    INL static xstring White()       { return static_class.ToWhite(); }
+
+    INL static xstring OnBlack()     { return static_class.ToOnBlack(); }
+    INL static xstring OnRed()       { return static_class.ToOnRed(); }
+    INL static xstring OnGreen()     { return static_class.ToOnGreen(); }
+    INL static xstring OnYellow()    { return static_class.ToOnYellow(); }
+    INL static xstring OnBlue()      { return static_class.ToOnBlue(); }
+    INL static xstring OnMegenta()   { return static_class.ToOnMegenta(); }
+    INL static xstring OnCyan()      { return static_class.ToOnCyan(); }
+    INL static xstring OnGrey()      { return static_class.ToOnGrey(); }
+    INL static xstring OnWhite()     { return static_class.ToOnWhite(); }
+
     // =================================================================================================================================
 };
 
@@ -330,37 +358,99 @@ namespace RA
         throw "Do Not Use!!";
     }
 
-    template<class T>
-    xstring FormatNum(T Value, const size_t FnPercision = 0)
+
+    template<class N>
+    UsingFundamental(xstring) TruncateNum(N FnValue, const size_t FnPercision = 0, const bool FbFromStart = false)
     {
         std::ostringstream SS;
-        if (FnPercision)
-            SS.precision(FnPercision);
-        else
-            SS.precision(17);
-        SS.imbue(std::locale(""));
-        auto ValueLong = Value;
-        auto ValueShort = Value + 0.00000000000002;
-        //                        0.00399999999999
-        auto GetNumStr = [&SS](const T Num) ->xstring
+        SS.precision(17);
+        SS << std::fixed << FnValue;
+        xstring RetStr = SS;
+
+        if (!RetStr.Count('.'))
+            return SS;
+
+        if (FbFromStart)
+            return RetStr.substr(0, FnPercision + 1); // plus 1 to include '.' char
+
+        xvector<xstring> Vec = RetStr.Split((char)'\\.');
+        return Vec[0] + '.' + Vec[1].substr(0, FnPercision);
+    }
+
+    template<typename N>
+    UsingFundamental(size_t) GetPrecision(N FnValue)
+    {
+        size_t Counter = 0;
+        while (FnValue < 1)
         {
-            SS.str("");
-            SS.clear();
-            SS << std::defaultfloat << Num;
-            xstring RetStr = SS;
-            const static RE2 TrailingZeroPattern(R"((0{5,}\d*)$)"); // find trailnig 0s and unreliable trailers
-            if (RetStr.Count('.')) // only if it is a decimal number
-                return RetStr.Sub(TrailingZeroPattern, ""); // and remove them
-            return RetStr;
-        };
-        auto LongNumStr = GetNumStr(ValueLong);
-        auto ShortNumStr = GetNumStr(ValueShort);
-        // return the shortest number
-        return (LongNumStr.Size() > ShortNumStr.Size()) ? ShortNumStr : LongNumStr;
+            FnValue *= 10;
+            Counter++;
+        }
+        return Counter;
+    }
+
+    template<class N>
+    UsingFundamental(xstring) FormatNum(N FnValue, const size_t FnPercision = 0)
+    {
+        std::ostringstream SS;
+        SS.precision(17);
+        SS.imbue(std::locale(""));
+        SS << std::fixed << FnValue;
+        xstring Out = SS;
+
+        if (FnPercision)
+        {
+            if (Out.Count('.')) // only if it is a decimal number
+            {
+                xvector<xstring> Vec = Out.Split((char)'\\.');
+                return Vec[0] + '.' + Vec[1].substr(0, FnPercision);
+            }
+            return SS;
+        }
+
+        if (!Out.Count('.'))
+            return Out;
+
+        const RE2 OnlyZeros(R"(^((\-?)0\.0*)$)");
+        const RE2 JustTrailingZeros(R"(^((\-?)[\d,]+)(\.0+)$)");
+
+        if (Out.Match(OnlyZeros))
+            return "0"; // return a single zero: 0.0000
+
+        if (Out.Size() >= 3 && Out[0] == '0' && Out[1] == '.')
+            return Out.Search(R"(^((\-?)0\.0*[1-9]*)(.*)$)").At(0); // when (num < 1), trim trailing zeros:  0.000500
+
+        if (Out.Match(JustTrailingZeros))
+            return Out.Search(R"(^((\-?)[\d,]+)(\.0+)$)").At(0); // remove trailing zeros: 555.00000
+
+        const RE2 TrailingZeroPattern(R"((0{5,}\d*)$)"); // find trailnig 0s and unreliable trailers
+        const RE2 TrailingNinePattern(R"((9{5,}\d*)$)"); // find trailnig 0s and unreliable trailers
+        
+        if (!Out.Scan(TrailingZeroPattern) && !Out.Scan(TrailingNinePattern))
+            return Out;
+
+        Out = Out.Sub(TrailingZeroPattern, "").Sub(TrailingNinePattern, "");
+        if (Out.Last() == '.')
+        {
+            FnValue += 1;
+            SS.str(xstring::static_class);
+            SS << static_cast<size_t>(FnValue);
+            return SS;
+        }
+        return Out;
     }
 
     template<class T>
-    xstring FormatInt(T Value, const size_t FnPercision = 0)
+    xstring FormatInt(T Value)
+    {
+        std::ostringstream SS;
+        SS.imbue(std::locale(""));
+        SS << round(Value);
+        return SS;
+    }
+
+    template<class T>
+    xstring FormatInt(T Value, const size_t FnPercision)
     {
         static const re2::RE2 StripDouble(R"(\..*$)");
         std::ostringstream SS;

@@ -4,6 +4,8 @@
 
 #include <chrono>
 
+const RA::Timer RA::Timer::StaticClass;
+
 RA::Timer::Timer() : m_beg(SteadyClock::now()) {   }
 
 void RA::Timer::Reset() {
@@ -11,21 +13,43 @@ void RA::Timer::Reset() {
 }
 
 
-void RA::Timer::WaitSeconds(pint extent) const
+void RA::Timer::WaitSeconds(pint extent)
 {
-    while (This.GetElapsedTimeMilliseconds() < extent)
+    WaitMilliseconds(extent * 1000);
+}
+
+void RA::Timer::WaitMilliseconds(unsigned long extent)
+{
+    auto ElapsedTime = StaticClass.GetElapsedTimeMilliseconds();
+    while (StaticClass.GetElapsedTimeMilliseconds() < (ElapsedTime + extent))
         RA::Timer::Sleep(1);
 }
 
-void RA::Timer::WaitMilliseconds(unsigned long extent) const
+void RA::Timer::Wait(unsigned long extent)
 {
-    while (This.GetElapsedTimeMilliseconds() < extent / static_cast<pint>(1000))
-        RA::Timer::Sleep(1);
+    StaticClass.WaitMilliseconds(extent);
 }
 
-void RA::Timer::Wait(unsigned long extent) const
+void RA::Timer::WaitUntil(unsigned long extent, std::function<bool()>&& Function)
 {
-    This.WaitMilliseconds(extent);
+    while (!Function())
+        StaticClass.Sleep(extent);
+}
+
+void RA::Timer::PassOrWait(unsigned long TestEveryTimer, unsigned long ExitAnywayTimer, std::function<bool()>&& Function)
+{
+    const auto ElapsedTime = StaticClass.GetElapsedTimeMilliseconds();
+    // break when the function is true or we surpass a point later in time
+    while (!Function() && StaticClass.GetElapsedTimeMilliseconds() < (ElapsedTime + ExitAnywayTimer))
+        StaticClass.Sleep(TestEveryTimer);
+}
+
+void RA::Timer::PassOrWaitSeconds(unsigned long TestEveryTimer, unsigned long ExitAnywayTimer, std::function<bool()>&& Function)
+{
+    const auto ElapsedTime = StaticClass.GetElapsedTimeSeconds();
+    // break when the function is true or we surpass a point later in time
+    while (!Function() && StaticClass.GetElapsedTimeSeconds() < (ElapsedTime + ExitAnywayTimer))
+        StaticClass.Sleep(TestEveryTimer);
 }
 
 void RA::Timer::Lap()
@@ -83,5 +107,14 @@ void RA::Timer::Sleep(unsigned long FnMilliseconds)
     ::Sleep(FnMilliseconds);
 #else
     ::usleep(FnMilliseconds);
+#endif
+}
+
+void RA::Timer::SleepSeconds(unsigned long FnSeconds)
+{
+#if (defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64))
+    ::Sleep(FnSeconds * 1000);
+#else
+    ::usleep(FnSeconds * 1000);
 #endif
 }

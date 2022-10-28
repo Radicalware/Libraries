@@ -18,7 +18,8 @@ using std::cout;
 using std::endl;
 using std::bind;
 
-#include "ObjectHandling.h"
+#include "ObjectMutexHandling.h"
+#include "ObjectReturnHandling.h"
 #include "Benchmark.h"
 
 
@@ -31,8 +32,9 @@ int main()
     // static classes static and instnace classes instance based to not confuse anyone. 
     // -------------------------------------------------------------------------------------
 
+    ObjectMutexHandling();
+    ObjectReturnHandling();
 
-    ObjectHandling();
     //Benchmark();
     
     RescuePrint();

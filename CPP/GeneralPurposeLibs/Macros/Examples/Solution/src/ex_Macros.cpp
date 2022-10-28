@@ -5,15 +5,18 @@
 #include "Macros.h"
 
 #include <sstream>
+#include <assert.h>
 //#include "vld.h"
 
 
 void BadFuncitonWithSSS()
 {
+    Begin();
     xstring* PlayerNamePtr = nullptr;
     int Kills = 55;
     int Health = 98.555;
     NullThrow(PlayerNamePtr, SSS("Player is Null with Kills: ", Kills, " and Health: ", 98.555));
+    Rescue();
 }
 
 void BadFunctionWithGET()
@@ -43,9 +46,11 @@ struct Object
 
     void FastCreateAndDestroy()
     {
+        Begin();
         RenewObj(TheName, xstring("King"));
         cout << TheName << endl;
         DeleteObj(TheNamePtr);
+        Rescue();
     }
 };
 
@@ -61,14 +66,9 @@ int main()
 {
     Nexus<>::Start(); 
 
-    try
-    {
-        BadFuncitonWithSSS();
-    }
-    catch (const xstring& Err)
-    {
-        Err.Print("\n");
-    }
+    Begin();
+    BadFuncitonWithSSS();
+    RescuePrint();
 
     Begin();
     Object::TestPointers();
@@ -79,10 +79,10 @@ int main()
     Instance.FastCreateAndDestroy();
     RescuePrint();
 
+
     Begin();
     StlException();
     RescuePrint();
 
-    Nexus<>::Stop();
-    return 0;
+    return Nexus<>::Stop();
 }

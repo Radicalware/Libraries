@@ -25,6 +25,8 @@ macro(BuildRadicalSolution InPrivateLibs InPublicLibs)
         endforeach()
     endif()
 
+    target_link_libraries(${THIS} ${TargetLibs})
+
     LinkAllSharedLibs(${THIS})
     SetAllDependenciesOn(${THIS})
 

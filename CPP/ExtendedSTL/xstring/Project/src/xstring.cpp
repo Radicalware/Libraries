@@ -198,19 +198,9 @@ char& xstring::Last(size_t Idx)
     return The.operator[](this->size() - Idx - 1);
 }
 
-size_t xstring::Size() const
-{
-    return size();
-}
-
-const char* xstring::Ptr() const
-{
-    return c_str();
-}
-
 void xstring::Print() const
 {
-    std::cout << The << '\n';
+    printf("%s\n", This.c_str()); // printf is faster than std::cout
 }
 
 void xstring::Print(int num) const
@@ -444,8 +434,23 @@ xvector<xstring> xstring::Split(const xstring& pattern, rxm::type mod) const {
     return The.Split(std::regex(pattern.c_str(), rxm::ECMAScript | mod));
 }
 
-xvector<xstring> xstring::Split(const char splitter, rxm::type mod) const {
-    return The.Split(xstring({ splitter }), mod);
+xvector<xstring> xstring::Split(const char splitter, rxm::type mod) const 
+{
+    xvector<xstring> Vec;
+    xstring Current;
+    for (xstring::const_iterator It = This.cbegin(); It != This.cend(); It++)
+    {
+        if (*It != splitter)
+            Current += *It;
+        else if(Current.size())
+        {
+            Vec << std::move(Current);
+            Current.clear();
+        }
+    }
+    if(Current.size())
+        Vec << std::move(Current);
+    return Vec;
 }
 
 xvector<xstring> xstring::InclusiveSplit(const std::regex& rex, bool single) const
@@ -902,22 +907,22 @@ xstring xstring::Sub(const std::regex& rex, const std::string& replacement) cons
 
 xstring xstring::Sub(const RE2& rex, const std::string& replacement) const
 {
-    xstring ret = The;
-    RE2::GlobalReplace(reinterpret_cast<std::string*>(&ret), rex, replacement);
+    std::string ret = The.c_str();
+    RE2::GlobalReplace(&ret, rex, replacement);
     return ret;
 }
 
 xstring xstring::Sub(const RE2& rex, const re2::StringPiece& replacement) const
 {
-    xstring ret = The;
-    RE2::GlobalReplace(reinterpret_cast<std::string*>(&ret), rex, replacement);
+    std::string ret = The.c_str();
+    RE2::GlobalReplace(&ret, rex, replacement);
     return ret;
 }
 
 xstring xstring::Sub(const RE2& rex, const char* replacement) const
 {
-    xstring ret = The;
-    RE2::GlobalReplace(reinterpret_cast<std::string*>(&ret), rex, re2::StringPiece(replacement));
+    std::string ret = The.c_str();
+    RE2::GlobalReplace(&ret, rex, re2::StringPiece(replacement));
     return ret;
 }
 
@@ -971,38 +976,56 @@ xstring& xstring::RightTrim(const xstring& trim)
     return The;
 }
 
-xstring xstring::operator()(long double x, long double y, long double z, const char removal_method) const
+xstring xstring::operator()(const long long int x) const
 {
-    size_t m_size = The.size();
+    if (x == 0)
+        return This;
+
+    if (x > 0 && x >= This.size())
+        return "";
+
+    if (x < 0 && std::abs(x) > size())
+        return This;
+
+    if (x == 0)
+        return This;
+    else if (x > 0)
+        return This.substr(x, size() - x);
+    else
+        return This.substr(size() + x, size() - (size() + x));
+}
+
+xstring xstring::operator()(
+    const long long int x,
+    const long long int y,
+    const long long int z,
+    const char removal_method) const
+{
+    const auto m_size = static_cast<long long int>(The.size());
+    if (m_size <= 1)
+        return The;
+
     xstring n_arr;
     n_arr.reserve(m_size + 4);
 
-    double n_arr_size = static_cast<double>(m_size) - 1;
+    if (z >= 0) 
+    {
+        const auto tx = (x >= 0) ? x : m_size + x + 1;
+        const auto ty = (y >= 0) ? y : m_size + y;
 
-    if (z >= 0) {
-
-        if (x < 0) { x += n_arr_size; }
-
-        if (!y) { y = n_arr_size; }
-        else if (y < 0) { y += n_arr_size; }
-        ++y;
-
-        if (x > y) { return n_arr; }
-
-        typename xstring::const_iterator iter = The.begin();
-        typename xstring::const_iterator stop = The.begin() + static_cast<ull>(y);
+        typename xstring::const_iterator iter = The.begin() + tx;
+        typename xstring::const_iterator stop = The.begin() + ty;
 
         if (z == 0) { // forward direction with no skipping
-            for (iter += static_cast<ull>(x); iter != stop; ++iter)
+            for (; iter != stop; ++iter)
                 n_arr.push_back(*iter);
         }
         else if (removal_method == 's') { // forward direction with skipping
             double iter_insert = 0;
-            --z;
-            for (iter += static_cast<unsigned long long>(x); iter != stop; ++iter) {
+            for (; iter != stop; ++iter) {
                 if (!iter_insert) {
                     n_arr.push_back(*iter);
-                    iter_insert = z;
+                    iter_insert = z - 1;
                 }
                 else {
                     --iter_insert;
@@ -1011,10 +1034,9 @@ xstring xstring::operator()(long double x, long double y, long double z, const c
         }
         else {
             double iter_insert = 0;
-            --z;
-            for (iter += static_cast<ull>(x); iter != stop; ++iter) {
+            for (; iter != stop; ++iter) {
                 if (!iter_insert) {
-                    iter_insert = z;
+                    iter_insert = z - 1;
                 }
                 else {
                     n_arr.push_back(*iter);
@@ -1024,35 +1046,25 @@ xstring xstring::operator()(long double x, long double y, long double z, const c
         }
     }
     else { // reverse direction
-        z = z * -1 - 1;
-        //z = static_cast<size_t>(z = z * -1 - 1);
-        if (!x) { x = n_arr_size; }
-        else if (x < 0) { x += n_arr_size; }
+        const auto tz = z * (-1) - 1;
+        const auto tx = (x >= 0) ? m_size - x - 1 : std::abs(x) - 1;
+        const auto ty = (y >= 0) ? m_size - y - 1 : std::abs(y) - 1;
 
-        if (!y) { y = 0; }
-        else if (y < 0) { y += n_arr_size; }
-
-        if (y > x) { return n_arr; }
-
-        // x = static_cast<size_t>(x);
-        // y = static_cast<size_t>(y);
-
-        typename xstring::const_reverse_iterator iter = The.rend() - static_cast<ull>(x) - 1;
-        typename xstring::const_reverse_iterator stop = The.rend() - static_cast<ull>(y);
+        typename xstring::const_reverse_iterator iter = The.rbegin() + tx;
+        typename xstring::const_reverse_iterator stop = The.rbegin() + ty;
 
         double iter_insert = 0;
 
-        if (z == 0) {
+        if (z + 1 == 0) {
             for (; iter != stop; ++iter) {
-                if (!iter_insert)
-                    n_arr.push_back(*iter);
+                n_arr.push_back(*iter);
             }
         }
         else if (removal_method == 's') {
             for (; iter != stop; ++iter) {
                 if (!iter_insert) {
                     n_arr.push_back(*iter);
-                    iter_insert = z;
+                    iter_insert = z + 1;
                 }
                 else {
                     --iter_insert;
@@ -1062,7 +1074,7 @@ xstring xstring::operator()(long double x, long double y, long double z, const c
         else {
             for (; iter != stop; ++iter) {
                 if (!iter_insert) {
-                    iter_insert = z;
+                    iter_insert = z + 1;
                 }
                 else {
                     n_arr.push_back(*iter);
@@ -1075,6 +1087,21 @@ xstring xstring::operator()(long double x, long double y, long double z, const c
 }
 
 // =========================================================================================================================
+
+bool xstring::BxNumber() const
+{
+    if (!The.Size())
+        return false;
+
+    for (char Chr : The)
+    {
+        if (!(Chr == '0' || Chr == '1' || Chr == '2' || Chr == '3' || Chr == '4'
+            || Chr == '5' || Chr == '6' || Chr == '7' || Chr == '8' || Chr == '9'))
+            return false;
+    }
+    return true;
+}
+
 
 int xstring::ToInt() const
 {

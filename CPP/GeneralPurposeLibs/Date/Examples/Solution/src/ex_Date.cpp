@@ -127,7 +127,14 @@ int main()
 {
     Nexus<>::Start();
 
-    Date LoDate1(Date::Offset::Local);
+    cout << "UTC OFFSET (" << Date::GetComputerOffset() << ")\n";
+    cout << "None:      " << Date(Date::Offset::None)    << " = Default = UTC Time (otherwise the input time with no change)" << endl;
+    cout << "ToLocal:   " << Date(Date::Offset::ToLocal) << " = From UTC To Local" << endl;
+    cout << "ToLocal:   " << Date(Date::Offset::None).ToLocal() << " = From UTC To Local" << endl;
+    cout << "ToUTC:     " << Date(Date(Date::Offset::ToLocal), Date::Offset::ToUTC)   << " = From Local back to UTC" << endl;
+
+
+    Date LoDate1(Date::Offset::None);
     cout << "=======================================================\n";
     cout << "Hour Offset = " << LoDate1.GetHoursOffset() << endl;
     cout << "Secs Offset = " << LoDate1.GetSecondsOffset() << endl;

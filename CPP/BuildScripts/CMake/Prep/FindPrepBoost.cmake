@@ -6,7 +6,7 @@ if(WIN32)
     SET(BOOST_LIBRARYDIR  "D:/Application_Engines/Boost/libs")
 
     set(Boost_INCLUDE_DIR  "D:/Application_Engines/Boost")
-    set(CMAKE_MODULE_PATH  "${CMAKE_MODULE_PATH}:C:/Program Files/CMake/share/cmake-3.17/Modules")
+    set(CMAKE_MODULE_PATH  "${CMAKE_MODULE_PATH}:C:/Program Files/CMake/share/cmake-$ENV{CMAKE_VERSION}/Modules")
     set(CMAKE_MODULE_PATH  "${CMAKE_MODULE_PATH}:D:/Application_Engines/Boost/tools/boost_install")
     set(CMAKE_MODULE_PATH  "${CMAKE_MODULE_PATH}:D:/Application_Engines/Boost")
 

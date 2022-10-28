@@ -21,9 +21,11 @@ endif()
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
     set(release ON)
     set(debug OFF)
+    add_compile_definitions("ReleaseOn")
 else()
     set(release OFF)
     set(debug ON)
+    add_compile_definitions("DebugOn")
 endif()
 
 
@@ -46,7 +48,7 @@ if(WIN32) # --------------------------------------------------------------------
     # set(CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION ${WINDOWS_SDK})
 
     set(RADICAL_BASE   "C:/Source/CMake/Radicalware")
-    set(CMAKE_PATH     "C:/Program Files/CMake/share/cmake-3.20/Modules")
+    set(CMAKE_PATH     "C:/Program Files/CMake/share/cmake-$ENV{CMAKE_VERSION}/Modules")
 
     SET(INSTALL_PREFIX "${RADICAL_BASE}")
     SET(INSTALL_DIR    "${RADICAL_BASE}/Libraries/Projects")
@@ -86,8 +88,8 @@ else() # -----------------------------------------------------------------------
     set(C_ARGS   "${C_ARGS}   -std:c17")
     set(CPP_ARGS "${CPP_ARGS} -std=c++20")
 
-    set(CMAKE_PATH                "/usr/share/cmake-3.16/Modules")
-    list(APPEND CMAKE_MODULE_PATH "/usr/share/cmake-3.16/Utilities/cmlibarchive/build/cmake")
+    set(CMAKE_PATH                "/usr/share/cmake-$ENV{CMAKE_VERSION}/Modules")
+    list(APPEND CMAKE_MODULE_PATH "/usr/share/cmake-$ENV{CMAKE_VERSION}/Utilities/cmlibarchive/build/cmake")
     list(APPEND CMAKE_MODULE_PATH ${CMAKE_PATH})
     list(APPEND CMAKE_MODULE_PATH ${RADICAL_PATH})
 

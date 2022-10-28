@@ -3,11 +3,12 @@
 
 #include "Full.h"
 #include "Option.h"
+#include "Macros.h"
 
 int main()
 {
+    Begin();
     Nexus<>::Start();
-
     // NOTE: All test functions are inline to make example reading easier.
     Full full;
     full.Basics();
@@ -23,6 +24,7 @@ int main()
     option.char_count();
     option.str_count();
 
+    RescuePrint();
     Nexus<>::Stop();
     return 0;
 }

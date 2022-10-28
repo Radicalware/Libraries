@@ -30,9 +30,8 @@ find_package(mongocxx CONFIG REQUIRED)
 target_link_libraries(${THIS}
     re2::re2
 
-    cpprestsdk::cpprest
+    cpprestsdk::cpprest 
     cpprestsdk::cpprestsdk_zlib_internal 
-    cpprestsdk::cpprestsdk_boost_internal 
     cpprestsdk::cpprestsdk_brotli_internal
 
     nlohmann_json

@@ -40,7 +40,7 @@ public:
 
     void DeleteAll();
 
-    template<typename N = typename E::value_type> // Nested Type
+    template<typename N = typename std::remove_const<T>::type::value_type> // Nested Type
     inline xvector<N*> Expand() const;
 
     T Join(const T& str = "") const;

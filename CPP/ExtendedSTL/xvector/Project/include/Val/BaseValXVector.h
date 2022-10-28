@@ -84,7 +84,7 @@ public:
     inline void operator+=(const xvector<T>& other);
     inline xvector<T> operator+(const xvector<T>& other) const;
 
-    size_t Size() const;
+    constexpr size_t Size() const { return this->size(); }
 
     inline void Organize();
     inline void RemoveDups();
@@ -130,9 +130,9 @@ public:
 
     // =================================== DESIGNED FOR NUMERIC BASED VECTORS ===================================
 
-    inline T GetSum(size_t FnSkipIdx = 0) const;
-    inline T GetMul(size_t FnSkipIdx = 0) const;
-    inline T GetAvg(size_t FnSkipIdx = 0) const;
+    inline T GetSum(size_t FnSetBackIDX = 0) const;
+    inline T GetMul(size_t FnSetBackIDX = 0) const;
+    inline T GetAvg(size_t FnSetBackIDX = 0) const;
 
     // =================================== DESIGNED FOR STRING  BASED VECTORS ===================================
 
@@ -176,7 +176,13 @@ public:
     inline xvector<T> SubAll(char const* in_pattern, char const* replacement) const;
     
     // double was chose to hold long signed and unsigned values
-    inline xvector<T> operator()(long double x = 0, long double y = 0, long double z = 0, const char removal_method = 's') const;
+
+    inline xvector<T> operator()(const long long int x) const;
+    inline xvector<T> operator()(
+        const long long int x,
+        const long long int y,
+        const long long int z = 0,
+        const char removal_method = 's') const;
     // s = slice perserves values you land on 
     // d = dice  removes values you land on
     // s/d only makes a difference if you modify the 'z' value
@@ -454,12 +460,6 @@ xvector<T> ValXVector<T>::operator+(const xvector<T>& other) const
 // ------------------------------------------------------------------------------------------------
 
 template<typename T>
-inline size_t ValXVector<T>::Size() const
-{
-    return this->size();
-}
-
-template<typename T>
 inline void ValXVector<T>::Organize()
 {
     std::multiset<T> set_arr;
@@ -660,24 +660,26 @@ inline bool ValXVector<T>::TasksCompleted() const
 
 
 template<typename T>
-inline T ValXVector<T>::GetSum(size_t FnSkipIdx) const
+inline T ValXVector<T>::GetSum(size_t FnSetBackIDX) const
 {
     if (!Size())
         return 0;
 
-    T LnModSize = 0;
-    if (FnSkipIdx && Size() > FnSkipIdx)
-        LnModSize = Size() - FnSkipIdx;
+    size_t SetBackIDX = 0;
+    if (FnSetBackIDX)
+        SetBackIDX = (Size() > FnSetBackIDX) ? FnSetBackIDX : Size();
+    else
+        SetBackIDX = Size();
 
     T num = 0;
-    for (typename ValXVector<T>::const_iterator it = this->begin() + LnModSize; it != this->end(); it++) {
+    for (typename ValXVector<T>::const_iterator it = this->end() - SetBackIDX; it != this->end(); it++) {
         num += *it;
     }
     return num;
 }
 
 template<typename T>
-inline T ValXVector<T>::GetMul(size_t FnSkipIdx) const
+inline T ValXVector<T>::GetMul(size_t FnSetBackIDX) const
 {
     if (!Size())
         return 0;
@@ -685,21 +687,28 @@ inline T ValXVector<T>::GetMul(size_t FnSkipIdx) const
     if (Size() == 1)
         return (*this)[0];
 
-    T LnModSize = 0;
-    if (Size() > FnSkipIdx)
-        LnModSize = Size() - FnSkipIdx;
+    const size_t SetBackIDX = (Size() > FnSetBackIDX) ? FnSetBackIDX : Size();
 
     T num = 1;
-    for (typename ValXVector<T>::const_iterator it = this->begin() + LnModSize; it != this->end(); it++) {
+    for (typename ValXVector<T>::const_iterator it = this->end() - SetBackIDX; it != this->end(); it++) {
         num *= (*it);
     }
     return num;
 }
 
 template<typename T>
-inline T ValXVector<T>::GetAvg(size_t FnSkipIdx) const
+inline T ValXVector<T>::GetAvg(size_t FnSetBackIDX) const
 {
-    return this->GetSum(FnSkipIdx) / (this->Size() - FnSkipIdx);
+    if (!Size())
+        return 0;
+
+    size_t SetBackIDX = 0;
+    if (FnSetBackIDX)
+        SetBackIDX = (Size() > FnSetBackIDX) ? FnSetBackIDX : Size();
+    else
+        SetBackIDX = Size();
+
+    return this->GetSum(SetBackIDX) / SetBackIDX;
 }
 
 // =============================================================================================================
@@ -937,39 +946,73 @@ inline xvector<T> ValXVector<T>::SubAll(char const* in_pattern, char const* repl
 
 // =============================================================================================================
 
-template<typename T>
-xvector<T> ValXVector<T>::operator()(long double x, long double y, long double z, const char removal_method) const {
 
-    size_t m_size = this->size();
+template<typename T>
+xvector<T> ValXVector<T>::operator()(const long long int x) const
+{
+    if (x == 0)
+        return This;
+
+    if (x > 0 && x >= This.size())
+        return xvector<T>{};
+
+    if (x < 0 && std::abs(x) > This.size())
+        return This;
+
+    else if (x > 0)
+    {
+        // return This.substr(x, size() - x);
+        xvector<T> ret;
+        typename ValXVector<T>::const_iterator it = The.begin();
+        it += x;
+        for (; it != This.end(); it++)
+            ret.push_back(*it);
+        return ret;
+    }
+    else
+    {
+        // return This.substr(size() + x, size() - (size() + x));
+        xvector<T> ret;
+        typename ValXVector<T>::const_iterator it = The.begin();
+        it += This.Size() + x;
+        for (; it != This.end(); it++)
+            ret.push_back(*it);
+        return ret;
+    }
+}
+
+template<typename T>
+xvector<T> ValXVector<T>::operator()(
+    const long long int x,
+    const long long int y,
+    const long long int z,
+    const char removal_method) const
+{
+    const auto m_size = static_cast<long long int>(The.size());
+    if (m_size <= 1)
+        return The;
+
     xvector<T> n_arr;
     n_arr.reserve(m_size + 4);
 
-    double n_arr_size = static_cast<double>(m_size) - 1;
+    if (z >= 0)
+    {
+        const auto tx = (x >= 0) ? x : m_size + x + 1;
+        const auto ty = (y >= 0) ? y : m_size + y;
 
-    if (z >= 0) {
-
-        if (x < 0) { x += n_arr_size; }
-
-        if (!y) { y = n_arr_size; }
-        else if (y < 0) { y += n_arr_size; }
-        ++y;
-
-        if (x > y) { return n_arr; }
-
-        typename ValXVector<T>::const_iterator iter = this->begin();
-        typename ValXVector<T>::const_iterator stop = this->begin() + static_cast<size_t>(y);
+        typename xvector<T>::const_iterator iter = The.begin() + tx;
+        typename xvector<T>::const_iterator stop = The.begin() + ty;
 
         if (z == 0) { // forward direction with no skipping
-            for (iter += static_cast<size_t>(x); iter != stop; ++iter)
+            for (; iter != stop; ++iter)
                 n_arr.push_back(*iter);
         }
         else if (removal_method == 's') { // forward direction with skipping
             double iter_insert = 0;
-            --z;
-            for (iter += static_cast<size_t>(x); iter != stop; ++iter) {
+            for (; iter != stop; ++iter) {
                 if (!iter_insert) {
                     n_arr.push_back(*iter);
-                    iter_insert = z;
+                    iter_insert = z - 1;
                 }
                 else {
                     --iter_insert;
@@ -978,10 +1021,9 @@ xvector<T> ValXVector<T>::operator()(long double x, long double y, long double z
         }
         else {
             double iter_insert = 0;
-            --z;
-            for (iter += static_cast<size_t>(x); iter != stop; ++iter) {
+            for (; iter != stop; ++iter) {
                 if (!iter_insert) {
-                    iter_insert = z;
+                    iter_insert = z - 1;
                 }
                 else {
                     n_arr.push_back(*iter);
@@ -991,31 +1033,25 @@ xvector<T> ValXVector<T>::operator()(long double x, long double y, long double z
         }
     }
     else { // reverse direction
-        z = z * -1 - 1;
-        if (!x) { x = n_arr_size; }
-        else if (x < 0) { x += n_arr_size; }
+        const auto tz = z * (-1) - 1;
+        const auto tx = (x >= 0) ? m_size - x - 1 : std::abs(x) - 1;
+        const auto ty = (y >= 0) ? m_size - y - 1 : std::abs(y) - 1;
 
-        if (!y) { y = 0; }
-        else if (y < 0) { y += n_arr_size; }
+        typename xvector<T>::const_reverse_iterator iter = The.rbegin() + tx;
+        typename xvector<T>::const_reverse_iterator stop = The.rbegin() + ty;
 
-        if (y > x) { return n_arr; }
-        
-        typename ValXVector<T>::const_reverse_iterator iter = this->rend() - static_cast<size_t>(x) - 1;
-        typename ValXVector<T>::const_reverse_iterator stop = this->rend() - static_cast<size_t>(y);
+        double iter_insert = 0;
 
-        size_t iter_insert = 0;
-
-        if (z == 0) {
+        if (z + 1 == 0) {
             for (; iter != stop; ++iter) {
-                if (!iter_insert)
-                    n_arr.push_back(*iter);
+                n_arr.push_back(*iter);
             }
         }
         else if (removal_method == 's') {
             for (; iter != stop; ++iter) {
                 if (!iter_insert) {
                     n_arr.push_back(*iter);
-                    iter_insert = static_cast<size_t>(z);
+                    iter_insert = z + 1;
                 }
                 else {
                     --iter_insert;
@@ -1025,7 +1061,7 @@ xvector<T> ValXVector<T>::operator()(long double x, long double y, long double z
         else {
             for (; iter != stop; ++iter) {
                 if (!iter_insert) {
-                    iter_insert = static_cast<size_t>(z);
+                    iter_insert = z + 1;
                 }
                 else {
                     n_arr.push_back(*iter);

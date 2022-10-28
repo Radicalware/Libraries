@@ -65,11 +65,11 @@ void RA::SYS::SetArgs(int argc, char** argv)
         if (HasDoubleDash(Arg))
         {
             MvKeysStr << &Arg;
-            if (MmAliasChar.Has(Arg))
-                MvKeysChr << MmAliasChar.Key(Arg);
+            if (MmAliasSC.Has(Arg))
+                MvKeysChr << MmAliasSC.Key(Arg);
             if (bLastArg)
             {
-                RA::XMapAddToArray(MmArgs, MmAliasChar.Key(Arg), xstring::static_class);
+                RA::XMapAddKeyArrIdx(MmArgs, MmAliasSC.Key(Arg), xstring::static_class);
                 break;
             }
 
@@ -81,8 +81,8 @@ void RA::SYS::SetArgs(int argc, char** argv)
                     i = j - 1; // -1 because the for-loop will increase it again
                     break;
                 }
-                if (MmAliasChar.Has(Arg))
-                    RA::XMapAddToArray(MmArgs, MmAliasChar.Key(Arg), SubArg);
+                if (MmAliasSC.Has(Arg))
+                    RA::XMapAddKeyArrIdx(MmArgs, MmAliasSC.Key(Arg), SubArg);
             }
         }
         else if (HasSingleDash(Arg))
@@ -90,14 +90,14 @@ void RA::SYS::SetArgs(int argc, char** argv)
             for (const char& ChrArg : Arg(1))
             {
                 MvKeysChr << ChrArg; // Char Keys
-                for (auto& Pair : MmAliasChar) // Str Keys
+                for (auto& Pair : MmAliasSC) // Str Keys
                 {
                     if (Pair.second == ChrArg)
                         MvKeysStr << &Pair.first;
                 }
                 if (bLastArg) // Map
                 {
-                    RA::XMapAddToArray(MmArgs, ChrArg, xstring::static_class);
+                    RA::XMapAddKeyArrIdx(MmArgs, ChrArg, xstring::static_class);
                     continue;
                 }
 
@@ -111,17 +111,21 @@ void RA::SYS::SetArgs(int argc, char** argv)
                             i = j - 1;
                         break;
                     }
-                    RA::XMapAddToArray(MmArgs, ChrArg, SubArg);
+                    RA::XMapAddKeyArrIdx(MmArgs, ChrArg, SubArg);
                 }
             }
         }
     }
+
+    for (auto [Key, Val] : MmAliasSC)
+        MmAliasCS.AddPair(Val, Key);
+
     Rescue();
 }
 
 void RA::SYS::AddAlias(const char FChr, const xstring& FStr)
 {
-    MmAliasChar.AddPair(FStr, FChr);
+    MmAliasSC.AddPair(FStr, FChr);
 }
 
 // -------------------------------------------------------------------------------------------------------------------
@@ -150,7 +154,7 @@ bool RA::SYS::Arg(const size_t Idx, const char FChar) const
     if (MvCliArgs[Idx][0] == '-' && MvCliArgs[Idx][1] != '-')
         return MvCliArgs[Idx].Has(FChar);
     else
-        return MmArgs.Has(FChar) && MmArgs.at(FChar).Has(MvCliArgs[Idx]);
+        return MmArgs.Has(FChar) && MmArgs.Has(MmAliasSC.Key(MvCliArgs[Idx]));
 }
 xvector<char> RA::SYS::GetChrKeys() const { return MvKeysChr; }
 xvector<const xstring*> RA::SYS::GetStrKeys() const { return MvKeysStr; }
@@ -164,7 +168,7 @@ xvector<xstring> RA::SYS::Key(const xstring& FKey) const
     Begin();
     if (!MvKeysStr.Has(FKey))
         ThrowIt("CLI argument not found for key: ", FKey);
-    return MmArgs.Key(MmAliasChar.Key(FKey));
+    return MmArgs.Key(MmAliasSC.Key(FKey));
     Rescue();
 }
 xvector<xstring> RA::SYS::Key(const char FKey) const
@@ -179,7 +183,7 @@ bool RA::SYS::HasArgs() const { return MnSize > 1; }
 // -------------------------------------------------------------------------------------------------------------------
 
 bool RA::SYS::Has(const xstring& FKey) const {
-    return MvKeysStr.Has(FKey) || MmArgs.Has(MmAliasChar.at(FKey)) || MvKeysChr.Has(MmAliasChar.at(FKey));
+    return MvKeysStr.Has(FKey) || MmArgs.Has(MmAliasSC.at(FKey)) || MvKeysChr.Has(MmAliasSC.at(FKey));
 }
 
 bool RA::SYS::Has(const char FKey) const {
@@ -243,7 +247,7 @@ bool RA::SYS::operator()(const xstring& FKey) const
 bool RA::SYS::operator()(const xstring& FKey, const xstring& FValue) const
 {
     Begin();
-    const char ChrArg = MmAliasChar.Key(FKey);
+    const char ChrArg = MmAliasSC.Key(FKey);
     return The(ChrArg, FValue);
     Rescue();
 }

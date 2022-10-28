@@ -16,7 +16,7 @@ template<typename T>
 class Job : protected RA::Threads
 {
     RA::SharedPtr<Task<T>> MoTaskPtr = nullptr;
-    T                      MoValue;
+    T*                     MoValuePtr = nullptr;
     
     std::exception_ptr  m_exc_ptr = nullptr;
     
@@ -29,6 +29,7 @@ public:
     // Job(); // required by Linux
     Job(const Job<T>& Other) = delete; // Use Shared Pointer
     Job(const RA::SharedPtr<Task<T>>&  task, size_t index);
+    ~Job();
     void Run();
     const Task<T>& GetTask() const;
     const RA::SharedPtr<Task<T>> TaskPtr() const;
@@ -55,6 +56,12 @@ inline Job<T>::Job(const RA::SharedPtr<Task<T>>& task, size_t index) :
 }
 
 template<typename T>
+inline Job<T>::~Job()
+{
+    DeleteObj(MoValuePtr);
+}
+
+template<typename T>
 inline void Job<T>::Run()
 {
     if (MbDone && MbRemoved == false)
@@ -63,7 +70,7 @@ inline void Job<T>::Run()
     RA::Threads::Used++;
     RA::Threads::TotalTasksCounted++;
     try {
-        MoValue = MoTaskPtr.Get()();
+        MoValuePtr = new T(MoTaskPtr.Get()());
     }
     catch (const char*) {
         m_exc_ptr = std::current_exception();
@@ -94,7 +101,9 @@ template<typename T>
 inline T Job<T>::Move()
 {
     MbRemoved = true;
-    return std::move(MoValue);
+    if (!MoValuePtr)
+        throw "NullPtr!";
+    return std::move(*MoValuePtr);
 }
 
 template<typename T>
@@ -102,7 +111,9 @@ inline T& Job<T>::GetValue()
 {
     if (MbRemoved)
         throw std::runtime_error("The Task Object Has Been Moved!\n");
-    return MoValue;
+    if (!MoValuePtr)
+        throw "NullPtr!";
+    return *MoValuePtr;
 }
 
 template<typename T>
@@ -110,7 +121,7 @@ inline T* Job<T>::GetValuePtr()
 {
     if (MbRemoved)
         throw std::runtime_error("The Task Object Has Been Moved!\n");
-    return &MoValue;
+    return MoValuePtr;
 }
 
 template<typename T>

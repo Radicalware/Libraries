@@ -200,6 +200,7 @@ INL void Nexus<void>::ForceStop()
 
 }
 
+// If you are meaning to get an object version, pass in "This" instead of "this"
 template<typename F, typename ...A>
 INL UsingFunction(void) Nexus<void>::AddJob(F&& Function, A&& ...Args)
 {

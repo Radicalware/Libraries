@@ -22,9 +22,11 @@ int main(int argc, char** argv)
 {
     Nexus<>::Start();
 
-    cout << "Wait 1/10 second\n";
+    cout << "Wait 1 second\n";
     RA::Timer Timer;
-    RA::Timer::Sleep(100);
+    RA::Timer::Sleep(1000);
+    RA::Timer::SleepSeconds(2);
+    RA::Timer::PassOrWaitSeconds(100, 2, []() { return false; });
     cout << Timer << "\n\n";
 
     // -----------------------------------------------------------

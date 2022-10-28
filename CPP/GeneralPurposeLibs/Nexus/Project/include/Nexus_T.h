@@ -72,15 +72,17 @@ public:
     Nexus();
     ~Nexus();
 
-    // Job: String (for referencing unfinished job) + Function + args
     template <typename F, typename ...A>
     INL UsingFunction(void) AddJob(const std::string& key, F&& function, A&& ...Args);
-    // Job: char* (for referencing unfinished job) + Function + args
+
     template <typename F, typename ...A>
     INL UsingFunction(void) AddJob(const char* key, F&& function, A&& ...Args);
 
     template <typename F, typename ...A>
     INL UsingFunction(void) AddJob(F&& function, A&& ...Args);
+
+    //template <typename O, typename F, typename... A>
+    //INL UsingFunction(void) AddJob(O& object, F&& Function, A&& ... Args);
 
     // These are to be used by xvector/xmap
     template <typename F, typename ONE, typename ...A>
@@ -212,6 +214,13 @@ INL UsingFunction(void) Nexus<T>::AddJob(F&& function, A&& ...Args)
     auto Lock = MoMutex.CreateLock();
     This.Add(function, std::ref(Args)...);
 }
+
+//template<typename T>
+//template <typename O, typename F, typename... A>
+//INL UsingFunction(void) Nexus<T>::AddJob(O& object, F&& Function, A&& ... Args)
+//{
+//
+//}
 
 template<typename T>
 template <typename F, typename ONE, typename ...A>

@@ -63,7 +63,8 @@ namespace RA
 
         pint MnSize = 0;
         xvector<xstring> MvCliArgs;
-        xmap<xstring, char> MmAliasChar; // Alias
+        xmap<xstring, char> MmAliasSC; // Alias
+        xmap<char, xstring> MmAliasCS; // Alias
         xmap<char, xvector<xstring>> MmArgs;
         xvector<const xstring*> MvKeysStr;
         xvector<char>     MvKeysChr;

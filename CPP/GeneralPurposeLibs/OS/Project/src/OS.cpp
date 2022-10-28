@@ -364,27 +364,27 @@ xstring RA::OS::InstRead()
 }
 
 
-xstring RA::OS::ReadFastMethod(const xstring& file_name, bool re_try)
+xstring RA::OS::ReadFile(const xstring& FsFilename, bool FbRetry, bool FbUseBinaries)
 {
-    if (!file_name.size())
+    if (!FsFilename.size())
         return xstring();
 
     errno = 0;
     FILE* fp;
 #if defined(WIN_BASE)
-    fopen_s(&fp, file_name.c_str(), "rb");
+    fopen_s(&fp, FsFilename.c_str(), "rb");
 #else
     fp = fopen(file_name.c_str(), "rb");
 #endif
-    if (fp == nullptr && !re_try) {
+    if (fp == nullptr && !FbRetry) {
         xstring err("Error (" + RA::ToXString(errno) + "): File Locked: ");
-        err += file_name;
+        err += FsFilename;
         throw std::runtime_error(err.c_str());
     }
-    else if ((errno || fp == nullptr) && re_try)
+    else if ((errno || fp == nullptr) && FbRetry)
     {
         if (fp) fclose(fp);
-        return RA::OS::ReadStatMethod(file_name);
+        return RA::OS::ReadStatMethod(FsFilename);
     }
 
     fseek(fp, 0, SEEK_END);
@@ -412,12 +412,39 @@ xstring RA::OS::ReadFastMethod(const xstring& file_name, bool re_try)
     }
 
     xstring rets;
-    if (rbuffer)
+    rets.reserve(file_size);
+    if (rbuffer && !FbUseBinaries)
     {
-        rets = rbuffer;
+        int NonASCIICount = 0;
+        for (auto i = 0; i < file_size; i++)
+        {
+            if (rbuffer[i] > 0 && rbuffer[i] < 128)
+            {
+                rets += rbuffer[i];
+            }
+            else if(rbuffer[i] > 128)
+                NonASCIICount++;
+
+            if (NonASCIICount > 10)
+            {
+                free(rbuffer);
+                if (fp) fclose(fp);
+                return xstring();
+            }
+        }
         free(rbuffer);
+        if (fp) fclose(fp);
     }
-    if (fp) fclose(fp);
+    else if(rbuffer && FbUseBinaries)
+    {
+        for (auto i = 0; i < file_size; i++)
+        {
+            if (rbuffer[i] > 0 && rbuffer[i] < 128)
+                rets += rbuffer[i];
+        }
+        free(rbuffer);
+        if (fp) fclose(fp);
+    }
 
     return rets;
 }

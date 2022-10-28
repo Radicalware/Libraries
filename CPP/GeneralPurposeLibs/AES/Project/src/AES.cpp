@@ -30,6 +30,7 @@ RA::AES::AES(RA::AES&& Other) noexcept
 
 void RA::AES::operator=(const RA::AES& Other)
 {
+    // MsTagPtr     = sxp<unsigned char*>(Other.MsTagPtr.get());
     MsTagPtr.Clone(Other.MsTagPtr);
 
     MsPlaintext  = Other.MsPlaintext;

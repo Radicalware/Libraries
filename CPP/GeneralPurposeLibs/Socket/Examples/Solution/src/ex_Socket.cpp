@@ -6,9 +6,27 @@
 #include "Nexus.h"
 #include "Socket.h"
 #include "xstring.h"
+#include "xmap.h"
+#include "Macros.h"
 
 using std::cout;
 using std::endl;
+
+
+void DummyExample()
+{
+    Begin();
+
+    xvector<xstring> LvNums = { "one", "two", "three" };
+    xvector<xstring*> LvPtrNums = LvNums.GetPtrs();
+    LvPtrNums.ForEachThread([](auto& Val) { return Val + '\n' }).Join(">> ").Split('\n').Join().Findall(R"(\w+)").Join('\n').Print();
+    auto& Val = LvPtrNums[1];
+
+    Rescue();
+}
+
+
+
 
 // In this example, the client will send the server a string, "Joel Leagues"
 // Then the server will use a function (lambda) to create a welcome message for the username
@@ -17,6 +35,7 @@ using std::endl;
 
 int main(int argc, char** argv)
 {
+    Begin();
     Nexus<>::Start();
 
     Socket::MTU = 5; // this is very small for demo purposes
@@ -72,6 +91,7 @@ int main(int argc, char** argv)
 
     cout << "returned data >> " << socket.client.buffer.recv << endl;
 
+    RescuePrint();
     Nexus<>::Stop();
     return 0;
 }

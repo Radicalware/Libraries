@@ -169,9 +169,9 @@ xstring RA::OS_O::Dir_Type::FullPath(const xstring& file)
     else if (file[0] == '.' && (file[1] == '/' || file[1] == '\\')) // continued directory
     {
 #if defined(WIN_BASE)
-        return PWD() + file(1).Sub(s_forwardslash, "\\\\");
+        return PWD() + file(1).Sub(s_forwardslash, "\\\\").RightTrim("\\/");
 #elif defined(NIX_BASE)
-        return PWD() + file(1).Sub(s_backslash, "/");
+        return PWD() + file(1).Sub(s_backslash, "/").RightTrim("\\/");
 #endif
     }
 
@@ -190,5 +190,5 @@ xstring RA::OS_O::Dir_Type::FullPath(const xstring& file)
 #endif
     full_path = full;
     full_path.RemoveNulls();
-    return full_path;
+    return full_path.RightTrim("\\/");
 }

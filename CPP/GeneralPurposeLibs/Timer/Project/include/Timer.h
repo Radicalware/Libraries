@@ -27,11 +27,12 @@ namespace RA
 
         // SteadyClock = Stopwatch   Use Case
         // SystemClock = Wrist-Watch Use Case
-
         using SteadyClock = std::chrono::steady_clock;
         std::chrono::time_point<SteadyClock> m_beg = SteadyClock::now();
 
     public:
+        static const Timer StaticClass;
+
         Timer();
         void Reset();
         INL pint GetElapsedTimeSeconds() const;
@@ -39,9 +40,12 @@ namespace RA
         INL pint GetElapsedTime() const; // Milliseconds
         INL pint GetElapsedTimeMicroseconds() const;
 
-        void WaitSeconds(pint extent) const;
-        void WaitMilliseconds(unsigned long extent) const;
-        void Wait(unsigned long extent) const; // wait_milliseconds
+        static void WaitSeconds(pint extent);
+        static void WaitMilliseconds(unsigned long extent);
+        static void Wait(unsigned long extent); // wait_milliseconds
+        static void WaitUntil(unsigned long extent, std::function<bool()>&& Function);
+        static void PassOrWait(unsigned long TestEveryTimer, unsigned long ExitAnywayTimer, std::function<bool()>&& Function);
+        static void PassOrWaitSeconds(unsigned long TestEveryTimer, unsigned long ExitAnywayTimer, std::function<bool()>&& Function);
 
         void Lap();
         void Lap(const xstring& key);
@@ -55,6 +59,7 @@ namespace RA
         xmap<xstring, pint> GetMap() const;
 
         static void Sleep(unsigned long FnMilliseconds);
+        static void SleepSeconds(unsigned long FnSeconds);
     };
 };
 

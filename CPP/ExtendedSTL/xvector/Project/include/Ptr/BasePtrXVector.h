@@ -53,10 +53,10 @@ public:
     inline bool LacksTruth(F&& Function, A&& ...Args) const;
 
 
-    const T* RawPtr(size_t Idx) const;
-    T* RawPtr(size_t Idx);
-    const T& operator[](size_t Idx) const;
-    T& operator[](size_t Idx);
+    inline const T* RawPtr(size_t Idx) const;
+    inline T* RawPtr(size_t Idx);
+    inline const T& operator[](size_t Idx) const;
+    inline T& operator[](size_t Idx);
 
     const T& First(size_t Idx = 0) const;
     T& First(size_t Idx = 0);

@@ -12,7 +12,6 @@ link_libraries(${LIB}
 
     cpprestsdk::cpprest 
     cpprestsdk::cpprestsdk_zlib_internal 
-    cpprestsdk::cpprestsdk_boost_internal 
     cpprestsdk::cpprestsdk_brotli_internal
 
     nlohmann_json

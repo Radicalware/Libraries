@@ -113,7 +113,7 @@ namespace RA
         xstring InstRead();
 
     public:
-        static xstring ReadFastMethod(const xstring& file_name, bool re_try = false); // Good for reading files text only
+        static xstring ReadFile(const xstring& FsFilename, bool FbRetry = false, bool FbUseBinaries = false);
         static xstring ReadStatMethod(const xstring& file_name);   // Good for text and binaries on Linux
         static xstring ReadStreamMethod(const xstring& file_name); // Good for text and binaries on Linux and Windows
 

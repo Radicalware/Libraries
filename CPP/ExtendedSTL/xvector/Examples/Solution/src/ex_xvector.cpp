@@ -52,8 +52,6 @@ int main(int argc, char** argv)
     Begin();
     Nexus<>::Start();
 
-    
-
     xvector<xp<xstring>> SharedPtrs;
     SharedPtrs.Emplace("hello");
     SharedPtrs.Emplace("again");
@@ -117,6 +115,8 @@ int main(int argc, char** argv)
 
     xvector<xstring*> vec_str_ptrs = vec_str.GetPtrs();
     cout << "\nprint ptrs: " << vec_str_ptrs.Join(' ') << '\n';
+    cout << vec_str_ptrs[0] << endl;
+    vec_str_ptrs.ForEachThread([](xstring& Str) { return ">>> " + Str; }).Join('\n').Print();
 
     xvector<xstring> vec_str_vals = vec_str_ptrs.GetVals();
     cout << "print vals: " << vec_str_vals.Join(' ') << "\n\n";

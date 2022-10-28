@@ -1,19 +1,25 @@
 #include "Stash.h"
 #include "Macros.h"
 
+#include <bson/bson.h>
+
 Mongo::Instance RA::Stash::SoInstance{};
 
 
  RA::Stash::Stash(const xstring& URL)
  {
+     Begin()
      MoURL    = URL;
-     MoURI    = Mongo::URI(MoURL);
+     MoURI    = Mongo::URI(MoURL.c_str());
      MoClient = Mongo::Client(MoURI);
+     Rescue()
  }
 
  RA::Stash::Stash(const Stash& Other)
  {
+     Begin()
      *this = Other;
+     Rescue()
  }
 
  RA::Stash::Stash(Stash&& Other) noexcept
@@ -23,12 +29,14 @@ Mongo::Instance RA::Stash::SoInstance{};
 
  void RA::Stash::operator=(const Stash& Other)
  {
+     Begin()
      MoURL        = Other.MoURL;
      MoURI        = Mongo::URI(MoURL);
      MoClient     = Mongo::Client(MoURI);
 
      MoDatabase   = Other.MoDatabase;
      MoCollection = Other.MoCollection;
+     Rescue()
  }
 
  void RA::Stash::operator=(Stash&& Other) noexcept
@@ -46,7 +54,7 @@ Mongo::Instance RA::Stash::SoInstance{};
      Begin();
      MoDatabase = MoClient[FsDatabase.c_str()];
      return *this;
-     RescueThrow();
+     Rescue();
  }
 
  RA::Stash& RA::Stash::SetCollection(const xstring& FsCollection)
@@ -54,7 +62,7 @@ Mongo::Instance RA::Stash::SoInstance{};
      Begin();
      MoCollection = MoDatabase[FsCollection.c_str()];
      return *this;
-     RescueThrow();
+     Rescue([&]() { cout << "Exception: " << "Failed to Set Collection " << FsCollection << endl; });
  }
 
  Mongo::Database& RA::Stash::GetDatabase()
@@ -71,21 +79,21 @@ Mongo::Instance RA::Stash::SoInstance{};
  {
      Begin();
      MoCollection.drop();
-     RescueThrow();
+     Rescue();
  }
 
  BSON::Result::InsertOne RA::Stash::operator<<(const BSON::Value& FoView)
  {
      Begin();
      return MoCollection.insert_one(FoView.view());
-     RescueThrow();
+     Rescue();
  }
 
  BSON::Result::InsertOne RA::Stash::operator<<(const xstring& FoJsonStr)
  {
      Begin();
      return *this << bsoncxx::from_json(FoJsonStr.c_str());
-     RescueThrow();
+     Rescue();
  }
 
  //BSON::Result::InsertMany RA::Stash::operator<<(const BSON::Document& FoDocument)
@@ -96,21 +104,38 @@ Mongo::Instance RA::Stash::SoInstance{};
  RA::JSON RA::Stash::CursorToJSON(BSON::Cursor& FoCursor, RA::JSON::Init FeInit)
  {
      Begin();
-     xstring Json;
+     std::ostringstream Json;
      bool LbFirstPass = true;
      for (const BSON::View& Document : FoCursor)
      {
+         const unsigned char* Chr = (const unsigned char*)Document.data();
+         auto Len = Document.length();
+         auto Num = *Document.data();
+
+         bson_t bson;
+         bson_init_static(&bson, Document.data(), Document.length());
+
+         size_t size;
+         auto LsCharJSON = bson_as_json(&bson, &size);
+         if (!LsCharJSON)
+             ThrowIt("Error converting to json");
+
+         auto LsJSON = std::string(LsCharJSON);
+
+         bson_free(LsCharJSON);
+
          if (LbFirstPass)
              LbFirstPass = false;
          else
-             Json += ',';
-         Json += bsoncxx::to_json(Document);
+             Json << ',';
+
+         Json << std::move(LsJSON);
      }
 
-     if(!Json.Size())
+     if(!Json.str().size())
          return RA::JSON();
      return RA::JSON(Json, FeInit);
-     RescueThrow();
+     Rescue();
  }
 
  RA::JSON RA::Stash::GetAll(RA::JSON::Init FeInit)
@@ -118,14 +143,14 @@ Mongo::Instance RA::Stash::SoInstance{};
      Begin();
      auto Data = MoCollection.find({});
      return  RA::Stash::CursorToJSON(Data, FeInit);
-     RescueThrow();
+     Rescue();
  }
 
  RA::JSON RA::Stash::FindOne(const BSON::Data& FnData, RA::JSON::Init FeInit)
  {
      Begin();
      return RA::JSON(MoCollection.find_one(FnData).get(), FeInit);
-     RescueThrow();
+     Rescue();
  }
 
  RA::JSON RA::Stash::FindMany(const BSON::Data& FnData, RA::JSON::Init FeInit)
@@ -133,35 +158,35 @@ Mongo::Instance RA::Stash::SoInstance{};
      Begin();
      auto Data = MoCollection.find(FnData);
      return RA::Stash::CursorToJSON(Data, FeInit);
-     RescueThrow();
+     Rescue();
  }
 
  BSON::Result::Update RA::Stash::UpdateOne(const BSON::Value& FoFind, const BSON::Value& FoReplace)
  {
      Begin();
      return MoCollection.update_one(FoFind.view(), FoReplace.view());
-     RescueThrow();
+     Rescue();
  }
 
  BSON::Result::Update RA::Stash::UpdateMany(const BSON::Value& FoFind, const BSON::Value& FoReplace)
  {
      Begin();
      return MoCollection.update_many(FoFind.view(), FoReplace.view());
-     RescueThrow();
+     Rescue();
  }
 
  BSON::Result::Delete RA::Stash::DeleteOne(const BSON::Data& FnDocument)
  {
      Begin();
      return MoCollection.delete_one(FnDocument);
-     RescueThrow();
+     Rescue();
  }
 
  BSON::Result::Delete RA::Stash::DeleteMany(const BSON::Data& FnDocument)
  {
      Begin();
      return MoCollection.delete_many(FnDocument);
-     RescueThrow();
+     Rescue();
  }
 
 RA::JSON RA::Stash::Sort(const xstring& FoKey, const int FnDirection, const RA::JSON::Init FeInit)
@@ -171,7 +196,7 @@ RA::JSON RA::Stash::Sort(const xstring& FoKey, const int FnDirection, const RA::
     Pipeline.sort(MongoKVP(FoKey.ToStdString(), FnDirection));
     BSON::Cursor Cursor = MoCollection.aggregate(Pipeline, BSON::Aggregate{});
     return RA::Stash::CursorToJSON(Cursor, FeInit);
-    RescueThrow();
+    Rescue();
 }
 
 RA::JSON RA::Stash::Aggrigate(const BSON::Pipeline& FoPipeline, const RA::JSON::Init FeInit)
@@ -179,5 +204,5 @@ RA::JSON RA::Stash::Aggrigate(const BSON::Pipeline& FoPipeline, const RA::JSON::
     Begin();
     BSON::Cursor Cursor = MoCollection.aggregate(FoPipeline, BSON::Aggregate{});
     return RA::Stash::CursorToJSON(Cursor, FeInit);
-    RescueThrow();
+    Rescue();
 }

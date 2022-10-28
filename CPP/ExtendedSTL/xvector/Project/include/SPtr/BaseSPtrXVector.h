@@ -40,6 +40,9 @@ public:
     inline const T& At(const size_t Idx) const;
     inline const xp<T> AtPtr(const size_t Idx) const;
     inline xp<T> AtPtr(const size_t Idx);
+    template<typename C = T>
+    inline xvector<C> GetValues() const;
+    inline xvector<T> GetValues() const;
 
     template<typename P = T> 
     inline bool Has(const P* item) const;
@@ -226,6 +229,25 @@ inline xp<T> SPtrXVector<xp<T>>::AtPtr(const size_t Idx)
     if (Idx >= The.Size())
         throw "Index Out Of Bounds";
     return BaseXVector<xp<T>>::operator[](Idx);
+}
+
+template<typename T>
+template<typename C>
+inline xvector<C> SPtrXVector<xp<T>>::GetValues() const
+{
+    xvector<C> Vec;
+    for (typename SPtrXVector<xp<T>>::const_iterator it = The.begin(); it != The.end(); it++)
+        Vec << static_cast<C>(**it);
+    return Vec;
+}
+
+template<typename T>
+inline xvector<T> SPtrXVector<xp<T>>::GetValues() const
+{
+    xvector<T> Vec;
+    for (typename SPtrXVector<xp<T>>::const_iterator it = The.begin(); it != The.end(); it++)
+        Vec << **it;
+    return Vec;
 }
 
 template<typename T>

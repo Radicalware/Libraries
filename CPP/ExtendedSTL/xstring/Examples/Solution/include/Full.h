@@ -91,6 +91,17 @@ struct Full
         cout << "Match insensitive case: " << xstring("Ryan").Match("rYaN", rxm::icase) << endl;
         cout << "Match sensitive   case: " << xstring("Ryan").Match("rYaN") << endl;
 
+        xstring str = "12345";
+        cout << ("123" == str(0, 3)) << endl;
+        cout << ("123" == str(0, -2)) << endl; // start to end (minus last 2 vars)
+        cout << ("543" == str(-1, -4, -1)) << endl; // reversed (-z); x starts at the end nad goes back 3 spaces (4 - 1 = 3)
+        cout << ("543" == str(4, 1, -1)) << endl; // reversed (-z); x starts at the end nad goes back 3 spaces (4 - 1 = 3)
+        cout << ("321" == str(-3, -6, -1)) << endl;
+        cout << ("123" == str(-6, -2, 1)) << endl; // sub 6 from (end()) to sub 2 from (end())
+        cout << ("321" == str(2, -6, -1)) << endl; // sub 6 from (end()) to sub 2 from (end())
+
+        cout << str(-6, -2, 1) << endl;
+
         return 0;
     }
 
