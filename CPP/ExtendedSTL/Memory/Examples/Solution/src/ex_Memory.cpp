@@ -126,7 +126,6 @@ xstring BenchSharedPtr()
         return std::make_tuple(SS.str(), Obj.Get());
     };
 
-
     auto [SS1, Val1] = RunBench();
     auto [SS2, Val2] = RunBench();
 
@@ -158,15 +157,6 @@ int main()
 
     if(true) // true, false
     {
-        //Nex.AddJob("test", [](const xstring& Local) { return xstring(Local + "test"); }, "input");
-        //Nex.WaitAll();
-        //Nex.Get("test").GetValue().Print();
-
-        //auto str1 = xstring("test");
-        //Nexus<>::AddJob(TestFunction, str1);
-        //Nexus<>::WaitAll();
-        //Nexus<>::Sleep(2);
-
         Nexus<xstring> Nex;
         Nex.AddJob("BenchAtomicClass",       BenchAtomicClass);
         Nex.AddJob("BenchAtomicFundamental", BenchAtomicFundamental);

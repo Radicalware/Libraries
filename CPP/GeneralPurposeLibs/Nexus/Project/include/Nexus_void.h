@@ -34,7 +34,7 @@
 #define EXIT() exit(Nexus<>::Stop())
 
 template<typename M>
-using IsSharedPtr = std::enable_if<std::is_same<M, RA::SharedPtr<RA::Mutex>>::value || std::is_same<M, xptr<RA::Mutex>>::value, void>::type;
+using IsSharedPtr = std::enable_if<IsSame(M, RA::SharedPtr<RA::Mutex>) || IsSame(M, xp<RA::Mutex>), void>::type;
 
 // =========================================================================================
 
@@ -52,7 +52,8 @@ private:
     istatic std::atomic<bool> SbFinishTasks = false;
     istatic RA::Atomic<long long int> SnInstTaskCount = 0;
     
-    istatic std::vector<std::jthread> MvThreads; // these threads start in the constructor and don't stop until Nexus is over
+    // thread not jthread for NVCC
+    istatic std::vector<std::thread> MvThreads; // these threads start in the constructor and don't stop until Nexus is over
     istatic std::queue<RA::SharedPtr<Task<void>>> ScTaskQueue; // This is where tasks are held before being run
     // No Getter Mutex/Sig for Nexus<void> because you pass in by ref, you don't pull any stored values
     istatic std::unordered_map<size_t, RA::SharedPtr<RA::Mutex>> SmMutex; // for objects in threads
@@ -109,7 +110,6 @@ public:
 
 INL void Nexus<void>::TaskLooper(int thread_idx)
 {
-    std::atomic<size_t> LnLastCount = 0;
     while (true)
     {
         size_t MutexIdx = 0;
@@ -182,6 +182,9 @@ INL int Nexus<void>::Stop()
         SmMutex.clear();
     }
     SbInitialized = false;
+    for (auto& LoThread : MvThreads)
+        if(LoThread.joinable())
+            LoThread.join();
     return 0;
 }
 
@@ -229,7 +232,7 @@ INL UsingFunction(void) Nexus<void>::AddJob(M& FoMutex, O& object, F&& Function,
 
     if (SmMutex.size() <= FoMutex.Get().GetID()) // id should never be 'gt' size
     {
-        if (SmMutex.contains(FoMutex.Get().GetID()))
+        if (SmMutex.find(FoMutex.Get().GetID()) != SmMutex.end()) // find not contains for NVCC
             SmMutex[FoMutex.Get().GetID()] = FoMutex;
         else
             SmMutex.insert({ FoMutex.Get().GetID(), FoMutex });

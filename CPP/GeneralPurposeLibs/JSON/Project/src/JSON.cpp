@@ -35,6 +35,8 @@ RA::JSON::~JSON()
 
 RA::JSON::JSON(const xstring& FoString, Init FeInit)
 {
+    if (!FoString.Size())
+        ThrowIt("No Input");
     Set(FoString, FeInit);
 }
 
@@ -65,21 +67,49 @@ void RA::JSON::operator=(JSON&& Other) noexcept
 void RA::JSON::SetJSON(const xstring& FoString)
 {
     Begin();
-    static const RE2 LsOID(R"(\$oid)");
-    utility::stringstream_t StringStream;
-    StringStream << '[';
-    if (FoString.Has('$'))
-        StringStream << FoString.Sub(LsOID, "oid").Ptr();
+    //static const RE2 LsOID(R"(\$oid)");
+    //utility::stringstream_t StringStream;
+    //StringStream << '[';
+    //if (FoString.Has('$'))
+    //    StringStream << FoString.Sub(LsOID, "oid").Ptr();
+    //else
+    //    StringStream << FoString.Ptr();
+    //StringStream << ']';
+
+
+    auto HandleIncommingStr = [this](const xstring& FFoString) ->void
+    {
+        if (FFoString.Has('$'))
+        {
+            if (!MoFullJsonPtr)
+                MoFullJsonPtr = RA::MakeShared<web::json::value>(web::json::value::parse(FFoString.Remove('$').Ptr()));
+            else
+                *MoFullJsonPtr = web::json::value::parse(FFoString.Remove('$').Ptr());
+        }
+        else
+        {
+            if (!MoFullJsonPtr)
+                MoFullJsonPtr = RA::MakeShared<web::json::value>(web::json::value::parse(FFoString.Ptr()));
+            else
+                *MoFullJsonPtr = web::json::value::parse(FFoString.Ptr());
+        }
+    };
+
+    auto Last1 = FoString.Last();
+    auto Last2 = FoString[FoString.size() - 1];
+    if(Last1 != Last2)
+        cout << "not equal: " << Last1 << " " << Last2 << endl;
+    if (Last2 == ',')
+    {
+        xstring LoString = '[' + FoString;
+        LoString.Last() = ']';
+        HandleIncommingStr(LoString);
+    }
     else
-        StringStream << FoString.Ptr();
-    StringStream << ']';
-    
-    if (!MoFullJsonPtr)
-        MoFullJsonPtr = RA::MakeShared<web::json::value>(web::json::value::parse(StringStream));
-    else
-        *MoFullJsonPtr = web::json::value::parse(StringStream);
+        HandleIncommingStr(FoString);
+
     MoZoomedJsonPtr = nullptr;
-    RescueThrow([this]() { RA::JSON(This).ZoomReset().GetPrettyJson().Print(); });
+    RescueThrow([&FoString]() { RA::JSON(FoString).GetPrettyJson().Print(); });
 }
 
 void RA::JSON::SetBSON(const BSON::Value& FoBSON)
@@ -287,7 +317,7 @@ RA::JSON& RA::JSON::Zoom(const wchar_t* FacObject)
             if (MoFullJson.is_array())
             {
                 MoZoomedJsonPtr = RA::MakeShared<web::json::value>(MoZoomedJsonPtr.Get()
-                    .as_array().at(0)
+                    //.as_array().at(0)
                     .as_object().at(FacObject));
             }else
                 MoZoomedJsonPtr = RA::MakeShared<web::json::value>(MoFullJson.at(FacObject));
@@ -315,69 +345,130 @@ RA::JSON& RA::JSON::ZoomReset()
     Rescue();
 }
 
-web::json::value RA::JSON::GetValue(const char* FacObject)
+web::json::value RA::JSON::GetValue(const char* FacObject) const
 {
     Begin();
-    GET(MoFullJson);
     size_t Size = strlen(FacObject) + 1;
     auto LacWideCharSPtr = RA::SharedPtr<wchar_t[]>(new wchar_t[Size]); auto LacWideCharPtr = LacWideCharSPtr.Ptr();
     mbstowcs_s(NULL, LacWideCharPtr, strlen(FacObject) + 1, FacObject, strlen(FacObject));
     LacWideCharPtr[Size - 1] = L'\0';
 
+    if (!!MoZoomedJsonPtr)
+    {
+        GET(MoZoomedJson);
+        if (MoZoomedJson.is_array())
+        {
+            return MoZoomedJson
+                .as_array().at(0)
+                .as_object().at(LacWideCharPtr);
+        }
+        else
+            return MoZoomedJson
+            .as_object().at(LacWideCharPtr);
+    }
+    else
+    {
+        GET(MoFullJson);
+        if (MoFullJson.is_array())
+        {
+            return MoFullJson
+                .as_array().at(0)
+                .as_object().at(LacWideCharPtr);
+        }
+        else
+            return MoFullJson
+            .as_object().at(LacWideCharPtr);
+    }
+
+    Rescue();
+}
+
+web::json::value RA::JSON::GetValue(const wchar_t* FacObject) const
+{
+    Begin();
+    GET(MoFullJson);
     if (MoFullJson.is_array())
     {
         return MoFullJson
             .as_array().at(0)
-            .as_object().at(LacWideCharPtr);
+            .as_object().at(FacObject);
     }
     else
         return MoFullJson
-        .as_object().at(LacWideCharPtr);
+        .as_object().at(FacObject);
     Rescue();
 }
 
-web::json::object RA::JSON::GetObj(const pint Idx)
+web::json::object RA::JSON::GetObj(const pint Idx) const
 {
     Begin();
     return MoFullJsonPtr.Get().as_array().at(Idx).as_object();
     Rescue();
 }
 
-web::json::object RA::JSON::GetObj(const char* FacObject)
+web::json::object RA::JSON::GetObj(const char* FacObject) const
 {
     Begin();
     return GetValue(FacObject).as_object();
     Rescue();
 }
 
-web::json::object RA::JSON::GetObj(const xstring& FsObject)
+web::json::object RA::JSON::GetObj(const xstring& FsObject) const
 {
     Begin();
     return GetObj(FsObject.Ptr());
     Rescue();
 }
 
-web::json::array RA::JSON::GetArr(const pint Idx)
+web::json::array RA::JSON::GetArr(const pint Idx) const
 {
     Begin();
     return MoFullJsonPtr.Get().as_array().at(Idx).as_array();
     Rescue();
 }
 
-web::json::array RA::JSON::GetArr(const char* FacObject)
+web::json::array RA::JSON::GetArr(const char* FacObject) const
 {
     Begin();
     return GetValue(FacObject).as_array();
     Rescue();
 }
 
-web::json::array RA::JSON::GetArr(const xstring& FsObject)
+web::json::array RA::JSON::GetArr(const wchar_t* FacObject) const
+{
+    Begin();
+    GET(MoFullJson);
+    return GetValue(FacObject).as_array();
+    Rescue();
+}
+
+web::json::array RA::JSON::GetArr(const xstring& FsObject) const
 {
     Begin();
     return GetArr(FsObject.Ptr());
     Rescue();
 }
 
+int RA::JSON::GetInt(const char* FacObject) const
+{
+    Begin();
+    return GetValue(FacObject).as_integer();
+    Rescue();
+}
+
+int RA::JSON::GetInt(const wchar_t* FacObject) const
+{
+    Begin();
+    return GetValue(FacObject).as_integer();
+    Rescue();
+}
+
+int RA::JSON::GetInt(const xstring& FacObject) const
+{
+    Begin();
+    return GetValue(FacObject.Ptr()).as_integer();
+    Rescue();
+}
 
 xstring RA::JSON::GetString(const std::wstring& FwObject) const
 {

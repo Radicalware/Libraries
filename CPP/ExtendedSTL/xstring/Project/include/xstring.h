@@ -50,8 +50,8 @@ class xstring : public std::string
 {
     using ull = unsigned long long;
 public:
-    static const xstring static_class;
     using std::string::basic_string;
+    static const xstring static_class;
 
     xstring(std::initializer_list<char> lst) : std::string(std::move(lst)) {};
 
@@ -69,6 +69,8 @@ public:
     xstring(const unsigned char* chrs, size_t len);
     xstring(const wchar_t* chrs);
     xstring(const std::wstring& wstr);
+
+    bool operator!(void) const;
 
     void operator+=(const char chr);
     void operator+=(const char* chr);
@@ -102,7 +104,7 @@ public:
 
     std::string   ToStdString() const;
     std::wstring  ToStdWString() const;
-    RA::SharedPtr<unsigned char []> ToUnsignedChar() const;
+    RA::SharedPtr<unsigned char*> ToUnsignedChar() const;
     xstring       ToByteCode() const;
     bool          IsByteCode() const;
     xstring       FromByteCodeToASCII() const;
@@ -115,6 +117,7 @@ public:
     void operator*=(int total);
 
     xstring Remove(const char val) const;
+    void    InRemove(const char val); // Inline Remove
 
     xstring Reverse() const;
     // =================================================================================================================================
@@ -371,7 +374,12 @@ namespace RA
             return SS;
 
         if (FbFromStart)
-            return RetStr.substr(0, FnPercision + 1); // plus 1 to include '.' char
+        {
+            const auto Loc = RetStr.find('.');
+            if (Loc + 1 >= FnPercision)
+                return RetStr.substr(0, Loc);
+            return RetStr.substr(0, FnPercision);
+        }
 
         xvector<xstring> Vec = RetStr.Split((char)'\\.');
         return Vec[0] + '.' + Vec[1].substr(0, FnPercision);
@@ -402,7 +410,7 @@ namespace RA
         {
             if (Out.Count('.')) // only if it is a decimal number
             {
-                xvector<xstring> Vec = Out.Split((char)'\\.');
+                xvector<xstring> Vec = Out.Split('.');
                 return Vec[0] + '.' + Vec[1].substr(0, FnPercision);
             }
             return SS;

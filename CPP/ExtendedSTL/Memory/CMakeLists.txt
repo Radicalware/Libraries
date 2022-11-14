@@ -10,4 +10,5 @@ include("${RADICAL_PATH}/Radical-Lib-Build.cmake")
 set(THIS ${ArgProjectName})
 project(${THIS})
 
-BuildRadicalProject("STATIC" "" "")
+list(APPEND PrivateLibs "Iterator")
+BuildRadicalProject("STATIC" PrivateLibs "")

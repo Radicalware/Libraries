@@ -9,6 +9,10 @@ using std::cout;
 using std::endl;
 using uint = size_t;
 
+/// Be sure to COPY the following
+/// FROM:   "CUDA C/C++"        >> "Additional Include Directories" 
+/// TO:     "VC++ Directories"  >> Include Directories
+
 __global__
 void SumArraysIndicesGPU(const int* a, const int* b, int* c, const int size)
 {
@@ -29,9 +33,11 @@ void SumArraysIndicesCPU(const int* a, const int* b, int* c, const int size)
 #define GetRandomInt() \
     (int)(rand() & 0xFF);
 
-int main() 
+
+int main()
 {
     const int ArraySize = 1 << 10;
+
     // const uint ByteSize = ArraySize * sizeof(int);
     const int LoBlockSize = 128;
 
@@ -53,7 +59,6 @@ int main()
     dim3 LoGrid((HostArray1.Size() / LoBlock.x) + 1);
 
     auto DeviceResult = CudaBridge<int>::ARRAY::RunGPU(SumArraysIndicesGPU, LoGrid, LoBlock, HostArray1, HostArray2);
-
     auto HostResult   = CudaBridge<int>::ARRAY::RunCPU(SumArraysIndicesCPU, HostArray1, HostArray2);
 
     if (CudaBridge<>::SameHostArrays(HostResult, DeviceResult))

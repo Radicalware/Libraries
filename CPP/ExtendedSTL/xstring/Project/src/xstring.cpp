@@ -91,6 +91,9 @@ xstring::xstring(const std::wstring& wstr)
     The = RA::WTXS(wstr.c_str());
 }
 
+bool xstring::operator!(void) const { 
+    return bool(The.size() == 0); 
+}
 
 void xstring::operator+=(const char chr) {
     The.insert(The.end(), chr);
@@ -172,28 +175,28 @@ char& xstring::At(size_t Idx)
 
 const char xstring::First(size_t Idx) const
 {
-    if (!(This.Size() - 1 >= Idx))
+    if (Idx >= This.Size())
         throw "Index Out Of Range";
     return The.operator[](Idx);
 }
 
 char& xstring::First(size_t Idx)
 {
-    if (!(This.Size() - 1 >= Idx))
+    if (Idx >= This.Size())
         throw "Index Out Of Range";
     return The.operator[](Idx);
 }
 
 const char xstring::Last(size_t Idx) const
 {
-    if (!(This.Size() - 1 >= Idx))
+    if (Idx >= This.Size())
         throw "Index Out Of Range";
     return The.operator[](this->size() - Idx - 1);
 }
 
 char& xstring::Last(size_t Idx)
 {
-    if (!(This.Size() - 1 >= Idx))
+    if (Idx >= This.Size())
         throw "Index Out Of Range";
     return The.operator[](this->size() - Idx - 1);
 }
@@ -245,12 +248,12 @@ std::wstring xstring::ToStdWString() const
     return LsWideStr;
 }
 
-RA::SharedPtr<unsigned char[]> xstring::ToUnsignedChar() const
+RA::SharedPtr<unsigned char*> xstring::ToUnsignedChar() const
 {
     const auto LnSize = The.Size();
-    auto UnsignedChar = MKPA<unsigned char>(LnSize);
+    auto UnsignedChar = RA::MakeShared<unsigned char*>(LnSize);
     for (int i = 0; i < LnSize; i++)
-        UnsignedChar[i] = The[i];
+        UnsignedChar[i] = static_cast<unsigned char>(The[i]);
     return UnsignedChar;
 }
 
@@ -362,6 +365,11 @@ xstring xstring::Remove(const char val) const
             str += *it;
     }
     return str;
+}
+
+void xstring::InRemove(const char val)
+{
+    This.erase(remove(This.begin(), This.end(), val), This.end());
 }
 
 xstring xstring::Reverse() const

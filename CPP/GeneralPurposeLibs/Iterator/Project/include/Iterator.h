@@ -31,125 +31,135 @@
 //|                        crbegin(), crend(), set_array(), set_size()
 //|
 
-template<typename T>
-class Iterator
+#ifndef The
+#define The (*this)
+#endif // !The
+
+
+namespace RA
 {
-    // ============================================================================================================
-private:
-    T**     m_array;
-    size_t* m_size;
-
-public:
-    class iterator {
+    template<typename T>
+    class Iterator
+    {
     private:
-        T* m_ptr; // address of m_array
-    public:
-        iterator(T* ptr) : m_ptr(ptr) { }
-        iterator operator+=(size_t num) { m_ptr += num; return *this; }
-        iterator operator-=(size_t num) { m_ptr -= num; return *this; }
-        T*       operator+ (size_t num) { return (m_ptr + num); }
-        T*       operator- (size_t num) { return (m_ptr - num); }
-        iterator operator++() { m_ptr++; return *this; }
-        iterator operator--() { m_ptr--; return *this; }
-        bool     operator==(const iterator& other) { return m_ptr == other.m_ptr; }
-        bool     operator!=(const iterator& other) { return m_ptr != other.m_ptr; }
-        bool     operator>(const iterator& other) { return m_ptr > other.m_ptr; }
-        bool     operator<(const iterator& other) { return m_ptr < other.m_ptr; }
-        bool     operator>=(const iterator& other) { return m_ptr >= other.m_ptr; }
-        bool     operator<=(const iterator& other) { return m_ptr <= other.m_ptr; }
-        T&       operator*() { return *m_ptr; }
-        T*       operator->() { return  m_ptr; }
-    };
+        T* m_array = nullptr;
+        size_t* m_size = nullptr;
 
-    class const_iterator {
-    private:
-        T* m_ptr;
-    public:
-        const_iterator(T* ptr) : m_ptr(ptr) { }
-        const_iterator operator+=(size_t num) { m_ptr += num; return *this; }
-        const_iterator operator-=(size_t num) { m_ptr -= num; return *this; }
-        const T*       operator+ (size_t num) { return (m_ptr + num); }
-        const T*       operator- (size_t num) { return (m_ptr - num); }
-        const_iterator operator++() { m_ptr++; return *this; }
-        const_iterator operator--() { m_ptr--; return *this; }
-        bool           operator==(const const_iterator& other) { return m_ptr == other.m_ptr; }
-        bool           operator!=(const const_iterator& other) { return m_ptr != other.m_ptr; }
-        bool           operator> (const const_iterator& other) { return m_ptr > other.m_ptr; }
-        bool           operator< (const const_iterator& other) { return m_ptr < other.m_ptr; }
-        bool           operator>=(const const_iterator& other) { return m_ptr >= other.m_ptr; }
-        bool           operator<=(const const_iterator& other) { return m_ptr <= other.m_ptr; }
-        const T&       operator*() { return *m_ptr; }
-        const T*       operator->() { return  m_ptr; }
-    };
+        class BaseData
+        {
+        public:
+            BaseData(T* ptr) : m_ptr(ptr) { }
+            T* m_ptr = nullptr;
+        };
 
-    class reverse_iterator {
-    private:
-        T* m_ptr;
-    public:
-        reverse_iterator(T* ptr) : m_ptr(ptr) { }
-        reverse_iterator operator+=(size_t num) { m_ptr -= num; return *this; }
-        reverse_iterator operator-=(size_t num) { m_ptr += num; return *this; }
-        T*               operator+ (size_t num) { return (m_ptr - num); }
-        T*               operator- (size_t num) { return (m_ptr + num); }
-        reverse_iterator operator++() { *this; m_ptr--; return *this; }
-        reverse_iterator operator--() { *this; m_ptr++; return *this; }
-        bool             operator==(const reverse_iterator& other) { return m_ptr == other.m_ptr; }
-        bool             operator!=(const reverse_iterator& other) { return m_ptr != other.m_ptr; }
-        bool             operator> (const reverse_iterator& other) { return m_ptr < other.m_ptr; }
-        bool             operator< (const reverse_iterator& other) { return m_ptr > other.m_ptr; }
-        bool             operator>=(const reverse_iterator& other) { return m_ptr <= other.m_ptr; }
-        bool             operator<=(const reverse_iterator& other) { return m_ptr >= other.m_ptr; }
-        T&               operator*() { return *m_ptr; }
-        T*               operator->() { return  m_ptr; }
-    };
+        class BaseComparisons : virtual public BaseData
+        {
+        public:
+            BaseComparisons(T* ptr) : BaseData(ptr) { }
 
-    class const_reverse_iterator {
-    private:
-        T* m_ptr;
-    public:
-        const_reverse_iterator(T* ptr) : m_ptr(ptr) { }
-        const_reverse_iterator operator+=(size_t num) { m_ptr -= num; return *this; }
-        const_reverse_iterator operator-=(size_t num) { m_ptr += num; return *this; }
-        const T*               operator+ (size_t num) { return (m_ptr - num); }
-        const T*               operator- (size_t num) { return (m_ptr + num); }
-        const_reverse_iterator operator++() { m_ptr--; return *this; }
-        const_reverse_iterator operator--() { m_ptr++; return *this; }
-        bool           operator==(const const_reverse_iterator& other) { return m_ptr == other.m_ptr; }
-        bool           operator!=(const const_reverse_iterator& other) { return m_ptr != other.m_ptr; }
-        bool           operator> (const const_reverse_iterator& other) { return m_ptr < other.m_ptr; }
-        bool           operator< (const const_reverse_iterator& other) { return m_ptr > other.m_ptr; }
-        bool           operator>=(const const_reverse_iterator& other) { return m_ptr <= other.m_ptr; }
-        bool           operator<=(const const_reverse_iterator& other) { return m_ptr >= other.m_ptr; }
-        const T&       operator*() { return *m_ptr; }
-        const T*       operator->() { return  m_ptr; }
-    };
+            template<typename I> bool operator==(const I& other) { return The.m_ptr == other.m_ptr; }
+            template<typename I> bool operator!=(const I& other) { return The.m_ptr != other.m_ptr; }
+            template<typename I> bool operator> (const I& other) { return The.m_ptr >  other.m_ptr; }
+            template<typename I> bool operator< (const I& other) { return The.m_ptr <  other.m_ptr; }
+            template<typename I> bool operator>=(const I& other) { return The.m_ptr >= other.m_ptr; }
+            template<typename I> bool operator<=(const I& other) { return The.m_ptr <= other.m_ptr; }
+        };
 
-    // --------------------------------------------------------------------------------------------
-    iterator begin() { return iterator(*m_array); }
-    iterator end() { return iterator(*m_array + *m_size); }
-    const_iterator cbegin() const { return const_iterator(*m_array); }
-    const_iterator cend()   const { return const_iterator(*m_array + *m_size); }
-    const_iterator begin()  const { return const_iterator(*m_array); }
-    const_iterator end()    const { return const_iterator(*m_array + *m_size); }
-    // --------------------------------------------------------------------------------------------
-    reverse_iterator rbegin() { return reverse_iterator(*m_array + *m_size - 1); }
-    reverse_iterator rend() { return reverse_iterator(*m_array - 1); }
-    const_reverse_iterator crbegin() const { return const_reverse_iterator(*m_array + *m_size - 1); }
-    const_reverse_iterator crend()   const { return const_reverse_iterator(*m_array - 1); }
-    const_reverse_iterator rbegin()  const { return const_reverse_iterator(*m_array + *m_size - 1); }
-    const_reverse_iterator rend()    const { return const_reverse_iterator(*m_array - 1); }
-    // --------------------------------------------------------------------------------------------
-    void set_array(T** array) { m_array = array; }
-    void set_size(size_t* size) { m_size = size; }
-    // --------------------------------------------------------------------------------------------
-    size_t distance(iterator start, iterator end) {
-        size_t size = 0;
-        for (; start < end; ++start)
-            ++size;
-        return size;
-    }
-    // ============================================================================================================
+        class ConstGetters : virtual public BaseData
+        {
+        public:
+            ConstGetters(T* ptr) : BaseData(ptr) { }
+            const T& Get() const { return *The.m_ptr; }
+
+            const T* operator+ (size_t num) const { return (The.m_ptr - num); }
+            const T* operator- (size_t num) const { return (The.m_ptr + num); }
+            const T& operator*()  const { return *The.m_ptr; }
+            const T* operator->() const { return  The.m_ptr; }
+        };
+
+        class NonConstGetters: virtual public BaseData
+        {
+        public:
+            NonConstGetters(T* ptr) : BaseData(ptr) { }
+            T& Get() { return *The.m_ptr; }
+
+            T* operator+ (size_t num) { return (The.m_ptr + num); }
+            T* operator- (size_t num) { return (The.m_ptr - num); }
+            T& operator*()  { return *The.m_ptr; }
+            T* operator->() { return  The.m_ptr; }
+        };
+
+    public:
+        class iterator : virtual public BaseComparisons, virtual public NonConstGetters
+        {
+        public:
+            iterator(T* ptr) : BaseComparisons(ptr), NonConstGetters(ptr), BaseData(ptr) { }
+            T& Get() { return *The.m_ptr; }
+            iterator& operator+=(size_t num) { The.m_ptr += num; return The; }
+            iterator& operator-=(size_t num) { The.m_ptr -= num; return The; }
+            iterator& operator++() { The.m_ptr++; return The; }
+            iterator& operator--() { The.m_ptr--; return The; }
+        };
+
+        class const_iterator : virtual public BaseComparisons, virtual public ConstGetters
+        {
+        public:
+            const_iterator(T* ptr) : BaseComparisons(ptr), ConstGetters(ptr), BaseData(ptr) {}
+            const_iterator& operator+=(size_t num) { The.m_ptr += num; return The; }
+            const_iterator& operator-=(size_t num) { The.m_ptr -= num; return The; }
+            const_iterator& operator++() { The.m_ptr++; return The; }
+            const_iterator& operator--() { The.m_ptr--; return The; }
+        };
+
+        class reverse_iterator : virtual public BaseComparisons, virtual public NonConstGetters
+        {
+        public:
+            reverse_iterator(T* ptr) : BaseComparisons(ptr), NonConstGetters(ptr), BaseData(ptr) { }
+            T& Get() { return *The.m_ptr; }
+            reverse_iterator& operator+=(size_t num) { The.m_ptr -= num; return The; }
+            reverse_iterator& operator-=(size_t num) { The.m_ptr += num; return The; }
+            reverse_iterator& operator++() { The.m_ptr--; return The; }
+            reverse_iterator& operator--() { The.m_ptr++; return The; }
+        };
+
+        class const_reverse_iterator : virtual public BaseComparisons, virtual public ConstGetters
+        {
+        public:
+            const_reverse_iterator(T* ptr) : BaseComparisons(ptr), ConstGetters(ptr), BaseData(ptr) {}
+            const_reverse_iterator& operator+=(size_t num) { The.m_ptr -= num; return The; }
+            const_reverse_iterator& operator-=(size_t num) { The.m_ptr += num; return The; }
+            const_reverse_iterator& operator++() { The.m_ptr--; return The; }
+            const_reverse_iterator& operator--() { The.m_ptr++; return The; }
+        };
+
+        // --------------------------------------------------------------------------------------------
+        iterator begin() { return iterator(The.m_array); }
+        iterator end()   { return iterator(The.m_array + *m_size); }
+        const_iterator cbegin() const { return const_iterator(The.m_array); }
+        const_iterator cend()   const { return const_iterator(The.m_array + *The.m_size); }
+        const_iterator begin()  const { return const_iterator(The.m_array); }
+        const_iterator end()    const { return const_iterator(The.m_array + *The.m_size); }
+        // --------------------------------------------------------------------------------------------
+        reverse_iterator rbegin() { return reverse_iterator(The.m_array + *The.m_size - 1); }
+        reverse_iterator rend() { return reverse_iterator(The.m_array - 1); }
+        const_reverse_iterator crbegin() const { return const_reverse_iterator(The.m_array + *The.m_size - 1); }
+        const_reverse_iterator crend()   const { return const_reverse_iterator(The.m_array - 1); }
+        const_reverse_iterator rbegin()  const { return const_reverse_iterator(The.m_array + *The.m_size - 1); }
+        const_reverse_iterator rend()    const { return const_reverse_iterator(The.m_array - 1); }
+        // --------------------------------------------------------------------------------------------
+    public:
+        Iterator() {}
+        Iterator(T* FvArray, size_t* FnSize) { SetIterator(FvArray, FnSize); }
+        void SetIterator(T* FvArray, size_t* FnSize) { SetIteratorArray(FvArray); SetIteratorSize(FnSize); }
+        void SetIteratorArray(T* FvArray) { m_array = FvArray; }
+        void SetIteratorSize(size_t* FnSize) { m_size = FnSize; }
+        // --------------------------------------------------------------------------------------------
+        size_t distance(iterator start, iterator end) {
+            size_t size = 0;
+            for (; start < end; ++start)
+                ++size;
+            return size;
+        }
+        // ============================================================================================================
+    };
 };
-
-
-

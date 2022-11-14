@@ -63,6 +63,9 @@ namespace RA
         RA::JSON Aggrigate(const BSON::Pipeline& FoPipeline, const RA::JSON::Init FeInit);
 
     private:
+        xstring           MsDatabase;
+        xstring           MsCollection;
+
         xstring           MoURL;
 
         Mongo::URI        MoURI;

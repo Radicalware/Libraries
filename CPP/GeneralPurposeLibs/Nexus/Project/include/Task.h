@@ -32,8 +32,8 @@ public:
     bool IsBlank() const;
     bool HasName() const;
     const std::string* GetNamePtr() const;
-    const std::string  GetName() const;
-    const size_t       GetMutexID() const;
+          std::string  GetName() const;
+          size_t       GetMutexID() const;
     T operator()();
 };
 
@@ -93,13 +93,13 @@ inline const std::string* Task<T>::GetNamePtr() const
 }
 
 template<typename T>
-inline const std::string Task<T>::GetName() const
+inline std::string Task<T>::GetName() const
 {
     return *m_name;
 }
 
 template<typename T>
-inline const size_t Task<T>::GetMutexID() const
+inline size_t Task<T>::GetMutexID() const
 {
     return MnMutexID;
 }

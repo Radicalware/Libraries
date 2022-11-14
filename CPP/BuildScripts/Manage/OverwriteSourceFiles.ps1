@@ -34,12 +34,8 @@ class Lib_Handler
     {
     }
 
-    [void] CopyLib([string] $Lib)
-    {    
-        $From = "$($this.CMakeInstallDir)\$Lib\*"
-        $To   = "$($this.GitSourceDir)\$($this.dir)\$Lib\Project"
-        # Write-Host "Copying: $From >> $To"
-
+    [void] CopyLib([string] $From, [string] $To)
+    {
         if($(Test-Path $To) -eq $false){
             mkdir $To
         }
@@ -54,6 +50,24 @@ class Lib_Handler
         {
             Write-Host "Can't Copy: $From >> $To"
         }
+    }
+
+    [void] CopyLib([string] $Lib)
+    {    
+        $From = "$($this.CMakeInstallDir)\$Lib\*"
+        $To   = "$($this.GitSourceDir)\$($this.dir)\$Lib\Project"
+        # Write-Host "Copying: $From >> $To"
+        $this.CopyLib($From, $To);
+    }
+
+    [void] CopyCustom()
+    {
+        if($env:UserName -ne "Scourge"){ 
+            return; 
+        }
+        # $From = Installed Dir
+        # $To   = Origination Dir
+        # $this.CopyLib($From, $To);
     }
 }
 

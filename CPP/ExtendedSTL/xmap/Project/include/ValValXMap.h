@@ -28,7 +28,7 @@ class xmap : public BaseXMap<K,V,H>
 public:
     // ======== INITALIZATION ========================================================================
     using BaseXMap<K, V, H>::BaseXMap;
-    using BaseXMap<K, V, H>::operator=;
+    // using BaseXMap<K, V, H>::operator=;
 
     //inline xmap();
 
@@ -74,6 +74,7 @@ public:
     inline void operator=(const O& other);
     template<typename O>
     inline void operator=(O&& other);
+
 
     //inline const V& operator[](const K& key) const;
     //inline V& operator[](const K& key);
@@ -296,6 +297,7 @@ inline constexpr bool xmap<K, V, H>::operator()(const K& iKey, const V& iValue) 
     else
         return false;
 }
+
 
 template<typename K, typename V, typename H>
 template<typename O>

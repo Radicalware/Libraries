@@ -4,6 +4,15 @@
 
 ---------------------------------------------------------------------
 
+11/13/2022 >> Libs 21.0.4
+
+Wow, can't believe a whole year went by before an official release
+note. This release has fixed CUDA issues. The standard is now v11.8
+There is also improvments to the RA::SharedPtr. I'm in between
+contracts so expect some more improvments comming your way soon!
+
+---------------------------------------------------------------------
+
 11/23/2021 >> Libs 21.0.0
 
 AES is now a new library for easily managing Cipher Text with
