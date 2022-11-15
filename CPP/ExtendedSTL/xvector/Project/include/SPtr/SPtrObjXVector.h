@@ -33,7 +33,7 @@ class SPtrObjXVectorAPI : public SPtrXVector<xp<T>>
 public:
     using SPtrXVector<xp<T>>::SPtrXVector;
     using SPtrXVector<xp<T>>::operator=;
-    using E = std::remove_const<xp<T>>::type; // E for Erratic
+    using E = typename std::remove_const<xp<T>>::type; // E for Erratic
 
     inline T Expand() const;
 

@@ -32,7 +32,7 @@ class PtrObjXVectorAPI : public PtrXVector<T*>
 public:
     using PtrXVector<T*>::PtrXVector;
     using PtrXVector<T*>::operator=;
-    using E = std::remove_const<T>::type; // E for Erratic
+    using E = typename std::remove_const<T>::type; // E for Erratic
 
     typedef T value_type;
 

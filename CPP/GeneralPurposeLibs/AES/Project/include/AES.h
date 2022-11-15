@@ -69,7 +69,7 @@ namespace RA
 	private:
 		inline static xp<RE2> NullByteRex = RA::MakeShared<RE2>(R"((\\x00))");
 		// inline static std::shared_ptr<RE2> NullByteRex2 = std::shared_ptr<RE2>(new RE2(R"((\\x00))"));
-		RA::SharedPtr<unsigned char[]> MsTagPtr = nullptr;
+		RA::SharedPtr<unsigned char*> MsTagPtr = nullptr;
 		xstring MsPlaintext;
 		xstring MsCipherText;
 		xstring MsAAD;

@@ -33,7 +33,7 @@ class ValObjXVectorAPI : public ValXVector<T>
 public:
     using ValXVector<T>::ValXVector;
     using ValXVector<T>::operator=;
-    using E = std::remove_const<T>::type; // E for Erratic
+    using E = typename std::remove_const<T>::type; // E for Erratic
 
     inline T Expand() const;
 

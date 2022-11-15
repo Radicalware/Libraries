@@ -88,7 +88,7 @@ struct Full
         cout << '\n';
 
 
-        cout << "Match insensitive case: " << xstring("Ryan").Match("rYaN", rxm::icase) << endl;
+        cout << "Match insensitive case: " << xstring("Ryan").Match("rYaN", RXM::icase) << endl;
         cout << "Match sensitive   case: " << xstring("Ryan").Match("rYaN") << endl;
 
         xstring str = "12345";

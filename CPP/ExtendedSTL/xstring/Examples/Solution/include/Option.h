@@ -112,7 +112,7 @@ more junk text vice.crusade.ctr@us.underground.nil   junk
         xstring emails = R"email(more junk text vice.crusade.ctr@us.underground.nil   junk)email";
 
         cout << "Found capture groups\n";
-        emails.Search(R"((vice).(crusade).(ctr)@(us).(underground))", rxm::ECMAScript, 5).Join("==").Print(2);
+        emails.Search(R"((vice).(crusade).(ctr)@(us).(underground))", RXM::ECMAScript, 5).Join("==").Print(2);
         // 5 idicates we want the first 5 on (opposed to off) capture groups
     }
     // ===================================================================================================
@@ -140,10 +140,10 @@ vice.crusade.ctr@us.underground.nil
         // if you need to feed in a vector split at regex spot you can either
         // feed in an RE::split or use AC::match_one // AC::match_all
 
-        cout << "match all lines = " << emails.MatchAllLines("^.*(?:\\@)(GMAIL)\\.(com)$", rxm::icase) << endl;
+        cout << "match all lines = " << emails.MatchAllLines("^.*(?:\\@)(GMAIL)\\.(com)$", RXM::icase) << endl;
         // returns false since all the lines don't contain gmail
 
-        cout << "match one line  = " << emails.MatchAllLines("^.*(?:\\@)(GMAIL)\\.(com)$", rxm::icase) << endl;
+        cout << "match one line  = " << emails.MatchAllLines("^.*(?:\\@)(GMAIL)\\.(com)$", RXM::icase) << endl;
         // returns true sense at lease one line contains gmail
 
         cout << "match all lines = " << emails.MatchAllLines("^.*(@).*$") << endl;

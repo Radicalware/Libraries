@@ -31,15 +31,15 @@ class ValXVector : public BaseXVector<T>
 public:
     using BaseXVector<T>::BaseXVector;
     using BaseXVector<T>::operator=;
-    using E = std::remove_const<T>::type; // E for Erratic
+    using E = typename std::remove_const<T>::type; // E for Erratic
 
     inline T& At(const size_t Idx);
     inline const T& At(const size_t Idx) const;
 
     template<typename P = T> 
-    inline bool Has(const P* item) const;
-    inline bool Has(const T& item) const;
-    inline bool Has(char const* item) const;
+    inline bool Has(const P* Item) const;
+    inline bool Has(const T& Item) const;
+    inline bool Has(char const* Item) const;
     template<typename F, typename ...A>
     inline bool HasTruth(F&& Function, A&& ...Args) const;
     template<typename F, typename ...A>
@@ -49,18 +49,18 @@ public:
     template<typename F, typename ...A>
     inline xvector<T> GetTruths(F&& Function, A&& ...Args) const;
 
-    inline bool Lacks(const T& item) const;
-    inline bool Lacks(char const* item) const;
+    inline bool Lacks(const T& Item) const;
+    inline bool Lacks(char const* Item) const;
     template<typename F, typename ...A>
     inline bool LacksTruth(F&& Function, A&& ...Args) const;
 
     template<typename L = xvector<T>>
-    inline xvector<T> GetCommonItems(L& item);
+    inline xvector<T> GetCommonItems(L& Item);
     template<typename L = xvector<T>>
-    inline xvector<T> GetCommonItems(L&& item);
+    inline xvector<T> GetCommonItems(L&& Item);
 
-    inline void operator<<(const T&  item);
-    inline void operator<<(      T&& item);
+    inline void operator<<(const T&  Item);
+    inline void operator<<(      T&& Item);
 
     inline void AddCharStrings(int strC, char** strV);
 
@@ -84,7 +84,7 @@ public:
     inline void operator+=(const xvector<T>& other);
     inline xvector<T> operator+(const xvector<T>& other) const;
 
-    constexpr size_t Size() const { return this->size(); }
+    constexpr size_t Size() const { return The.size(); }
 
     inline void Organize();
     inline void RemoveDups();
@@ -95,7 +95,7 @@ public:
     inline xvector<T>& ReverseSort();
     inline xvector<T>& ReverseIt();
 
-    inline xvector<T> GetPtrs();
+    inline xvector<T*> GetPtrs();
 
     template<typename F, typename... A>
     inline void Proc(F&& function, A&& ...Args);
@@ -192,7 +192,7 @@ inline T& ValXVector<T>::At(const size_t Idx)
 {
     if (Idx >= Size())
         throw "Index Out Of Range";
-    return (*this)[Idx];
+    return The[Idx];
 }
 
 template<typename T>
@@ -200,35 +200,35 @@ inline const T& ValXVector<T>::At(const size_t Idx) const
 {
     if (Idx >= Size())
         throw "Index Out Of Range";
-    return (*this)[Idx];
+    return The[Idx];
 }
 
 template<typename T>
 template<typename P>
-inline bool ValXVector<T>::Has(const P* item) const
+inline bool ValXVector<T>::Has(const P* Item) const
 {
-    for (typename ValXVector<T>::const_iterator it = this->begin(); it != this->end(); it++) {
-        if (**it == *item)
+    for (typename ValXVector<T>::const_iterator it = The.begin(); it != The.end(); it++) {
+        if (**it == *Item)
             return true;
     }
     return false;
 }
 
 template<typename T>
-inline bool ValXVector<T>::Has(const T& item) const{
-    return (bool(std::find(this->begin(), this->end(), item) != this->end()));
+inline bool ValXVector<T>::Has(const T& Item) const{
+    return (bool(std::find(The.begin(), The.end(), Item) != The.end()));
 }
 
 template<typename T>
-inline bool ValXVector<T>::Has(char const* item) const {
-    return (bool(std::find(this->begin(), this->end(), item) != this->end()));
+inline bool ValXVector<T>::Has(char const* Item) const {
+    return (bool(std::find(The.begin(), The.end(), Item) != The.end()));
 }
 
 template<typename T>
 template<typename F, typename ...A>
 inline bool ValXVector<T>::HasTruth(F&& Function, A&& ...Args) const
 {
-    for (typename xvector<E>::const_iterator it = this->begin(); it != this->end(); it++) {
+    for (typename xvector<E>::const_iterator it = The.begin(); it != The.end(); it++) {
         if (Function(*it, std::forward<A>(Args)...))
             return true;
     }
@@ -239,7 +239,7 @@ template<typename T>
 template<typename F, typename ...A>
 inline const T& ValXVector<T>::GetTruth(F&& Function, A && ...Args) const
 {
-    for (typename xvector<E>::const_iterator it = this->begin(); it != this->end(); it++) {
+    for (typename xvector<E>::const_iterator it = The.begin(); it != The.end(); it++) {
         if (Function(*it, std::forward<A>(Args)...))
             return (*it);
     }
@@ -250,7 +250,7 @@ template<typename T>
 template<typename F, typename ...A>
 inline T& ValXVector<T>::GetTruth(F&& Function, A && ...Args)
 {
-    for (typename xvector<E>::const_iterator it = this->begin(); it != this->end(); it++) {
+    for (typename xvector<E>::const_iterator it = The.begin(); it != The.end(); it++) {
         if (Function(*it, std::forward<A>(Args)...))
             return (*it);
     }
@@ -262,7 +262,7 @@ template<typename F, typename ...A>
 inline xvector<T> ValXVector<T>::GetTruths(F&& Function, A && ...Args) const
 {
     xvector<T> RetVec;
-    for (typename xvector<E>::const_iterator it = this->begin(); it != this->end(); it++) {
+    for (typename xvector<E>::const_iterator it = The.begin(); it != The.end(); it++) {
         if (Function(*it, std::forward<A>(Args)...))
             RetVec << (*it);
     }
@@ -272,20 +272,20 @@ inline xvector<T> ValXVector<T>::GetTruths(F&& Function, A && ...Args) const
 // ------------------------------------------------------------------------------------------------
 
 template<typename T>
-inline bool ValXVector<T>::Lacks(const T& item) const {
-    return !(bool(std::find(this->begin(), this->end(), item) != this->end()));
+inline bool ValXVector<T>::Lacks(const T& Item) const {
+    return !(bool(std::find(The.begin(), The.end(), Item) != The.end()));
 }
 
 template<typename T>
-inline bool ValXVector<T>::Lacks(char const* item) const {
-    return !(bool(std::find(this->begin(), this->end(), item) != this->end()));
+inline bool ValXVector<T>::Lacks(char const* Item) const {
+    return !(bool(std::find(The.begin(), The.end(), Item) != The.end()));
 }
 
 template<typename T>
 template<typename F, typename ...A>
 inline bool ValXVector<T>::LacksTruth(F&& Function, A && ...Args) const
 {
-    for (typename xvector<E>::const_iterator it = this->begin(); it != this->end(); it++) {
+    for (typename xvector<E>::const_iterator it = The.begin(); it != The.end(); it++) {
         if (Function((*it), std::forward<A>(Args)...))
             return false;
     }
@@ -297,40 +297,40 @@ inline bool ValXVector<T>::LacksTruth(F&& Function, A && ...Args) const
 
 template<typename T>
 template<typename L>
-xvector<T> ValXVector<T>::GetCommonItems(L& item) 
+xvector<T> ValXVector<T>::GetCommonItems(L& Item) 
 {
-    std::sort(this->begin(), this->end());
-    std::sort(item.begin(), item.end());
+    std::sort(The.begin(), The.end());
+    std::sort(Item.begin(), Item.end());
 
-    xvector<T> vret(this->size() + item.size());
-    set_intersection(this->begin(), this->end(), item.begin(), item.end(), vret.begin());
+    xvector<T> vret(The.size() + Item.size());
+    set_intersection(The.begin(), The.end(), Item.begin(), Item.end(), vret.begin());
     return vret;
 }
 
 template<typename T>
 template<typename L>
-xvector<T> ValXVector<T>::GetCommonItems(L&& item) {
-    return this->GetCommonItems(item);
+xvector<T> ValXVector<T>::GetCommonItems(L&& Item) {
+    return The.GetCommonItems(Item);
 }
 
 // ------------------------------------------------------------------------------------------------
 
 template<typename T>
-inline void ValXVector<T>::operator<<(const T& item)
+inline void ValXVector<T>::operator<<(const T& Item)
 {
-    this->emplace_back(item);
+    The.emplace_back(Item);
 }
 
 template<typename T>
-inline void ValXVector<T>::operator<<(T&& item){
-    this->emplace_back(std::move(item));
+inline void ValXVector<T>::operator<<(T&& Item){
+    The.emplace_back(std::forward<T>(Item));
 }
 
 template<typename T>
 inline void ValXVector<T>::AddCharStrings(int strC, char** strV)
 {
     for (int i = 0; i < strC; i++)
-        this->push_back(T(strV[i]));
+        The.push_back(T(strV[i]));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -340,7 +340,7 @@ inline T& ValXVector<T>::First(size_t Idx)
 {
     if (!The.HasIndex(Idx))
         throw "Index Out Of Bounds";
-    return this->operator[](Idx);
+    return The.operator[](Idx);
 }
 
 template<typename T>
@@ -348,7 +348,7 @@ inline const T& ValXVector<T>::First(size_t Idx) const
 {
     if (!The.HasIndex(Idx))
         throw "Index Out Of Bounds";
-    return this->operator[](Idx);
+    return The.operator[](Idx);
 }
 
 template<typename T>
@@ -356,7 +356,7 @@ inline T& ValXVector<T>::Last(size_t Idx)
 {
     if (!The.HasIndex(Idx))
         throw "Index Out Of Bounds";
-    return this->operator[](this->size() - Idx - 1);
+    return The.operator[](The.size() - Idx - 1);
 }
 
 
@@ -365,7 +365,7 @@ inline const T& ValXVector<T>::Last(size_t Idx) const
 {
     if (!The.HasIndex(Idx))
         throw "Index Out Of Bounds";
-    return this->operator[](this->size() - Idx - 1);
+    return The.operator[](The.size() - Idx - 1);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -373,7 +373,7 @@ inline const T& ValXVector<T>::Last(size_t Idx) const
 template<typename T>
 inline std::pair<T, T> ValXVector<T>::GetPair() const
 {
-    return std::pair<E, E>(this->at(0), this->at(1));
+    return std::pair<E, E>(The.at(0), The.at(1));
 }
 
 template<typename T>
@@ -381,7 +381,7 @@ template<typename C>
 inline xvector<C> ValXVector<T>::Convert() const
 {
     xvector<C> ret;
-    for (typename ValXVector<T>::const_iterator it = this->begin(); it != this->end(); it++)
+    for (typename ValXVector<T>::const_iterator it = The.begin(); it != The.end(); it++)
         ret << C(*it);
     return ret;
 }
@@ -392,7 +392,7 @@ template<typename C, typename F>
 inline xvector<C> ValXVector<T>::Convert(F function) const
 {
     xvector<C> ret;
-    for (typename ValXVector<T>::const_iterator it = this->begin(); it != this->end(); it++)
+    for (typename ValXVector<T>::const_iterator it = The.begin(); it != The.end(); it++)
         ret << function(*it);
     return ret;
 }
@@ -404,9 +404,9 @@ inline xvector<xvector<T>> ValXVector<T>::Split(N count) const
 
     xvector<xvector<T>> RetVec;
     if (count < 2) {
-        if (count == 1 && this->size() == 1) {
-            RetVec[0].reserve(this->size());
-            for (typename ValXVector<T>::const_iterator it = this->begin(); it != this->end(); it++) {
+        if (count == 1 && The.size() == 1) {
+            RetVec[0].reserve(The.size());
+            for (typename ValXVector<T>::const_iterator it = The.begin(); it != The.end(); it++) {
                 RetVec[0].push_back(*it);
             }
         }
@@ -415,13 +415,13 @@ inline xvector<xvector<T>> ValXVector<T>::Split(N count) const
     }
 
     RetVec.reserve(static_cast<size_t>(count) + 1);
-    if (!this->size())
+    if (!The.size())
         return RetVec;
 
     N reset = count;
     count = 0;
-    const N new_size = static_cast<N>(this->size()) / reset;
-    for (typename ValXVector<T>::const_iterator it = this->begin(); it != this->end(); it++) {
+    const N new_size = static_cast<N>(The.size()) / reset;
+    for (typename ValXVector<T>::const_iterator it = The.begin(); it != The.end(); it++) {
         if (count == 0) {
             count = reset;
             RetVec.push_back(xvector<T>({ *it })); // create new xvec and add first el
@@ -440,15 +440,15 @@ inline xvector<xvector<T>> ValXVector<T>::Split(N count) const
 template<typename T>
 void ValXVector<T>::operator+=(const xvector<T>& other)
 {
-    this->insert(this->end(), other.begin(), other.end());
+    The.insert(The.end(), other.begin(), other.end());
 }
 
 template<typename T>
 xvector<T> ValXVector<T>::operator+(const xvector<T>& other) const 
 {
     xvector<T> vret;
-    vret.reserve(this->size());
-    vret.insert(vret.end(),  this->begin(), this->end());
+    vret.reserve(The.size());
+    vret.insert(vret.end(),  The.begin(), The.end());
     vret += other;
     return vret;
 }
@@ -459,28 +459,28 @@ template<typename T>
 inline void ValXVector<T>::Organize()
 {
     std::multiset<T> set_arr;
-    for (typename ValXVector<T>::const_iterator it = this->begin(); it != this->end(); it++)
+    for (typename ValXVector<T>::const_iterator it = The.begin(); it != The.end(); it++)
         set_arr.insert(*it);
 
-    this->clear();
-    this->reserve(set_arr.size());
+    The.clear();
+    The.reserve(set_arr.size());
 
     for (typename std::multiset<T>::const_iterator it = set_arr.begin(); it != set_arr.end(); it++)
-        this->push_back(*it);
+        The.push_back(*it);
 }
 
 template<typename T>
 inline void ValXVector<T>::RemoveDups()
 {
     std::set<T> set_arr;
-    for (typename ValXVector<T>::const_iterator it = this->begin(); it != this->end(); it++)
+    for (typename ValXVector<T>::const_iterator it = The.begin(); it != The.end(); it++)
         set_arr.insert(*it);
 
-    this->clear();
-    this->reserve(set_arr.size());
+    The.clear();
+    The.reserve(set_arr.size());
 
     for (typename std::set<T>::const_iterator it = set_arr.begin(); it != set_arr.end(); it++)
-        this->push_back(*it);
+        The.push_back(*it);
 }
 
 // -----------------------------------------------------------------------------------------------
@@ -489,37 +489,37 @@ template<typename T>
 template<typename F>
 inline xvector<T>& ValXVector<T>::Sort(F func)
 {
-    std::sort(this->begin(), this->end(), func);
+    std::sort(The.begin(), The.end(), func);
     return *reinterpret_cast<xvector<T>*>(this);
 }
 
 template<typename T>
 inline xvector<T>& ValXVector<T>::Sort()
 {
-    std::sort(this->begin(), this->end());
+    std::sort(The.begin(), The.end());
     return *reinterpret_cast<xvector<T>*>(this);
 }
 
 template<typename T>
 inline xvector<T>& ValXVector<T>::ReverseSort()
 {
-    std::sort(this->begin(), this->end(), std::greater<T>());
+    std::sort(The.begin(), The.end(), std::greater<T>());
     return *reinterpret_cast<xvector<T>*>(this);
 }
 
 template<typename T>
 inline xvector<T>& ValXVector<T>::ReverseIt()
 {
-    std::reverse(this->begin(), this->end());
+    std::reverse(The.begin(), The.end());
     return *reinterpret_cast<xvector<T>*>(this);
 }
 
 template<typename T>
-inline xvector<T> ValXVector<T>::GetPtrs()
+inline xvector<T*> ValXVector<T>::GetPtrs()
 {
-    xvector<T> RetVec;
-    for (T& item : *this)
-        RetVec << &item;
+    xvector<T*> RetVec;
+    for (T& Item : *this)
+        RetVec << &Item;
 
     return RetVec;
 }
@@ -528,7 +528,7 @@ template<typename T>
 template<typename F, typename... A>
 inline void ValXVector<T>::Proc(F&& function, A&& ...Args)
 {
-    for (typename xvector<E>::iterator it = this->begin(); it != this->end(); it++) {
+    for (typename xvector<E>::iterator it = The.begin(); it != The.end(); it++) {
         if (function(*it, Args...))
             break;
     }
@@ -538,7 +538,7 @@ template<typename T>
 template<typename F, typename... A>
 inline void ValXVector<T>::ProcThread(F&& function, A&& ...Args)
 {
-    for (typename xvector<E>::iterator it = this->begin(); it != this->end(); it++)
+    for (typename xvector<E>::iterator it = The.begin(); it != The.end(); it++)
         Nexus<>::AddJobVal(function, *it, std::ref(Args)...);
 }
 
@@ -547,7 +547,7 @@ template<typename N, typename F, typename ...A>
 inline xvector<N> ValXVector<T>::ForEach(F&& function, A&& ...Args) const
 {
     xvector<N> vret;
-    for (typename xvector<E>::const_iterator it = this->begin(); it != this->end(); it++)
+    for (typename xvector<E>::const_iterator it = The.begin(); it != The.end(); it++)
         vret.push_back(function(*it, Args...));
     return vret;
 }
@@ -557,7 +557,7 @@ template<typename K, typename V, typename F, typename ...A>
 inline std::unordered_map<K, V> ValXVector<T>::ForEach(F&& function, A&& ...Args)
 {
     std::unordered_map<K, V> rmap;
-    for (typename xvector<E>::iterator it = this->begin(); it != this->end(); it++)
+    for (typename xvector<E>::iterator it = The.begin(); it != The.end(); it++)
         rmap.insert(function(*it, Args...));
     return rmap;
 }
@@ -567,7 +567,7 @@ template<typename N, typename F, typename ...A>
 inline xvector<N> ValXVector<T>::ForEach(F&& function, A&& ...Args)
 {
     xvector<N> vret;
-    for (typename xvector<E>::iterator it = this->begin(); it != this->end(); it++)
+    for (typename xvector<E>::iterator it = The.begin(); it != The.end(); it++)
         vret.push_back(function(*it, Args...));
     return vret;
 }
@@ -577,7 +577,7 @@ template<typename K, typename V, typename F, typename ...A>
 inline std::unordered_map<K, V> ValXVector<T>::ForEach(F&& function, A&& ...Args) const
 {
     std::unordered_map<K, V> rmap;
-    for (typename xvector<E>::const_iterator it = this->begin(); it != this->end(); it++)
+    for (typename xvector<E>::const_iterator it = The.begin(); it != The.end(); it++)
         rmap.insert(function(*it, Args...));
     return rmap;
 }
@@ -589,7 +589,7 @@ inline xvector<N> ValXVector<T>::ForEachThread(F&& function, A&& ...Args)
     if constexpr (std::is_same_v<N, T>)
     {
         CheckRenewObj(VectorPool);
-        for (typename xvector<E>::iterator it = this->begin(); it != this->end(); it++)
+        for (typename xvector<E>::iterator it = The.begin(); it != The.end(); it++)
             VectorPool.AddJobVal(function, *it, std::ref(Args)...);
 
         return VectorPool.GetMoveAllIndices();
@@ -597,7 +597,7 @@ inline xvector<N> ValXVector<T>::ForEachThread(F&& function, A&& ...Args)
     else
     {
         Nexus<N> LoNexus;
-        for (typename xvector<E>::iterator it = this->begin(); it != this->end(); it++)
+        for (typename xvector<E>::iterator it = The.begin(); it != The.end(); it++)
             LoNexus.AddJobVal(function, *it, std::ref(Args)...);
 
         return LoNexus.GetMoveAllIndices();
@@ -609,7 +609,7 @@ template<typename N, typename F, typename ...A>
 inline xvector<N> ValXVector<T>::ForEachThread(F&& function, A&& ...Args) const
 {
     Nexus<N> LoNexus;
-    for (typename xvector<E>::const_iterator it = this->begin(); it != this->end(); it++)
+    for (typename xvector<E>::const_iterator it = The.begin(); it != The.end(); it++)
         LoNexus.AddJobVal(function, *it, std::ref(Args)...);
 
     return LoNexus.GetMoveAllIndices();
@@ -620,7 +620,7 @@ template<typename K, typename V, typename F, typename ...A>
 inline std::unordered_map<K, V> ValXVector<T>::ForEachThread(F&& function, A&& ...Args) const
 {
     auto& MapPool = *RA::MakeShared<Nexus<std::pair<K, V>>>();
-    for (typename xvector<E>::const_iterator it = this->begin(); it != this->end(); it++)
+    for (typename xvector<E>::const_iterator it = The.begin(); it != The.end(); it++)
         MapPool.AddJobVal(function, *it, std::ref(Args)...);
 
     return MapPool.GetMoveAllIndices();
@@ -631,7 +631,7 @@ template <typename N, typename F, typename ...A>
 inline void ValXVector<T>::StartTasks(F&& function, A&& ...Args)
 {
     CheckRenewObj(VectorPool);
-    for (typename xvector<E>::iterator it = this->begin(); it != this->end(); it++)
+    for (typename xvector<E>::iterator it = The.begin(); it != The.end(); it++)
         VectorPool.AddJobVal(function, *it, std::ref(Args)...);
 }
 
@@ -668,7 +668,7 @@ inline T ValXVector<T>::GetSum(size_t FnSetBackIDX) const
         SetBackIDX = Size();
 
     T num = 0;
-    for (typename ValXVector<T>::const_iterator it = this->end() - SetBackIDX; it != this->end(); it++) {
+    for (typename ValXVector<T>::const_iterator it = The.end() - SetBackIDX; it != The.end(); it++) {
         num += *it;
     }
     return num;
@@ -681,12 +681,12 @@ inline T ValXVector<T>::GetMul(size_t FnSetBackIDX) const
         return 0;
 
     if (Size() == 1)
-        return (*this)[0];
+        return The[0];
 
     const size_t SetBackIDX = (Size() > FnSetBackIDX) ? FnSetBackIDX : Size();
 
     T num = 1;
-    for (typename ValXVector<T>::const_iterator it = this->end() - SetBackIDX; it != this->end(); it++) {
+    for (typename ValXVector<T>::const_iterator it = The.end() - SetBackIDX; it != The.end(); it++) {
         num *= (*it);
     }
     return num;
@@ -704,7 +704,7 @@ inline T ValXVector<T>::GetAvg(size_t FnSetBackIDX) const
     else
         SetBackIDX = Size();
 
-    return this->GetSum(SetBackIDX) / SetBackIDX;
+    return The.GetSum(SetBackIDX) / SetBackIDX;
 }
 
 // =============================================================================================================
@@ -713,7 +713,7 @@ template<typename T>
 inline T ValXVector<T>::Join(const T& str) const
 {
     T ret;
-    for (typename ValXVector<T>::const_iterator it = this->begin(); it != this->end(); it++)
+    for (typename ValXVector<T>::const_iterator it = The.begin(); it != The.end(); it++)
         ret += *it + str;
 
     return ret.substr(0, ret.length() - str.size());
@@ -723,7 +723,7 @@ template<typename T>
 T ValXVector<T>::Join(const char str) const
 {
     T ret;
-    for (typename ValXVector<T>::const_iterator it = this->begin(); it != this->end(); it++)
+    for (typename ValXVector<T>::const_iterator it = The.begin(); it != The.end(); it++)
         ret += *it + str;
 
     return ret.substr(0, ret.length() - 1);
@@ -733,7 +733,7 @@ template<typename T>
 T ValXVector<T>::Join(const char* str) const
 {
     T ret;
-    for (typename ValXVector<T>::const_iterator it = this->begin(); it != this->end(); it++)
+    for (typename ValXVector<T>::const_iterator it = The.begin(); it != The.end(); it++)
         ret += *it + str;
 
     return ret.substr(0, ret.length() - strlen(str));
@@ -744,7 +744,7 @@ T ValXVector<T>::Join(const char* str) const
 template<typename T>
 inline bool ValXVector<T>::FullMatchOne(const re2::RE2& in_pattern) const
 {
-    for (typename xvector<T>::const_iterator iter = this->begin(); iter != this->end(); iter++) {
+    for (typename xvector<T>::const_iterator iter = The.begin(); iter != The.end(); iter++) {
         if (RE2::FullMatch(*iter, in_pattern)) {
             return true;
         }
@@ -755,7 +755,7 @@ inline bool ValXVector<T>::FullMatchOne(const re2::RE2& in_pattern) const
 template<typename T>
 inline bool ValXVector<T>::FullMatchAll(const re2::RE2& in_pattern) const
 {
-    for (typename xvector<T>::const_iterator iter = this->begin(); iter != this->end(); iter++) {
+    for (typename xvector<T>::const_iterator iter = The.begin(); iter != The.end(); iter++) {
         if (!RE2::FullMatch(*iter, in_pattern)) {
             return false;
         }
@@ -767,7 +767,7 @@ inline bool ValXVector<T>::FullMatchAll(const re2::RE2& in_pattern) const
 template<typename T>
 inline bool ValXVector<T>::MatchOne(const re2::RE2& in_pattern) const
 {
-    for (typename xvector<T>::const_iterator iter = this->begin(); iter != this->end(); iter++) {
+    for (typename xvector<T>::const_iterator iter = The.begin(); iter != The.end(); iter++) {
         if (RE2::PartialMatch(*iter, in_pattern)) {
             return true;
         }
@@ -778,7 +778,7 @@ inline bool ValXVector<T>::MatchOne(const re2::RE2& in_pattern) const
 template<typename T>
 inline bool ValXVector<T>::MatchAll(const re2::RE2& in_pattern) const
 {
-    for (typename xvector<T>::const_iterator iter = this->begin(); iter != this->end(); iter++) {
+    for (typename xvector<T>::const_iterator iter = The.begin(); iter != The.end(); iter++) {
         if (!RE2::PartialMatch(*iter, in_pattern)) {
             return false;
         }
@@ -790,10 +790,10 @@ template<typename T>
 inline xvector<T> ValXVector<T>::Take(const re2::RE2& in_pattern) const
 {
     xvector<T> RetVec;
-    RetVec.reserve(this->size() + 1);
-    for (size_t i = 0; i < this->size(); i++) {
-        if ((RE2::PartialMatch(*(*this)[i], in_pattern)))
-            RetVec.push_back((*this)[i]);
+    RetVec.reserve(The.size() + 1);
+    for (size_t i = 0; i < The.size(); i++) {
+        if ((RE2::PartialMatch(The[i], in_pattern)))
+            RetVec.push_back(The[i]);
     }
     return RetVec;
 }
@@ -802,10 +802,10 @@ template<typename T>
 inline xvector<T> ValXVector<T>::Remove(const re2::RE2& in_pattern) const
 {
     xvector<T> RetVec;
-    RetVec.reserve(this->size() + 1);
-    for (size_t i = 0; i < this->size(); i++) {
-        if (!(RE2::PartialMatch(*(*this)[i], in_pattern)))
-            RetVec.push_back((*this)[i]);
+    RetVec.reserve(The.size() + 1);
+    for (size_t i = 0; i < The.size(); i++) {
+        if (!(RE2::PartialMatch(The[i], in_pattern)))
+            RetVec.push_back(The[i]);
     }
     return RetVec;
 }
@@ -814,7 +814,7 @@ template<typename T>
 inline xvector<T> ValXVector<T>::SubAll(const re2::RE2& in_pattern, const std::string& replacement) const
 {
     xvector<E> RetVec;
-    RetVec.reserve(this->size() + 1);
+    RetVec.reserve(The.size() + 1);
     for (const T* Val : *this)
         RetVec << *Val;
 
@@ -832,7 +832,7 @@ bool ValXVector<T>::FullMatchOne(const std::string& in_pattern) const
 {
 #ifdef UsingNVCC
     std::regex rex(in_pattern, RXM::ECMAScript);
-    for (typename xvector<T>::const_iterator iter = this->begin(); iter != this->end(); iter++) {
+    for (typename xvector<T>::const_iterator iter = The.begin(); iter != The.end(); iter++) {
         if (std::regex_match(*iter, rex)) {
             return true;
 }
@@ -845,7 +845,11 @@ bool ValXVector<T>::FullMatchOne(const std::string& in_pattern) const
 
 template<typename T>
 bool ValXVector<T>::FullMatchOne(char const* in_pattern) const {
-    return this->FullMatchOne(in_pattern);
+#ifdef UsingNVCC
+    return The.FullMatchOne(std::string(in_pattern));
+#else
+    return The.FullMatchOne(re2::RE2(in_pattern));
+#endif
 }
 
 // =============================================================================================================
@@ -855,7 +859,7 @@ bool ValXVector<T>::FullMatchAll(const std::string& in_pattern) const
 {
 #ifdef UsingNVCC
     std::regex rex(in_pattern, RXM::ECMAScript);
-    for (typename xvector<T>::const_iterator iter = this->begin(); iter != this->end(); iter++) {
+    for (typename xvector<T>::const_iterator iter = The.begin(); iter != The.end(); iter++) {
         if (!std::regex_match(*iter, rex)) {
             return false;
         }
@@ -868,7 +872,11 @@ bool ValXVector<T>::FullMatchAll(const std::string& in_pattern) const
 
 template<typename T>
 bool ValXVector<T>::FullMatchAll(char const* in_pattern) const {
-    return this->FullMatchAll(in_pattern);
+#ifdef UsingNVCC
+    return The.FullMatchAll(std::string(in_pattern));
+#else
+    return The.FullMatchAll(re2::RE2(in_pattern));
+#endif
 }
 
 // =============================================================================================================
@@ -878,20 +886,24 @@ bool ValXVector<T>::MatchOne(const std::string& in_pattern) const
 {
 #ifdef UsingNVCC
     std::regex rex(in_pattern, RXM::ECMAScript);
-    for (typename xvector<T>::const_iterator iter = this->begin(); iter != this->end(); iter++) {
+    for (typename xvector<T>::const_iterator iter = The.begin(); iter != The.end(); iter++) {
         if (std::regex_match(*iter, rex)) {
             return true;
         }
     }
     return false;
 #else
-    The.MatchOne(re2::RE2(in_pattern));
+    return The.MatchOne(re2::RE2(in_pattern));
 #endif
 }
 
 template<typename T>
 bool ValXVector<T>::MatchOne(char const* in_pattern) const {
-    return this->MatchOne(in_pattern);
+#ifdef UsingNVCC
+    return The.MatchOne(std::string(in_pattern));
+#else
+    return The.MatchOne(re2::RE2(in_pattern));
+#endif
 }
 
 // =============================================================================================================
@@ -900,7 +912,7 @@ template<typename T>
 bool ValXVector<T>::MatchAll(const std::string& in_pattern) const {
 #ifdef UsingNVCC
     std::regex rex(in_pattern, RXM::ECMAScript);
-    for (typename xvector<T>::const_iterator iter = this->begin(); iter != this->end(); iter++) {
+    for (typename xvector<T>::const_iterator iter = The.begin(); iter != The.end(); iter++) {
         if (!std::regex_match(*iter, rex)) {
             return false;
         }
@@ -913,7 +925,11 @@ bool ValXVector<T>::MatchAll(const std::string& in_pattern) const {
 
 template<typename T>
 bool ValXVector<T>::MatchAll(char const* in_pattern) const {
-    return this->MatchAll(in_pattern);
+#ifdef UsingNVCC
+    return The.MatchAll(std::string(in_pattern));
+#else
+    return The.MatchAll(re2::RE2(in_pattern));
+#endif
 }
 // =============================================================================================================
 
@@ -923,21 +939,25 @@ inline xvector<T> ValXVector<T>::Take(const std::string& in_pattern) const
 #ifdef UsingNVCC
     xvector<T> RetVec;
     std::regex rex(in_pattern, RXM::ECMAScript);
-    for (typename xvector<T>::const_iterator iter = this->begin(); iter != this->end(); iter++) {
+    for (typename xvector<T>::const_iterator iter = The.begin(); iter != The.end(); iter++) {
         if (std::regex_match(*iter, rex)) {
             RetVec.push_back(*iter);
         }
     }
     return RetVec;
 #else
-    The.Take(re2::RE2(in_pattern));
+    return The.Take(re2::RE2(in_pattern));
 #endif
 }
 
 template<typename T>
 inline xvector<T> ValXVector<T>::Take(char const* in_pattern) const
 {
-    return this->Take(in_pattern);
+#ifdef UsingNVCC
+    return The.Take(std::string(in_pattern));
+#else
+    return The.Take(re2::RE2(in_pattern));
+#endif
 }
 
 template<typename T>
@@ -946,7 +966,7 @@ inline xvector<T> ValXVector<T>::Remove(const std::string& in_pattern) const
 #ifdef UsingNVCC
     xvector<T> RetVec;
     std::regex rex(in_pattern, RXM::ECMAScript);
-    for (typename xvector<T>::const_iterator iter = this->begin(); iter != this->end(); iter++) {
+    for (typename xvector<T>::const_iterator iter = The.begin(); iter != The.end(); iter++) {
         if (!std::regex_match(*iter, rex)) {
             RetVec.push_back(*iter);
         }
@@ -961,7 +981,11 @@ inline xvector<T> ValXVector<T>::Remove(const std::string& in_pattern) const
 template<typename T>
 inline xvector<T> ValXVector<T>::Remove(char const* in_pattern) const
 {
-    return this->Remove(in_pattern);
+#ifdef UsingNVCC
+    return The.Remove(std::string(in_pattern));
+#else
+    return The.Remove(re2::RE2(in_pattern));
+#endif
 }
 // =============================================================================================================
 
@@ -982,7 +1006,7 @@ inline xvector<T> ValXVector<T>::SubAll(const std::string& Pattern, const std::s
 template<typename T>
 inline xvector<T> ValXVector<T>::SubAll(char const* in_pattern, char const* replacement) const
 {
-    return this->SubAll(in_pattern, std::string(replacement));
+    return The.SubAll(in_pattern, std::string(replacement));
 }
 
 // =============================================================================================================

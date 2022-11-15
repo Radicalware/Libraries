@@ -34,7 +34,7 @@
 #define EXIT() exit(Nexus<>::Stop())
 
 template<typename M>
-using IsSharedPtr = std::enable_if<IsSame(M, RA::SharedPtr<RA::Mutex>) || IsSame(M, xp<RA::Mutex>), void>::type;
+using IsSharedPtr = typename std::enable_if<IsSame(M, RA::SharedPtr<RA::Mutex>) || IsSame(M, xp<RA::Mutex>), void>::type;
 
 // =========================================================================================
 

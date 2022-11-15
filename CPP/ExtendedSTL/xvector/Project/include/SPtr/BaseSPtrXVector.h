@@ -31,7 +31,7 @@ class SPtrXVector<xp<T>> : public BaseXVector<xp<T>>
 public:
     using BaseXVector<xp<T>>::BaseXVector;
     using BaseXVector<xp<T>>::operator=;
-    using E = std::remove_const<xp<T>>::type; // E for Erratic
+    using E = typename std::remove_const<xp<T>>::type; // E for Erratic
 
     inline const T& operator[](const size_t Idx) const;
     inline T& operator[](const size_t Idx);
@@ -740,7 +740,7 @@ T SPtrXVector<xp<T>>::Join(const char* str) const
 template<typename T>
 inline bool SPtrXVector<xp<T>>::FullMatchOne(const re2::RE2& in_pattern) const
 {
-    for (typename xvector<T*>::const_iterator iter = this->begin(); iter != this->end(); iter++) {
+    for (typename xvector<T*>::const_iterator iter = The.begin(); iter != The.end(); iter++) {
         if (RE2::FullMatch(**iter, in_pattern)) {
             return true;
         }
@@ -751,7 +751,7 @@ inline bool SPtrXVector<xp<T>>::FullMatchOne(const re2::RE2& in_pattern) const
 template<typename T>
 inline bool SPtrXVector<xp<T>>::FullMatchAll(const re2::RE2& in_pattern) const
 {
-    for (typename xvector<T*>::const_iterator iter = this->begin(); iter != this->end(); iter++) {
+    for (typename xvector<T*>::const_iterator iter = The.begin(); iter != The.end(); iter++) {
         if (!RE2::FullMatch(**iter, in_pattern)) {
             return false;
         }
@@ -763,7 +763,7 @@ inline bool SPtrXVector<xp<T>>::FullMatchAll(const re2::RE2& in_pattern) const
 template<typename T>
 inline bool SPtrXVector<xp<T>>::MatchOne(const re2::RE2& in_pattern) const
 {
-    for (typename xvector<T*>::const_iterator iter = this->begin(); iter != this->end(); iter++) {
+    for (typename xvector<T*>::const_iterator iter = The.begin(); iter != The.end(); iter++) {
         if (RE2::PartialMatch(**iter, in_pattern)) {
             return true;
         }
@@ -774,7 +774,7 @@ inline bool SPtrXVector<xp<T>>::MatchOne(const re2::RE2& in_pattern) const
 template<typename T>
 inline bool SPtrXVector<xp<T>>::MatchAll(const re2::RE2& in_pattern) const
 {
-    for (typename xvector<T*>::const_iterator iter = this->begin(); iter != this->end(); iter++) {
+    for (typename xvector<T*>::const_iterator iter = The.begin(); iter != The.end(); iter++) {
         if (!RE2::PartialMatch(**iter, in_pattern)) {
             return false;
         }
@@ -786,8 +786,8 @@ template<typename T>
 inline xvector<xp<T>> SPtrXVector<xp<T>>::Take(const re2::RE2& in_pattern) const
 {
     xvector<T*> RetVec;
-    RetVec.reserve(this->size() + 1);
-    for (size_t i = 0; i < this->size(); i++) {
+    RetVec.reserve(The.size() + 1);
+    for (size_t i = 0; i < The.size(); i++) {
         if ((RE2::PartialMatch(*(*this)[i], in_pattern)))
             RetVec.push_back((*this)[i]);
     }
@@ -798,8 +798,8 @@ template<typename T>
 inline xvector<xp<T>> SPtrXVector<xp<T>>::Remove(const re2::RE2& in_pattern) const
 {
     xvector<T*> RetVec;
-    RetVec.reserve(this->size() + 1);
-    for (size_t i = 0; i < this->size(); i++) {
+    RetVec.reserve(The.size() + 1);
+    for (size_t i = 0; i < The.size(); i++) {
         if (!(RE2::PartialMatch(*(*this)[i], in_pattern)))
             RetVec.push_back((*this)[i]);
     }
@@ -810,23 +810,15 @@ template<typename T>
 inline xvector<T> SPtrXVector<xp<T>>::SubAll(const re2::RE2& in_pattern, const std::string& replacement) const
 {
     xvector<E> RetVec;
-    RetVec.reserve(this->size() + 1);
+    RetVec.reserve(The.size() + 1);
     for (const T* Val : *this)
         RetVec << *Val;
 
     for (typename SPtrXVector<xp<T>>::iterator iter = RetVec.begin(); iter != RetVec.end(); iter++)
         RE2::GlobalReplace(&*iter, in_pattern, replacement.c_str());
     return RetVec;
-
-
-template<typename T>
-inline xvector<xp<T>> SPtrXVector<xp<T>>::SubAll(const re2::RE2& Pattern, const std::string& Replacement) const
-{
-    xvector<xp<T>> RetVec = *this;
-    for (typename SPtrXVector<xp<T>>::iterator iter = RetVec.begin(); iter != RetVec.end(); iter++)
-        RE2::GlobalReplace(&(*iter).Get(), Pattern, Replacement.c_str());
-    return RetVec;
 }
+
 #endif
 
 // =============================================================================================================
@@ -837,7 +829,7 @@ bool SPtrXVector<xp<T>>::FullMatchOne(const std::string& in_pattern) const
 {
 #ifdef UsingNVCC
     std::regex rex(in_pattern, RXM::ECMAScript);
-    for (typename xvector<T*>::const_iterator iter = this->begin(); iter != this->end(); iter++) {
+    for (typename xvector<T*>::const_iterator iter = The.begin(); iter != The.end(); iter++) {
         if (std::regex_match(**iter, rex)) {
             return true;
         }
@@ -850,7 +842,11 @@ bool SPtrXVector<xp<T>>::FullMatchOne(const std::string& in_pattern) const
 
 template<typename T>
 bool SPtrXVector<xp<T>>::FullMatchOne(char const* in_pattern) const {
-    return this->FullMatchOne(in_pattern);
+#ifdef UsingNVCC
+    return The.FullMatchOne(std::string(in_pattern));
+#else
+    return The.FullMatchOne(re2::RE2(in_pattern));
+#endif
 }
 
 // =============================================================================================================
@@ -860,7 +856,7 @@ bool SPtrXVector<xp<T>>::FullMatchAll(const std::string& in_pattern) const
 {
 #ifdef UsingNVCC
     std::regex rex(in_pattern, RXM::ECMAScript);
-    for (typename xvector<T*>::const_iterator iter = this->begin(); iter != this->end(); iter++) {
+    for (typename xvector<T*>::const_iterator iter = The.begin(); iter != The.end(); iter++) {
         if (!std::regex_match(**iter, rex)) {
             return false;
         }
@@ -873,7 +869,11 @@ bool SPtrXVector<xp<T>>::FullMatchAll(const std::string& in_pattern) const
 
 template<typename T>
 bool SPtrXVector<xp<T>>::FullMatchAll(char const* in_pattern) const {
-    return this->FullMatchAll(in_pattern);
+#ifdef UsingNVCC
+    return The.FullMatchAll(std::string(in_pattern));
+#else
+    return The.FullMatchAll(re2::RE2(in_pattern));
+#endif
 }
 
 // =============================================================================================================
@@ -883,7 +883,7 @@ bool SPtrXVector<xp<T>>::MatchOne(const std::string& in_pattern) const
 {
 #ifdef UsingNVCC
     std::regex rex(in_pattern, RXM::ECMAScript);
-    for (typename xvector<T*>::const_iterator iter = this->begin(); iter != this->end(); iter++) {
+    for (typename xvector<T*>::const_iterator iter = The.begin(); iter != The.end(); iter++) {
         if (std::regex_match(**iter, rex)) {
             return true;
         }
@@ -896,7 +896,11 @@ bool SPtrXVector<xp<T>>::MatchOne(const std::string& in_pattern) const
 
 template<typename T>
 bool SPtrXVector<xp<T>>::MatchOne(char const* in_pattern) const {
-    return this->MatchOne(in_pattern);
+#ifdef UsingNVCC
+    return The.MatchOne(std::string(in_pattern));
+#else
+    return The.MatchOne(re2::RE2(in_pattern));
+#endif
 }
 
 // =============================================================================================================
@@ -905,7 +909,7 @@ template<typename T>
 bool SPtrXVector<xp<T>>::MatchAll(const std::string& in_pattern) const {
 #ifdef UsingNVCC
     std::regex rex(in_pattern, RXM::ECMAScript);
-    for (typename xvector<T*>::const_iterator iter = this->begin(); iter != this->end(); iter++) {
+    for (typename xvector<T*>::const_iterator iter = The.begin(); iter != The.end(); iter++) {
         if (!std::regex_match(**iter, rex)) {
             return false;
         }
@@ -918,7 +922,11 @@ bool SPtrXVector<xp<T>>::MatchAll(const std::string& in_pattern) const {
 
 template<typename T>
 bool SPtrXVector<xp<T>>::MatchAll(char const* in_pattern) const {
-    return this->MatchAll(in_pattern);
+#ifdef UsingNVCC
+    return The.MatchAll(std::string(in_pattern));
+#else
+    return The.MatchAll(re2::RE2(in_pattern));
+#endif
 }
 // =============================================================================================================
 
@@ -928,7 +936,7 @@ inline xvector<xp<T>> SPtrXVector<xp<T>>::Take(const std::string& in_pattern) co
 #ifdef UsingNVCC
     xvector<xp<T>> RetVec;
     std::regex rex(in_pattern, RXM::ECMAScript);
-    for (typename xvector<T*>::const_iterator iter = this->begin(); iter != this->end(); iter++) {
+    for (typename xvector<T*>::const_iterator iter = The.begin(); iter != The.end(); iter++) {
         if (std::regex_match(**iter, rex)) {
             RetVec.push_back(*iter);
         }
@@ -942,7 +950,11 @@ inline xvector<xp<T>> SPtrXVector<xp<T>>::Take(const std::string& in_pattern) co
 template<typename T>
 inline xvector<xp<T>> SPtrXVector<xp<T>>::Take(char const* in_pattern) const
 {
-    return this->Take(in_pattern);
+#ifdef UsingNVCC
+    return The.Take(std::string(in_pattern));
+#else
+    return The.Take(re2::RE2(in_pattern));
+#endif
 }
 
 template<typename T>
@@ -951,7 +963,7 @@ inline xvector<xp<T>> SPtrXVector<xp<T>>::Remove(const std::string& in_pattern) 
 #ifdef UsingNVCC
     xvector<xp<T>> RetVec;
     std::regex rex(in_pattern, RXM::ECMAScript);
-    for (typename xvector<T*>::const_iterator iter = this->begin(); iter != this->end(); iter++) {
+    for (typename xvector<T*>::const_iterator iter = The.begin(); iter != The.end(); iter++) {
         if (!std::regex_match(**iter, rex)) {
             RetVec.push_back(*iter);
         }
@@ -966,7 +978,11 @@ inline xvector<xp<T>> SPtrXVector<xp<T>>::Remove(const std::string& in_pattern) 
 template<typename T>
 inline xvector<xp<T>> SPtrXVector<xp<T>>::Remove(char const* in_pattern) const
 {
-    return this->Remove(in_pattern);
+#ifdef UsingNVCC
+    return The.Remove(std::string(in_pattern));
+#else
+    return The.Remove(re2::RE2(in_pattern));
+#endif
 }
 
 // =============================================================================================================

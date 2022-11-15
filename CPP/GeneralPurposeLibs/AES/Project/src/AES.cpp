@@ -84,11 +84,11 @@ RA::AES& RA::AES::Encrypt()
     auto IVPtr          = MsIV.ToUnsignedChar();        auto IV  = IVPtr.Raw();                 auto IvLen  = MsIV.Size();
     auto PlaintextPtr   = MsPlaintext.ToUnsignedChar(); auto PlainText = PlaintextPtr.Raw();    auto PlainTextLen = MsPlaintext.Size();
 
-    RA::SharedPtr<unsigned char[]> CipherTextPtr = MKPA<unsigned char>(MnEncryptionSize * 2); 
+    auto CipherTextPtr = RA::SharedPtr<unsigned char*>(MnEncryptionSize * 2);
     auto CipherText = CipherTextPtr.Raw();
 
     const pint TagLen = MnEncryptionSize / 8;
-    MsTagPtr = MKPA<unsigned char>(TagLen);
+    MsTagPtr = RA::SharedPtr<unsigned char*>(TagLen);
     auto Tag    = MsTagPtr.Raw();
 
     EVP_CIPHER_CTX* Context = nullptr;
@@ -186,7 +186,7 @@ xstring RA::AES::Decrypt()
     if (!CipherText)
         ThrowIt("No Cipher Text");
 
-    auto MsDecryptedTextPtr = MKPA<unsigned char>(MnCipherTextSize * 2);
+    auto MsDecryptedTextPtr = RA::SharedPtr<unsigned char*>(MnCipherTextSize * 2);
     if (!EVP_DecryptUpdate(Context, MsDecryptedTextPtr.Raw(), &Len, CipherText, MnCipherTextSize))
         This.ThrowErrors();
     PlainTextLen = Len;

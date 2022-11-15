@@ -124,7 +124,7 @@ int main(int argc, char** argv)
     RA::PrintAttributes(three);
     cout << "true  => " << vec_str.Has(three) << endl;
     cout << "true  => " << vec_str.HasTruth([&three](const xstring& Item) { return Item == three; }) << endl;
-    cout << "      => " << vec_str.Take(three).Join(' ') << endl;
+    cout << "      => " << vec_str.Take("(" + three + ")").Join(' ') << endl;
     cout << "true  => " << vec_str.Has("two") << endl;
     cout << "false => " << vec_str.Has("twenty") << endl;
 

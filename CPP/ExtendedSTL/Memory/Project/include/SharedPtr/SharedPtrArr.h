@@ -36,6 +36,9 @@ namespace RA
         inline void operator=(SharedPtr<T*>&& Other);
         inline void operator=(const SharedPtr<T*>& Other);
 
+        inline void Clone(SharedPtr<T*>&& Other);
+        inline void Clone(const SharedPtr<T*>& Other);
+
         _NODISCARD inline       T* Ptr()       noexcept { return The.get(); }
         _NODISCARD inline const T* Ptr() const noexcept { return The.get(); }
 
@@ -150,4 +153,26 @@ inline void RA::SharedPtr<T*>::operator=(const RA::SharedPtr<T*>& Other)
     The.SetSize(Other.Size());
     MbDestructorCount = Other.MbDestructorCount;
     MfDestructor = Other.MfDestructor;
+}
+
+template<typename T>
+inline void RA::SharedPtr<T*>::Clone(SharedPtr<T*>&& Other)
+{
+    The = std::move(Other);
+}
+
+template<typename T>
+inline void RA::SharedPtr<T*>::Clone(const SharedPtr<T*>& Other)
+{
+    if (!Other)
+    {
+        The = nullptr;
+        MnSize = 0;
+        return;
+    }
+    The = RA::MakeShared<T*>(Other.Size());
+    MbDestructorCount = 0;
+    MfDestructor = Other.MfDestructor;
+    if (Other.MnSize)
+        memcpy(The.Ptr(), Other.Ptr(), Other.Size() * sizeof(T) + sizeof(uint));
 }
