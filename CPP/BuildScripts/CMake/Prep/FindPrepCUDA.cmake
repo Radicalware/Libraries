@@ -1,10 +1,12 @@
-﻿set(CMAKE_CUDA_ARCHITECTURES 61) # Pascal GPUs (aka 1000 Series GPUs)
+﻿
+add_compile_definitions("UsingNVCC")
+
+set(CMAKE_CUDA_ARCHITECTURES 61) # Pascal GPUs (aka 1000 Series GPUs)
 set(CUDA_INCLUDE_DIRS   "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v${CUDA_VERSION}/include")
 set(CMAKE_CUDA_COMPILER "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v${CUDA_VERSION}/bin/nvcc.exe")
 set(CUDA_LIB_PATH       "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v${CUDA_VERSION}/lib/x64")
 
-# set(CMAKE_CXX_STANDARD  17)
-# set(CMAKE_CUDA_STANDARD 17)
+set(CMAKE_CUDA_STANDARD 17)
 set(CMAKE_CUDA_STANDARD_REQUIRED TRUE)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 

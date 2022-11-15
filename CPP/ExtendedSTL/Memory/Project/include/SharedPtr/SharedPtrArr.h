@@ -4,6 +4,7 @@
 #include "Iterator.h"
 
 #include <functional>
+#include <utility>
 
 namespace RA
 {
@@ -12,11 +13,13 @@ namespace RA
     {
         size_t MnSize;
         void SetSize(const size_t FnSize);
-        std::function<void(T*)> MfDestructor;
+        std::function<void(T&)> MfDestructor;
+        bool MbInitialized = false;
         bool MbUsingCustomDestructor = false;
     public:
         ~SharedPtr();
-        template<typename F> inline SharedPtr<T>& SetDestructor(F&& FfDestructor);
+        SharedPtr<T*>& Initialize(std::function<void(T&)>&& FfInitialize);
+        SharedPtr<T*>& Destroy(std::function<void(T&)>&& FfDestructor);
 
         BaseSharedPtr<T>::BaseSharedPtr;
 
@@ -56,12 +59,22 @@ template<typename T>
 inline RA::SharedPtr<T*>::~SharedPtr()
 {
     if (MbUsingCustomDestructor)
-        The.MfDestructor(The.Ptr());
+        for (auto& Obj : The)
+            The.MfDestructor(Obj);
 }
 
 template<typename T>
-template<typename F>
-inline RA::SharedPtr<T>& RA::SharedPtr<T*>::SetDestructor(F&& FfDestructor)
+inline RA::SharedPtr<T*>& RA::SharedPtr<T*>::Initialize(std::function<void(T&)>&& FfInitialize)
+{
+    if (MbInitialized)
+        throw "RA::SharedPtr<T*>::Initialize >> Already Initialized!";
+    MbInitialized = true;
+    for (auto& Obj : The)
+        FfInitialize(Obj);
+}
+
+template<typename T>
+inline RA::SharedPtr<T*>& RA::SharedPtr<T*>::Destroy(std::function<void(T&)>&& FfDestructor)
 {
     MbUsingCustomDestructor = true;
     The.MfDestructor = FfDestructor;
@@ -74,15 +87,27 @@ inline RA::SharedPtr<T*>::SharedPtr(const size_t FnSize) :
     RA::BaseSharedPtr<T>(new T[FnSize+1], [](T* FtPtr) { delete[] FtPtr; })
 {
     The.SetSize(FnSize);
+    for (auto* ptr = The.get(); ptr < The.get() + FnSize + 1; ptr++)
+        *ptr = 0;
 }
 
+#ifndef UsingNVCC
 template<typename T>
 template<typename ...A, class TT, typename std::enable_if< IsClass(TT), bool>::type>
 inline RA::SharedPtr<T*>::SharedPtr(const size_t FnSize, A&&... Args) :
-    std::shared_ptr<T>(new T[FnSize](std::forward<A>(Args)...), [](T* FtPtr) { delete[] FtPtr; })
+    RA::BaseSharedPtr<T>(new T[FnSize](Args...), [](T* FtPtr) { delete[] FtPtr; })
 {
     The.SetSize(FnSize);
 }
+#else
+template<typename T>
+template<typename ...A, class TT, typename std::enable_if< IsClass(TT), bool>::type>
+inline RA::SharedPtr<T*>::SharedPtr(const size_t FnSize, A&&... Args) :
+    RA::BaseSharedPtr<T>(new T[FnSize](std::forward<A>(Args)...), [](T* FtPtr) { delete[] FtPtr; })
+{
+    The.SetSize(FnSize);
+}
+#endif
 
 template<typename T>
 inline RA::SharedPtr<T*>::SharedPtr(RA::SharedPtr<T>&& Other)
