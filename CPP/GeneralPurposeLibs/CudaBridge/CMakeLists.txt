@@ -14,6 +14,7 @@ set(CUDA_VERSION "11.8")
 find_package(PrepCUDA)
 set(CMAKE_CUDA_STANDARD 17)
 
+list(APPEND PrivateLibs "Iterator")
 list(APPEND PrivateLibs "Memory")
 list(APPEND PrivateLibs "Nexus")
 list(APPEND PrivateLibs "Iterator")

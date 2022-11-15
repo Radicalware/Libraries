@@ -37,9 +37,21 @@
 #include<set>
 #include<type_traits>
 
+#ifndef UsingNVCC
 #include "re2/re2.h"
+#endif
+
 #include "SharedPtr.h"
 #include "Nexus.h"
+
+#ifndef __RXM__
+#define __RXM__
+    // RegeX Mod
+namespace RXM {
+    using namespace std::regex_constants;
+    using Type = syntax_option_type;
+}
+#endif
 
 
 // Declared in xvector.h && BaseXVector.h

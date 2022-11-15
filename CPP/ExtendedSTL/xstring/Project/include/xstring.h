@@ -36,15 +36,12 @@
 #include<iomanip>
 #include<sstream>
 
+#ifndef UsingNVCC
 #include "re2/re2.h"
+#endif
 
 #include "Color.h"
 #include "xvector.h"
-
-namespace rxm {
-    using namespace std::regex_constants;
-    using type = syntax_option_type;
-}
 
 class xstring : public std::string
 {
@@ -84,17 +81,17 @@ public:
     xstring operator+(const std::string& str);
     xstring operator+(std::string&& str);
 
-    const char& At(size_t Idx) const;
+    char  At(size_t Idx) const;
     char& At(size_t Idx);
 
-    const char First(size_t Idx = 0) const;
+    char  First(size_t Idx = 0) const;
     char& First(size_t Idx = 0);
 
-    const char Last(size_t Idx = 0) const;
+    char  Last(size_t Idx = 0) const;
     char& Last(size_t Idx = 0);
 
-    constexpr size_t Size() const { return this->size(); }
-    constexpr const char* Ptr() const { return this->c_str(); }
+    INL size_t Size() const { return The.size(); }
+    INL const char* Ptr() const { return The.c_str(); }
 
     void Print() const;
     void Print(int num) const;
@@ -106,7 +103,6 @@ public:
     std::wstring  ToStdWString() const;
     RA::SharedPtr<unsigned char*> ToUnsignedChar() const;
     xstring       ToByteCode() const;
-    bool          IsByteCode() const;
     xstring       FromByteCodeToASCII() const;
 
     xstring ToUpper()  const;
@@ -125,55 +121,64 @@ public:
     xvector<xstring> SingleSplit(size_t loc) const;
     xvector<xstring> Split(size_t loc) const;
     xvector<xstring> Split(const std::regex& rex) const;
-    xvector<xstring> Split(const xstring& pattern, rxm::type mod = rxm::ECMAScript) const;
-    xvector<xstring> Split(const char splitter, rxm::type mod = rxm::ECMAScript) const;
+    xvector<xstring> Split(const xstring& pattern, RXM::Type mod = RXM::ECMAScript) const;
+    xvector<xstring> Split(const char splitter, RXM::Type mod = RXM::ECMAScript) const;
 
     xvector<xstring> InclusiveSplit(const std::regex& rex, bool single = true) const;
-    xvector<xstring> InclusiveSplit(const xstring& splitter, rxm::type mod = rxm::ECMAScript, bool single = true) const;
-    xvector<xstring> InclusiveSplit(const char* splitter, rxm::type mod = rxm::ECMAScript, bool aret = true) const;
-    xvector<xstring> InclusiveSplit(const char splitter, rxm::type mod = rxm::ECMAScript, bool aret = true) const;
+    xvector<xstring> InclusiveSplit(const xstring& splitter, RXM::Type mod = RXM::ECMAScript, bool single = true) const;
+    xvector<xstring> InclusiveSplit(const char* splitter, RXM::Type mod = RXM::ECMAScript, bool aret = true) const;
+    xvector<xstring> InclusiveSplit(const char splitter, RXM::Type mod = RXM::ECMAScript, bool aret = true) const;
 
     //// =================================================================================================================================
+#ifndef UsingNVCC
+    bool IsByteCode() const;
+    bool Match(const re2::RE2& rex) const;
+    bool MatchLine(const re2::RE2& rex) const;
+    bool MatchAllLines(const re2::RE2& rex) const;
+    bool Scan(const re2::RE2& rex) const;
+    bool ScanLine(const re2::RE2& rex) const;
+    bool ScanAllLines(const re2::RE2& rex) const;
+    bool ScanList(const xvector<re2::RE2>& rex_lst) const;
+    bool ScanList(const xvector<re2::RE2*>& rex_lst) const;
+    xvector<xstring> Findall(const re2::RE2& rex) const;
+    xvector<xstring> Findwalk(const re2::RE2& rex) const;
+    xstring Sub(const RE2& rex, const std::string& replacement) const;
+    xstring Sub(const RE2& rex, const re2::StringPiece& replacement) const;
+    xstring Sub(const RE2& rex, const char* replacement) const;
+#endif
+
     //   match is based on regex_match
     bool Match(const std::regex& rex) const;
-    bool Match(const re2::RE2& rex) const;
-    bool Match(const xstring& pattern, rxm::type mod = rxm::ECMAScript) const;
-    bool Match(const char* str, rxm::type mod = rxm::ECMAScript) const;
+    bool Match(const xstring& pattern, RXM::Type mod = RXM::ECMAScript) const;
+    bool Match(const char* str, RXM::Type mod = RXM::ECMAScript) const;
 
     bool MatchLine(const std::regex& rex) const;
-    bool MatchLine(const re2::RE2& rex) const;
-    bool MatchLine(const xstring& pattern, rxm::type mod = rxm::ECMAScript) const;
-    bool MatchLine(const char* str, rxm::type mod = rxm::ECMAScript) const;
+    bool MatchLine(const xstring& pattern, RXM::Type mod = RXM::ECMAScript) const;
+    bool MatchLine(const char* str, RXM::Type mod = RXM::ECMAScript) const;
 
     bool MatchAllLines(const std::regex& rex) const;
-    bool MatchAllLines(const re2::RE2& rex) const;
-    bool MatchAllLines(const xstring& pattern, rxm::type mod = rxm::ECMAScript) const;
-    bool MatchAllLines(const char* str, rxm::type mod = rxm::ECMAScript) const;
+    bool MatchAllLines(const xstring& pattern, RXM::Type mod = RXM::ECMAScript) const;
+    bool MatchAllLines(const char* str, RXM::Type mod = RXM::ECMAScript) const;
 
     //   scan is based on regex_search
     bool Scan(const std::regex& rex) const;
-    bool Scan(const re2::RE2& rex) const;
-    bool Scan(const char pattern, rxm::type mod = rxm::ECMAScript) const;
-    bool Scan(const xstring& pattern, rxm::type mod = rxm::ECMAScript) const;
-    bool Scan(const char* str, rxm::type mod = rxm::ECMAScript) const;
+    bool Scan(const char pattern, RXM::Type mod = RXM::ECMAScript) const;
+    bool Scan(const xstring& pattern, RXM::Type mod = RXM::ECMAScript) const;
+    bool Scan(const char* str, RXM::Type mod = RXM::ECMAScript) const;
 
     bool ScanLine(const std::regex& rex) const;
-    bool ScanLine(const re2::RE2& rex) const;
-    bool ScanLine(const xstring& pattern, rxm::type mod = rxm::ECMAScript) const;
-    bool ScanLine(const char* str, rxm::type mod = rxm::ECMAScript) const;
+    bool ScanLine(const xstring& pattern, RXM::Type mod = RXM::ECMAScript) const;
+    bool ScanLine(const char* str, RXM::Type mod = RXM::ECMAScript) const;
 
     bool ScanAllLines(const std::regex& rex) const;
-    bool ScanAllLines(const re2::RE2& rex) const;
-    bool ScanAllLines(const xstring& pattern, rxm::type mod = rxm::ECMAScript) const;
-    bool ScanAllLines(const char* str, rxm::type mod = rxm::ECMAScript) const;
+    bool ScanAllLines(const xstring& pattern, RXM::Type mod = RXM::ECMAScript) const;
+    bool ScanAllLines(const char* str, RXM::Type mod = RXM::ECMAScript) const;
 
     bool ScanList(const xvector<std::regex>& rex_lst) const;
-    bool ScanList(const xvector<re2::RE2>& rex_lst) const;
-    bool ScanList(const xvector<xstring>& lst, rxm::type mod = rxm::ECMAScript) const;
+    bool ScanList(const xvector<xstring>& lst, RXM::Type mod = RXM::ECMAScript) const;
 
     bool ScanList(const xvector<std::regex*>& rex_lst) const;
-    bool ScanList(const xvector<re2::RE2*>& rex_lst) const;
-    bool ScanList(const xvector<xstring*>& lst, rxm::type mod = rxm::ECMAScript) const;
+    bool ScanList(const xvector<xstring*>& lst, RXM::Type mod = RXM::ECMAScript) const;
 
     // exact match (no regex)
     bool Is(const xstring& other) const;
@@ -190,19 +195,16 @@ public:
     // =================================================================================================================================
 
     xvector<xstring> Findall(const std::regex& rex) const;
-    xvector<xstring> Findall(const re2::RE2& rex) const;
-    xvector<xstring> Findall(const xstring& pattern, rxm::type mod = rxm::ECMAScript) const;
-    xvector<xstring> Findall(const char* pattern, rxm::type mod = rxm::ECMAScript) const;
+    xvector<xstring> Findall(const xstring& pattern, RXM::Type mod = RXM::ECMAScript) const;
+    xvector<xstring> Findall(const char* pattern, RXM::Type mod = RXM::ECMAScript) const;
 
     xvector<xstring> Findwalk(const std::regex& rex) const;
-    xvector<xstring> Findwalk(const re2::RE2& rex) const;
-    xvector<xstring> Findwalk(const xstring& pattern, rxm::type mod = rxm::ECMAScript) const;
-    xvector<xstring> Findwalk(const char* pattern, rxm::type mod = rxm::ECMAScript) const;
+    xvector<xstring> Findwalk(const xstring& pattern, RXM::Type mod = RXM::ECMAScript) const;
+    xvector<xstring> Findwalk(const char* pattern, RXM::Type mod = RXM::ECMAScript) const;
 
     xvector<xstring> Search(const std::regex& rex, int count = -1) const;
-    //xvector<xstring> Search(const re2::RE2& rex, int count = -1) const;
-    xvector<xstring> Search(const xstring& pattern, rxm::type mod = rxm::ECMAScript, int count = -1) const;
-    xvector<xstring> Search(const char* pattern, rxm::type mod = rxm::ECMAScript, int count = -1) const;
+    xvector<xstring> Search(const xstring& pattern, RXM::Type mod = RXM::ECMAScript, int count = -1) const;
+    xvector<xstring> Search(const char* pattern, RXM::Type mod = RXM::ECMAScript, int count = -1) const;
 
     // =================================================================================================================================
 
@@ -214,12 +216,9 @@ public:
     // =================================================================================================================================
 
     xstring Sub(const std::regex& rex, const std::string& replacement) const;
-    xstring Sub(const RE2& rex, const std::string& replacement) const;
-    xstring Sub(const RE2& rex, const re2::StringPiece& replacement) const;
-    xstring Sub(const RE2& rex, const char* replacement) const;
-    xstring Sub(const std::string& pattern, const std::string& replacement, rxm::type mod = rxm::ECMAScript) const;
-    xstring Sub(const char* pattern, const std::string& replacement, rxm::type mod = rxm::ECMAScript) const;
-    xstring Sub(const char* pattern, const char* replacement, rxm::type mod = rxm::ECMAScript) const;
+    xstring Sub(const std::string& pattern, const std::string& replacement, RXM::Type mod = RXM::ECMAScript) const;
+    xstring Sub(const char* pattern, const std::string& replacement, RXM::Type mod = RXM::ECMAScript) const;
+    xstring Sub(const char* pattern, const char* replacement, RXM::Type mod = RXM::ECMAScript) const;
 
     xstring& Trim();
     xstring& LeftTrim();
@@ -419,8 +418,8 @@ namespace RA
         if (!Out.Count('.'))
             return Out;
 
-        const RE2 OnlyZeros(R"(^((\-?)0\.0*)$)");
-        const RE2 JustTrailingZeros(R"(^((\-?)[\d,]+)(\.0+)$)");
+        static const std::regex OnlyZeros(R"(^((\-?)0\.0*)$)", RXM::ECMAScript);
+        static const std::regex JustTrailingZeros(R"(^((\-?)[\d,]+)(\.0+)$)", RXM::ECMAScript);
 
         if (Out.Match(OnlyZeros))
             return "0"; // return a single zero: 0.0000
@@ -431,8 +430,8 @@ namespace RA
         if (Out.Match(JustTrailingZeros))
             return Out.Search(R"(^((\-?)[\d,]+)(\.0+)$)").At(0); // remove trailing zeros: 555.00000
 
-        const RE2 TrailingZeroPattern(R"((0{5,}\d*)$)"); // find trailnig 0s and unreliable trailers
-        const RE2 TrailingNinePattern(R"((9{5,}\d*)$)"); // find trailnig 0s and unreliable trailers
+        static const std::regex TrailingZeroPattern(R"((0{5,}\d*)$)", RXM::ECMAScript); // find trailnig 0s and unreliable trailers
+        static const std::regex TrailingNinePattern(R"((9{5,}\d*)$)", RXM::ECMAScript); // find trailnig 0s and unreliable trailers
         
         if (!Out.Scan(TrailingZeroPattern) && !Out.Scan(TrailingNinePattern))
             return Out;
@@ -457,10 +456,11 @@ namespace RA
         return SS;
     }
 
+
     template<class T>
     xstring FormatInt(T Value, const size_t FnPercision)
     {
-        static const re2::RE2 StripDouble(R"(\..*$)");
+        static const std::regex StripDouble(R"(\..*$)", RXM::ECMAScript);
         std::ostringstream SS;
         if (FnPercision)
             SS.precision(FnPercision);

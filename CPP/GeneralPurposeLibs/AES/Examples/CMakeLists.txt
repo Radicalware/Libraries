@@ -14,6 +14,7 @@ set(PrivateLibs "")
 find_package(re2 CONFIG REQUIRED)
 find_package(OpenSSL REQUIRED)
 
+list(APPEND PrivateLibs "Iterator")
 list(APPEND PrivateLibs "Memory")
 list(APPEND PrivateLibs "Nexus")
 list(APPEND PrivateLibs "xvector")

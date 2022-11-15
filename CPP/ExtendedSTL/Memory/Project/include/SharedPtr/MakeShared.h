@@ -13,14 +13,14 @@ template <typename PA>
 _NODISCARD std::enable_if_t<IsPointer(PA) && !IsClass(RemovePtr(PA)), RA::SharedPtr<PA>>
     inline RA::MakeShared(const size_t FnSize)
 {
-    return RA::SharedPtr<RemovePtr(PA)*>(FnSize);
+    return RA::SharedPtr<PA>(FnSize);
 }
 
 template <typename PA, typename ...A>
 _NODISCARD std::enable_if_t<IsPointer(PA) && IsClass(RemovePtr(PA)), RA::SharedPtr<PA>>
     inline RA::MakeShared(const size_t FnSize, A&&... Args) 
 {
-    return RA::SharedPtr<RemovePtr(PA)*>(FnSize, Args...);
+    return RA::SharedPtr<PA>(FnSize, Args...);
 }
 
 #ifndef __XPTR__
