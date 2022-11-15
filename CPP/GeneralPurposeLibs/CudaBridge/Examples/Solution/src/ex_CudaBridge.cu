@@ -3,8 +3,11 @@
 
 #include<iostream>
 
-#include "CudaBridge.cuh"
+#ifndef UsingNVCC
+#define UsingNVCC
+#endif
 
+#include "CudaBridge.cuh"
 #include "xvector.h"
 #include "xstring.h"
 

@@ -57,8 +57,10 @@ public:
     xstring(std::string&& str) noexcept      : std::string(std::move(str)) {};
     xstring(size_t repeat, const char chr)   : std::string(repeat, chr) {};
 
-    xstring(std::stringstream&  Stream)      : std::string(std::move(Stream.str())) {}
-    xstring(std::ostringstream& Stream)      : std::string(std::move(Stream.str())) {}
+    xstring(std::stringstream& Stream) : std::string(std::move(Stream.str())) {}
+    xstring(std::ostringstream& Stream) : std::string(std::move(Stream.str())) {}
+    xstring(std::stringstream&& Stream) : std::string(std::move(Stream.str())) {}
+    xstring(std::ostringstream&& Stream) : std::string(std::move(Stream.str())) {}
 
     xstring(const char chr);
     xstring(const char* chrs);
@@ -380,7 +382,7 @@ namespace RA
             return RetStr.substr(0, FnPercision);
         }
 
-        xvector<xstring> Vec = RetStr.Split((char)'\\.');
+        xvector<xstring> Vec = RetStr.Split('.');
         return Vec[0] + '.' + Vec[1].substr(0, FnPercision);
     }
 

@@ -4,6 +4,16 @@
 
 ---------------------------------------------------------------------
 
+11/13/2022 >> Libs 21.0.5
+
+Added bld.ps1 which is a very useful build script to compile
+Radicalware exe's on the fly! It works for both CL.exe & NVCC.exe
+Make sure you have VS Code configured if you want intellisense.
+Note that for any CMake built project, I suggest using VS 2022.
+I would make one for Linux but I have not used it for years now.
+
+---------------------------------------------------------------------
+
 11/13/2022 >> Libs 21.0.4
 
 Wow, can't believe a whole year went by before an official release
