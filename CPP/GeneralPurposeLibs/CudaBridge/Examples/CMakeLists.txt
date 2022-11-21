@@ -9,17 +9,22 @@ include("${RADICAL_PATH}/Radical-App-Build.cmake")
 
 set(THIS ${ArgProjectName})
 project(${THIS} LANGUAGES CXX CUDA)
+
 set(CUDA_VERSION "11.8")
+set(CUDA_GPU 61)
+find_package(PrepCUDA REQUIRED)
 
 set(PrivateLibs "")
-find_package(PrepCUDA REQUIRED)
-find_package(re2)
 list(APPEND PrivateLibs "Iterator")
 list(APPEND PrivateLibs "Memory")
-list(APPEND PrivateLibs "CudaBridge")
 list(APPEND PrivateLibs "Nexus")
 list(APPEND PrivateLibs "xvector")
 list(APPEND PrivateLibs "xstring")
+list(APPEND PrivateLibs "Macros")
+list(APPEND PrivateLibs "CudaBridge")
 
-BuildRadicalSolution(PrivateLibs "")
-link_libraries(${THIS} re2::re2)
+set(PublicLibs "")
+list(APPEND PublicLibs "Timer")
+BuildRadicalSolution(PrivateLibs PublicLibs)
+
+FinishConfiguringCUDA()

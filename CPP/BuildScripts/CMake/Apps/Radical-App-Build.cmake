@@ -21,11 +21,22 @@ macro(BuildRadicalSolution InPrivateLibs InPublicLibs)
 
     if(${debug} OR ${BuildAll})        
         foreach(Lib IN LISTS ${InPrivateLibs})
+            message(" >> Linking Static Radical::${Lib}")
             target_link_libraries(${THIS} "Radical::${Lib}")
         endforeach()
     endif()
 
+    PrintList(TargetLibs)
     target_link_libraries(${THIS} ${TargetLibs})
+
+    # if(${debug} OR ${BuildAll})        
+    #     foreach(Lib IN LISTS ${InPublicLibs})
+    #         Fails because you can only link... INTERFACE, OBJECT, STATIC or SHARED
+    #         This does NOT include Module types. DLLs are Module types
+    #         message(" >> Linking Dynamic Radical::${Lib}")
+    #         target_link_libraries(${THIS} "Radical::${Lib}")
+    #     endforeach()
+    # endif()
 
     LinkAllSharedLibs(${THIS})
     SetAllDependenciesOn(${THIS})

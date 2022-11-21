@@ -12,8 +12,9 @@
     FindProgramFiles(ProjectFiles "${PROJECT_DIR}/${LIB}")
     add_library(${LIB} STATIC ${ProjectFiles})
     add_library(Radical::${LIB} ALIAS ${LIB})
-    target_include_directories(${LIB} PUBLIC ${InstalledIncludeDirs})
-    target_link_libraries(${LIB} ${PreStaticLibLst})
+    include_directories(${InstalledIncludeDirs})
+    #target_link_libraries(${LIB} ${PreStaticLibLst})
+    SetStaticDependenciesOn(${LIB})
     list(APPEND PreStaticLibLst "${LIB}")
 
     # -------------------------- POST-CONFIG --------------------------------------

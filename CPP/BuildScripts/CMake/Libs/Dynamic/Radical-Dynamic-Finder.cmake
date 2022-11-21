@@ -11,7 +11,7 @@
     FindProgramFiles(ProjectFiles "${PROJECT_DIR}/${LIB}")
     add_library(${LIB} MODULE ${ProjectFiles})
     add_library(Radical::${LIB} ALIAS ${LIB})
-    target_include_directories(${LIB} PUBLIC ${InstalledIncludeDirs})
+    include_directories(${LIB} PUBLIC ${InstalledIncludeDirs})
     target_link_libraries(${LIB} ${StaticLibs})
     SetStaticDependenciesOn(${LIB})
     set_target_properties(${LIB} PROPERTIES COMPILE_DEFINITIONS DLL_EXPORT=1)

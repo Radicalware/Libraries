@@ -29,11 +29,14 @@ else()
 endif()
 
 
+if(NOT DEFINED CUDA_VERSION)
 set(VCPKG_ROOT      "D:/AIE/vcpkg")
 set(VCPKG_RELEASE_LIB_DIR "${VCPKG_ROOT}/installed/x64-windows/lib")
 set(VCPKG_DEBUG_LIB_DIR   "${VCPKG_ROOT}/installed/x64-windows/lib")
 set(VCPKG_SCRIPT    "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
 set(VCPKG_INCLUDE   "${VCPKG_ROOT}/installed/x64-windows/include")
+endif()
+
 include_directories("${VCPKG_INCLUDE}")
 
 
@@ -59,7 +62,7 @@ if(WIN32) # --------------------------------------------------------------------
     set(C_ARGS   "${CPP_ARGS} ${C_ARGS}")
     set(C_ARGS "  ${C_ARGS}   /std:c17")
     set(CPP_ARGS "${CPP_ARGS} /EHsc")
-    set(CPP_ARGS "${CPP_ARGS} /std:c++20")
+    #set(CPP_ARGS "${CPP_ARGS} /std:c++20")
     add_link_options("/ignore:4099") # Ignore PDB Warnings
     add_link_options("/ignore:4204") # Ignore PDB Warnings
     # add_link_options("/INCREMENTAL:NO")

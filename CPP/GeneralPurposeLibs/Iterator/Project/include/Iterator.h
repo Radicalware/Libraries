@@ -35,6 +35,11 @@
 #define The (*this)
 #endif // !The
 
+#ifndef _uint_
+#define _uint_
+using uint = size_t;
+#endif
+
 
 namespace RA
 {
