@@ -4,6 +4,14 @@
 
 ---------------------------------------------------------------------
 
+11/13/2022 >> Libs 21.0.6
+
+CUDA Mutexing Added, CudaBridge functions are now variadic,
+CUDA Timer added and the ability to grab any global CUDA
+thread index. Device overloading to compare dim3 added as well.
+
+---------------------------------------------------------------------
+
 11/13/2022 >> Libs 21.0.5
 
 Added bld.ps1 which is a very useful build script to compile
