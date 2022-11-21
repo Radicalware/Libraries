@@ -1,6 +1,7 @@
 ﻿include("${RADICAL_PATH}/Radical-App-Config.cmake")
 
 macro(BuildRadicalSolution InPrivateLibs InPublicLibs)
+    
     SetLocalInstallDirs()
     FindProgramFiles(SolutionFiles "${CMAKE_CURRENT_SOURCE_DIR}/Solution")
     add_executable(${THIS} ${SolutionFiles})

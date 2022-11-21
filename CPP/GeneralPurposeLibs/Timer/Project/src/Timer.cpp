@@ -12,8 +12,23 @@ void RA::Timer::Reset() {
     m_beg = SteadyClock::now();
 }
 
+uint RA::Timer::GetElapsedTimeSeconds() const {
+    return static_cast<uint>(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - m_beg).count());
+}
 
-void RA::Timer::WaitSeconds(pint extent)
+uint RA::Timer::GetElapsedTimeMilliseconds() const {
+    return static_cast<uint>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - m_beg).count());
+}
+
+uint RA::Timer::GetElapsedTime() const {
+    return static_cast<uint>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - m_beg).count());
+}
+
+uint RA::Timer::GetElapsedTimeMicroseconds() const {
+    return static_cast<uint>(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - m_beg).count());
+}
+
+void RA::Timer::WaitSeconds(uint extent)
 {
     WaitMilliseconds(extent * 1000);
 }
@@ -52,55 +67,6 @@ void RA::Timer::PassOrWaitSeconds(unsigned long TestEveryTimer, unsigned long Ex
         StaticClass.Sleep(TestEveryTimer);
 }
 
-void RA::Timer::Lap()
-{
-    m_laps_xv << This.GetElapsedTimeMilliseconds();
-}
-
-void RA::Timer::Lap(const xstring& key)
-{
-    pint val = This.GetElapsedTimeMilliseconds();
-    m_laps_xm.AddPair(key, val);
-    m_laps_xv.push_back(val);
-}
-
-void RA::Timer::Lap(xstring&& key)
-{
-    Lap(key);
-}
-
-void RA::Timer::Clear()
-{
-    m_laps_xv.clear();
-    m_laps_xm.clear();
-}
-
-pint RA::Timer::Get(size_t idx) const
-{
-    return m_laps_xv[idx];
-}
-
-pint RA::Timer::Get(const xstring& key) const
-{
-    return m_laps_xm.at(key);
-}
-
-xvector<pint> RA::Timer::GetVector() const
-{
-    return m_laps_xv;
-}
-
-xmap<xstring, pint> RA::Timer::GetMap() const
-{
-    return m_laps_xm;
-}
-
-std::ostream& operator<<(std::ostream& out, const RA::Timer& time)
-{
-    out << time.GetElapsedTimeMilliseconds();
-    return out;
-}
-
 void RA::Timer::Sleep(unsigned long FnMilliseconds)
 {
 #if (defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64))
@@ -118,3 +84,55 @@ void RA::Timer::SleepSeconds(unsigned long FnSeconds)
     ::usleep(FnSeconds * 1000);
 #endif
 }
+
+#ifndef UsingNVCC
+void RA::Timer::Lap()
+{
+    m_laps_xv << This.GetElapsedTimeMilliseconds();
+}
+
+void RA::Timer::Lap(const xstring& key)
+{
+    uint val = This.GetElapsedTimeMilliseconds();
+    m_laps_xm.AddPair(key, val);
+    m_laps_xv.push_back(val);
+}
+
+void RA::Timer::Lap(xstring&& key)
+{
+    Lap(key);
+}
+
+void RA::Timer::Clear()
+{
+    m_laps_xv.clear();
+    m_laps_xm.clear();
+}
+
+uint RA::Timer::Get(size_t idx) const
+{
+    return m_laps_xv[idx];
+}
+
+uint RA::Timer::Get(const xstring& key) const
+{
+    return m_laps_xm.at(key);
+}
+
+xvector<uint> RA::Timer::GetVector() const
+{
+    return m_laps_xv;
+}
+
+xmap<xstring, uint> RA::Timer::GetMap() const
+{
+    return m_laps_xm;
+}
+#endif // !UsingNVCC
+
+std::ostream& operator<<(std::ostream& out, const RA::Timer& time)
+{
+    out << time.GetElapsedTimeMilliseconds();
+    return out;
+}
+

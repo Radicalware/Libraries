@@ -150,7 +150,7 @@ __global__ void ThreadLevelMutex(int* FvOutData, const int* FvInDataArray, RA::D
     {
         if (LbLock = LoMutex.BxGetLock())
         {
-            while (FvOutData[0] < Val)
+            if (FvOutData[0] < Val)
             {
                 FvOutData[0] = Val;
                 FvOutData[1] = Val;

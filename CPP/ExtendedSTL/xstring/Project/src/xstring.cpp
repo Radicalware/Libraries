@@ -7,35 +7,36 @@
 
 const xstring xstring::static_class;
 
-xstring Color::Black = "\033[30m";
-xstring Color::Red = "\033[31m";
-xstring Color::Green = "\033[32m";
-xstring Color::Yellow = "\033[33m";
-xstring Color::Blue = "\033[34m";
-xstring Color::Magenta = "\033[35m";
-xstring Color::Cyan = "\033[36m";
-xstring Color::Grey = "\033[37m";
-xstring Color::White = "\033[39m";
+xstring Color::Black    = BLACK;
+xstring Color::Red      = RED;
+xstring Color::Green    = GREEN;
+xstring Color::Yellow   = YELLOW;
+xstring Color::Blue     = BLUE;
+xstring Color::Magenta  = MAGENTA;
+xstring Color::Cyan     = CYAN;
+xstring Color::Grey     = GREY;
+xstring Color::White    = WHITE;
 
-xstring Color::On::Black = "\033[40m";
-xstring Color::On::Red = "\033[41m";
-xstring Color::On::Green = "\033[42m";
-xstring Color::On::Yellow = "\033[43m";
-xstring Color::On::Blue = "\033[44m";
-xstring Color::On::Magenta = "\033[45m";
-xstring Color::On::Cyan = "\033[46m";
-xstring Color::On::Grey = "\033[47m";
-xstring Color::On::White = "\033[49m";
+xstring Color::On::Black    = ON_BLACK;
+xstring Color::On::Red      = ON_RED;
+xstring Color::On::Green    = ON_GREEN;
+xstring Color::On::Yellow   = ON_YELLOW;
+xstring Color::On::Blue     = ON_BLUE;
+xstring Color::On::Magenta  = ON_MAGENTA;
+xstring Color::On::Cyan     = ON_CYAN;
+xstring Color::On::Grey     = ON_GREY;
+xstring Color::On::White    = ON_WHITE;
 
-xstring Color::Mod::Reset = "\033[00m";
-xstring Color::Mod::Bold = "\033[01m";
-xstring Color::Mod::Underline = "\033[04m";
-xstring Color::Mod::Reverse = "\033[07m";
+
+xstring Color::Mod::Reset = RESET;
+xstring Color::Mod::Bold = BOLD;
+xstring Color::Mod::Underline = UNDERLINE;
+xstring Color::Mod::Reverse = REVERSE;
 
 // Operates only on Linux 
-xstring Color::Mod::Dark = "\033[02m";
-xstring Color::Mod::Blink = "\033[05m";
-xstring Color::Mod::Hide = "\033[08m";
+xstring Color::Mod::Dark = DARK;
+xstring Color::Mod::Blink = BLINK;
+xstring Color::Mod::Hide = HIDE;
 
 xstring::xstring(const char chr)
 {

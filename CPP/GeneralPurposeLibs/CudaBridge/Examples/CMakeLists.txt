@@ -1,4 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.17)
+﻿cmake_minimum_required(VERSION 3.24)
 
 if(WIN32)
     set(RADICAL_PATH "C:/Source/CMake/Modules")
@@ -28,3 +28,4 @@ list(APPEND PublicLibs "Timer")
 BuildRadicalSolution(PrivateLibs PublicLibs)
 
 FinishConfiguringCUDA()
+

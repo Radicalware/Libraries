@@ -44,16 +44,22 @@ __device__ void RA::Device::Copy(uint3& Left, const uint3& Right)
 }
 
 
-__device__ void Print(const uint3& LvVertex)
+__host__ __device__ void Print(const uint3& LvVertex)
 {
-    printf("%u.%u.%u", LvVertex.x, LvVertex.y, LvVertex.z);
+    printf("%u.%u.%u\n", LvVertex.x, LvVertex.y, LvVertex.z);
 }
 
 
 template<typename ...A>
-__device__ void Print(const char* FsText, A&&... Args)
+__host__ __device__ void Print(const char* FsText, A&&... Args)
 {
     printf(FsText, Args...);
+}
+
+template<>
+__host__ __device__ void Print(const char* FsText)
+{
+    printf(FsText);
 }
 
 // =====================================================================================================================

@@ -88,7 +88,7 @@ namespace RA
         template<typename F1, typename F2>
         T ReductionGPU(F1&& CudaFunction, F2&& HostFunction, const dim3& FnGrid, const dim3& FnBlock, const int ReductionSize = 0) const;
         // =================================================================================================================
-        // Run GPU to Void
+        // Return Nothing from the GPU
         struct NONE
         {
             template<typename F, typename ...A>
@@ -98,7 +98,7 @@ namespace RA
             static void RunCPU(F&& Function, A&&... Args);
         };
         // =================================================================================================================
-        // Run Gpu to Bridge
+        // Return an Array from the GPU
         struct ARRAY
         {
             template<typename F, typename ...A>
@@ -310,13 +310,17 @@ void RA::CudaBridge<T>::AllocateHost(const uint FnNewSize)
 template<typename T>
 void RA::CudaBridge<T>::AllocateDevice()
 {
+    Begin();
     if (!MvHost)
         AllocateHost();
 
     if (MvDevice)
         cudaFree(MvDevice);
 
-    cudaMalloc((T**)&MvDevice, GetAllocationSize());
+    auto FnError = cudaMalloc((T**)&MvDevice, GetAllocationSize());
+    if (FnError)
+        ThrowIt("Cuda Malloc Error: ", cudaGetErrorString(FnError));
+    Rescue();
 }
 
 template<typename T>

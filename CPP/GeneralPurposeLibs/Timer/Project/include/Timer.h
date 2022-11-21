@@ -4,8 +4,12 @@
 
 #include "xvector.h"
 #include "xstring.h"
-#include "re2/re2.h"
+
+#ifndef UsingNVCC
 #include "xmap.h"
+#include "re2/re2.h"
+#endif // !UsingNVCC
+
 
 
 #if (defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64))
@@ -22,8 +26,11 @@ namespace RA
 {
     class EXI Timer
     {
-        xvector<pint>       m_laps_xv;
-        xmap<xstring, pint> m_laps_xm;
+
+#ifndef UsingNVCC
+        xvector<uint>       m_laps_xv;
+        xmap<xstring, uint> m_laps_xm;
+#endif // !UsingNVCC
 
         // SteadyClock = Stopwatch   Use Case
         // SystemClock = Wrist-Watch Use Case
@@ -35,48 +42,34 @@ namespace RA
 
         Timer();
         void Reset();
-        INL pint GetElapsedTimeSeconds() const;
-        INL pint GetElapsedTimeMilliseconds() const;
-        INL pint GetElapsedTime() const; // Milliseconds
-        INL pint GetElapsedTimeMicroseconds() const;
+        uint GetElapsedTimeSeconds() const;
+        uint GetElapsedTimeMilliseconds() const;
+        uint GetElapsedTime() const; // Milliseconds
+        uint GetElapsedTimeMicroseconds() const;
 
-        static void WaitSeconds(pint extent);
+        static void WaitSeconds(uint extent);
         static void WaitMilliseconds(unsigned long extent);
         static void Wait(unsigned long extent); // wait_milliseconds
         static void WaitUntil(unsigned long extent, std::function<bool()>&& Function);
         static void PassOrWait(unsigned long TestEveryTimer, unsigned long ExitAnywayTimer, std::function<bool()>&& Function);
         static void PassOrWaitSeconds(unsigned long TestEveryTimer, unsigned long ExitAnywayTimer, std::function<bool()>&& Function);
 
+        static void Sleep(unsigned long FnMilliseconds);
+        static void SleepSeconds(unsigned long FnSeconds);
+
+#ifndef UsingNVCC
         void Lap();
         void Lap(const xstring& key);
         void Lap(xstring&& key);
         void Clear();
 
-        pint Get(size_t idx) const;
-        pint Get(const xstring& key) const;
+        uint Get(size_t idx) const;
+        uint Get(const xstring& key) const;
 
-        xvector<pint> GetVector() const;
-        xmap<xstring, pint> GetMap() const;
-
-        static void Sleep(unsigned long FnMilliseconds);
-        static void SleepSeconds(unsigned long FnSeconds);
+        xvector<uint> GetVector() const;
+        xmap<xstring, uint> GetMap() const;
+#endif // !UsingNVCC
     };
 };
 
 EXI std::ostream& operator<<(std::ostream& out, const RA::Timer& time);
-
-INL pint RA::Timer::GetElapsedTimeSeconds() const {
-    return static_cast<pint>(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - m_beg).count());
-}
-
-INL pint RA::Timer::GetElapsedTimeMilliseconds() const {
-    return static_cast<pint>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - m_beg).count());
-}
-
-INL pint RA::Timer::GetElapsedTime() const {
-    return static_cast<pint>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - m_beg).count());
-}
-
-INL pint RA::Timer::GetElapsedTimeMicroseconds() const {
-    return static_cast<pint>(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - m_beg).count());
-}
