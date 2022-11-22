@@ -479,17 +479,7 @@ namespace RA
     }
 
     template<class T>
-    xstring FormatInt(T Value)
-    {
-        std::ostringstream SS;
-        SS.imbue(std::locale(""));
-        SS << round(Value);
-        return SS;
-    }
-
-
-    template<class T>
-    xstring FormatInt(T Value, const size_t FnPercision)
+    xstring FormatInt(T Value, const size_t FnPercision = 0)
     {
         static const std::regex StripDouble(R"(\..*$)", RXM::ECMAScript);
         std::ostringstream SS;

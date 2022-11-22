@@ -75,14 +75,14 @@ void Test::PrintGridBlockThread()
 
 __global__ void SumArraysIndicesGPU(int* c, const int* a, const int* b, const int size)
 {
-    RA::Device::Timer Time;
+    //RA::Device::Timer Time;
     int index = (blockDim.x * blockIdx.x) + threadIdx.x;
 
     if (index < size)
         c[index] = a[index] + b[index];
 
-    Time.SleepTicks(1000);
-    Time.PrintElapsedTimeSeconds();
+    //Time.SleepTicks(1000);
+    //Time.PrintElapsedTimeSeconds();
 }
 
 __host__ void SumArraysIndicesCPU(int* c, const int* a, const int* b, const int size)
@@ -100,7 +100,7 @@ __host__ void SumArraysIndicesCPU(int* c, const int* a, const int* b, const int 
 void Test::SumArrayIndicies()
 {
     Begin();
-    const int ArraySize = 1 << 10;
+    const int ArraySize = 1 << 21;
     const int LvBlockSize = 128;
 
     auto HostArray1 = RA::CudaBridge<int>(ArraySize);
@@ -124,6 +124,9 @@ void Test::SumArrayIndicies()
     auto HostResult   = RA::CudaBridge<int>::ARRAY::RunCPU(
         HostArray2.GetAllocation(), SumArraysIndicesCPU, HostArray1.GetHost(), HostArray2.GetHost(), ArraySize);
 
+    cout << "Array Size: " << HostArray1.Size() << " " << ArraySize << endl;
+    cout << LvGrid.x  << " " << LvGrid.y  << " " << LvGrid.z << endl;
+    cout << LvBlock.x << " " << LvBlock.y << " " << LvBlock.z << endl;
     if (RA::CudaBridge<>::SameHostArrays(HostResult, DeviceResult))
         cout << "Arrays are the same\n";
     else
@@ -152,9 +155,9 @@ __global__ void ThreadLevelMutex(int* FvOutData, const int* FvInDataArray, RA::D
         {
             if (FvOutData[0] < Val)
             {
-                FvOutData[0] = Val;
-                FvOutData[1] = Val;
-                FvOutData[2] = Val;
+                atomicMax(&FvOutData[0], Val);
+                atomicMax(&FvOutData[1], Val);
+                atomicMax(&FvOutData[2], Val);
                 //printf("%d < %d\n", FvOutData[0], Val);
             }
         }
@@ -176,6 +179,7 @@ __global__ void BlockLevelMutex(int* FvOutData, const int* FvInDataArray, RA::De
 
     auto Val = FvInDataArray[GID];
     LoMutex.BlockLock(blockIdx);
+
     atomicMax(&FvOutData[0], Val);
     atomicMax(&FvOutData[1], Val);
     atomicMax(&FvOutData[2], Val);
@@ -216,6 +220,7 @@ template<typename F>
 void TestMutex(F&& FfFunction, const xstring& FsFunctionName, const uint FnOperations)
 {
     Begin();
+    auto [LvGrid, LvBlock] = RA::Host::GetDimensions3D(FnOperations);
     auto LoMutex = RA::CudaBridge<RA::Device::Mutex>(1);
     LoMutex.AllocateDevice();
     LoMutex.CopyHostToDevice();
@@ -223,27 +228,22 @@ void TestMutex(F&& FfFunction, const xstring& FsFunctionName, const uint FnOpera
     auto [LvData, LnMaxVal] = GetTestData(FnOperations);
     LvData.CopyHostToDevice();
 
-    auto LnLine = (FnOperations / 4 / 4 / 4) + 1;
-    auto LvGrid = dim3(LnLine, LnLine, LnLine);
-    auto LvBlock = dim3(LnLine, LnLine, LnLine);
-
     RA::Timer Time;
-    auto FvOutData = RA::CudaBridge<int>::ARRAY::RunGPU(RA::Allocate(3, sizeof(int)), LvGrid, LvBlock,
+    auto LvOutData = RA::CudaBridge<int>::ARRAY::RunGPU(RA::Allocate(3, sizeof(int)), LvGrid, LvBlock,
         FfFunction, LvData.GetDevice(), LoMutex.GetDevice(), FnOperations);
     auto LnElapsed = Time.GetElapsedTimeMilliseconds();
 
     cout << endl;
     cout << "Ran: " << FsFunctionName << endl;
-    Print("Vertex Layout\n");
-    Print(LvGrid);
+    cout << "Vertex Layout: " <<  LvGrid.x << '*' << LvGrid.y << '*' << LvGrid.z << " * " << LvBlock.x << '*' << LvBlock.y << '*' << LvBlock.z << endl;
     cout << "Data Size: " << LvData.GetAllocationSize() << endl;
-    cout << "Largest Int: " << FvOutData[0] << endl;
+    cout << "Largest Int: " << LvOutData[0] << endl;
     cout << "Elapsed Time Ms: " << LnElapsed << endl;
 
-    for (auto var : FvOutData)
+    for (auto var : LvOutData)
         cout << "val: " << var << endl;
-    cout << ((LnMaxVal == FvOutData[0]) ? "Output Matches" : "Output Does Not Match") << endl;
-    cout << "Max Val: " << LnMaxVal << "\n\n\n";
+    cout << ((LnMaxVal == LvOutData[0]) ? "Output Matches" : "Output Does Not Match") << endl;
+    cout << "Max Val: " << RA::FormatNum(LnMaxVal) << "\n\n\n";
     Rescue();
 }
 

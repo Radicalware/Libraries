@@ -19,7 +19,10 @@ int main()
     Begin();
     Nexus<>::Start();
 
-    const uint LnOperations = 500;
+    const uint LnOperations = 1 << 24;
+    //const uint LnOperations = 1 << 10;
+
+    cout << "Operations: " << RA::FormatNum(LnOperations) << endl;
 
     int TestID = 4;
     switch (TestID)
@@ -28,8 +31,8 @@ int main()
     case 1: Test::PrintDeviceStats(); break;
     case 2: Test::PrintGridBlockThread(); break;
     case 3: Test::SumArrayIndicies(); break;
-    case 4: Test::TestBlockMutex(LnOperations);
-    case 5: Test::TestThreadMutex(LnOperations); break;
+    case 4: Test::TestBlockMutex(LnOperations); // sightly faster & reliable
+    case 5: Test::TestThreadMutex(LnOperations); break; // Not very reliable
     default: ThrowIt("Invalid Idx = ", TestID);
     }
 

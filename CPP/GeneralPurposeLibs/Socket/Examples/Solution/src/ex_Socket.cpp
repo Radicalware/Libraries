@@ -19,7 +19,7 @@ void DummyExample()
 
     xvector<xstring> LvNums = { "one", "two", "three" };
     xvector<xstring*> LvPtrNums = LvNums.GetPtrs();
-    LvPtrNums.ForEachThread([](auto& Val) { return Val + '\n' }).Join(">> ").Split('\n').Join().Findall(R"(\w+)").Join('\n').Print();
+    LvPtrNums.ForEachThread([](auto& Val) { return Val + '\n'; }).Join(">> ").Split('\n').Join().Findall(R"(\w+)").Join('\n').Print();
     auto& Val = LvPtrNums[1];
 
     Rescue();
@@ -65,7 +65,7 @@ int main(int argc, char** argv)
 
     auto send = []() -> Socket
     {
-        Socket socket(Socket::Start::Client);
+        Socket socket(Socket::Start::Client, Socket::Protocol::UDP);
         socket.verbose = true;
 
         try {
