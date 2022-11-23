@@ -20,14 +20,6 @@ using uint = size_t;
 #define This (*this)
 #endif
 
-#ifndef _TrueFalse_
-#define True  1
-#define False 0
-
-#define On  1
-#define Off 0
-#endif
-
 #ifndef __CUDA_INTELLISENSE__
 // -----------------------------------------------------
 __device__ void __syncthreads();

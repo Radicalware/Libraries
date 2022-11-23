@@ -76,7 +76,8 @@ function(FinishConfiguringCUDA)
 )
     else()
     target_compile_options(${THIS} PUBLIC 
-        "$<$<COMPILE_LANGUAGE:CUDA>:SHELL:--compiler-options --relocatable-device-code=true,--device-link,--expt-relaxed-constexpr>"
+        $<$<COMPILE_LANGUAGE:CUDA>: --expt-relaxed-constexpr --std=c++17 
+        --compiler-options --relocatable-device-code=true,-rdc=true,--device-link,-dlink,--expt-relaxed-constexpr>
         #$<$<CXX_COMPILER_ID:MSVC>: >
     )
     endif()

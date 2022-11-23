@@ -19,7 +19,7 @@ int main()
     Begin();
     Nexus<>::Start();
 
-    const uint LnOperations = 1 << 27;
+    const uint LnOperations = 1 << 28;
     //const uint LnOperations = 1 << 10;
 
     constexpr auto LnThreadsPerBlock = 1024;
@@ -27,6 +27,7 @@ int main()
 
     //constexpr auto LnOperations = 15;
     //constexpr auto LnOperations = LnThreadsPerBlock / 15; // 1D
+    //constexpr auto LnOperations = LnThreadsPerBlock; // 1D
     //constexpr auto LnOperations = LnThreadsPerBlock + 1; // 1D
     //constexpr auto LnOperations = LnThreadsPerBlock * (LnThreadsPerWarps / 16); // 2D
     //constexpr auto LnOperations = LnThreadsPerBlock * (LnThreadsPerWarps / 8); // 3D
@@ -41,8 +42,8 @@ int main()
     case 1: Test::PrintDeviceStats(); break;
     case 2: Test::PrintGridBlockThread(); break;
     case 3: Test::SumArrayIndicies(); break;
-    case 4: Test::TestBlockMutex(LnOperations); // sightly faster & reliable
-    case 5: Test::TestThreadMutex(LnOperations); break; // Not very reliable
+    case 4: Test::TestBlockMutex(LnOperations); // 2x as fast (in release mode) but requires more resources
+    case 5: Test::TestThreadMutex(LnOperations); break;
     default: ThrowIt("Invalid Idx = ", TestID);
     }
 

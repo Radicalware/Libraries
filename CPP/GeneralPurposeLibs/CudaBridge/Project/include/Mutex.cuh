@@ -13,7 +13,7 @@ using std::cout;
 using std::endl;
 
 #ifndef CudaSwapCMP
-#define CudaSwapOffON(_MoMutex_) atomicCAS(_MoMutex_, Off, On) == Off
+#define CudaSwapOffON(_MoMutex_) atomicCAS(_MoMutex_, 0, 1) == 0
 #endif
 
 
@@ -36,13 +36,14 @@ namespace RA
                 return sizeof(Mutex) + sizeof(uint); 
             }
 
-            __device__ bool BxLocked() { return MoMutex == On; }
+            __device__ bool BxLocked() const { return MoMutex == 1; }
 
             __device__ void BlockLock(const uint3 LvBlock) 
             {
                 while ((MoMutex > 0 || MvBlockLock == MvOpenLockBlock) && MvBlockLock != LvBlock)
                 {
-                    if (MvBlockLock == MvOpenLockBlock && atomicCAS(&MoMutex, Off, On) == Off)
+                    __syncthreads();
+                    if (MvBlockLock == MvOpenLockBlock && atomicCAS(&MoMutex, 0, 1) == 0)
                         MvBlockLock = LvBlock;
                 }
             }
@@ -50,7 +51,7 @@ namespace RA
             __device__ void Unlock()
             {
                 MvBlockLock = MvOpenLockBlock;
-                atomicExch(&MoMutex, Off);
+                atomicExch(&MoMutex, 0);
             }
 
             __device__ bool BxGetLock()

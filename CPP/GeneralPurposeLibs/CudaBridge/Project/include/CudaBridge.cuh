@@ -6,8 +6,9 @@
 #include "CudaImport.cuh"
 #include "Allocate.cuh"
 
-#include "Memory.h"
 #include "Iterator.h"
+#include "Macros.h"
+#include "SharedPtr.h"
 
 #include<iostream>
 #include<vector>
@@ -29,8 +30,8 @@ namespace RA
         CudaBridge(uint FnSize);
         CudaBridge(uint FnSize, uint FnMemSize);
         CudaBridge(const Allocate& FoAllocate);
-        CudaBridge(RA::SharedPtr<T*> FnArray, uint FnSize);
-        CudaBridge(RA::SharedPtr<T*> FnArray, uint FnSize, uint FnMemSize);
+        CudaBridge(SharedPtr<T*> FnArray, uint FnSize);
+        CudaBridge(SharedPtr<T*> FnArray, uint FnSize, uint FnMemSize);
         CudaBridge(T* FnArray, uint FnSize);
         CudaBridge(T* FnArray, uint FnSize, uint FnMemSize);
 
@@ -44,8 +45,8 @@ namespace RA
         void Initialize(uint FnSize);
         void Initialize(uint FnSize, uint FnMemSize);
 
-        void operator=(const RA::CudaBridge<T>& Other);
-        void operator=(RA::CudaBridge<T>&& Other) noexcept;
+        void operator=(const CudaBridge<T>& Other);
+        void operator=(CudaBridge<T>&& Other) noexcept;
 
         void operator=(const std::vector<T>& Other);
         void operator=(std::vector<T>&& Other);
@@ -153,7 +154,7 @@ RA::CudaBridge<T>::CudaBridge(uint FnSize, uint FnMemSize) :
 
 template<typename T>
 RA::CudaBridge<T>::CudaBridge(const RA::Allocate& FoAllocate):
-    MnSize(FoAllocate.GetLength()), MnByteSize(FoAllocate.GetByteSize())
+    MnSize(FoAllocate.GetLength()), MnByteSize(FoAllocate.GetUnitSize())
 {
 }
 
@@ -335,18 +336,26 @@ void RA::CudaBridge<T>::ZeroHostData()
 template<typename T>
 void RA::CudaBridge<T>::CopyHostToDevice()
 {
+    Begin();
     if(!MvDevice)
         AllocateDevice();
-    cudaMemcpy(MvDevice, MvHost.get(), GetAllocationSize(), cudaMemcpyHostToDevice);
+    auto Error = cudaMemcpy(MvDevice, MvHost.get(), GetAllocationSize(), cudaMemcpyHostToDevice);
+    if (Error)
+        ThrowIt("CUDA Memcpy Error: ", cudaGetErrorString(Error));
+    SetIterator(MvHost.Ptr(), &MnSize);
+    Rescue();
 }
 
 template<typename T>
 void RA::CudaBridge<T>::CopyDeviceToHost()
 {
+    Begin();
     if (!MvHost)
         AllocateHost();
-    cudaMemcpy(MvHost.get(), MvDevice, GetAllocationSize(), cudaMemcpyDeviceToHost);
-    SetIterator(MvHost.Ptr(), &MnSize);
+    auto Error = cudaMemcpy(MvHost.get(), MvDevice, GetAllocationSize(), cudaMemcpyDeviceToHost);
+    if (Error)
+        ThrowIt("CUDA Memcpy Error: ", cudaGetErrorString(Error));
+    Rescue();
 }
 
 template<typename T>
@@ -451,15 +460,19 @@ template<typename T>
 template<typename F, typename ...A>
 void RA::CudaBridge<T>::NONE::RunGPU(const dim3& FnGrid, const dim3& FnBlock, F&& Function, A&&... Args)
 {
+    Begin();
     Function<<<FnGrid, FnBlock>>>(std::forward<A>(Args)...);
     cudaDeviceSynchronize();
+    Rescue();
 }
 
 template<typename T>
 template<typename F, typename ...A>
 void RA::CudaBridge<T>::NONE::RunCPU(F&& Function, A&&... Args)
 {
+    Begin();
     Function(std::forward<A>(Args)...);
+    Rescue();
 }
 
 
@@ -467,16 +480,20 @@ template<typename T>
 template<typename F, typename ...A>
 RA::CudaBridge<T> RA::CudaBridge<T>::ARRAY::RunGPU(const RA::Allocate& FoAllocate, const dim3& FnGrid, const dim3& FnBlock, F&& Function, A&&... Args)
 {
+    Begin();
+    auto step = 0;
     RA::CudaBridge<T> DeviceOutput(FoAllocate);
     DeviceOutput.AllocateHost();
     DeviceOutput.AllocateDevice();
+    DeviceOutput.CopyHostToDevice();
     
     Function<<<FnGrid, FnBlock>>>(DeviceOutput.GetDevice(), std::forward<A>(Args)...);
-
     cudaDeviceSynchronize();
+
     DeviceOutput.CopyDeviceToHost();
 
     return DeviceOutput;
+    Rescue();
 }
 
 
@@ -484,10 +501,12 @@ template<typename T>
 template<typename F, typename ...A>
 RA::CudaBridge<T> RA::CudaBridge<T>::ARRAY::RunCPU(const RA::Allocate& FoAllocate, F&& Function, A&&... Args)
 {
+    Begin();
     RA::CudaBridge<T> HostOutput(FoAllocate);
     HostOutput.AllocateHost();
     Function(HostOutput.GetHost(), std::forward<A>(Args)...);
     return HostOutput;
+    Rescue();
 }
 
 template<typename T>

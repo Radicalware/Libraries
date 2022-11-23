@@ -5,8 +5,9 @@
 
 #include <tuple>
 
+#include "Allocate.cuh"
 #include "CudaImport.cuh"
-#include "RawMapping.h"
+#include "Macros.h"
 
 #include <stdio.h>
 #include <cmath>
@@ -18,21 +19,21 @@ namespace RA
     {
     public:
         template<typename T>
-        static __host__ std::enable_if_t<IsFundamental(RemovePtr(T)), void>
-            AllocateMemOnDevice(T MoDevicePtr, const uint FnLeng);
-
+        static __host__ std::enable_if_t<IsFundamental(T), void>
+            AllocateMemOnDevice(T* FoDevicePtr, const uint FnLeng);
         template<typename T>
-        static __host__ void AllocateMemOnDevice(T MoDevicePtr, const uint FnLeng, const uint FnUnitByteSize);
+        static __host__ void AllocateMemOnDevice(T* FoDevicePtr, const Allocate& FoAllocate);
         template<typename T>
-        static __host__ void AllocateMemOnDevice(T* MoDevicePtr, const uint FnLeng, const uint FnUnitByteSize);
-        template<typename T>
-        static __host__ void AllocateMemOnDevice(T* MoDevicePtr, const T* MoHostPtr, const uint FnLeng, const uint FnUnitByteSize);
+        static __host__ void AllocateMemOnDevice(T* FoDevicePtr, const T* FoHostPtr, const Allocate& FoAllocate);
 
         static __host__ void PrintDeviceStats();
 
         static __host__ std::tuple<dim3, dim3> GetDimensions3D(const uint FnLeng);
         static __host__ std::tuple<dim3, dim3> GetDimensions2D(const uint FnLeng);
         static __host__ std::tuple<dim3, dim3> GetDimensions1D(const uint FnLeng);
+
+        template<typename T>
+        static __host__ void CopyHostToDevice(void** FoDevicePtr, const T* FvHostDataPtr, const Allocate& FoAllocate);
 
         static uint GetThreadsPerBlock() { return SnThreadsPerBlock; }
         static dim3 GetBlock3D() { return SvBlock3D; }
@@ -48,36 +49,51 @@ namespace RA
 };
 
 
+
 template<typename T>
-__host__ std::enable_if_t<IsFundamental(RemovePtr(T)), void> RA::Host::AllocateMemOnDevice(T MoDevicePtr, const uint FnLeng)
+__host__ void RA::Host::CopyHostToDevice(void** FoDevicePtr, const T* FvHostDataPtr, const Allocate& FoAllocate)
 {
-    constexpr int LnUnitSize = sizeof(RemovePtr(T));
+    Begin();
+    auto Error = cudaMalloc((void**)&FoDevicePtr, FoAllocate.GetAllocationSize());
+    if (Error)
+        ThrowIt("CUDA Malloc Error: ", cudaGetErrorString(Error));
+    Error = cudaMemcpy(FoDevicePtr, FvHostDataPtr, FoAllocate.GetDataByteSize(), cudaMemcpyHostToDevice);
+    if (Error)
+    {
+        free(FvHostDataPtr);
+        ThrowIt("CUDA Memcpy Error: ", cudaGetErrorString(Error));
+    }
+    Rescue();
+}
 
-    T LvCPUDataPtr = (T)calloc(FnLeng, LnUnitSize);
-    int LnBufferSize = (FnLeng * LnUnitSize) + LnUnitSize;
-
-    cudaMalloc((void**)&MoDevicePtr, LnBufferSize);
-    cudaMemcpy(MoDevicePtr, LvCPUDataPtr, FnLeng * LnUnitSize, cudaMemcpyHostToDevice);
+template<typename T>
+__host__ std::enable_if_t<IsFundamental(T), void> RA::Host::AllocateMemOnDevice(T* FoDevicePtr, const uint FnLeng)
+{
+    Begin();
+    constexpr int LnUnitSize = sizeof(T);
+    Allocate LvAllocate(FnLeng, LnUnitSize);
+    T* LvHostDataPtr = (T)calloc(FnLeng, LvAllocate.GetUnitSize());
+    RA::Host::CopyHostToDevice(FoDevicePtr, LvHostDataPtr, LvAllocate);
+    free(LvHostDataPtr);
+    Rescue();
 }
 
 
 template<typename T>
-__host__ void RA::Host::AllocateMemOnDevice(T* MoDevicePtr, const uint FnLeng, const uint FnUnitByteSize)
+__host__ void RA::Host::AllocateMemOnDevice(T* FoDevicePtr, const RA::Allocate& FoAllocate)
 {
-    T* LvCPUDataPtr = (T)calloc(FnLeng, FnUnitByteSize);
-    int LnBufferSize = (FnLeng * FnUnitByteSize) + FnUnitByteSize;
-
-    cudaMalloc((void**)&MoDevicePtr, LnBufferSize);
-    cudaMemcpy(MoDevicePtr, LvCPUDataPtr, FnLeng * FnUnitByteSize, cudaMemcpyHostToDevice);
+    Begin();
+    T* LvHostDataPtr = (T)calloc(FnLeng, FoAllocate.GetUnitSize());
+    RA::Host::CopyHostToDevice(FoDevicePtr, LvHostDataPtr, FoAllocate);
+    free(LvHostDataPtr);
+    Rescue();
 }
 
 template<typename T>
-__host__ void RA::Host::AllocateMemOnDevice(T* MoDevicePtr, const T* MoHostPtr, const uint FnLeng, const uint FnUnitByteSize)
+__host__ void RA::Host::AllocateMemOnDevice(T* FoDevicePtr, const T* FoHostPtr, const RA::Allocate& FoAllocate)
 {
-    int LnBufferSize = (FnLeng * FnUnitByteSize)+ sizeof(uint);
-
-    cudaMalloc((void**)&MoDevicePtr, LnBufferSize);
-    auto LeFinishState = cudaMemcpy(MoDevicePtr, MoHostPtr, FnLeng * FnUnitByteSize, cudaMemcpyHostToDevice);
-    printf("Finish State: %d\n", LeFinishState);
+    Begin();
+    RA::Host::CopyHostToDevice(FoDevicePtr, FoHostPtr, FoAllocate);
+    Rescue();
 }
 #endif

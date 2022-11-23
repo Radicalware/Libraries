@@ -183,6 +183,8 @@ __global__ void BlockLevelMutex(int* FvOutData, const int* FvInDataArray, RA::De
     atomicMax(&FvOutData[0], Val);
     atomicMax(&FvOutData[1], Val);
     atomicMax(&FvOutData[2], Val);
+    //printf("%d < %d\n", FvOutData[0], Val);
+
     LoMutex.Unlock();
 }
 
@@ -193,24 +195,24 @@ auto GetTestData(uint FnOperationCount)
     RA::CudaBridge<int> FvInDataArray(FnOperationCount);
     FvInDataArray.AllocateHost();
 
-    int LnMaxVal = 0;
     for (int& Item : FvInDataArray)
     {
         int A, B, C;
         A = GetRandomInt();
         B = GetRandomInt();
         C = GetRandomInt();
-
-        int LnValue = A * B * C;
-        if (LnValue > LnMaxVal)
-            LnMaxVal = LnValue;
-        Item = LnValue;
+        Item = A * B * C;
     }
-    //cout << "Max: " << LnMaxVal << endl;
 
-    //for (auto var : FvInDataArray)
-    //    cout << "val: " << var << endl;
-
+    cout << "CPU Test (Find Biggest Num)\n";
+    RA::Timer Time;
+    int LnMaxVal = 0;
+    for (auto Item : FvInDataArray)
+    {
+        if (Item > LnMaxVal)
+            LnMaxVal = Item;
+    }
+    cout << "Clocked MS: " << Time.GetElapsedTimeMilliseconds() << endl;
 
     return std::make_tuple(FvInDataArray, LnMaxVal);
 }

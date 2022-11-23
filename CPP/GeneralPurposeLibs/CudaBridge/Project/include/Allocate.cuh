@@ -20,8 +20,9 @@ namespace RA
             { MnLength = Other.MnLength; MnObjSize = Other.MnObjSize; }
 
         constexpr uint GetLength() const { return MnLength; }
-        constexpr uint GetByteSize() const { return MnObjSize; }
+        constexpr uint GetUnitSize() const { return MnObjSize; }
         constexpr uint GetAllocationSize() const { return MnLength * MnObjSize + sizeof(uint); }
+        constexpr uint GetDataByteSize() const { return MnLength * MnObjSize; }
 
     private:
         uint MnLength;
