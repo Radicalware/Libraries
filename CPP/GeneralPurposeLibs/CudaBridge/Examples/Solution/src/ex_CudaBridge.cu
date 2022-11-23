@@ -19,8 +19,18 @@ int main()
     Begin();
     Nexus<>::Start();
 
-    const uint LnOperations = 1 << 24;
+    const uint LnOperations = 1 << 27;
     //const uint LnOperations = 1 << 10;
+
+    constexpr auto LnThreadsPerBlock = 1024;
+    constexpr auto LnThreadsPerWarps = 32;
+
+    //constexpr auto LnOperations = 15;
+    //constexpr auto LnOperations = LnThreadsPerBlock / 15; // 1D
+    //constexpr auto LnOperations = LnThreadsPerBlock + 1; // 1D
+    //constexpr auto LnOperations = LnThreadsPerBlock * (LnThreadsPerWarps / 16); // 2D
+    //constexpr auto LnOperations = LnThreadsPerBlock * (LnThreadsPerWarps / 8); // 3D
+    //constexpr auto LnOperations = 32769;
 
     cout << "Operations: " << RA::FormatNum(LnOperations) << endl;
 

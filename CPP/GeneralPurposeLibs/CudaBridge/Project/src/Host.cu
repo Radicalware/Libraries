@@ -5,6 +5,11 @@
 using std::cout;
 using std::endl;
 
+uint RA::Host::SnThreadsPerBlock = 0;
+dim3 RA::Host::SvBlock3D = 0;
+dim3 RA::Host::SvBlock2D = 0;
+uint RA::Host::SnThreadsPerWarp = 0;
+
 __host__ void RA::Host::PrintDeviceStats()
 {
     int deviceCount = 0;
@@ -24,8 +29,8 @@ __host__ void RA::Host::PrintDeviceStats()
     for (int devNo = 0; devNo < deviceCount; devNo++) {
 
         cudaDeviceProp iProp;
-        printf(Line);
         cudaGetDeviceProperties(&iProp, devNo);
+        printf(Line);
         printf("Device %d Model:                                 %s\n", devNo, iProp.name);
         printf("  Number of multiprocessors:                     %d\n", iProp.multiProcessorCount);
         printf("  clock rate:                                    %d\n", iProp.clockRate);
@@ -50,49 +55,94 @@ __host__ void RA::Host::PrintDeviceStats()
 }
 
 
-__host__ std::tuple<dim3, dim3> GetDimensionsND(const uint FnLeng, const uint FnDims)
-{
-    const auto LnVerticyCount = FnDims * 2;
-    auto LnTotalRoot = static_cast<uint>(std::pow(FnLeng, 1.0 / LnVerticyCount)) + 1;
-    const auto LnTotalSqr = std::pow(LnTotalRoot, LnVerticyCount);
-    if (LnTotalSqr < FnLeng)
-        LnTotalRoot++;
-
-    if (LnTotalSqr > RA::Host::SnMaxBlockSize)
-    {
-        const auto LnThreadsOnGrid = (int)(static_cast<float>(FnLeng) / RA::Host::SnMaxBlockSize) + 1;
-        auto GridRoot = static_cast<uint>(std::pow(LnThreadsOnGrid, 1.0 / FnDims));
-        const auto LnGridSqr = std::pow(GridRoot, FnDims);
-        if (LnGridSqr < FnLeng)
-            GridRoot++;
-
-        const auto LvBlock = dim3(16, 16, 4); // 1024 threads / block
-        const auto LvGrid = dim3(GridRoot, GridRoot, GridRoot);
-        return std::make_tuple(LvGrid, LvBlock);
-    }
-    else
-    {
-        const auto LvGrid  = dim3(LnTotalRoot, LnTotalRoot, LnTotalRoot);
-        const auto LvBlock = dim3(LnTotalRoot, LnTotalRoot, LnTotalRoot);
-        return std::make_tuple(LvGrid, LvBlock);
-    }
-}
-
 __host__ std::tuple<dim3, dim3> RA::Host::GetDimensions3D(const uint FnLeng)
 {
-    return GetDimensionsND(FnLeng, 3);
+    auto GetThreadCube = [](const uint FnCubeSize)->dim3
+    {
+        uint LnXY = 1;
+        uint LnZ = FnCubeSize;
+        uint LnNewZ = LnZ;
+        while (LnXY < LnZ)
+        {
+            LnNewZ /= 2;
+            const auto LnXYThreadCount = FnCubeSize / LnNewZ;
+            const auto LnNewXY = static_cast<uint>(std::sqrt(LnXYThreadCount));
+            if (LnNewXY * LnNewXY * LnNewZ != FnCubeSize)
+                continue;
+            LnXY = LnNewXY;
+            LnZ = LnNewZ;
+        }
+        return dim3(LnXY, LnXY, LnZ);
+    };
+
+    if (!SnThreadsPerBlock)
+        RA::Host::PopulateStaticNums();
+    if (SnThreadsPerBlock > (FnLeng / 2))
+        return RA::Host::GetDimensions1D(FnLeng);
+    if (SnThreadsPerBlock > (FnLeng / 4))
+        return RA::Host::GetDimensions2D(FnLeng);
+    if (SvBlock3D.x == 0)
+        SvBlock3D = GetThreadCube(SnThreadsPerBlock);
+
+    const auto LvBlock = SvBlock3D;
+    const auto LnRemainder = (FnLeng % SnThreadsPerBlock) ? 1 : 0;
+    const auto LvGrid = GetThreadCube(FnLeng / SnThreadsPerBlock + LnRemainder);
+    return std::make_tuple(LvGrid, LvBlock);
 }
 
 __host__ std::tuple<dim3, dim3> RA::Host::GetDimensions2D(const uint FnLeng)
 {
-    return GetDimensionsND(FnLeng, 2);
+    auto GetThreadSquare = [](const uint FnSquareSize)->dim3
+    {
+        uint LnX = 1;
+        uint LnY = FnSquareSize;
+        uint LnNewY = LnY;
+        while (LnX < LnY)
+        {
+            LnNewY /= 2;
+            const auto LnNewX = FnSquareSize / LnNewY;
+            if (LnNewX * LnNewY != FnSquareSize)
+                continue;
+            LnX = LnNewX;
+            LnY = LnNewY;
+        }
+        return dim3(LnX, LnY);
+    };
+
+    if (!SnThreadsPerBlock)
+        RA::Host::PopulateStaticNums();
+    if (SnThreadsPerBlock > (FnLeng / 2))
+        return RA::Host::GetDimensions1D(FnLeng);
+    if(SvBlock2D.x == 0)
+        SvBlock2D = GetThreadSquare(SnThreadsPerBlock);
+
+    const auto LvBlock = SvBlock2D;
+    const auto LnRemainder = (FnLeng % SnThreadsPerBlock) ? 1 : 0;
+    const auto LvGrid = GetThreadSquare(FnLeng / SnThreadsPerBlock + LnRemainder);
+    return std::make_tuple(LvGrid, LvBlock);
 }
 
-__host__ std::tuple<dim3, dim3> RA::Host::GetDimensions1D(const uint FnLeng, const uint FnBlockSize)
+__host__ std::tuple<dim3, dim3> RA::Host::GetDimensions1D(const uint FnLeng)
 {
-    auto LnBlockSize = (FnBlockSize != 0) ? FnBlockSize : FnLeng / 2;
-    LnBlockSize = (LnBlockSize > SnMaxBlockSize) ? SnMaxBlockSize : LnBlockSize;
-    dim3 LvBlock(LnBlockSize);
-    dim3 LvGrid((FnLeng / LvBlock.x) + 1);
+    if (!SnThreadsPerBlock)
+        RA::Host::PopulateStaticNums();
+    if (FnLeng < SnThreadsPerWarp)
+    {
+        const dim3 LvBlock = FnLeng;
+        const dim3 LvGrid = 1;
+        return std::make_tuple(LvGrid, LvBlock);
+    }
+    const dim3 LvBlock(SnThreadsPerWarp);
+    dim3 LvGrid = (FnLeng / LvBlock.x);
+    if (LvGrid.x * LvBlock.x < FnLeng)
+        LvGrid.x++;
     return std::make_tuple(LvGrid, LvBlock);
+}
+
+__host__ void RA::Host::PopulateStaticNums()
+{
+    cudaDeviceProp iProp;
+    cudaGetDeviceProperties(&iProp, 0);
+    SnThreadsPerBlock = iProp.maxThreadsPerBlock;
+    SnThreadsPerWarp = iProp.warpSize;
 }

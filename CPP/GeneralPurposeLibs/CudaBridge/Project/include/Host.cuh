@@ -14,26 +14,36 @@
 
 namespace RA
 {
-    namespace Host
+    class Host
     {
-        static const int SnMaxBlockSize = 1024;
-
+    public:
         template<typename T>
-        __host__ std::enable_if_t<IsFundamental(RemovePtr(T)), void>
+        static __host__ std::enable_if_t<IsFundamental(RemovePtr(T)), void>
             AllocateMemOnDevice(T MoDevicePtr, const uint FnLeng);
 
         template<typename T>
-        __host__ void AllocateMemOnDevice(T MoDevicePtr, const uint FnLeng, const uint FnUnitByteSize);
+        static __host__ void AllocateMemOnDevice(T MoDevicePtr, const uint FnLeng, const uint FnUnitByteSize);
         template<typename T>
-        __host__ void AllocateMemOnDevice(T* MoDevicePtr, const uint FnLeng, const uint FnUnitByteSize);
+        static __host__ void AllocateMemOnDevice(T* MoDevicePtr, const uint FnLeng, const uint FnUnitByteSize);
         template<typename T>
-        __host__ void AllocateMemOnDevice(T* MoDevicePtr, const T* MoHostPtr, const uint FnLeng, const uint FnUnitByteSize);
+        static __host__ void AllocateMemOnDevice(T* MoDevicePtr, const T* MoHostPtr, const uint FnLeng, const uint FnUnitByteSize);
 
-        __host__ void PrintDeviceStats();
+        static __host__ void PrintDeviceStats();
 
-        __host__ std::tuple<dim3, dim3> GetDimensions3D(const uint FnLeng);
-        __host__ std::tuple<dim3, dim3> GetDimensions2D(const uint FnLeng);
-        __host__ std::tuple<dim3, dim3> GetDimensions1D(const uint FnLeng, const uint FnBlockSize = 0);
+        static __host__ std::tuple<dim3, dim3> GetDimensions3D(const uint FnLeng);
+        static __host__ std::tuple<dim3, dim3> GetDimensions2D(const uint FnLeng);
+        static __host__ std::tuple<dim3, dim3> GetDimensions1D(const uint FnLeng);
+
+        static uint GetThreadsPerBlock() { return SnThreadsPerBlock; }
+        static dim3 GetBlock3D() { return SvBlock3D; }
+        static dim3 GetBlock2D() { return SvBlock2D; }
+    private:
+        static void PopulateStaticNums();
+
+        static uint SnThreadsPerBlock;
+        static dim3 SvBlock3D;
+        static dim3 SvBlock2D;
+        static uint SnThreadsPerWarp;
     };
 };
 

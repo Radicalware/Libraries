@@ -237,13 +237,13 @@ void TestMutex(F&& FfFunction, const xstring& FsFunctionName, const uint FnOpera
     cout << "Ran: " << FsFunctionName << endl;
     cout << "Vertex Layout: " <<  LvGrid.x << '*' << LvGrid.y << '*' << LvGrid.z << " * " << LvBlock.x << '*' << LvBlock.y << '*' << LvBlock.z << endl;
     cout << "Data Size: " << LvData.GetAllocationSize() << endl;
-    cout << "Largest Int: " << LvOutData[0] << endl;
     cout << "Elapsed Time Ms: " << LnElapsed << endl;
 
     for (auto var : LvOutData)
         cout << "val: " << var << endl;
     cout << ((LnMaxVal == LvOutData[0]) ? "Output Matches" : "Output Does Not Match") << endl;
-    cout << "Max Val: " << RA::FormatNum(LnMaxVal) << "\n\n\n";
+    cout << "Returned Max Val: " << RA::FormatNum(LvOutData[0]) << endl;
+    cout << "Actual   Max Val: " << RA::FormatNum(LnMaxVal) << "\n\n\n";
     Rescue();
 }
 
