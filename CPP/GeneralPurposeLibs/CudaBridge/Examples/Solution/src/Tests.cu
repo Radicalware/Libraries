@@ -156,7 +156,7 @@ __global__ void BlockLevelMutex(int* FvOutData, const int* FvInDataArray, RA::De
         atomicMax(&FvOutData[1], Val);
         atomicMax(&FvOutData[2], Val);
     }
-    LoMutex.Unlock();
+    LoMutex.UnlockBlocks();
 }
 
 __device__ bool GreaterThan(const int Left, const int Right) {
@@ -237,7 +237,10 @@ void TestMutex(F&& FfFunction, const xstring& FsFunctionName, const uint FnOpera
 
     cout << endl;
     cout << "Ran: " << FsFunctionName << endl;
-    cout << "Vertex Layout: " <<  LvGrid.x << '*' << LvGrid.y << '*' << LvGrid.z << " * " << LvBlock.x << '*' << LvBlock.y << '*' << LvBlock.z << endl;
+    cout << "Vertex Layout: " 
+        <<  LvGrid.x << '*' <<  LvGrid.y << '*' <<  LvGrid.z << " * " 
+        << LvBlock.x << '*' << LvBlock.y << '*' << LvBlock.z << endl;
+
     cout << "Data Size: " << LvData.GetAllocationSize() << endl;
     cout << "Elapsed Time Ms: " << LnElapsed << endl;
 

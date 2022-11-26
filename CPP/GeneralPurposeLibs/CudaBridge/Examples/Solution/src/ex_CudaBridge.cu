@@ -26,8 +26,8 @@ int main()
     Begin();
     Nexus<>::Start();
 
-    const uint LnOperations = 1 << 28;
-    //const uint LnOperations = 1 << 15; // best for testing mutex (big enough for sample size) (small enough we don't get multi max nums)
+    //const uint LnOperations = 1 << 28;
+    const uint LnOperations = 1 << 15; // best for testing mutex (big enough for sample size) (small enough we don't get multi max nums)
     //const uint LnOperations = 1 << 10;
 
     constexpr auto LnThreadsPerBlock = 1024;

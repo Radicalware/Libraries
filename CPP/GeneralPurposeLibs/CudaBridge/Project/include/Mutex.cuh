@@ -24,28 +24,29 @@ namespace RA
 {
     namespace Device
     {
-        struct Mutex
+        class Mutex
         {
             int   MoMutex;
             uint3 MvBlockLock;
             uint3 MvMaxIntBlockLock;
+
+            int   MnMtxDepth;
             int*  MvMutexes = nullptr;
             int*  MvRunning = nullptr;
-            inline static int SnMtxDepth = 8;
-
-            //int* MvMutexes = nullptr;
-
+        
+        public:
             static void ObjInitialize(Mutex& Target, const uint3 FvBlockDim)
             {
                 Target.MoMutex = 0;
                 Target.MvBlockLock = dim3(MAX_INT, MAX_INT, MAX_INT);
                 Target.MvMaxIntBlockLock = dim3(MAX_INT, MAX_INT, MAX_INT);
 
-                Target.MvMutexes = RA::Host::AllocateMemOnDevice<int>(SnMtxDepth + 1);
-                Target.MvRunning = RA::Host::AllocateMemOnDevice<int>(SnMtxDepth + 1);
+                Target.MnMtxDepth = 8;
+                Target.MvMutexes = RA::Host::AllocateMemOnDevice<int>(Target.MnMtxDepth + 1);
+                Target.MvRunning = RA::Host::AllocateMemOnDevice<int>(Target.MnMtxDepth + 1);
             }
 
-            Mutex(){}
+            Mutex() {}
 
             static void ObjDestroy(Mutex& Target)
             {
@@ -62,37 +63,40 @@ namespace RA
 
             __device__ void BlockLock() 
             {
+                __syncthreads();
                 while ((MoMutex > 0 || MvBlockLock == MvMaxIntBlockLock) && MvBlockLock != blockIdx)
                 {
                     __syncthreads();
                     if (MvBlockLock == MvMaxIntBlockLock && atomicCAS(&MoMutex, 0, 1) == 0)
                         MvBlockLock = blockIdx;
                 }
-
+                __syncthreads();
             }
 
             __device__ bool BxRunning() const
             {
-                for (int i = 0; i < SnMtxDepth; i++)
+                for (int i = 0; i < MnMtxDepth; i++)
                     if (MvRunning[i] == false)
                         return false;
                 return true;
             }
 
-            __device__ void Unlock()
+            __device__ void UnlockBlocks()
             {
                 __threadfence();
                 __syncthreads();
-                if (MvBlockLock != MvMaxIntBlockLock)
-                {
-                    MvBlockLock = MvMaxIntBlockLock;
-                    atomicExch(&MoMutex, 0); // set main mutex off
-                }
-                else
-                {
-                    for (int i = SnMtxDepth - 1; i >= 0; i--)
-                        atomicExch(&MvMutexes[i], 0);
-                }
+                MvBlockLock = MvMaxIntBlockLock;
+                atomicExch(&MoMutex, 0); // set main mutex off
+                __threadfence();
+                __syncthreads();
+            }
+
+            __device__ void UnlockThreads()
+            {
+                __threadfence();
+                __syncthreads();
+                for (int i = MnMtxDepth - 1; i >= 0; i--)
+                    atomicExch(&MvMutexes[i], 0);
                 __threadfence();
                 __syncthreads();
             }
@@ -100,7 +104,7 @@ namespace RA
             __device__ bool GetThreadLock()
             {
                 __syncthreads();
-                for (int i = 0; i < SnMtxDepth; i++)
+                for (int i = 0; i < MnMtxDepth; i++)
                     MvRunning[i] = !(atomicCAS(&MvMutexes[i], 0, 1) == 0);
                 return This.BxRunning();
                 __syncthreads();

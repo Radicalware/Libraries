@@ -23,7 +23,7 @@ do \
 
 #define EndCudaGuard() \
     } \
-    FoMutex.Unlock(); \
+    FoMutex.UnlockThreads(); \
 } while (FoMutex.BxRunning());
 
 
