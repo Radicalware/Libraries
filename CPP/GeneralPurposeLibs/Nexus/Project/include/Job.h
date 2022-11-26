@@ -15,7 +15,7 @@
 template<typename T>
 class Job : protected RA::Threads
 {
-    RA::SharedPtr<Task<T>> MoTaskPtr = nullptr;
+    RA::SharedPtr<Task<T>> MoTaskPtr  = nullptr;
     T*                     MoValuePtr = nullptr;
     
     std::exception_ptr  m_exc_ptr = nullptr;
@@ -70,7 +70,8 @@ inline void Job<T>::Run()
     RA::Threads::Used++;
     RA::Threads::TotalTasksCounted++;
     try {
-        MoValuePtr = new T(MoTaskPtr.Get()());
+        DeleteObj(MoValuePtr);
+        MoValuePtr = new T(MoTaskPtr.Get().RunTask());
     }
     catch (const char*) {
         m_exc_ptr = std::current_exception();
@@ -100,9 +101,9 @@ inline const RA::SharedPtr<Task<T>> Job<T>::TaskPtr() const
 template<typename T>
 inline T Job<T>::Move()
 {
-    MbRemoved = true;
-    if (!MoValuePtr)
+    if (MbRemoved || !MoValuePtr)
         throw "NullPtr!";
+    MbRemoved = true;
     return std::move(*MoValuePtr);
 }
 

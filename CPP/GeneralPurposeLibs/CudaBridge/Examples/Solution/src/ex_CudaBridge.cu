@@ -7,12 +7,19 @@
 #define UsingNVCC
 #endif
 
+#pragma warning (disable : 6011 6387)
+
 #include "Macros.h"
 #include "Tests.cuh"
+
+#ifdef UsingVLD
+#include <vld.h>
+#endif
 
 /// Be sure to COPY the following
 /// FROM:   "CUDA C/C++"        >> "Additional Include Directories" 
 /// TO:     "VC++ Directories"  >> Include Directories
+
 
 int main()
 {
@@ -20,6 +27,7 @@ int main()
     Nexus<>::Start();
 
     const uint LnOperations = 1 << 28;
+    //const uint LnOperations = 1 << 15; // best for testing mutex (big enough for sample size) (small enough we don't get multi max nums)
     //const uint LnOperations = 1 << 10;
 
     constexpr auto LnThreadsPerBlock = 1024;
@@ -42,8 +50,9 @@ int main()
     case 1: Test::PrintDeviceStats(); break;
     case 2: Test::PrintGridBlockThread(); break;
     case 3: Test::SumArrayIndicies(); break;
-    case 4: Test::TestBlockMutex(LnOperations); // 2x as fast (in release mode) but requires more resources
+    case 4: Test::TestBlockMutex(LnOperations); 
     case 5: Test::TestThreadMutex(LnOperations); break;
+    case 6: Test::TestPrintNestedData(); break;
     default: ThrowIt("Invalid Idx = ", TestID);
     }
 

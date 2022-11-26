@@ -13,4 +13,5 @@ namespace Test
     void SumArrayIndicies();
     void TestBlockMutex(const uint FnOperations);
     void TestThreadMutex(const uint FnOperations);
+    void TestPrintNestedData();
 }

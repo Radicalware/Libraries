@@ -11,22 +11,44 @@ _NODISCARD std::enable_if_t<!IsArray(T) && !IsPointer(T), RA::SharedPtr<T>>
 
 template <typename PA>
 _NODISCARD std::enable_if_t<IsPointer(PA) && !IsClass(RemovePtr(PA)), RA::SharedPtr<PA>>
-    inline RA::MakeShared(const size_t FnSize)
+    inline RA::MakeShared(const uint FnLeng)
 {
-    return RA::SharedPtr<PA>(FnSize);
+    return RA::SharedPtr<PA>(FnLeng);
 }
 
 template <typename PA, typename ...A>
 _NODISCARD std::enable_if_t<IsPointer(PA) && IsClass(RemovePtr(PA)), RA::SharedPtr<PA>>
-    inline RA::MakeShared(const size_t FnSize, A&&... Args) 
+    inline RA::MakeShared(const uint FnLeng, A&&... Args) 
 {
-    return RA::SharedPtr<PA>(FnSize, Args...);
+    return RA::SharedPtr<PA>(FnLeng, Args...);
+}
+
+template<typename T>
+RA::SharedPtr<T*> RA::MakeSharedBuffer(const uint FnLeng, const uint FnUnitByteSize)
+{
+    const auto BufferSize = (FnLeng * FnUnitByteSize + sizeof(uint));
+    T* LvArray = (T*)malloc(BufferSize);
+    auto Ptr = RA::SharedPtr<T*>(LvArray);
+    Ptr.__SetSize__(FnLeng);
+    return Ptr;
+}
+
+template<typename T, typename D>
+inline RA::SharedPtr<T*>
+     RA::MakeSharedBuffer(const uint FnLeng, const uint FnUnitByteSize, D&& FfDestructor)
+{
+    const auto BufferSize = (FnLeng * (FnUnitByteSize + sizeof(uint)));
+    T* LvArray = (T*)malloc(BufferSize);
+    auto Ptr = RA::SharedPtr<T*>(LvArray);
+    Ptr.SetDestructor(FfDestructor);
+    Ptr.__SetSize__(FnLeng);
+    return Ptr;
 }
 
 #ifndef __XPTR__
 #define __XPTR__
 
-template<class T>
+template<typename T>
 using xp = RA::SharedPtr<T>;
 
 template<class T>

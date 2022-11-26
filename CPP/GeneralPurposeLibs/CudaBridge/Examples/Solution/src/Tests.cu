@@ -141,34 +141,6 @@ void Test::SumArrayIndicies()
 
 // =============================================================================================================================
 
-__global__ void ThreadLevelMutex(int* FvOutData, const int* FvInDataArray, RA::Device::Mutex* FoMutexPtr, const uint FnSize)
-{
-    auto GID = RA::Device::GetThreadID();
-    if (GID > FnSize)
-        return;
-    auto& LoMutex = *FoMutexPtr;
-    auto Val = FvInDataArray[GID];
-    bool LbLock = false;
-    do
-    {
-        if (LbLock = LoMutex.BxGetLock())
-        {
-            if (FvOutData[0] < Val)
-            {
-                atomicMax(&FvOutData[0], Val);
-                atomicMax(&FvOutData[1], Val);
-                atomicMax(&FvOutData[2], Val);
-                //printf("%d < %d\n", FvOutData[0], Val);
-            }
-        }
-        LoMutex.Unlock();
-    } while (LbLock);
-    LoMutex.Unlock();
-}
-
-__device__ bool GreaterThan(const int Left, const int Right) {
-    return Left > Right;
-}
 
 __global__ void BlockLevelMutex(int* FvOutData, const int* FvInDataArray, RA::Device::Mutex* FoMutexPtr, const uint FnSize)
 {
@@ -176,16 +148,41 @@ __global__ void BlockLevelMutex(int* FvOutData, const int* FvInDataArray, RA::De
     if (GID > FnSize)
         return;
     auto& LoMutex = *FoMutexPtr;
+    auto Val = FvInDataArray[GID];
+    LoMutex.BlockLock();
+    if (Val > FvOutData[0])
+    {
+        atomicMax(&FvOutData[0], Val);
+        atomicMax(&FvOutData[1], Val);
+        atomicMax(&FvOutData[2], Val);
+    }
+    LoMutex.Unlock();
+}
+
+__device__ bool GreaterThan(const int Left, const int Right) {
+    return Left > Right;
+}
+
+__global__ void ThreadLevelMutex(int* FvOutData, const int* FvInDataArray, RA::Device::Mutex* FoMutexPtr, const uint FnSize)
+{
+    auto GID = RA::Device::GetThreadID();
+    if (GID > FnSize)
+        return;
 
     auto Val = FvInDataArray[GID];
-    LoMutex.BlockLock(blockIdx);
+    auto& FoMutex = *FoMutexPtr;
 
-    atomicMax(&FvOutData[0], Val);
-    atomicMax(&FvOutData[1], Val);
-    atomicMax(&FvOutData[2], Val);
-    //printf("%d < %d\n", FvOutData[0], Val);
+    StartCudaGuard();
 
-    LoMutex.Unlock();
+    if (FvOutData[0] < Val)
+    {
+        FvOutData[0] = Val;
+        FvOutData[1] = Val;
+        FvOutData[2] = Val;
+        //printf("%d < %d\n", FvOutData[0], Val);
+    }
+    
+    EndCudaGuard();
 }
 
 // =============================================================================================================================
@@ -222,12 +219,15 @@ template<typename F>
 void TestMutex(F&& FfFunction, const xstring& FsFunctionName, const uint FnOperations)
 {
     Begin();
+    auto [LvData, LnMaxVal] = GetTestData(FnOperations);
     auto [LvGrid, LvBlock] = RA::Host::GetDimensions3D(FnOperations);
-    auto LoMutex = RA::CudaBridge<RA::Device::Mutex>(1);
+    auto LoMutex = RA::CudaBridge<RA::Device::Mutex>(1, sizeof(RA::Device::Mutex));
+    LoMutex.AllocateHost()
+        .Initialize(&RA::Device::Mutex::ObjInitialize, LvGrid)
+        .SetDestructor(&RA::Device::Mutex::ObjDestroy);
     LoMutex.AllocateDevice();
     LoMutex.CopyHostToDevice();
 
-    auto [LvData, LnMaxVal] = GetTestData(FnOperations);
     LvData.CopyHostToDevice();
 
     RA::Timer Time;
@@ -265,6 +265,15 @@ void Test::TestThreadMutex(const uint FnOperations)
 {
     Begin();
     TestMutex(ThreadLevelMutex, __CLASS__, FnOperations);
+    Rescue();
+}
+
+// =============================================================================================================================
+
+void Test::TestPrintNestedData()
+{
+    Begin();
+
     Rescue();
 }
 

@@ -23,6 +23,8 @@ using uint = size_t;
 #ifndef __CUDA_INTELLISENSE__
 // -----------------------------------------------------
 __device__ void __syncthreads();
+__device__ void __threadfence();
+__device__ void __threadfence_block();
 // -----------------------------------------------------
 __device__ int atomicCAS(
     int* address,
@@ -80,5 +82,35 @@ __device__ long long int atomicMax(
     long long int* address,
     long long int val);
 // -----------------------------------------------------
-
+__device__ int atomicAdd(
+    int* address, 
+    int val);
+__device__ unsigned int atomicAdd(
+    unsigned int* address,
+    unsigned int val);
+__device__ unsigned long long int atomicAdd(
+    unsigned long long int* address,
+    unsigned long long int val);
+__device__ float atomicAdd(
+    float* address, 
+    float val);
+__device__  double atomicAdd(
+    double* address, 
+    double val);
+// -----------------------------------------------------
+__device__ int atomicSub(
+    int* address, 
+    int val);
+__device__ unsigned int atomicSub(
+    unsigned int* address,
+    unsigned int val);
+// -----------------------------------------------------
+__device__ unsigned int atomicInc(
+    unsigned int* address,
+    unsigned int val);
+// -----------------------------------------------------
+__device__ unsigned int atomicDec(
+    unsigned int* address,
+    unsigned int val);
+// -----------------------------------------------------
 #endif

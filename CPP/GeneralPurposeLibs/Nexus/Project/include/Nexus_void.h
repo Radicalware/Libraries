@@ -133,14 +133,14 @@ INL void Nexus<void>::TaskLooper(int thread_idx)
         Task<void>& VoidTask = TaskPtr.Get();
 
         if (!MutexIdx) // no lock given
-            VoidTask();
+            VoidTask.RunTask();
         else if (SmMutex.at(MutexIdx).Get().IsMutexOn()) // lock was given with a mutex set to on
         {
             auto Lock = SmMutex.at(MutexIdx).Get().CreateLock();
-            VoidTask();
+            VoidTask.RunTask();
         }
         else // lock was given but the mutex was set to off
-            VoidTask();
+            VoidTask.RunTask();
 
         auto Lock = SoMutex.CreateLock();
         if (SbFinishTasks && !ScTaskQueue.size())

@@ -4,10 +4,6 @@
 
 #include "RawMapping.h"
 
-#ifndef The
-#define The (*this)
-#endif // !The
-
 namespace RA
 {
     template<typename T> class SharedPtr;
@@ -19,11 +15,18 @@ namespace RA
 
     template <typename PA>
     _NODISCARD std::enable_if_t<IsPointer(PA) && !IsClass(RemovePtr(PA)), SharedPtr<PA>>
-        inline MakeShared(const size_t FnSize);
+        inline MakeShared(const uint FnLeng);
 
     template <typename PA, typename ...A>
     _NODISCARD std::enable_if_t<IsPointer(PA) && IsClass(RemovePtr(PA)), SharedPtr<PA>>
-        inline MakeShared(const size_t FnSize, A&&... Args);
+        inline MakeShared(const uint FnLeng, A&&... Args);
+
+    template <typename T>
+    inline SharedPtr<T*>
+        MakeSharedBuffer(const uint FnLeng, const uint FnUnitByteSize);
+    template <typename T, typename D>
+    inline SharedPtr<T*>
+        MakeSharedBuffer(const uint FnLeng, const uint FnUnitByteSize, D&& FfDestructor);
 }
 
 namespace RA

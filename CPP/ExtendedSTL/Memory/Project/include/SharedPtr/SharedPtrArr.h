@@ -6,29 +6,31 @@
 #include <functional>
 #include <utility>
 
+
 namespace RA
 {
     template<typename T>
     class SharedPtr<T*> : public BaseSharedPtr<T>, public RA::Iterator<T>
     {
-        size_t MnSize;
-        void SetSize(const size_t FnSize);
+        size_t MnLeng = 0;
+        size_t MnUnitSize = 0;
         std::function<void(T&)> MfDestructor;
         bool MbInitialized = false;
-        short MbDestructorCount = 0;
+        bool MbDestructorSet = false;
+
     public:
         ~SharedPtr();
 
         template<typename F, typename ...A>
-        SharedPtr<T*>& Initialize(F&& FfInitialize, A&&... Args);
-        SharedPtr<T*>& Destroy(std::function<void(T&)>&& FfDestructor);
+        SharedPtr<T*> Initialize(F&& FfInitialize, A&&... Args);
+        SharedPtr<T*> SetDestructor(std::function<void(T&)>&& FfDestructor);
 
         BaseSharedPtr<T>::BaseSharedPtr;
 
         template<class TT = T, typename std::enable_if<!IsClass(TT), bool>::type = 0>
-        inline SharedPtr(const size_t FnSize);
+        inline SharedPtr(const size_t FnLeng);
         template<typename ...A, class TT = T, typename std::enable_if< IsClass(TT), bool>::type = 0>
-        inline SharedPtr(const size_t FnSize, A&&... Args);
+        inline SharedPtr(const size_t FnLeng, A&&... Args);
 
         inline SharedPtr(SharedPtr<T*>&& Other);
         inline SharedPtr(const SharedPtr<T*>& Other);
@@ -48,30 +50,34 @@ namespace RA
         inline        T& operator[](const size_t Idx)       noexcept { return The.get()[Idx]; }
         inline  const T& operator[](const size_t Idx) const noexcept { return The.get()[Idx]; }
 
-        constexpr auto Size() const { return MnSize; }
+        constexpr auto Size()   const { return MnLeng; }
+        constexpr auto GetLength() const { return MnLeng; }
+        constexpr auto GetUnitSize() const { return MnUnitSize; }
+        constexpr auto GetAllocationSize() const { return MnUnitSize * MnLeng + sizeof(uint); }
+
+        void __SetSize__(const size_t FnLeng); // todo: get friend functions working
     };
 }
 
 
 template<typename T>
-inline void RA::SharedPtr<T*>::SetSize(const size_t FnSize)
+inline void RA::SharedPtr<T*>::__SetSize__(const size_t FnLeng)
 {
-    MnSize = FnSize;
-    The.SetIterator(The.Ptr(), &MnSize);
+    MnLeng = FnLeng;
+    The.SetIterator(The.Ptr(), &MnLeng);
 }
 
 template<typename T>
 inline RA::SharedPtr<T*>::~SharedPtr()
 {
-    if (MbDestructorCount >= 2)
+    if (MbDestructorSet && The.use_count() == 1)
         for (auto& Obj : The)
             The.MfDestructor(Obj);
-    MbDestructorCount++;
 }
 
 template<typename T>
 template<typename F, typename ...A>
-inline RA::SharedPtr<T*>& RA::SharedPtr<T*>::Initialize(F&& FfInitialize, A&&... Args)
+inline RA::SharedPtr<T*> RA::SharedPtr<T*>::Initialize(F&& FfInitialize, A&&... Args)
 {
     if (MbInitialized)
         throw "RA::SharedPtr<T*>::Initialize >> Already Initialized!";
@@ -82,40 +88,40 @@ inline RA::SharedPtr<T*>& RA::SharedPtr<T*>::Initialize(F&& FfInitialize, A&&...
 }
 
 template<typename T>
-inline RA::SharedPtr<T*>& RA::SharedPtr<T*>::Destroy(std::function<void(T&)>&& FfDestructor)
+inline RA::SharedPtr<T*> RA::SharedPtr<T*>::SetDestructor(std::function<void(T&)>&& FfDestructor)
 {
-    if (MbDestructorCount)
+    if (MbDestructorSet)
         throw "RA::SharedPtr Destructor Set";
-    MbDestructorCount++;
+    MbDestructorSet = true;
     The.MfDestructor = FfDestructor;
     return The;
 }
 
 template<typename T>
 template<class TT, typename std::enable_if<!IsClass(TT), bool>::type>
-inline RA::SharedPtr<T*>::SharedPtr(const size_t FnSize) :
-    RA::BaseSharedPtr<T>(new T[FnSize+1], [](T* FtPtr) { delete[] FtPtr; })
+inline RA::SharedPtr<T*>::SharedPtr(const size_t FnLeng) :
+    RA::BaseSharedPtr<T>(new T[FnLeng + 1], [](T* FtPtr) { delete[] FtPtr; })
 {
-    The.SetSize(FnSize);
-    for (auto* ptr = The.get(); ptr < The.get() + FnSize + 1; ptr++)
+    The.__SetSize__(FnLeng);
+    for (auto* ptr = The.get(); ptr < The.get() + FnLeng + 1; ptr++)
         *ptr = 0;
 }
 
 #ifndef UsingNVCC
 template<typename T>
 template<typename ...A, class TT, typename std::enable_if< IsClass(TT), bool>::type>
-inline RA::SharedPtr<T*>::SharedPtr(const size_t FnSize, A&&... Args) :
-    RA::BaseSharedPtr<T>(new T[FnSize](std::forward<A>(Args)...), [](T* FtPtr) { delete[] FtPtr; })
+inline RA::SharedPtr<T*>::SharedPtr(const size_t FnLeng, A&&... Args) :
+    RA::BaseSharedPtr<T>(new T[FnLeng](std::forward<A>(Args)...), [](T* FtPtr) { delete[] FtPtr; })
 {
-    The.SetSize(FnSize);
+    The.__SetSize__(FnLeng);
 }
 #else
 template<typename T>
 template<typename ...A, class TT, typename std::enable_if< IsClass(TT), bool>::type>
-inline RA::SharedPtr<T*>::SharedPtr(const size_t FnSize, A&&... Args) :
-    RA::BaseSharedPtr<T>(new T[FnSize], [](T* FtPtr) { delete[] FtPtr; })
+inline RA::SharedPtr<T*>::SharedPtr(const size_t FnLeng, A&&... Args) :
+    RA::BaseSharedPtr<T>(new T[FnLeng], [](T* FtPtr) { delete[] FtPtr; })
 {
-    The.SetSize(FnSize);
+    The.__SetSize__(FnLeng);
 }
 #endif
 
@@ -123,17 +129,20 @@ template<typename T>
 inline RA::SharedPtr<T*>::SharedPtr(RA::SharedPtr<T*>&& Other)
 {
     std::shared_ptr(std::move(Other)).swap(The);
-    The.SetSize(Other.Size());
-    MbDestructorCount = Other.MbDestructorCount;
-    MfDestructor = std::move(Other.MfDestructor);
+    The.__SetSize__(Other.Size());
+    MbDestructorSet = Other.MbDestructorSet;
+    Other.MbDestructorSet = false; // don't destroy before a move
+    MbInitialized = Other.MbInitialized;
+    MfDestructor = Other.MfDestructor;
 }
 
 template<typename T>
 inline RA::SharedPtr<T*>::SharedPtr(const RA::SharedPtr<T*>& Other)
 {
     std::shared_ptr(Other).swap(The);
-    The.SetSize(Other.Size());
-    MbDestructorCount = Other.MbDestructorCount;
+    The.__SetSize__(Other.Size());
+    MbDestructorSet = Other.MbDestructorSet;
+    MbInitialized = Other.MbInitialized;
     MfDestructor = Other.MfDestructor;
 }
 
@@ -141,17 +150,19 @@ template<typename T>
 inline void RA::SharedPtr<T*>::operator=(RA::SharedPtr<T*>&& Other)
 {
     std::shared_ptr(std::move(Other)).swap(The);
-    The.SetSize(Other.Size());
-    MbDestructorCount = Other.MbDestructorCount;
-    MfDestructor = std::move(Other.MfDestructor);
+    The.__SetSize__(Other.Size());
+    MbDestructorSet = Other.MbDestructorSet;
+    MbInitialized = Other.MbInitialized;
+    MfDestructor = Other.MfDestructor;
 }
 
 template<typename T>
 inline void RA::SharedPtr<T*>::operator=(const RA::SharedPtr<T*>& Other)
 {
     std::shared_ptr(Other).swap(The);
-    The.SetSize(Other.Size());
-    MbDestructorCount = Other.MbDestructorCount;
+    The.__SetSize__(Other.Size());
+    MbDestructorSet = Other.MbDestructorSet;
+    MbInitialized = Other.MbInitialized;
     MfDestructor = Other.MfDestructor;
 }
 
@@ -167,12 +178,12 @@ inline void RA::SharedPtr<T*>::Clone(const SharedPtr<T*>& Other)
     if (!Other)
     {
         The = nullptr;
-        MnSize = 0;
+        MnLeng = 0;
         return;
     }
     The = RA::MakeShared<T*>(Other.Size());
-    MbDestructorCount = 0;
     MfDestructor = Other.MfDestructor;
-    if (Other.MnSize)
+    if (Other.MnLeng)
         memcpy(The.Ptr(), Other.Ptr(), Other.Size() * sizeof(T) + sizeof(uint));
+    MbDestructorSet = false;
 }

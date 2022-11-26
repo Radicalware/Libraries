@@ -29,12 +29,11 @@ public:
 
     void AddMethod(const std::function<T()>& i_method);
 
-    bool IsBlank() const;
     bool HasName() const;
     const std::string* GetNamePtr() const;
           std::string  GetName() const;
           size_t       GetMutexID() const;
-    T operator()();
+    T RunTask();
 };
 
 // ----------------------------------------------------------------------------------------------------
@@ -105,7 +104,7 @@ inline size_t Task<T>::GetMutexID() const
 }
 
 template<typename T>
-inline T Task<T>::operator()()
+inline T Task<T>::RunTask()
 {
     return m_method();
 }

@@ -40,7 +40,7 @@ namespace RA
 
         CudaBridge(std::initializer_list<T> FnInit);
 
-        void ResetIterator() { This.SetIterator(MvHost.Ptr(), &MnSize); }
+        void ResetIterator() { This.SetIterator(MvHost.Ptr(), &MnLeng); }
 
         void Initialize(uint FnSize);
         void Initialize(uint FnSize, uint FnMemSize);
@@ -54,15 +54,15 @@ namespace RA
         T& operator[](const uint Idx) { return MvHost[Idx]; }
         const T& operator[](const uint Idx) const { return MvHost[Idx]; }
 
-        void AllocateHost(const uint FnNewSize = 0);
+        RA::SharedPtr<T*> AllocateHost(const uint FnNewSize = 0);
         void AllocateDevice();
 
         void ZeroHostData();
 
-        uint Size() const { return MnSize; }
+        uint Size() const { return MnLeng; }
         uint GetUnitByteSize() const { return MnByteSize; }
-        uint GetAllocationSize() const { return MnSize * MnByteSize + sizeof(T); }
-        Allocate GetAllocation() const { return Allocate(MnSize, MnByteSize); }
+        uint GetAllocationSize() const { return MnLeng * MnByteSize + sizeof(T); }
+        Allocate GetAllocation() const { return Allocate(MnLeng, MnByteSize); }
 
         bool HasHostArray()   const { return bool(MvHost.get()); }
         bool HasDeviceArray() const { return MvDevice != nullptr; }
@@ -128,7 +128,7 @@ namespace RA
         RA::SharedPtr<T*> MvHost = nullptr;
         T* MvDevice = nullptr;
 
-        uint MnSize = 0;
+        uint MnLeng = 0;
         uint MnByteSize = 0;
     };
 };
@@ -142,48 +142,48 @@ RA::CudaBridge<T>::~CudaBridge()
 
 template<typename T>
 RA::CudaBridge<T>::CudaBridge(uint FnSize) :
-    MnSize(FnSize), MnByteSize(sizeof(T))
+    MnLeng(FnSize), MnByteSize(sizeof(T))
 {
 }
 
 template<typename T>
 RA::CudaBridge<T>::CudaBridge(uint FnSize, uint FnMemSize) :
-    MnSize(FnSize), MnByteSize(FnMemSize)
+    MnLeng(FnSize), MnByteSize(FnMemSize)
 {
 }
 
 template<typename T>
 RA::CudaBridge<T>::CudaBridge(const RA::Allocate& FoAllocate):
-    MnSize(FoAllocate.GetLength()), MnByteSize(FoAllocate.GetUnitSize())
+    MnLeng(FoAllocate.GetLength()), MnByteSize(FoAllocate.GetUnitSize())
 {
 }
 
 template<typename T>
 RA::CudaBridge<T>::CudaBridge(RA::SharedPtr<T*> FnArray, uint FnSize) :
-    MvHost(FnArray), MnSize(FnSize), MnByteSize(sizeof(T))
+    MvHost(FnArray), MnLeng(FnSize), MnByteSize(sizeof(T))
 {
-    SetIterator(MvHost.Ptr(), &MnSize);
+    SetIterator(MvHost.Ptr(), &MnLeng);
 }
 
 template<typename T>
 RA::CudaBridge<T>::CudaBridge(RA::SharedPtr<T*> FnArray, uint FnSize, uint FnMemSize) :
-    MvHost(FnArray), MnSize(FnSize), MnByteSize(FnMemSize)
+    MvHost(FnArray), MnLeng(FnSize), MnByteSize(FnMemSize)
 {
-    SetIterator(MvHost.Ptr(), &MnSize);
+    SetIterator(MvHost.Ptr(), &MnLeng);
 }
 
 template<typename T>
 RA::CudaBridge<T>::CudaBridge(T* FnArray, uint FnSize) :
-    MvHost(RA::SharedPtr<T*>(FnArray)), MnSize(FnSize), MnByteSize(sizeof(T))
+    MvHost(RA::SharedPtr<T*>(FnArray)), MnLeng(FnSize), MnByteSize(sizeof(T))
 {
-    SetIterator(MvHost.Ptr(), &MnSize);
+    SetIterator(MvHost.Ptr(), &MnLeng);
 }
 
 template<typename T>
 RA::CudaBridge<T>::CudaBridge(T* FnArray, uint FnSize, uint FnMemSize) :
-    MvHost(RA::SharedPtr<T*>(FnArray)), MnSize(FnSize), MnByteSize(FnMemSize)
+    MvHost(RA::SharedPtr<T*>(FnArray)), MnLeng(FnSize), MnByteSize(FnMemSize)
 {
-    SetIterator(MvHost.Ptr(), &MnSize);
+    SetIterator(MvHost.Ptr(), &MnLeng);
 }
 
 template<typename T>
@@ -201,7 +201,7 @@ RA::CudaBridge<T>::CudaBridge(RA::CudaBridge<T>&& Other) noexcept
 template<typename T>
 RA::CudaBridge<T>::CudaBridge(std::initializer_list<T> FnInit)
 {
-    MnSize = FnInit.size();
+    MnLeng = FnInit.size();
     if(!MnByteSize)
         MnByteSize = sizeof(T);
     AllocateHost();
@@ -222,7 +222,7 @@ void RA::CudaBridge<T>::Initialize(uint FnSize)
     MvDevice = nullptr;
 
     if(FnSize) 
-        MnSize = FnSize;
+        MnLeng = FnSize;
     if (!MnByteSize) 
         MnByteSize = sizeof(T);
 }
@@ -235,14 +235,14 @@ void RA::CudaBridge<T>::Initialize(uint FnSize, uint FnMemSize)
         cudaFree(MvDevice);
     MvDevice = nullptr;
 
-    MnSize = FnSize;
+    MnLeng = FnSize;
     MnByteSize = FnMemSize;
 }
 
 template<typename T>
 void RA::CudaBridge<T>::operator=(const RA::CudaBridge<T>& Other)
 {
-    MnSize = Other.Size();
+    MnLeng = Other.Size();
     MnByteSize = Other.MnByteSize;
 
     if (Other.HasHostArray())
@@ -256,13 +256,13 @@ void RA::CudaBridge<T>::operator=(const RA::CudaBridge<T>& Other)
         AllocateDevice();
         CopyDeviceData(Other.MvDevice);
     }
-    SetIterator(MvHost.Ptr(), &MnSize);
+    SetIterator(MvHost.Ptr(), &MnLeng);
 }
 
 template<typename T>
 void RA::CudaBridge<T>::operator=(RA::CudaBridge<T>&& Other) noexcept
 {
-    MnSize = Other.MnSize;
+    MnLeng = Other.MnLeng;
     MnByteSize = Other.MnByteSize;
 
     if (Other.HasHostArray())
@@ -270,7 +270,7 @@ void RA::CudaBridge<T>::operator=(RA::CudaBridge<T>&& Other) noexcept
         AllocateHost();
         MvHost = std::move(Other.MvHost);
     }
-    SetIterator(MvHost.Ptr(), &MnSize);
+    SetIterator(MvHost.Ptr(), &MnLeng);
 }
 
 template<typename T>
@@ -279,11 +279,11 @@ void RA::CudaBridge<T>::operator=(const std::vector<T>& Other)
     if (!MnByteSize)
         throw "Cuda Bridge has 0 MnByteSize";
 
-    MnSize = Other.size();
+    MnLeng = Other.size();
 
     AllocateHost();
     CopyHostData(Other.data());
-    SetIterator(MvHost.Ptr(), &MnSize);
+    SetIterator(MvHost.Ptr(), &MnLeng);
 }
 
 template<typename T>
@@ -292,20 +292,21 @@ void RA::CudaBridge<T>::operator=(std::vector<T>&& Other)
     if (!MnByteSize)
         throw "Cuda Bridge has 0 MnByteSize";
 
-    MnSize = Other.MnSize;
+    MnLeng = Other.MnLeng;
     AllocateHost();
-    for (uint i = 0; i < MnSize; i++)
+    for (uint i = 0; i < MnLeng; i++)
         std::swap_ranges(Other[i].begin(), Other[i].end(), &MvHost[i]);
-    SetIterator(MvHost.Ptr(), &MnSize);
+    SetIterator(MvHost.Ptr(), &MnLeng);
 }
 
 
 template<typename T>
-void RA::CudaBridge<T>::AllocateHost(const uint FnNewSize)
+RA::SharedPtr<T*> RA::CudaBridge<T>::AllocateHost(const uint FnNewSize)
 {
     Initialize(FnNewSize);
-    MvHost = RA::MakeShared<T*>(MnSize);
-    SetIterator(MvHost.Ptr(), &MnSize);
+    MvHost = RA::MakeSharedBuffer<T>(MnLeng, MnByteSize);
+    SetIterator(MvHost.Ptr(), &MnLeng);
+    return MvHost;
 }
 
 template<typename T>
@@ -329,7 +330,7 @@ void RA::CudaBridge<T>::ZeroHostData()
 {
     std::fill(
         &MvHost[0], // fill data from here
-        &MvHost[0] + MnSize, // to here
+        &MvHost[0] + MnLeng, // to here
         0); // with null data
 }
 
@@ -342,7 +343,7 @@ void RA::CudaBridge<T>::CopyHostToDevice()
     auto Error = cudaMemcpy(MvDevice, MvHost.get(), GetAllocationSize(), cudaMemcpyHostToDevice);
     if (Error)
         ThrowIt("CUDA Memcpy Error: ", cudaGetErrorString(Error));
-    SetIterator(MvHost.Ptr(), &MnSize);
+    SetIterator(MvHost.Ptr(), &MnLeng);
     Rescue();
 }
 
@@ -373,7 +374,7 @@ const T* RA::CudaBridge<T>::GetHost() const
 template<typename T>
 inline T& RA::CudaBridge<T>::GetHost(uint FnIdx)
 {
-    if (FnIdx >= MnSize)
+    if (FnIdx >= MnLeng)
         throw "RA::CudaBridge<T>::Get >> FnIdx Is too big";
 
     return MvHost[FnIdx];
@@ -382,7 +383,7 @@ inline T& RA::CudaBridge<T>::GetHost(uint FnIdx)
 template<typename T>
 const T& RA::CudaBridge<T>::GetHost(uint FnIdx) const
 {
-    if (FnIdx >= MnSize)
+    if (FnIdx >= MnLeng)
         throw "RA::CudaBridge<T>::Get >> FnIdx Is too big";
 
     return MvHost[FnIdx];
@@ -403,7 +404,7 @@ const T* RA::CudaBridge<T>::GetDevice() const
 template<typename T>
 inline T& RA::CudaBridge<T>::GetDevice(uint FnIdx)
 {
-    if (FnIdx >= MnSize)
+    if (FnIdx >= MnLeng)
         throw "RA::CudaBridge<T>::Get >> FnIdx Is too big";
 
     return MvDevice[FnIdx];
@@ -412,7 +413,7 @@ inline T& RA::CudaBridge<T>::GetDevice(uint FnIdx)
 template<typename T>
 const T& RA::CudaBridge<T>::GetDevice(uint FnIdx) const
 {
-    if (FnIdx >= MnSize)
+    if (FnIdx >= MnLeng)
         throw "RA::CudaBridge<T>::Get >> FnIdx Is too big";
 
     return MvDevice[FnIdx];
@@ -422,13 +423,13 @@ template<typename T>
 template<typename F>
 T RA::CudaBridge<T>::ReductionCPU(F&& Function, uint Size) const
 {
-    //RA::CudaBridge<T> HostOutput(MnSize);
+    //RA::CudaBridge<T> HostOutput(MnLeng);
     //HostOutput.AllocateHost();
     //HostOutput.ZeroHostData();
     //HostOutput.AllocateDevice();
     //HostOutput.CopyHostToDevice();
     if (Size == 0)
-        return Function(MvHost.get(), MnSize);
+        return Function(MvHost.get(), MnLeng);
     return Function(MvHost.get(), Size);
 }
 
@@ -481,7 +482,6 @@ template<typename F, typename ...A>
 RA::CudaBridge<T> RA::CudaBridge<T>::ARRAY::RunGPU(const RA::Allocate& FoAllocate, const dim3& FnGrid, const dim3& FnBlock, F&& Function, A&&... Args)
 {
     Begin();
-    auto step = 0;
     RA::CudaBridge<T> DeviceOutput(FoAllocate);
     DeviceOutput.AllocateHost();
     DeviceOutput.AllocateDevice();
@@ -537,7 +537,7 @@ template<typename T>
 void RA::CudaBridge<T>::CopyHostData(const T* FnArray)
 {
     AllocateHost();
-    for (uint i = 0; i < MnSize; i++)
+    for (uint i = 0; i < MnLeng; i++)
         MvHost[i] = FnArray[i];
 }
 
@@ -545,7 +545,7 @@ template<typename T>
 void RA::CudaBridge<T>::CopyHostData(const RA::SharedPtr<T*> FnArray)
 {
     AllocateHost();
-    for (uint i = 0; i < MnSize; i++)
+    for (uint i = 0; i < MnLeng; i++)
         MvHost[i] = FnArray[i];
 }
 
@@ -555,7 +555,7 @@ void RA::CudaBridge<T>::CopyDeviceData(const T* FnArray)
     AllocateDevice();
     if (!FnArray)
         return;
-    for (uint i = 0; i < MnSize; i++)
+    for (uint i = 0; i < MnLeng; i++)
         MvDevice[i] = FnArray[i];
 }
 

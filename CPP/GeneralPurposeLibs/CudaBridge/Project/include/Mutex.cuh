@@ -6,6 +6,8 @@
 #include "CudaImport.cuh"
 #include "Device.cuh"
 #include "Host.cuh"
+#include "Timer.cuh"
+#include "RawMapping.h"
 
 #include <iostream>
 
@@ -24,39 +26,84 @@ namespace RA
     {
         struct Mutex
         {
-            int   MoMutex = 0;
-            bool  MbMutexRunning = false;
-            uint3 MvBlockLock     = dim3(MAX_INT, MAX_INT, MAX_INT);
-            uint3 MvOpenLockBlock = dim3(MAX_INT, MAX_INT, MAX_INT);
+            int   MoMutex;
+            uint3 MvBlockLock;
+            uint3 MvMaxIntBlockLock;
+            int*  MvMutexes = nullptr;
+            int*  MvRunning = nullptr;
+            inline static int SnMtxDepth = 8;
 
-            Mutex() { }
+            //int* MvMutexes = nullptr;
 
-            __device__ __host__ uint static GetBufferSize() 
-            { 
-                return sizeof(Mutex) + sizeof(uint); 
+            static void ObjInitialize(Mutex& Target, const uint3 FvBlockDim)
+            {
+                Target.MoMutex = 0;
+                Target.MvBlockLock = dim3(MAX_INT, MAX_INT, MAX_INT);
+                Target.MvMaxIntBlockLock = dim3(MAX_INT, MAX_INT, MAX_INT);
+
+                Target.MvMutexes = RA::Host::AllocateMemOnDevice<int>(SnMtxDepth + 1);
+                Target.MvRunning = RA::Host::AllocateMemOnDevice<int>(SnMtxDepth + 1);
+            }
+
+            Mutex(){}
+
+            static void ObjDestroy(Mutex& Target)
+            {
+                cudaFree(Target.MvMutexes);
+                cudaFree(Target.MvRunning);
+            }
+
+            ~Mutex()
+            {
+                Mutex::ObjDestroy(This);
             }
 
             __device__ bool BxLocked() const { return MoMutex == 1; }
 
-            __device__ void BlockLock(const uint3 LvBlock) 
+            __device__ void BlockLock() 
             {
-                while ((MoMutex > 0 || MvBlockLock == MvOpenLockBlock) && MvBlockLock != LvBlock)
+                while ((MoMutex > 0 || MvBlockLock == MvMaxIntBlockLock) && MvBlockLock != blockIdx)
                 {
                     __syncthreads();
-                    if (MvBlockLock == MvOpenLockBlock && atomicCAS(&MoMutex, 0, 1) == 0)
-                        MvBlockLock = LvBlock;
+                    if (MvBlockLock == MvMaxIntBlockLock && atomicCAS(&MoMutex, 0, 1) == 0)
+                        MvBlockLock = blockIdx;
                 }
+
+            }
+
+            __device__ bool BxRunning() const
+            {
+                for (int i = 0; i < SnMtxDepth; i++)
+                    if (MvRunning[i] == false)
+                        return false;
+                return true;
             }
 
             __device__ void Unlock()
             {
-                MvBlockLock = MvOpenLockBlock;
-                atomicExch(&MoMutex, 0);
+                __threadfence();
+                __syncthreads();
+                if (MvBlockLock != MvMaxIntBlockLock)
+                {
+                    MvBlockLock = MvMaxIntBlockLock;
+                    atomicExch(&MoMutex, 0); // set main mutex off
+                }
+                else
+                {
+                    for (int i = SnMtxDepth - 1; i >= 0; i--)
+                        atomicExch(&MvMutexes[i], 0);
+                }
+                __threadfence();
+                __syncthreads();
             }
 
-            __device__ bool BxGetLock()
+            __device__ bool GetThreadLock()
             {
-                return !(atomicCAS(&MoMutex, 0, 1) == 0);
+                __syncthreads();
+                for (int i = 0; i < SnMtxDepth; i++)
+                    MvRunning[i] = !(atomicCAS(&MvMutexes[i], 0, 1) == 0);
+                return This.BxRunning();
+                __syncthreads();
             }
         };
     }
