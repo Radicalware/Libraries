@@ -15,17 +15,9 @@
 using uint = size_t;
 #endif
 
-#define StartCudaGuard() \
-do \
-{ \
-    if (FoMutex.GetThreadLock()) \
-    { 
-
-#define EndCudaGuard() \
-    } \
-    FoMutex.UnlockThreads(); \
-} while (FoMutex.BxRunning());
-
+#define FenceAndSync() \
+    __threadfence(); \
+    __syncthreads();
 
 namespace RA
 {
@@ -111,6 +103,7 @@ __device__ uint RA::Device::GetThreadID(const bool Print)
     int GID = LnBlockId * (blockDim.x * blockDim.y * blockDim.z)
                     + (threadIdx.z * (blockDim.x * blockDim.y))
                     + (threadIdx.y * blockDim.x) + threadIdx.x;
+
 
     if (Print)
     {

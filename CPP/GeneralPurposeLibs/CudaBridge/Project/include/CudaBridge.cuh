@@ -292,10 +292,10 @@ void RA::CudaBridge<T>::operator=(std::vector<T>&& Other)
     if (!MnByteSize)
         throw "Cuda Bridge has 0 MnByteSize";
 
-    MnLeng = Other.MnLeng;
+    MnLeng = Other.size();
     AllocateHost();
     for (uint i = 0; i < MnLeng; i++)
-        std::swap_ranges(Other[i].begin(), Other[i].end(), &MvHost[i]);
+        std::swap_ranges(Other.begin(), Other.end(), &MvHost[i]);
     SetIterator(MvHost.Ptr(), &MnLeng);
 }
 

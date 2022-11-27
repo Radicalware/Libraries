@@ -12,6 +12,4 @@ namespace Test
     void PrintGridBlockThread();
     void SumArrayIndicies();
     void TestBlockMutex(const uint FnOperations);
-    void TestThreadMutex(const uint FnOperations);
-    void TestPrintNestedData();
 }

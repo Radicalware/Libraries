@@ -58,6 +58,8 @@ int main(int argc, char** argv)
     SharedPtrs.Emplace("There");
     SharedPtrs.Join(' ').Print();
 
+    for (auto& Val : SharedPtrs)
+        cout << Val.Get() << endl;
     auto SplitPtrs = SharedPtrs.Split(2);
     cout << SplitPtrs [0][1] << endl;
 

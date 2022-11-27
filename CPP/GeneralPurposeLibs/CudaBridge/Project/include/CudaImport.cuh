@@ -16,6 +16,14 @@ using uint = size_t;
 #define MAX_INT  2147483647
 #endif  
 
+
+#ifndef GetWarpID
+#define GetWarpID() (threadIdx.x % 32)
+#endif // !WarpID
+#ifndef GetBlockID
+#define GetBlockID() (blockIdx.x + (blockIdx.y * blockDim.x) + (blockIdx.z * blockDim.x * blockDim.y))
+#endif // !WarpID
+
 #ifndef _THIS_
 #define This (*this)
 #endif

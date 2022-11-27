@@ -22,7 +22,10 @@ namespace RA
         inline MakeShared(const uint FnLeng, A&&... Args);
 
     template <typename T>
-    inline SharedPtr<T*>
+    inline std::enable_if_t<IsClass(RemovePtr(T)), SharedPtr<T*>>
+        MakeSharedBuffer(const uint FnLeng, const uint FnUnitByteSize);
+    template <typename T>
+    inline std::enable_if_t<IsFundamental(RemovePtr(T)), SharedPtr<T*>>
         MakeSharedBuffer(const uint FnLeng, const uint FnUnitByteSize);
     template <typename T, typename D>
     inline SharedPtr<T*>

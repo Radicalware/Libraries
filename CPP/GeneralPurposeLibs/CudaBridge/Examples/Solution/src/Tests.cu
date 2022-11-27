@@ -147,42 +147,20 @@ __global__ void BlockLevelMutex(int* FvOutData, const int* FvInDataArray, RA::De
     auto GID = RA::Device::GetThreadID();
     if (GID > FnSize)
         return;
-    auto& LoMutex = *FoMutexPtr;
+    auto& FoMutex = *FoMutexPtr;
     auto Val = FvInDataArray[GID];
-    LoMutex.BlockLock();
+    FoMutex.BlockLock();
     if (Val > FvOutData[0])
     {
         atomicMax(&FvOutData[0], Val);
         atomicMax(&FvOutData[1], Val);
         atomicMax(&FvOutData[2], Val);
     }
-    LoMutex.UnlockBlocks();
+    FoMutex.UnlockBlocks();
 }
 
 __device__ bool GreaterThan(const int Left, const int Right) {
     return Left > Right;
-}
-
-__global__ void ThreadLevelMutex(int* FvOutData, const int* FvInDataArray, RA::Device::Mutex* FoMutexPtr, const uint FnSize)
-{
-    auto GID = RA::Device::GetThreadID();
-    if (GID > FnSize)
-        return;
-
-    auto Val = FvInDataArray[GID];
-    auto& FoMutex = *FoMutexPtr;
-
-    StartCudaGuard();
-
-    if (FvOutData[0] < Val)
-    {
-        FvOutData[0] = Val;
-        FvOutData[1] = Val;
-        FvOutData[2] = Val;
-        //printf("%d < %d\n", FvOutData[0], Val);
-    }
-    
-    EndCudaGuard();
 }
 
 // =============================================================================================================================
@@ -221,6 +199,14 @@ void TestMutex(F&& FfFunction, const xstring& FsFunctionName, const uint FnOpera
     Begin();
     auto [LvData, LnMaxVal] = GetTestData(FnOperations);
     auto [LvGrid, LvBlock] = RA::Host::GetDimensions3D(FnOperations);
+
+    cout << endl;
+    cout << "Running: " << FsFunctionName << endl;
+    cout << "Vertex Layout: "
+        << LvGrid.x << '*' << LvGrid.y << '*' << LvGrid.z << " * "
+        << LvBlock.x << '*' << LvBlock.y << '*' << LvBlock.z << endl;
+
+
     auto LoMutex = RA::CudaBridge<RA::Device::Mutex>(1, sizeof(RA::Device::Mutex));
     LoMutex.AllocateHost()
         .Initialize(&RA::Device::Mutex::ObjInitialize, LvGrid)
@@ -234,12 +220,6 @@ void TestMutex(F&& FfFunction, const xstring& FsFunctionName, const uint FnOpera
     auto LvOutData = RA::CudaBridge<int>::ARRAY::RunGPU(RA::Allocate(3, sizeof(int)), LvGrid, LvBlock,
         FfFunction, LvData.GetDevice(), LoMutex.GetDevice(), FnOperations);
     auto LnElapsed = Time.GetElapsedTimeMilliseconds();
-
-    cout << endl;
-    cout << "Ran: " << FsFunctionName << endl;
-    cout << "Vertex Layout: " 
-        <<  LvGrid.x << '*' <<  LvGrid.y << '*' <<  LvGrid.z << " * " 
-        << LvBlock.x << '*' << LvBlock.y << '*' << LvBlock.z << endl;
 
     cout << "Data Size: " << LvData.GetAllocationSize() << endl;
     cout << "Elapsed Time Ms: " << LnElapsed << endl;
@@ -264,20 +244,14 @@ void Test::TestBlockMutex(const uint FnOperations)
 
 // =============================================================================================================================
 
-void Test::TestThreadMutex(const uint FnOperations)
-{
-    Begin();
-    TestMutex(ThreadLevelMutex, __CLASS__, FnOperations);
-    Rescue();
-}
-
-// =============================================================================================================================
-
-void Test::TestPrintNestedData()
-{
-    Begin();
-
-    Rescue();
-}
+// https://forums.developer.nvidia.com/t/try-to-use-lock-and-unlock-in-cuda/50761
+// nVidia suggests avoiding a Mutex in favor of reduction algorithms
+// If you need locking, use a block lock and then negotiate for access within a threadblock using ordinary sync
+//void Test::TestThreadMutex(const uint FnOperations)
+//{
+//    Begin();
+//    TestMutex(ThreadLevelMutex, __CLASS__, FnOperations);
+//    Rescue();
+//}
 
 // =============================================================================================================================

@@ -69,7 +69,12 @@ template<typename T>
 __host__ std::enable_if_t<IsFundamental(T), T*> RA::Host::AllocateMemOnDevice(const uint FnLeng)
 {
     Begin();
-    return RA::Host::AllocateMemOnDevice<T>(Allocate(FnLeng, sizeof(T)));
+    T* LvHostDataPtr = (T*)calloc(FnLeng + 1, sizeof(T));
+    for (uint i = 0; i <= FnLeng; i++)
+        LvHostDataPtr[i] = 0;
+    T* LoDevicePtr = RA::Host::CopyHostToDevice<T>(LvHostDataPtr, Allocate(FnLeng, sizeof(T)));
+    free(LvHostDataPtr);
+    return LoDevicePtr;
     Rescue();
 }
 

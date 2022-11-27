@@ -24,10 +24,24 @@ _NODISCARD std::enable_if_t<IsPointer(PA) && IsClass(RemovePtr(PA)), RA::SharedP
 }
 
 template<typename T>
-RA::SharedPtr<T*> RA::MakeSharedBuffer(const uint FnLeng, const uint FnUnitByteSize)
+inline std::enable_if_t<IsClass(RemovePtr(T)), RA::SharedPtr<T*>>
+RA::MakeSharedBuffer(const uint FnLeng, const uint FnUnitByteSize)
 {
     const auto BufferSize = (FnLeng * FnUnitByteSize + sizeof(uint));
     T* LvArray = (T*)malloc(BufferSize);
+    auto Ptr = RA::SharedPtr<T*>(LvArray);
+    Ptr.__SetSize__(FnLeng);
+    return Ptr;
+}
+
+template<typename T>
+inline std::enable_if_t<IsFundamental(RemovePtr(T)), RA::SharedPtr<T*>>
+    RA::MakeSharedBuffer(const uint FnLeng, const uint FnUnitByteSize)
+{
+    const auto BufferSize = (FnLeng * FnUnitByteSize + sizeof(uint));
+    T* LvArray = (T*)malloc(BufferSize);
+    for (auto* Ptr = LvArray; Ptr < LvArray + FnLeng; Ptr++)
+        *Ptr = '\0';
     auto Ptr = RA::SharedPtr<T*>(LvArray);
     Ptr.__SetSize__(FnLeng);
     return Ptr;
