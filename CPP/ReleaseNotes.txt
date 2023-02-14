@@ -10,7 +10,10 @@ Warning, this is a big push and I am uploading this for security
 reasons. This push is not yet stable, please pull previous branch
 for more stable control. Additions include better CPU/GPU memory
 managment. RA::ReferencePtr, Stats object, new dedicated GPU
-folder, other misc improvments.
+folder, other misc improvments. Important note: re2 now needs to
+be compiled from scratch to avoid mem leaks. Use the re2 in the
+modded objects to build the rest of the code. Radicalware is not
+using re2 from VCPKG any more.
 
 ---------------------------------------------------------------------
 
