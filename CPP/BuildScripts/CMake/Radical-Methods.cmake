@@ -15,6 +15,62 @@
     message("---------------------------------------------------------------------------------------------------")
 endmacro()
 
+# RunSystemCommand <command>
+# MakeHardLink <from> <to>
+# MakeDir <dir>
+# PrintList <list (no braces or quotes)>
+# SetAllDependenciesOn <target>
+# FindProgramFiles <result> <dir>
+# FindProgramDirs <result> <dir>
+# FindIncludeDirs <result> <dir>
+
+macro(RunSystemCommand COMMAND)
+    if(${IsWindows})
+        message("cmd /c ${COMMAND}")
+        execute_process (
+            COMMAND cmd /c ${COMMAND}
+            OUTPUT_VARIABLE Output
+        )
+    else()
+        message("No Nix Support")
+    endif()
+    message("result: ${Output}")
+endmacro()
+
+macro(MakeHardLink From To)
+    if(${IsWindows})
+        string(REPLACE "/" "\\\\" To2 ${To})
+        string(REPLACE "/" "\\\\" From2 ${From})
+        message("Making Hard Link")
+        set(COMMAND "mklink /H ${To2} ${From2}")
+        RunSystemCommand(${COMMAND})
+    else()
+        message("No Nix Support")
+    endif()
+endmacro()
+
+macro(MakeBinaryFileCopy From To)
+    if(${IsWindows})
+        string(REPLACE "/" "\\\\" To2 ${To})
+        string(REPLACE "/" "\\\\" From2 ${From})
+        message("Making Copy")
+        set(COMMAND "copy /B ${From2} ${To2}")
+        RunSystemCommand(${COMMAND})
+    else()
+        message("No Nix Support")
+    endif()
+endmacro()
+
+macro(MakeDir NewDir)
+    message("Making Dir")
+    if(${IsWindows})
+        string(REPLACE "/" "\\\\" NewDir2 ${NewDir})
+        set(COMMAND "mkdir ${NewDir2}")
+        RunSystemCommand(${COMMAND})
+    else()
+        message("No Nix Support")
+    endif()
+endmacro()
 
 function(PrintList List) # pass in no brace or quotes
     foreach(Item IN LISTS ${List})
@@ -134,9 +190,3 @@ function(SetVisualStudioFilters BreakPoint Files)
     endforeach()
     set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${TargetProject})
 endfunction()
-
-macro(install_symlink filepath sympath) # Windows requires admin right to create sym links
-    install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${filepath} ${sympath})")
-    install(CODE "message(\"-- Created symlink: ${sympath} -> ${filepath}\")")
-endmacro(install_symlink)
-

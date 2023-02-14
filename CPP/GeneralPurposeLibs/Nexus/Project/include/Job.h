@@ -33,9 +33,10 @@ public:
     void Run();
     const Task<T>& GetTask() const;
     const RA::SharedPtr<Task<T>> TaskPtr() const;
-    T   Move();
-    T&  GetValue();
-    T*  GetValuePtr();
+    T    Move();
+    bool BxRemoved() const { return MbRemoved; }
+    T&   GetValue();
+    T*   GetValuePtr();
     std::exception_ptr Exception() const;
     void TestException() const;
     bool IsDone() const;

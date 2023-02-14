@@ -969,7 +969,7 @@ inline xvector<T> PtrXVector<T*>::SubAll(const std::string& Pattern, const std::
 template<typename T>
 inline xvector<T> PtrXVector<T*>::SubAll(char const* in_pattern, char const* replacement) const
 {
-    return The.SubAll(in_pattern, std::string(replacement));
+    return The.SubAll(std::string(in_pattern), std::string(replacement));
 }
 
 // =============================================================================================================

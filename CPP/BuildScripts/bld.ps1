@@ -13,7 +13,7 @@ $ExeName = "Test"
 $UsingNVCC = [regex]::new("^.*(cuh|cu)$").match($args[0]).Success;
 # TODO: >>>> add a DLL build later
 
-# -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\include" 
+# -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.0\include" 
 # -cudart 'none','shared','static' (Used to specify a Lib Type)
 
 if($UsingNVCC -eq $true)
@@ -28,9 +28,9 @@ if($UsingNVCC -eq $true)
         -x cu -I`"D:\AIE\vcpkg\installed\x64-windows\include`"
         --library-path  C:\Source\CMake\Radicalware\Libraries\Build\Release\lib
         $LibsList $IncludeDirs
-        --machine 64 -cudart static -std=c++17
+        --machine 64 -cudart static -std=c++20
         -g `-D_WINDOWS -DReleaseOn -D`"CMAKE_INTDIR=Release`"  -DReleaseOn -DUsingNVCC -D`"CMAKE_INTDIR=Release`"
-        -Xcompiler `"/EHsc, /W1, /nologo, /O2, /FS,  /MD, /GR, /std:c++17 `"
+        -Xcompiler `"/EHsc, /W1, /nologo, /O2, /FS,  /MD, /GR, /std:c++20 `"
         -Xlinker `"/NODEFAULTLIB:library, /IGNORE:4098`"
          $args -o Test.exe".Replace("`r`n"," ")
     

@@ -40,27 +40,10 @@ public:
 
     void DeleteAll();
 
-    template<typename N = typename std::remove_const<T>::type::value_type> // Nested Type
-    inline xvector<N*> Expand() const;
-
     T Join(const T& str = "") const;
     T Join(const char str) const;
     T Join(const char* str) const;
 };
-
-
-template<typename T>
-template<typename N /* = typename E::value_type*/>
-inline xvector<N*> PtrObjXVectorAPI::Expand() const
-{
-    // Go from xvector<xvector<N>*> to xvector<N*>
-    xvector<N*> expanded_vec;
-    for (typename xvector<E*>::const_iterator double_vec = this->begin(); double_vec != this->end(); double_vec++) {
-        for (typename xvector<N>::iterator single_vec = (*double_vec)->begin(); single_vec != (*double_vec)->end(); single_vec++)
-            expanded_vec.push_back(&*single_vec);
-    }
-    return expanded_vec;
-}
 
 template<typename T>
 inline PtrObjXVectorAPI::~xvector()

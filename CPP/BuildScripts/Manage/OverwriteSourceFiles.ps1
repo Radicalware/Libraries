@@ -10,14 +10,16 @@ $GeneralPurposeLibs  = 'GeneralPurposeLibs'
 $ExtendedSTL         = 'ExtendedSTL'
 $FunctionalSTL       = 'FunctionalSTL'
 $ModdedObjects       = 'ModdedObjects'
+$GPU                 = 'GPU'
 
 Write-Host "Copying Project Folders: "
-Write-Host "1. GeneralPurposeLibs :  Macros, Nexus, Socket, OS"
-Write-Host "                          SYS, Iterator, Timer, Date"
-Write-Host "                          CudaBridge, Stash, JSON, AES"
+Write-Host "1. GeneralPurposeLibs :  Macros, Nexus, Socket"
+Write-Host "                         AES, Iterator, Timer, Date"
+Write-Host "                         OS, SYS, Stash, JSON"
 Write-Host "2. ExtendedSTL         : Memory, xvector, xstring, xmap"
 Write-Host "3. FunctionalSTL       : re, ac, mc"
 Write-Host "4. ModdedObjects       : cc"
+Write-Host "4. GPU/Device/CUDA     : ImportCUDA, CudaBridge, Stats"
 
 # ALERT!!! AFTER MAKING MODS, BE SURE TO COPY THIS FILE TO YOUR POWRSHELL PATH !!!
 
@@ -85,7 +87,6 @@ $handler.CopyLib("Date")
 $handler.CopyLib("JSON")
 $handler.CopyLib("Stash")
 $handler.CopyLib("AES")
-$handler.CopyLib("CudaBridge")
 
 $handler.dir = $ExtendedSTL
 $handler.CopyLib("Memory")
@@ -100,6 +101,11 @@ $handler.CopyLib("MC")
 
 $handler.dir = $ModdedObjects
 $handler.CopyLib("CC")
+
+$handler.dir = $GPU
+$handler.CopyLib("ImportCUDA")
+$handler.CopyLib("CudaBridge")
+$handler.CopyLib("Stats")
 
 
 Write-Host "All Lib Folders Updated!!"

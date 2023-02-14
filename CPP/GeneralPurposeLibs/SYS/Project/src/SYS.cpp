@@ -58,7 +58,7 @@ void RA::SYS::SetArgs(int argc, char** argv)
     MsPath = MvCliArgs[0].substr(0, program_split_loc + 1);
     MsFile = MvCliArgs[0].substr(program_split_loc + 1, MvCliArgs[0].size() - 1);
 
-    for (pint i = 1; i < MnSize; i++)
+    for (uint i = 1; i < MnSize; i++)
     {
         const bool bLastArg = (i == (MnSize - 1));
         xstring& Arg = MvCliArgs[i];
@@ -73,7 +73,7 @@ void RA::SYS::SetArgs(int argc, char** argv)
                 break;
             }
 
-            for (pint j = i + 1; j < MnSize; j++)
+            for (uint j = i + 1; j < MnSize; j++)
             {
                 xstring& SubArg = MvCliArgs[j];
                 if (IsArgType(SubArg))
@@ -102,7 +102,7 @@ void RA::SYS::SetArgs(int argc, char** argv)
                 }
 
                 // Add args to ever char in char list
-                for (pint j = i + 1; j < MnSize; j++)
+                for (uint j = i + 1; j < MnSize; j++)
                 {
                     xstring& SubArg = MvCliArgs[j];
                     if (IsArgType(SubArg))

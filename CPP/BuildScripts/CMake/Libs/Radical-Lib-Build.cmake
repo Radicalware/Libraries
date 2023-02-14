@@ -3,8 +3,16 @@
 macro(BuildRadicalProject InLibType InPrivateLibs InPublicLibs)
     # -------------------------- CONFIG -----------------------------------------------------
     # InLibType = {MODLULE : DLL},{STATIC : LIB}    
+    add_compile_definitions("BuildingLib")
+
+    find_package(re2)
 
     FindProgramFiles(ProjectFiles "${BUILD_DIR}")
+
+    if(NOT UsingNVCC)
+        set_source_files_properties(${ProjectFiles} PROPERTIES LANGUAGE CXX)
+    endif()
+
     add_library(${THIS} ${InLibType} ${ProjectFiles})
     add_library(Radical::${THIS} ALIAS ${THIS})
 
@@ -28,6 +36,7 @@ macro(BuildRadicalProject InLibType InPrivateLibs InPublicLibs)
 
     LinkAllSharedLibs(${THIS})
     SetAllDependenciesOn(${THIS})
+    LinkStatic(${THIS} re2)
 
     # -------------------------- INSTALL ----------------------------------------------------
 

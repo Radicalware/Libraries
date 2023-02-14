@@ -2,6 +2,10 @@
 
 macro(BuildRadicalSolution InPrivateLibs InPublicLibs)
     
+    add_compile_definitions("BuildingApp")
+    
+    find_package(re2)
+    
     SetLocalInstallDirs()
     FindProgramFiles(SolutionFiles "${CMAKE_CURRENT_SOURCE_DIR}/Solution")
     add_executable(${THIS} ${SolutionFiles})
@@ -41,6 +45,7 @@ macro(BuildRadicalSolution InPrivateLibs InPublicLibs)
 
     LinkAllSharedLibs(${THIS})
     SetAllDependenciesOn(${THIS})
+    LinkStatic(${THIS} re2)
 
     set(TargetProject ${THIS})
     SetVisualStudioFilters("Solution" "${SolutionFiles}")

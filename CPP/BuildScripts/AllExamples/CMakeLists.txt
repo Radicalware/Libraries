@@ -26,7 +26,7 @@ include("${RADICAL_PATH}/Radical-App-Config.cmake")
 
     # VCPKG_DEFAULT_TRIPLET = x64-windows
 
-# CUDA C++ COMPILER OPTIONS: -std=c++17
+# CUDA C++ COMPILER OPTIONS: -std=c++20
 # CUDA C++ LINKER   OPTIONS: check "inherit from parent"
 
 # GET CUDA FROM NVIDIA
@@ -93,8 +93,6 @@ include_directories(${THIS} PRIVATE
         ${AllFiles}
 )
 
-find_package(re2 CONFIG REQUIRED)
-
 #       (This is location 2 of 3)
 find_package(RE)
 find_package(AC)
@@ -147,7 +145,6 @@ foreach(EXE ${EXES})
             Radical::Socket
             # Radical::CudaBridge # TODO: RE-ADD
             # -----------------------------------------
-            re2::re2
             
             cpprestsdk::cpprest 
             cpprestsdk::cpprestsdk_zlib_internal 

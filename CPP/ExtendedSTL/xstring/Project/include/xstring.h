@@ -33,12 +33,11 @@
 #include<string.h>
 #include<ctype.h>
 #include<type_traits>
-#include<iomanip>
 #include<sstream>
 
-#ifndef UsingNVCC
+// #ifndef UsingNVCC
 #include "re2/re2.h"
-#endif
+// #endif
 
 #include "Color.h"
 #include "xvector.h"
@@ -47,6 +46,7 @@ class xstring : public std::string
 {
     using ull = unsigned long long;
 public:
+    using type = xstring;
     using std::string::basic_string;
     static const xstring static_class;
 
@@ -103,7 +103,11 @@ public:
 
     std::string   ToStdString() const;
     std::wstring  ToStdWString() const;
+#if _HAS_CXX20
+    RA::SharedPtr<unsigned char[]> ToUnsignedChar() const;
+#else
     RA::SharedPtr<unsigned char*> ToUnsignedChar() const;
+#endif
     xstring       ToByteCode() const;
     xstring       FromByteCodeToASCII() const;
 
@@ -132,7 +136,7 @@ public:
     xvector<xstring> InclusiveSplit(const char splitter, RXM::Type mod = RXM::ECMAScript, bool aret = true) const;
 
     //// =================================================================================================================================
-#ifndef UsingNVCC
+// #ifndef UsingNVCC
     bool IsByteCode() const;
     bool Match(const re2::RE2& rex) const;
     bool MatchLine(const re2::RE2& rex) const;
@@ -147,7 +151,9 @@ public:
     xstring Sub(const RE2& rex, const std::string& replacement) const;
     xstring Sub(const RE2& rex, const re2::StringPiece& replacement) const;
     xstring Sub(const RE2& rex, const char* replacement) const;
-#endif
+    xstring IfFindReplace(const RE2& LoFind, const RE2& LoReplace, const std::string& LsReplacement) const;
+
+// #endif
 
     //   match is based on regex_match
     bool Match(const std::regex& rex) const;
@@ -221,6 +227,11 @@ public:
     xstring Sub(const std::string& pattern, const std::string& replacement, RXM::Type mod = RXM::ECMAScript) const;
     xstring Sub(const char* pattern, const std::string& replacement, RXM::Type mod = RXM::ECMAScript) const;
     xstring Sub(const char* pattern, const char* replacement, RXM::Type mod = RXM::ECMAScript) const;
+
+    xstring IfFindReplace(const std::regex& LoFind, const std::regex& LoReplace, const std::string& LsReplacement) const;
+    xstring IfFindReplace(const std::string& LsFind, const std::string& LsReplace, const std::string& LsReplacement, RXM::Type mod = RXM::ECMAScript) const;
+    xstring IfFindReplace(const char* LsFind, const char* LsReplace, const std::string& LsReplacement, RXM::Type mod = RXM::ECMAScript) const;
+    xstring IfFindReplace(const char* LsFind, const char* LsReplace, const char* LsReplacement, RXM::Type mod = RXM::ECMAScript) const;
 
     xstring& Trim();
     xstring& LeftTrim();
@@ -413,7 +424,13 @@ namespace RA
                 xvector<xstring> Vec = Out.Split('.');
                 return Vec[0] + '.' + Vec[1].substr(0, FnPercision);
             }
-            return SS;
+            else if(FnPercision)
+            {
+                Out += '.';
+                for (uint i = 0; i < FnPercision; i++)
+                    Out += '0';
+            }
+            return Out;
         }
 
         if (!Out.Count('.'))

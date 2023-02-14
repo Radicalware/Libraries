@@ -32,7 +32,7 @@ namespace RA
 	class EXI AES
 	{
 	public:
-		AES(const pint FnEncryptionSize = 0); // Takes Smallest Possible Size
+		AES(const uint FnEncryptionSize = 0); // Takes Smallest Possible Size
 		~AES();
 
 		AES(const RA::AES&  Other);
@@ -69,15 +69,15 @@ namespace RA
 	private:
 		inline static xp<RE2> NullByteRex = RA::MakeShared<RE2>(R"((\\x00))");
 		// inline static std::shared_ptr<RE2> NullByteRex2 = std::shared_ptr<RE2>(new RE2(R"((\\x00))"));
-		RA::SharedPtr<unsigned char*> MsTagPtr = nullptr;
+		RA::SharedPtr<unsigned char[]> MsTagPtr = nullptr;
 		xstring MsPlaintext;
 		xstring MsCipherText;
 		xstring MsAAD;
 		xstring MsKey;
 		xstring MsIV;
 		xstring MsTag;
-		pint    MnEncryptionSize = 0;
-		pint    MnCipherTextSize = 0;
+		uint    MnEncryptionSize = 0;
+		uint    MnCipherTextSize = 0;
 
 		void ThrowErrors() const;
 	};

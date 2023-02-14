@@ -112,7 +112,7 @@ source_group(TinyXML2\\sources FILES ${TINYXML2_SOURCES})
 #   ${TINYXML2_HEADERS}
 # )
 
-# set_property(TARGET VulkanHppGenerator PROPERTY CXX_STANDARD 17)
+# set_property(TARGET VulkanHppGenerator PROPERTY CXX_STANDARD 20)
 
 # if(MSVC)
 #   target_compile_options(VulkanHppGenerator PRIVATE /W4 /WX)

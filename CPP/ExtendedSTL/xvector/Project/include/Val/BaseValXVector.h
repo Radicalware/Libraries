@@ -1006,7 +1006,7 @@ inline xvector<T> ValXVector<T>::SubAll(const std::string& Pattern, const std::s
 template<typename T>
 inline xvector<T> ValXVector<T>::SubAll(char const* in_pattern, char const* replacement) const
 {
-    return The.SubAll(in_pattern, std::string(replacement));
+    return The.SubAll(std::string(in_pattern), std::string(replacement));
 }
 
 // =============================================================================================================
@@ -1098,7 +1098,6 @@ xvector<T> ValXVector<T>::operator()(
         }
     }
     else { // reverse direction
-        const auto tz = z * (-1) - 1;
         const auto tx = (x >= 0) ? m_size - x - 1 : std::abs(x) - 1;
         const auto ty = (y >= 0) ? m_size - y - 1 : std::abs(y) - 1;
 

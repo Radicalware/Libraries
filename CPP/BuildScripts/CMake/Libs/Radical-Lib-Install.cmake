@@ -6,7 +6,6 @@ FILE(REMOVE "${INSTALL_PREFIX}/Build/${BUILD_TYPE}/lib/${PF}${THIS}.${ST}")
 FILE(REMOVE "${INSTALL_PREFIX}/Build/${BUILD_TYPE}/lib/${PF}${THIS}.${OBJ}")
 FILE(REMOVE "${RADICAL_PATH}/Find${THIS}.cmake")
 
-
 if(WIN32)
     set(OBJ_FILE_PATH "${CMAKE_SOURCE_DIR}/Build/${OS_TYPE}/${BUILD_TYPE}/${THIS}.dir/${BUILD_TYPE}/${THIS}.${OBJ}")
     set(OUTPUT_DIR    "${CMAKE_SOURCE_DIR}/Build/${OS_TYPE}/${BUILD_TYPE}/${BUILD_TYPE}")
@@ -29,13 +28,6 @@ install(
     CONFIGURATIONS ${BUILD_TYPE}
     DESTINATION "${INSTALL_PREFIX}/Build/${BUILD_TYPE}/lib"
     OPTIONAL
-)
-
-# Install object files
-install(
-    FILES ${OBJ_FILE_PATH}
-    CONFIGURATIONS ${BUILD_TYPE}
-    DESTINATION   "${INSTALL_PREFIX}/Build/${BUILD_TYPE}/lib"
 )
 
 if(${BuildAll})
@@ -91,3 +83,12 @@ install (
     CONFIGURATIONS  ${BUILD_TYPE}
     DESTINATION     ${RADICAL_PATH}
 )
+
+if(${IsApp})
+    # Install object files
+    install(
+        FILES ${OBJ_FILE_PATH}
+        CONFIGURATIONS ${BUILD_TYPE}
+        DESTINATION   "${INSTALL_PREFIX}/Build/${BUILD_TYPE}/lib"
+    )
+endif()

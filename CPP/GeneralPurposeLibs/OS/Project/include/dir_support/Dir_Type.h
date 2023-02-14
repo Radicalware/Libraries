@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Macros.h"
+#include "re2/re2.h"
 
 namespace RA
 {

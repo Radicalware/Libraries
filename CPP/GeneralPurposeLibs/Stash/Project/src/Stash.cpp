@@ -61,6 +61,8 @@ RA::Stash& RA::Stash::SetDatabase(const xstring& FsDatabase)
 RA::Stash& RA::Stash::SetCollection(const xstring& FsCollection)
 {
     Begin();
+    if (!MsDatabase)
+        ThrowIt("Database Not Set");
     MsCollection = FsCollection;
     MoCollection = MoDatabase[MsCollection.c_str()];
     return *this;
@@ -107,7 +109,7 @@ RA::JSON RA::Stash::CursorToJSON(BSON::Cursor& FoCursor, RA::JSON::Init FeInit)
 {
     Begin();
     std::ostringstream Json;
-    pint Count = 0;
+    uint Count = 0;
 
     Json << '[';
     for (const BSON::View& Document : FoCursor)

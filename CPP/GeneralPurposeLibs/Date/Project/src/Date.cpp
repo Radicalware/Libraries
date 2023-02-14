@@ -1,7 +1,6 @@
 #include "Date.h"
 #include <ctime>
 #include <stdlib.h>
-#include <iomanip>
 #include <ctime>
 #include <chrono>
 #include <sstream>
@@ -37,12 +36,15 @@ RA::Date::Date(const Date& Other, Offset FeOffset)
 RA::Date::Date(uint FnEpochTime, Offset FeOffset)
 {
     if (FnEpochTime > 9999999999)
-        FnEpochTime = FnEpochTime / 1000;
-    if (!SbOffsetCalculated) RA::Date::GetComputerOffset();
-    const long long int LnSecondsOffset = GetSecondsOffset(FeOffset);
+        FnEpochTime /= 1000;
+
+    if (!SbOffsetCalculated)
+        RA::Date::GetComputerOffset();
 
     if (!FnEpochTime)
     {
+        const long long int LnSecondsOffset = GetSecondsOffset(FeOffset);
+
         MbDateCurrent = true;
         MoEpochTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()) + (LnSecondsOffset * 60);
     }
@@ -270,27 +272,32 @@ RA::Date::EpochTime RA::Date::GetEpochTime() const {
     return MoEpochTime;
 }
 
-int RA::Date::GetEpochTimeInt() const
+uint RA::Date::GetEpochTimeInt() const
+{
+    return static_cast<uint>(MoEpochTime);
+}
+
+int RA::Date::GetEpochTimeInt32() const
 {
     return static_cast<int>(MoEpochTime);
 }
 
-pint RA::Date::GetEpochTimePint() const
-{
-    return static_cast<pint>(MoEpochTime);
-}
-
-pint RA::Date::GetEpochTimeMilliseconds() const
+uint RA::Date::GetEpochTimeMilliseconds() const
 {
     if (!MbDateCurrent)
-        return GetEpochTimePint() * 1000;
+        return GetEpochTimeInt() * 1000;
 
-    auto Rounded = GetEpochTimePint();
-    size_t Milliseconds =  static_cast<pint>(
+    auto Rounded = GetEpochTimeInt();
+    size_t Milliseconds =  static_cast<uint>(
         std::chrono::duration_cast<std::chrono::microseconds>(
             std::chrono::system_clock::now().time_since_epoch()
         ).count()) % 1000;
     return Rounded * 1000 + Milliseconds;
+}
+
+uint RA::Date::GetEpochTimeEvenMilliseconds() const
+{
+    return GetEpochTimeInt() * 1000;
 }
 
 xstring RA::Date::GetEpochTimeStr() const {
@@ -327,6 +334,11 @@ xstring RA::Date::GetNumericTimeStr()
 xstring RA::Date::GetEpochTimeMillisecondsStr() const
 {
     return RA::ToXString(This.GetEpochTimeMilliseconds());
+}
+
+xstring RA::Date::GetEpochTimeEvenMillisecondsStr() const
+{
+    return RA::ToXString(This.GetEpochTimeEvenMilliseconds());
 }
 
 int RA::Date::GetComputerOffset()
@@ -565,6 +577,21 @@ void RA::Date::SetSecond(int FnSecond)
     MoEpochTime += FnSecond;
 }
 // ------------------------------------------------------
+
+bool operator==(const RA::Date& Left, const uint Right) { return Left.GetEpochTime() == Right; }
+bool operator!=(const RA::Date& Left, const uint Right) { return Left.GetEpochTime() != Right; }
+bool operator>=(const RA::Date& Left, const uint Right) { return Left.GetEpochTime() >= Right; }
+bool operator<=(const RA::Date& Left, const uint Right) { return Left.GetEpochTime() <= Right; }
+bool operator> (const RA::Date& Left, const uint Right) { return Left.GetEpochTime() >  Right; }
+bool operator< (const RA::Date& Left, const uint Right) { return Left.GetEpochTime() <  Right; }
+
+
+bool operator==(const uint& Left, const RA::Date& Right) { return Left == Right.GetEpochTime(); }
+bool operator!=(const uint& Left, const RA::Date& Right) { return Left != Right.GetEpochTime(); }
+bool operator>=(const uint& Left, const RA::Date& Right) { return Left >= Right.GetEpochTime(); }
+bool operator<=(const uint& Left, const RA::Date& Right) { return Left <= Right.GetEpochTime(); }
+bool operator> (const uint& Left, const RA::Date& Right) { return Left >  Right.GetEpochTime(); }
+bool operator< (const uint& Left, const RA::Date& Right) { return Left <  Right.GetEpochTime(); }
 
 std::ostream& operator<<(std::ostream& out, const RA::Date& obj)
 {

@@ -1,4 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.17)
+﻿cmake_minimum_required(VERSION 3.25)
 
 if(WIN32)
     set(RADICAL_PATH "C:/Source/CMake/Modules")
@@ -11,7 +11,6 @@ set(THIS ${ArgProjectName})
 project(${THIS})
 
 set(PrivateLibs "")
-find_package(re2 CONFIG REQUIRED)
 find_package(OpenSSL REQUIRED)
 
 list(APPEND PrivateLibs "Iterator")
@@ -24,7 +23,6 @@ list(APPEND PrivateLibs "xmap")
 
 BuildRadicalProject("MODULE" PrivateLibs "")
 target_link_libraries(${THIS} 
-    re2::re2
     OpenSSL::SSL 
     OpenSSL::Crypto
 )

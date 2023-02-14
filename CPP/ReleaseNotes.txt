@@ -4,6 +4,16 @@
 
 ---------------------------------------------------------------------
 
+02/13/2023 >> Libs 22.0.0
+
+Warning, this is a big push and I am uploading this for security
+reasons. This push is not yet stable, please pull previous branch
+for more stable control. Additions include better CPU/GPU memory
+managment. RA::ReferencePtr, Stats object, new dedicated GPU
+folder, other misc improvments.
+
+---------------------------------------------------------------------
+
 11/13/2022 >> Libs 21.0.6
 
 CUDA Mutexing Added, CudaBridge functions are now variadic,

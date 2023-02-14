@@ -11,8 +11,8 @@ if(WIN32)
     # Modified bo Joel Leagues
 
     set(PCRE_INCLUDE_DIR "C:/Program Files (x86)/PCRE/include")
-    set(PCRE_BIN_DIR "C:/Program Files (x86)/PCRE/bin")
-    set(PCRE_LIB_DIR "C:/Program Files (x86)/PCRE/lib")
+    set(PCRE_BIN_DIR     "C:/Program Files (x86)/PCRE/bin")
+    set(PCRE_LIB_DIR     "C:/Program Files (x86)/PCRE/lib")
 
     list(APPEND CMAKE_MODULE_PATH ${PCRE_INCLUDE_DIR})
 

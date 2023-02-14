@@ -10,6 +10,7 @@
 
 using std::cout;
 using std::endl;
+using RA::Date;
 
 void PrintDate(Date& FoDate)
 {

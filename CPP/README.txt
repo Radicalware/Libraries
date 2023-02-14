@@ -26,21 +26,24 @@ FuncitonalSTL
      5. ac          - array controller
      6. re          - regex (string controller)
      7. mc          - map controller
+GPU
+     8. ImportCUDA  - Gives control of Host/Device mem allocation
+     9. CudaBridge  - Object Control
+    10. Stats       - CPU/GPU data processing Object
 GeneralPurposeLibs
-     8. Macros      - Helps in handling pointers and Exception Handling
-     9. SYS         - Key/Value Pair Argument Parsing
-    10. OS          - Operating System handling
-    11. Nexus       - Thread Pool with Indexing & Exception Handling
-    12. Socket      - This makes client/server protocols very easy to use
-    13. Timer       - Used for tracking the duration of a processes
-    14. Date        - Converts dates to ints and vice verca
-    15. CudaBridge  - Handles memory between host and device
-    16. JSON        - Moves data between API JSON and DB BSON
-    17. Stash       - Easy tool to manage your Mongo DB
-    18. AES         - Manage AES Cipher Text for Password Managment
+    11. Macros      - Helps in handling pointers and Exception Handling
+    12. SYS         - Key/Value Pair Argument Parsing
+    13. OS          - Operating System handling
+    14. Nexus       - Thread Pool with Indexing & Exception Handling
+    15. Socket      - This makes client/server protocols very easy to use
+    16. Timer       - Used for tracking the duration of a processes
+    17. Date        - Converts dates to ints and vice verca
+    18. JSON        - Moves data between API JSON and DB BSON
+    19. Stash       - Easy tool to manage your Mongo DB
+    20. AES         - Manage AES Cipher Text for Password Managment
 ModdedObjects
-    19. cc          - A modified version of termcolor by Ihor Kalnytskyi
-    20. re2         - Modded version deleted in favor of vcpkg's version
+    21. cc          - A modified version of termcolor by Ihor Kalnytskyi
+    22. re2         - Modded version deleted in favor of vcpkg's version
 Modules
     Qt
         21. QtImage - Formats the image to fill and perserve aspect ratio

@@ -56,7 +56,8 @@ public:
     inline constexpr K& GetKeyFromValue(const V& input) const; //-| // for Key-Value-Pairs
     inline constexpr V& GetValueFrom(const K& input) const;//-----|--all 3 are the same
 
-    inline xp<V> KeyPtr(const K& input) const; //
+    inline const xp<V>& KeyPtr(const K& input) const;
+    inline xp<V>& KeyPtr(const K& input);
     inline V& Key(const K& input); // ------------|
     inline K& GetKeyFromValue(const V& input);// -| for Key-Value-Pairs
     inline V& GetValueFrom(const K& input) ;//----|--all 3 are the same
@@ -250,7 +251,16 @@ inline constexpr V& xmap<K,xp<V>,H>::GetValueFrom(const K& input) const
 }
 
 template<typename K, typename V, typename H>
-inline xp<V> xmap<K,xp<V>,H>::KeyPtr(const K& input) const
+inline const xp<V>& xmap<K, xp<V>, H>::KeyPtr(const K& input) const
+{
+    auto it = this->find(input);
+    if (it == this->end())
+        ThrowIt("No Key: ", input);
+    return it->second;
+}
+
+template<typename K, typename V, typename H>
+inline xp<V>& xmap<K, xp<V>, H>::KeyPtr(const K& input)
 {
     auto it = this->find(input);
     if (it == this->end())

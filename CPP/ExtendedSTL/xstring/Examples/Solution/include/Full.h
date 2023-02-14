@@ -12,7 +12,6 @@ using std::string;
 using std::cout;
 using std::endl;
 
-
 struct Full
 {
     // NOTE: All test functions are inline to make example reading easier.

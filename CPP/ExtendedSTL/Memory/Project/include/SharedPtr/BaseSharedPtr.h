@@ -7,36 +7,18 @@
 namespace RA
 {
     template<typename T> class SharedPtr;
+#if _HAS_CXX20
+#include <concepts>
+    template<typename T> class SharedPtr<T[]>;
+#else
     template<typename T> class SharedPtr<T*>;
+#endif
 
-    template <typename T, typename ...A>
-    _NODISCARD std::enable_if_t<!IsArray(T) && !IsPointer(T), SharedPtr<T>>
-        inline MakeShared(A&&... Args);
-
-    template <typename PA>
-    _NODISCARD std::enable_if_t<IsPointer(PA) && !IsClass(RemovePtr(PA)), SharedPtr<PA>>
-        inline MakeShared(const uint FnLeng);
-
-    template <typename PA, typename ...A>
-    _NODISCARD std::enable_if_t<IsPointer(PA) && IsClass(RemovePtr(PA)), SharedPtr<PA>>
-        inline MakeShared(const uint FnLeng, A&&... Args);
-
-    template <typename T>
-    inline std::enable_if_t<IsClass(RemovePtr(T)), SharedPtr<T*>>
-        MakeSharedBuffer(const uint FnLeng, const uint FnUnitByteSize);
-    template <typename T>
-    inline std::enable_if_t<IsFundamental(RemovePtr(T)), SharedPtr<T*>>
-        MakeSharedBuffer(const uint FnLeng, const uint FnUnitByteSize);
-    template <typename T, typename D>
-    inline SharedPtr<T*>
-        MakeSharedBuffer(const uint FnLeng, const uint FnUnitByteSize, D&& FfDestructor);
-}
-
-namespace RA
-{
     template<typename X>
     class BaseSharedPtr : public std::shared_ptr<X>
     {
+    protected:
+        bool MbDestructorSet = true;
     public:
         using std::shared_ptr<X>::shared_ptr;
         using std::shared_ptr<X>::operator=;
@@ -58,11 +40,17 @@ namespace RA
 
         inline void operator=(nullptr_t) { The.reset(); }
 
-        inline X& operator*();
+        inline       X& operator*();
         inline const X& operator*() const;
 
-        inline X& Get();
+        inline       X* operator->();
+        inline const X* operator->() const;
+
+        inline       X& Get();
         inline const X& Get() const;
+
+        inline void Swap(SharedPtr<X>&& Other);
+        inline void Swap(const SharedPtr<X>& Other);
     };
 }
 
@@ -87,6 +75,22 @@ inline const X& RA::BaseSharedPtr<X>::operator*() const
     if (The.get() == nullptr)
         throw "Null SharedPtr::operator*()!";
     return *The.get();
+}
+
+template<typename X>
+inline X* RA::BaseSharedPtr<X>::operator->()
+{
+    if (The.get() == nullptr)
+        throw "Null SharedPtr::operator->()!";
+    return The.get();
+}
+
+template<typename X>
+inline const X* RA::BaseSharedPtr<X>::operator->() const
+{
+    if (The.get() == nullptr)
+        throw "Null SharedPtr::operator->()!";
+    return The.get();
 }
 
 template<typename X>
@@ -115,4 +119,17 @@ template<typename T>
 inline std::shared_ptr<T> RA::BaseSharedPtr<T>::SPtr()
 {
     return The;
+}
+
+template<typename X>
+inline void RA::BaseSharedPtr<X>::Swap(SharedPtr<X>&& Other)
+{
+    Other.MbDestructorSet = false; // we don't want to destroy what we are about to take
+    The._Swap(std::move(Other)); // The gets destroyed and takes Other
+}
+
+template<typename X>
+inline void RA::BaseSharedPtr<X>::Swap(const SharedPtr<X>& Other)
+{
+    The._Swap(Other);
 }

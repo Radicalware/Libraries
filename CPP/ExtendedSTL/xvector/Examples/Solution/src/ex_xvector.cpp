@@ -73,7 +73,6 @@ int main(int argc, char** argv)
     }
 
 
-
     xvector<Abs*> abs = { new Der };
     abs.SetDeleteAllOnExit(true);
     abs[0].Print();
@@ -214,20 +213,9 @@ int main(int argc, char** argv)
     xvector<xstring> first  = { "one" , "two", "three" };
     xvector<xstring> second = { "four", "five", "six" };
 
-    xvector<xvector<xstring>> nested_vecs = { first, second };
-    xvector<xvector<xstring>*> nested_vec_ptrs = nested_vecs.GetPtrs();
-    xvector<xstring*> un_nested_vec_ptrs = nested_vec_ptrs.Expand();
-    cout << "ptrs: " << un_nested_vec_ptrs.Join(", ") << "\n\n";
-    
+    auto Third = first + second;
+    Third.Join(' ').Print();
 
-    int counter = 0;
-    xmap<xstring*, xstring> xmp_ptr = un_nested_vec_ptrs.ForEach<xstring*, xstring>(
-        [&counter](xstring& item)
-    {
-        counter++;
-        return std::pair<xstring*, xstring>(&item, RA::ToXString(counter));
-    });
-    xmp_ptr.Print();
 
     RescuePrint();
     Nexus<>::Stop();

@@ -12,25 +12,32 @@ namespace RA
     public:
         using BaseSharedPtr<T>::BaseSharedPtr;
         using BaseSharedPtr<T>::operator=;
-        // ---------------------------------------------------------------------------------------
+
+        // -------------------------------------------------------------------------------------------------
+        constexpr SharedPtr() noexcept = default;
+        constexpr SharedPtr(nullptr_t) noexcept {} // construct empty SharedPtr
+        // -------------------------------------------------------------------------------------------------
+        inline SharedPtr(const T&  Other) : BaseSharedPtr<T>(std::make_shared<T>(Other)) {}
+        inline SharedPtr(      T&& Other) : BaseSharedPtr<T>(std::make_shared<T>(std::move(Other))) {}
+        // -------------------------------------------------------------------------------------------------
         inline SharedPtr(const SharedPtr<T>& Other)           : BaseSharedPtr<T>(Other) {}
         inline SharedPtr(      SharedPtr<T>&& Other) noexcept : BaseSharedPtr<T>(std::move(Other)) {}
 
         inline SharedPtr(const std::shared_ptr<T>& Other)           : BaseSharedPtr<T>(Other) {}
         inline SharedPtr(      std::shared_ptr<T>&& Other) noexcept : BaseSharedPtr<T>(std::move(Other)) {}
-        // ---------------------------------------------------------------------------------------
+        // -------------------------------------------------------------------------------------------------
         inline SharedPtr& operator=(const SharedPtr<T>&  _Right) noexcept;
         inline SharedPtr& operator=(      SharedPtr<T>&& _Right) noexcept;
 
         template <typename T2> inline SharedPtr& operator=(const SharedPtr<T2>&  _Right) noexcept;
         template <typename T2> inline SharedPtr& operator=(      SharedPtr<T2>&& _Right) noexcept;
-        // ---------------------------------------------------------------------------------------
+        // -------------------------------------------------------------------------------------------------
         inline SharedPtr& operator=(const std::shared_ptr<T>&  _Right) noexcept;
         inline SharedPtr& operator=(      std::shared_ptr<T>&& _Right) noexcept;
 
         template <typename T2> inline SharedPtr& operator=(const std::shared_ptr<T2>&  _Right) noexcept;
         template <typename T2> inline SharedPtr& operator=(      std::shared_ptr<T2>&& _Right) noexcept;
-        // ---------------------------------------------------------------------------------------
+        // -------------------------------------------------------------------------------------------------
 
         inline bool operator< (const SharedPtr& Other) const; // Used for std::sort
         inline bool operator> (const SharedPtr& Other) const;
@@ -67,6 +74,8 @@ namespace RA
 
         _NODISCARD inline       std::remove_extent_t<T>* Raw()       noexcept { return The.get(); }
         _NODISCARD inline const std::remove_extent_t<T>* Raw() const noexcept { return The.get(); }
+
+        uint Size() const { throw "RA::SharedPtr<T>::Size >> Don't Call This Function"; }
     };
 };
 
@@ -188,9 +197,9 @@ inline RA::SharedPtr<T>& RA::SharedPtr<T>::operator=(std::shared_ptr<T2>&& _Righ
 template<typename T>
 inline void RA::SharedPtr<T>::Clone(const RA::SharedPtr<T>& Other)
 {
-    if (Other.get() == nullptr)
+    if (!Other)
         return;
-    The = RA::MakeShared<T>(*Other.get());
+    The = RA::SharedPtr<T>(Other.Get());
 }
 
 template<typename T>
@@ -202,11 +211,11 @@ inline void RA::SharedPtr<T>::Clone(RA::SharedPtr<T>&& Other)
 template<typename T>
 inline void RA::SharedPtr<T>::Clone(const T& Other)
 {
-    The = RA::MakeShared<T>(Other);
+    The = RA::SharedPtr<T>(Other);
 }
 
 template<typename T>
 inline void RA::SharedPtr<T>::Clone(T&& Other)
 {
-    The = RA::MakeShared<T>(std::move(Other));
+    The = RA::SharedPtr<T>(std::move(Other));
 }

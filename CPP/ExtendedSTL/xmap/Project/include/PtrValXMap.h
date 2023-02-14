@@ -22,6 +22,8 @@
 
 #include "BaseXMap.h"
 
+
+
 template<typename K, typename V, typename H>
 class xmap<K*,V,H> : public BaseXMap<K*,V,H>
 {
@@ -47,9 +49,8 @@ public:
     //inline xmap(const std::map<K*,V,H>& other);
     //inline xmap(std::map<K*,V,H>&& other) noexcept;
 
-    inline void AddPair(K* one, const V& two) requires std::is_copy_constructible_v<V>;
-    inline void AddPair(K* one, const V&& two) requires std::is_copy_constructible_v<V>;
-    inline void AddPairIfNotExist(const K* one, V& two);
+    inline void AddPair(K* one, const V& two) ValueMustCopy;
+    inline void AddPair(K* one, const V&& two) ValueMustCopy;
     // ======== INITALIZATION ========================================================================
     // ======== RETREVAL =============================================================================
 
@@ -152,13 +153,13 @@ inline xmap<K*,V,H>::~xmap()
 
 
 template<typename K, typename V, typename H>
-inline void xmap<K*, V, H>::AddPair(K* one, const V& two) requires std::is_copy_constructible_v<V>
+inline void xmap<K*, V, H>::AddPair(K* one, const V& two) ValueMustCopy
 {
     this->insert_or_assign(one, two);
 }
 
 template<typename K, typename V, typename H>
-inline void xmap<K*, V, H>::AddPair(K* one, const V&& two) requires std::is_copy_constructible_v<V>
+inline void xmap<K*, V, H>::AddPair(K* one, const V&& two) ValueMustCopy
 {
     this->insert_or_assign(one, std::move(two));
 }

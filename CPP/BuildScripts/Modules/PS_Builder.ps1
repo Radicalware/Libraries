@@ -36,7 +36,7 @@ Class PS_Builder
             # $this.install_prefix = '/opt/Radicalware/Libraries'
             # $this.vcvars = ''
             # $this.module_path   = '/'+$this.part_module_path;
-            # $this.comp_args = " -std=c++17 -Wfatal-errors -finput-charset=UTF-8 -fPIC -pthread"
+            # $this.comp_args = " -std=c++20 -Wfatal-errors -finput-charset=UTF-8 -fPIC -pthread"
         }else{ # Windows
             $this.cmake_command = "cmake.exe -A x64 "
             $this.win_ver = '10.0.17763.0'

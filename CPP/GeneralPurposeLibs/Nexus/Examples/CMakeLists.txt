@@ -1,4 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.17)
+﻿cmake_minimum_required(VERSION 3.25)
 
 if(WIN32)
     set(RADICAL_PATH "C:/Source/CMake/Modules")
@@ -11,7 +11,6 @@ set(THIS ${ArgProjectName})
 project(${THIS})
 
 set(PrivateLibs "")
-find_package(re2 CONFIG REQUIRED)
 list(APPEND PrivateLibs "Iterator")
 list(APPEND PrivateLibs "Memory")
 list(APPEND PrivateLibs "Nexus")
@@ -24,4 +23,3 @@ set(PublicLibs "")
 list(APPEND PublicLibs "Timer")
 
 BuildRadicalSolution(PrivateLibs PublicLibs)
-link_libraries(${THIS} re2::re2)

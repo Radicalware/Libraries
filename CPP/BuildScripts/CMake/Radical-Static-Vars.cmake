@@ -39,7 +39,8 @@ endif()
 
 include_directories("${VCPKG_INCLUDE}")
 
-
+set(CMAKE_CXX_IGNORE_EXTENSIONS      "${CMAKE_CXX_IGNORE_EXTENSIONS};txt;rc")
+set(CMAKE_CXX_SOURCE_FILE_EXTENSIONS "${CMAKE_CXX_SOURCE_FILE_EXTENSIONS};cuh;cu")
 
 if(WIN32) # ----------------------------------------------------------------------------
     set(OS_TYPE "Windows")
@@ -50,21 +51,27 @@ if(WIN32) # --------------------------------------------------------------------
     # set(CMAKE_SYSTEM_VERSION ${WINDOWS_SDK})
     # set(CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION ${WINDOWS_SDK})
 
+    add_definitions(-DUsingMSVC)
+
     set(RADICAL_BASE   "C:/Source/CMake/Radicalware")
     set(CMAKE_PATH     "C:/Program Files/CMake/share/cmake-$ENV{CMAKE_VERSION}/Modules")
 
     SET(INSTALL_PREFIX "${RADICAL_BASE}")
     SET(INSTALL_DIR    "${RADICAL_BASE}/Libraries/Projects")
+
     # BUILD_DIR   = ready to install cpp files
     # INSTALL_DIR = install location of those cpp files
     FindProgramFiles(RADICAL_PROGRAM_FILES "${INSTALL_DIR}")
+    set(RE2_DIR "D:/AIE/Git/re2")
 
     set(C_ARGS   "${CPP_ARGS} ${C_ARGS}")
     set(C_ARGS "  ${C_ARGS}   /std:c17")
     set(CMAKE_CXX_STANDARD 20)
-    set(CPP_ARGS "${CPP_ARGS} /EHsc")
-    add_link_options("/ignore:4099") # Ignore PDB Warnings
-    add_link_options("/ignore:4204") # Ignore PDB Warnings
+    set(CPP_ARGS "${CPP_ARGS} /std:c++20 /EHsc /MP") # once CUDA got C++20 support, I stopped supporting C++17
+    # MP = Multp Processing = build using mutiple threads
+    # TP = Treat all files as cPP files
+    # add_link_options("/ignore:4099") # Ignore PDB Warnings
+    # add_link_options("/ignore:4204") # Ignore PDB Warnings
     # add_link_options("/INCREMENTAL:NO")
 
     list(APPEND CMAKE_MODULE_PATH ${CMAKE_PATH})
@@ -143,3 +150,4 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(installed_libs) # Used to link targets and set dependencies
 
 # --------------- DON'T MODIFY (CALCULATED) ------------------------------------------
+

@@ -41,8 +41,8 @@ public:
     //inline xmap(const std::map<K, V>& other);
     //inline xmap(std::map<K, V>&& other) noexcept;
 
-    inline void AddPair(const K& one, const V&  two) requires std::is_copy_constructible_v<V>;
-    inline void AddPair(const K& one,       V&& two) requires std::is_copy_constructible_v<V>;
+    inline void AddPair(const K& one, const V&  two) ValueMustCopy;
+    inline void AddPair(const K& one,       V&& two) ValueMustCopy;
 
     // ======== INITALIZATION ========================================================================
     // ======== RETREVAL =============================================================================
@@ -52,10 +52,12 @@ public:
 
     inline constexpr K& GetKeyFromValue(const V& input) const; // for Key-Value-Pairs
     inline const V& Key(const K& input) const; // ------| can't be constexpr unless primative data type
+    inline const V& KeyAnyCase(const K& input) const; // ------| can't be constexpr unless primative data type
     inline constexpr V& GetValueFrom(const K& input) const;//--|--all 3 are the same
 
     inline K& GetKeyFromValue(const V& input); // for Key-Value-Pairs
     inline V& Key(const K& input); // ------|
+    inline V& KeyAnyCase(const K& input); // ------|
     inline V& GetValueFrom(const K& input);//--|--all 3 are the same
 
     // ======== RETREVAL =============================================================================
@@ -70,11 +72,10 @@ public:
     inline constexpr bool operator()(const K& iKey) const;
     inline constexpr bool operator()(const K& iKey, const V& iValue) const;
 
-    template<typename O>
-    inline void operator=(const O& other);
-    template<typename O>
-    inline void operator=(O&& other);
+    inline void operator=(const xmap<K, V, H>& other);
 
+    template<typename OK, typename OV, typename OH>
+    inline void operator=(xmap<OK, OV, OH>&& other) noexcept;
 
     //inline const V& operator[](const K& key) const;
     //inline V& operator[](const K& key);
@@ -147,12 +148,12 @@ public:
 //    std::unordered_map<K, V>(std::make_move_iterator(other.begin()), std::make_move_iterator(other.end())) { }
 
 template<typename K, typename V, typename H>
-inline void xmap<K, V, H>::AddPair(const K& one, const V&  two) requires std::is_copy_constructible_v<V>
+inline void xmap<K, V, H>::AddPair(const K& one, const V&  two) ValueMustCopy
 {
     this->insert_or_assign(one, two);
 }
 template<typename K, typename V, typename H>
-inline void xmap<K, V, H>::AddPair(const K& one,       V&& two) requires std::is_copy_constructible_v<V>
+inline void xmap<K, V, H>::AddPair(const K& one,       V&& two) ValueMustCopy
 {
     this->insert_or_assign(one, std::move(two));
 }
@@ -196,6 +197,18 @@ inline const V& xmap<K, V, H>::Key(const K& input) const
         ThrowIt("No Key: ", input);
     return it->second;
 }
+
+template<typename K, typename V, typename H>
+inline const V& xmap<K, V, H>::KeyAnyCase(const K& input) const
+{
+    for (auto& Pair : The)
+    {
+        if (Pair.first.ToLower() == input.ToLower())
+            return Pair.second;
+    }
+    ThrowIt("No Key: ", input);
+}
+
 template<typename K, typename V, typename H>
 inline constexpr V& xmap<K, V, H>::GetValueFrom(const K& input) const
 {
@@ -225,6 +238,18 @@ inline V& xmap<K, V, H>::Key(const K& input)
         ThrowIt("No Key: ", input);
     return it->second;
 }
+
+template<typename K, typename V, typename H>
+inline V& xmap<K, V, H>::KeyAnyCase(const K& input)
+{
+    for (auto& Pair : The)
+    {
+        if (Pair.first.ToLower() == input.ToLower())
+            return Pair.second;
+    }
+    ThrowIt("No Key: ", input);
+}
+
 template<typename K, typename V, typename H>
 inline V& xmap<K, V, H>::GetValueFrom(const K& input)
 {
@@ -298,23 +323,30 @@ inline constexpr bool xmap<K, V, H>::operator()(const K& iKey, const V& iValue) 
         return false;
 }
 
-
 template<typename K, typename V, typename H>
-template<typename O>
-inline void xmap<K, V, H>::operator=(const O& other)
+inline void xmap<K, V, H>::operator=(const xmap<K, V, H>& other)
 {
     this->clear();
     this->insert(other.begin(), other.end());
 }
 
+
 template<typename K, typename V, typename H>
-template<typename O>
-inline void xmap<K, V, H>::operator=(O&& other)
+template<typename OK, typename OV, typename OH>
+inline void xmap<K, V, H>::operator=(xmap<OK, OV, OH>&& other) noexcept
 {
     this->clear();
     this->insert(std::make_move_iterator(other.begin()), std::make_move_iterator(other.end()));
     //this->insert(this->begin(), other.begin(), other.end());
 }
+
+//template<typename K, typename V, typename H>
+//inline void xmap<K, V, H>::operator=(xmap<K, V, H>&& other) noexcept
+//{
+//    this->clear();
+//    this->insert(std::make_move_iterator(other.begin()), std::make_move_iterator(other.end()));
+//    //this->insert(this->begin(), other.begin(), other.end());
+//}
 
 //template<typename K, typename V, typename H>
 //inline const V& xmap<K, V, H>::operator[](const K& key) const

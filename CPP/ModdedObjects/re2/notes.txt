@@ -1,0 +1,1 @@
+the inclued re2.h has a forward delcaration fix needed when compiling with nvcc.exe

@@ -1,4 +1,6 @@
-﻿macro(FindDynamicLib LIB)
+﻿include("${RADICAL_PATH}/Radical-Static-Libs-Methods.cmake")
+
+macro(FindDynamicLib LIB)
     # -------------------------- PRE-CONFIG ---------------------------------------
     list(APPEND InstalledIncludeDirs   "${PROJECT_DIR}/${LIB}/include")
     list(APPEND SharedLibs "${LIB}")
@@ -13,6 +15,7 @@
     add_library(Radical::${LIB} ALIAS ${LIB})
     include_directories(${LIB} PUBLIC ${InstalledIncludeDirs})
     target_link_libraries(${LIB} ${StaticLibs})
+    LinkStatic(${LIB} re2)
     SetStaticDependenciesOn(${LIB})
     set_target_properties(${LIB} PROPERTIES COMPILE_DEFINITIONS DLL_EXPORT=1)
 

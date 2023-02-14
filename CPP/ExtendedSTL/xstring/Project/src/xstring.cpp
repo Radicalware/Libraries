@@ -218,14 +218,25 @@ std::wstring xstring::ToStdWString() const
     return LsWideStr;
 }
 
+#if _HAS_CXX20
+RA::SharedPtr<unsigned char[]> xstring::ToUnsignedChar() const
+{
+    const auto LnSize = The.Size();
+    auto UnsignedChar = RA::SharedPtr<unsigned char[]>(LnSize);
+    for (int i = 0; i < LnSize; i++)
+        UnsignedChar [i] = static_cast<unsigned char>(The[i]);
+    return UnsignedChar;
+}
+#else
 RA::SharedPtr<unsigned char*> xstring::ToUnsignedChar() const
 {
     const auto LnSize = The.Size();
-    auto UnsignedChar = RA::MakeShared<unsigned char*>(LnSize);
+    auto UnsignedChar = RA::SharedPtr<unsigned char*>(LnSize);
     for (int i = 0; i < LnSize; i++)
         UnsignedChar[i] = static_cast<unsigned char>(The[i]);
     return UnsignedChar;
 }
+#endif
 
 xstring xstring::ToByteCode() const
 {
@@ -455,7 +466,7 @@ xvector<xstring> xstring::InclusiveSplit(const char splitter, RXM::Type mod, boo
 }
 
 // =========================================================================================================================
-#ifndef UsingNVCC
+// #ifndef UsingNVCC
 
 bool xstring::IsByteCode() const
 {
@@ -580,7 +591,18 @@ xstring xstring::Sub(const RE2& rex, const char* replacement) const
     RE2::GlobalReplace(&ret, rex, re2::StringPiece(replacement));
     return ret;
 }
-#endif
+
+xstring xstring::IfFindReplace(const RE2& LoFind, const RE2& LoReplace, const std::string& LsReplacement) const
+{
+    if (RE2::PartialMatch(c_str(), LoFind))
+    {
+        std::string ret = The.c_str();
+        RE2::GlobalReplace(&ret, LoReplace, re2::StringPiece(LsReplacement));
+        return ret;
+    }
+    return The;
+}
+// #endif
 // =========================================================================================================================
 
 bool xstring::Match(const std::regex& rex) const {
@@ -919,6 +941,36 @@ xstring xstring::Sub(const char* pattern, const std::string& replacement, RXM::T
 xstring xstring::Sub(const char* pattern, const char* replacement, RXM::Type mod) const {
     return std::regex_replace(c_str(), std::regex(pattern, mod), replacement);
 }
+
+
+xstring xstring::IfFindReplace(const std::regex& LoFind, const std::regex& LoReplace, const std::string& LsReplacement) const
+{
+    if(std::regex_search(c_str(), LoFind))
+        return std::regex_replace(c_str(), LoReplace, LsReplacement);
+    return The;
+}
+
+xstring xstring::IfFindReplace(const std::string& LsFind, const std::string& LsReplace, const std::string& LsReplacement, RXM::Type mod) const
+{
+    if (std::regex_search(c_str(), std::regex(LsFind, mod)))
+        return std::regex_replace(c_str(), std::regex(LsReplace, mod), LsReplacement);
+    return The;
+}
+
+xstring xstring::IfFindReplace(const char* LsFind, const char* LsReplace, const std::string& LsReplacement, RXM::Type mod) const
+{
+    if (std::regex_search(c_str(), std::regex(LsFind, mod)))
+        return std::regex_replace(c_str(), std::regex(LsReplace, mod), LsReplacement);
+    return The;
+}
+
+xstring xstring::IfFindReplace(const char* LsFind, const char* LsReplace, const char* LsReplacement, RXM::Type mod) const
+{
+    if (std::regex_search(c_str(), std::regex(LsFind, mod)))
+        return std::regex_replace(c_str(), std::regex(LsReplace, mod), LsReplacement);
+    return The;
+}
+
 
 xstring& xstring::Trim()
 {

@@ -62,12 +62,12 @@ namespace RA
         public:
             BaseComparisons(T* ptr) : BaseData(ptr) { }
 
-            template<typename I> bool operator==(const I& other) { return The.m_ptr == other.m_ptr; }
-            template<typename I> bool operator!=(const I& other) { return The.m_ptr != other.m_ptr; }
-            template<typename I> bool operator> (const I& other) { return The.m_ptr >  other.m_ptr; }
-            template<typename I> bool operator< (const I& other) { return The.m_ptr <  other.m_ptr; }
-            template<typename I> bool operator>=(const I& other) { return The.m_ptr >= other.m_ptr; }
-            template<typename I> bool operator<=(const I& other) { return The.m_ptr <= other.m_ptr; }
+            template<typename I> bool operator==(const I& other) const { return The.m_ptr == other.m_ptr; }
+            template<typename I> bool operator!=(const I& other) const { return The.m_ptr != other.m_ptr; }
+            template<typename I> bool operator> (const I& other) const { return The.m_ptr >  other.m_ptr; }
+            template<typename I> bool operator< (const I& other) const { return The.m_ptr <  other.m_ptr; }
+            template<typename I> bool operator>=(const I& other) const { return The.m_ptr >= other.m_ptr; }
+            template<typename I> bool operator<=(const I& other) const { return The.m_ptr <= other.m_ptr; }
         };
 
         class ConstGetters : virtual public BaseData
@@ -76,8 +76,8 @@ namespace RA
             ConstGetters(T* ptr) : BaseData(ptr) { }
             const T& Get() const { return *The.m_ptr; }
 
-            const T* operator+ (size_t num) const { return (The.m_ptr - num); }
-            const T* operator- (size_t num) const { return (The.m_ptr + num); }
+            const T* operator+ (size_t num) const { return (The.m_ptr + num); }
+            const T* operator- (size_t num) const { return (The.m_ptr - num); }
             const T& operator*()  const { return *The.m_ptr; }
             const T* operator->() const { return  The.m_ptr; }
         };
@@ -104,6 +104,8 @@ namespace RA
             iterator& operator-=(size_t num) { The.m_ptr -= num; return The; }
             iterator& operator++() { The.m_ptr++; return The; }
             iterator& operator--() { The.m_ptr--; return The; }
+            iterator& operator++(int) { decltype(The) New(The.m_ptr); The.m_ptr++;  return New; }
+            iterator& operator--(int) { decltype(The) New(The.m_ptr); The.m_ptr--;  return New; }
         };
 
         class const_iterator : virtual public BaseComparisons, virtual public ConstGetters
@@ -114,6 +116,8 @@ namespace RA
             const_iterator& operator-=(size_t num) { The.m_ptr -= num; return The; }
             const_iterator& operator++() { The.m_ptr++; return The; }
             const_iterator& operator--() { The.m_ptr--; return The; }
+            const_iterator& operator++(int) { decltype(The) New(The.m_ptr); The.m_ptr++;  return New; }
+            const_iterator& operator--(int) { decltype(The) New(The.m_ptr); The.m_ptr--;  return New; }
         };
 
         class reverse_iterator : virtual public BaseComparisons, virtual public NonConstGetters
@@ -125,6 +129,8 @@ namespace RA
             reverse_iterator& operator-=(size_t num) { The.m_ptr += num; return The; }
             reverse_iterator& operator++() { The.m_ptr--; return The; }
             reverse_iterator& operator--() { The.m_ptr++; return The; }
+            reverse_iterator& operator++(int) { decltype(The) New(The.m_ptr); The.m_ptr++;  return New; }
+            reverse_iterator& operator--(int) { decltype(The) New(The.m_ptr); The.m_ptr--;  return New; }
         };
 
         class const_reverse_iterator : virtual public BaseComparisons, virtual public ConstGetters
@@ -135,6 +141,8 @@ namespace RA
             const_reverse_iterator& operator-=(size_t num) { The.m_ptr += num; return The; }
             const_reverse_iterator& operator++() { The.m_ptr--; return The; }
             const_reverse_iterator& operator--() { The.m_ptr++; return The; }
+            const_reverse_iterator& operator++(int) { decltype(The) New(The.m_ptr); The.m_ptr++;  return New; }
+            const_reverse_iterator& operator--(int) { decltype(The) New(The.m_ptr); The.m_ptr--;  return New; }
         };
 
         // --------------------------------------------------------------------------------------------

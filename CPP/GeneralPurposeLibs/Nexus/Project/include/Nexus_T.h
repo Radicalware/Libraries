@@ -282,8 +282,12 @@ INL std::vector<T> Nexus<T>::GetAll()
     }
     for (std::pair<const std::string, RA::SharedPtr<Job<T>>>& Target : MmStrJob)
     {
-        Target.second.Get().TestException();
-        Captures.push_back(Target.second.Get().Move());
+        auto& LoJob = Target.second.Get();
+        if (!LoJob.BxRemoved())
+        {
+            LoJob.TestException();
+            Captures.push_back(LoJob.Move());
+        }
     }
     Clear();
     return Captures;

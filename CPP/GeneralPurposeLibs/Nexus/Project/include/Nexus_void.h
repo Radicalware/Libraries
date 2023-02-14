@@ -30,7 +30,7 @@
 #include "Task.h"
 #include "Job.h"
 
-#define Sync() Nexus<>::WaitAll()
+#define SyncNexus() Nexus<>::WaitAll()
 #define EXIT() exit(Nexus<>::Stop())
 
 template<typename M>

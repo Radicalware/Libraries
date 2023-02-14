@@ -1,5 +1,3 @@
-﻿cmake_minimum_required(VERSION 3.17)
+﻿cmake_minimum_required(VERSION 3.25)
 
-find_package(re2)
 FindStaticLib("xvector")
-link_libraries(${LIB} re2::re2)

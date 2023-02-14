@@ -1,4 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.17)
+﻿cmake_minimum_required(VERSION 3.25)
 
 if(WIN32)
     set(RADICAL_PATH "C:/Source/CMake/Modules")
@@ -11,7 +11,6 @@ set(THIS ${ArgProjectName})
 project(${THIS})
 
 set(PrivateLibs "")
-find_package(re2 CONFIG REQUIRED)
 list(APPEND PrivateLibs "Iterator")
 list(APPEND PrivateLibs "Memory")
 list(APPEND PrivateLibs "Nexus")
@@ -29,8 +28,6 @@ find_package(bsoncxx CONFIG REQUIRED)
 find_package(mongocxx CONFIG REQUIRED)
 
 target_link_libraries(${THIS}
-    re2::re2
-
     cpprestsdk::cpprest 
     cpprestsdk::cpprestsdk_zlib_internal 
     cpprestsdk::cpprestsdk_brotli_internal

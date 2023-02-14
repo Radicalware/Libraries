@@ -4,11 +4,8 @@
 
 #include "Macros.h"
 
-
 using std::cout;
 using std::endl;
-
-
 
 int main() 
 {
@@ -44,9 +41,9 @@ int main()
 
     // insert
     BSON::Result::InsertOne InsertResult = Stash << Document;
-    if (InsertResult) {
-        std::cout << "New document ID: " 
-            << InsertResult->inserted_id().get_oid().value.to_string() << "\n";
+    if (InsertResult)
+    {
+        std::cout << "New document ID: " << InsertResult->inserted_id().get_oid().value.to_string() << "\n";
         Line.Print();
     }
 
@@ -57,13 +54,14 @@ int main()
 
     Stash.FindOne(BSON::Start{} << "name" << "Inline String" << BSON::Finish).GetPrettyJson().Print();
 
-    BSON::Value Find    = MongoOpenDoc("Info") << "x"      << 203 <<      "y" << 102 << MongoCloseDoc();
+    BSON::Value Find    = MongoOpenDoc("Info") <<      "x" << 203 <<      "y" << 102 << MongoCloseDoc();
     BSON::Value Replace = MongoSetDoc()        << "info.x" <<   0 << "info.y" <<   0 << MongoCloseDoc();
     Stash.UpdateMany(Find, Replace);
 
     // Delete (note that both x and y need to be correct, delete won't work if you only add x
     Stash.DeleteOne( MongoOpenDoc("Info") << "x" <<   0 << "y" <<   0 << MongoCloseDoc());
     Stash.DeleteMany(MongoOpenDoc("Info") << "x" << 203 << "y" << 102 << MongoCloseDoc());
+
     RescuePrint();
     Nexus<>::Stop();
     return 0;
