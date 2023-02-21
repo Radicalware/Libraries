@@ -220,45 +220,78 @@ namespace Test
         void Joinery()
         {
 
+            auto CheckVal = [](const RA::StatsCPU& Stats, const xstring& Val)->void
+            {
+                std::ostringstream SS;
+                SS << Stats[0];
+                cout << SS.str() << endl;
+                if (SS.str() != Val)
+                    ThrowIt("Does not Equate!");
+            };
+
+            {
+                auto Stats = RA::StatsCPU(1, {});
+                Stats.SetJoinerySize(0);
+
+                for (uint i = 0; i < 5 * 5; i++)
+                    Stats << 1;
+                CheckVal(Stats, "1");
+
+                for (uint i = 0; i < 5 * 5; i++)
+                    Stats << 2; // 2 * 5 = 10
+                CheckVal(Stats, "2");
+            }
             {
                 auto Stats = RA::StatsCPU(1, {});
                 Stats.SetJoinerySize(1);
 
-                for (uint i = 0; i < 5 * 5; i++)
+                for (uint i = 0; i < (5 * 5); i++)
                     Stats << 1;
-                cout << Stats[0] << endl;
+                CheckVal(Stats, "1");
 
                 for (uint i = 0; i < 5 * 5; i++)
                     Stats << 2; // 2 * 5 = 10
-                cout << Stats[0] << endl;
+                CheckVal(Stats, "2");
             }
             {
                 auto Stats = RA::StatsCPU(1, {});
                 Stats.SetJoinerySize(5);
 
-                for (uint i = 0; i < 5 * 5; i++)
-                    Stats << 1;
-                cout << Stats[0] << endl;
+                for (uint i = 0; i < (5 * 5); i++)
+                    Stats << 1; // 1 * 5 = 5 per join
+                CheckVal(Stats, "5");
 
-                for (uint i = 0; i < 5 * 5; i++)
-                    Stats << 2; // 2 * 5 = 10
+                for (uint i = 0; i < (5 * 5); i++)
+                    Stats << 2; // 2 * 5 = 10 per join
+                CheckVal(Stats, "10");
+            }
+            {
+                auto Stats = RA::StatsCPU(1, {}); // 1 value stored
+                Stats.SetJoinerySize(5); // 5 values summed per storage
+
+                cout << "Inc 1 \n ";
+                for (uint i = 1; i < (5 * 3); i++)
+                {
+                    Stats << i;
+                    cout << " (+" << i << ") " << Stats[0] << ' ';
+                    if (i % 5 == 0)
+                        cout << endl;
+                }
+                cout << endl;
                 cout << Stats[0] << endl;
             }
             {
-                auto Stats = RA::StatsCPU(7, {});
-                Stats.SetJoinerySize(5);
+                auto Stats = RA::StatsCPU(2, {}); // 2 values stored
+                Stats.SetJoinerySize(5); // 5 values summed per storage
 
-                for (uint i = 0; i < 5 * 5; i++)
-                    Stats << 1;
-                for (uint i = 0; i < 5; i++)
-                    cout << Stats[i] << ' ';
+                for (uint i = 1; i < (5 * 3); i++) {
+                    Stats << i;
+                    cout << i << '(' << Stats[0] << '-' << Stats[1] << ')';
+                    if (i % 5 == 0)
+                        cout << endl;
+                }
                 cout << endl;
-
-                for (uint i = 0; i < 5 * 5; i++)
-                    Stats << 2; // 2 * 5 = 10
-                for (uint i = 0; i < 7; i++)
-                    cout << Stats[i] << ' ';
-                cout << endl;
+                cout << Stats[0] << ' ' << Stats[1] << endl;
             }
         }
     }

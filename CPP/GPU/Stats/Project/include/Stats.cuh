@@ -81,7 +81,6 @@ namespace RA
         void SetDefaultValues(const double FnDefaultVal);
 
     public:
-        void SetSkipSize(const uint FSize); // Only increases the inc idx FSize times
         void SetJoinerySize(const uint FCount); // Sums FCount values as one value
         DXF auto GetJoinerySize() const { return MnJoinerySize; }
 
@@ -106,7 +105,7 @@ namespace RA
         uint    MnInsertIdx = 0;
 
         double* MvJoinery = nullptr;
-        uint    MnJoinerySize = 0;
+        uint    MnJoinerySize = 0; // for grouping input values as one combined value every Size times
         uint    MnJoineryIdx = 0;
         double  MnJoinerySum = 0;
 
@@ -121,9 +120,6 @@ namespace RA
         //STOCH     *MoSTOCHPtr = nullptr;
 
         EHardware MeHardware = EHardware::Default;
-        uint MnSkipSize = 0;
-        uint MnSkipIdx = 0;
-
     };
 }
 

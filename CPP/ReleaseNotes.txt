@@ -4,6 +4,12 @@
 
 ---------------------------------------------------------------------
 
+02/21/2023 >> Libs 22.0.1
+
+Abstract Decay Support Macros for quick ABS class building.
+
+---------------------------------------------------------------------
+
 02/13/2023 >> Libs 22.0.0
 
 Warning, this is a big push and I am uploading this for security
@@ -13,7 +19,10 @@ managment. RA::ReferencePtr, Stats object, new dedicated GPU
 folder, other misc improvments. Important note: re2 now needs to
 be compiled from scratch to avoid mem leaks. Use the re2 in the
 modded objects to build the rest of the code. Radicalware is not
-using re2 from VCPKG any more.
+using re2 from VCPKG any more. the modded re2 allows for nvcc
+compilation. The original has a forwarded class that prevents
+nvcc from compiling. Also, SharedPtrs now call destructors when
+they exit vld tested
 
 ---------------------------------------------------------------------
 

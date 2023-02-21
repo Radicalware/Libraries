@@ -98,16 +98,16 @@ DHF double RA::StatsCPU::operator[](const uint IDX) const
     Begin();
     if (IDX >= MnStorageSize)
         ThrowIt(RED "IDX = ", MnStorageSize, " which is too big for size of\n" WHITE);
-    return MvValues[IDX];
+    if (IDX + MnInsertIdx >= MnStorageSize)
+        return MvValues[(IDX + MnInsertIdx) - MnStorageSize];
+    return MvValues[IDX + MnInsertIdx];
     Rescue();
 }
 
 DHF double RA::StatsCPU::Last(const uint IDX) const
 {
     Begin();
-    if (IDX >= MnStorageSize)
-        ThrowIt(RED "IDX = ", MnStorageSize, " which is too big for size of\n" WHITE);
-    return MvValues[MnStorageSize - 1 - IDX];
+    return This[MAX(1, MnStorageSize) - 1 - IDX];
     Rescue();
 }
 

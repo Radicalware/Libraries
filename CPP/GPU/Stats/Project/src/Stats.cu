@@ -237,19 +237,10 @@ void RA::Stats::SetDefaultValues(const double FnDefaultVal)
     Rescue();
 }
 
-void RA::Stats::SetSkipSize(const uint FSize)
-{
-    Begin();
-    MnSkipSize = FSize;
-    MnSkipIdx = 0;
-    This.Reset();
-    Rescue();
-}
-
 void RA::Stats::SetJoinerySize(const uint FCount)
 {
     Begin();
-    if (!FCount)
+    if (FCount <= 1)
         return;
     MnJoinerySize = FCount;
     MnInsertIdx = 0;
@@ -289,6 +280,7 @@ void RA::Stats::SetJoinerySize(const uint FCount)
     default:
         ThrowIt("EHardware (GPU/CPU) Option Not Given");
     }
+
     Rescue();
 }
 
@@ -296,6 +288,33 @@ void RA::Stats::SetJoinerySize(const uint FCount)
 DXF void RA::Stats::operator<<(const double FnValue)
 {
     double LnValue = 0;
+
+    if (MbHadFirstInsert)
+    {
+        if (!MnJoinerySize)
+        {
+            MnInsertIdx++;
+            if (MnInsertIdx >= MnStorageSize)
+                MnInsertIdx = 0;
+        }
+        else
+        {
+            if (++MnJoineryIdx >= MnJoinerySize)
+                MnJoineryIdx = 0;
+            if (!MnJoineryIdx)
+            {
+                MnInsertIdx++; // you get a new idx when MnSkipIdx are 0
+                if (MnInsertIdx >= MnStorageSize)
+                    MnInsertIdx = 0;
+                //MnJoinerySum = MvValues[MnInsertIdx];
+
+                //const auto LnIdxVal = MnJoinerySum / MnJoinerySize;
+                //for (double* Ptr = MvJoinery; Ptr < MvJoinery + MnJoinerySize; Ptr++)
+                //    *Ptr = LnIdxVal;
+            }
+        }
+    }
+
     if (!MnStorageSize)
     {
         if (!MbHadFirstInsert && MnJoinerySize)
@@ -348,12 +367,6 @@ DXF void RA::Stats::operator<<(const double FnValue)
     {
         if (MnJoinerySize)
         {
-            if (MnSkipIdx == 0) // only increase joinery idx when you increase storage idx
-            {
-                if (++MnJoineryIdx >= MnJoinerySize)
-                    MnJoineryIdx = 0;
-            }
-
             MnJoinerySum -= MvJoinery[MnJoineryIdx]; // subtract old val
             MvJoinery[MnJoineryIdx] = FnValue; // set new val
             MnJoinerySum += FnValue; // add new val
@@ -368,26 +381,11 @@ DXF void RA::Stats::operator<<(const double FnValue)
     SRef(MoRSIPtr).Update();
     SRef(MoSTOCHPtr).Update();
 
-    if (!MnSkipSize)
+    if (!MbHadFirstInsert)
     {
-        MnInsertIdx++;
-        if (MnInsertIdx >= MnStorageSize)
-            MnInsertIdx = 0;
+        MbHadFirstInsert = true;
+        return;
     }
-    else
-    {
-        if (MnSkipIdx == 0)
-        {
-            MnSkipIdx = MnSkipSize;
-            MnInsertIdx++; // you get a new idx when MnSkipIdx are 0
-            if (MnInsertIdx >= MnStorageSize)
-                MnInsertIdx = 0;
-        }
-        else
-            --MnSkipIdx;
-    }
-
-    MbHadFirstInsert = true;
 }
 
 DXF void RA::Stats::Reset()
