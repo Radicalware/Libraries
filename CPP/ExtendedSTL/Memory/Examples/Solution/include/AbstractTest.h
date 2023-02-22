@@ -134,16 +134,22 @@ namespace Abstract
 
         LoCircle.SetName("Circle"); // Base Class (Non-ABS)
 
-        cout << "-----------------------" << endl;
+        cout << "--------------------------------------" << endl;
         LoCircle.PrintText(); // Base Class (Non-ABS)
         LoCircle.Draw();      // Base Class (ABS)
         LoCircle.Cast<Shape::Circle>().CircleDiameter(); // Derived Class (Non-ABS)
-        cout << "-----------------------" << endl;
-        Drawable LoNewCircle = Shape::Circle(LoCircle);
-        cout << "-----------------------" << endl;
+        cout << "--------------------------------------" << endl;
+        Drawable LoNewCircle = LoCircle.Cast<Shape::Circle>();
+        cout << "--------------------------------------" << endl;
         LoNewCircle.PrintText(); // Base Class (Non-ABS)
         LoNewCircle.Draw();      // Base Class (ABS)
         LoNewCircle.Cast<Shape::Circle>().CircleDiameter(); // Derived Class (Non-ABS)
-        cout << "-----------------------" << endl;
+        cout << "--------------------------------------" << endl;
+        Drawable LoSprite = Shape::Sprite("NewPath/Image.png");
+        cout << "--------------------------------------" << endl;
+        LoSprite.SetName("Sprite"); // Base Class (Non-ABS)
+        LoSprite.PrintText(); // Base Class (Non-ABS)
+        LoSprite.Draw();      // Base Class (ABS)
+        cout << "--------------------------------------" << endl;
     }
 }

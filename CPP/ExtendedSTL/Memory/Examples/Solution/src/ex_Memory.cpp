@@ -15,11 +15,29 @@
 #include <memory>
 #include <vld.h>
 
-void TestFunction(xstring&& Input)
+class Player
 {
-    Input.Print();
-    Input += " appended";
-    Input.Print();
+public:
+    Player(const xstring& FsName) : MsPlayerName(FsName) {}
+    auto& GetPlayerName() const { return MsPlayerName; }
+    virtual void Attack() const = 0;
+protected:
+    xstring MsPlayerName;
+};
+
+class Barbarian : public Player
+{
+public:
+    using Player::Player;
+    virtual ~Barbarian() {};
+    virtual void Attack() const { cout << "Swing Axe" << endl; }
+};
+
+void TestSharedPtr()
+{
+    MSP(Player, LoPlayer, MKP<Barbarian>("KingKozaK"));
+    cout << LoPlayer.GetPlayerName() << endl;
+    LoPlayer.Attack();
 }
 
 int main()
@@ -27,6 +45,7 @@ int main()
     Nexus<>::Start();
     Begin();
 
+    TestSharedPtr();
     TestClone();
     TestCopy();
     ReferencePtrTest::Run();
