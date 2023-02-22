@@ -120,11 +120,11 @@ namespace Abstract
 {
     void Run()
     {
-        xvector<Drawable> Objects;
-        Objects << Shape::Circle(10);
-        Objects << Shape::Circle(10);
-        Objects << Shape::Rectangle(12, 42); // First Object Added
-        Objects << Shape::Sprite("assets/monster.png");
+        std::vector<Drawable> Objects;
+        Objects.push_back(Shape::Circle(10));
+        Objects.push_back(Shape::Circle(10));
+        Objects.push_back(Shape::Rectangle(12, 42)); // First Object Added
+        Objects.push_back(Shape::Sprite("assets/monster.png"));
 
         for (const Drawable& obj : Objects)
             obj.Draw(); // Call the polymorphic method
