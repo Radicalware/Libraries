@@ -19,7 +19,7 @@ struct Option
 
     inline void Split() {
         cout << "\n===(SPLIT)======================================================\n";
-        xstring tester = "This is our test string!\nline one\nline two\nline three   \n\n\n  ";
+        xstring tester = "The is our test string!\nline one\nline two\nline three   \n\n\n  ";
         cout << (tester.Trim());
         cout << "\n*****" << endl;
 
@@ -30,7 +30,7 @@ struct Option
         cout << tester.Split('\n').Join("\n >> ") << "\n\n";
 
         // OUTPUT
-        // This |<>| is |<>| our |<>| test |<>| string! |<>| 
+        // The |<>| is |<>| our |<>| test |<>| string! |<>| 
     }
 
     // ===================================================================================================

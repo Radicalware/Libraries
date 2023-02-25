@@ -37,12 +37,11 @@ set(VCPKG_SCRIPT    "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
 set(VCPKG_INCLUDE   "${VCPKG_ROOT}/installed/x64-windows/include")
 endif()
 
-include_directories("${VCPKG_INCLUDE}")
-
 set(CMAKE_CXX_IGNORE_EXTENSIONS      "${CMAKE_CXX_IGNORE_EXTENSIONS};txt;rc")
 set(CMAKE_CXX_SOURCE_FILE_EXTENSIONS "${CMAKE_CXX_SOURCE_FILE_EXTENSIONS};cuh;cu")
 
 if(WIN32) # ----------------------------------------------------------------------------
+
     set(OS_TYPE "Windows")
     set(IsWindows ON)
     
@@ -53,11 +52,16 @@ if(WIN32) # --------------------------------------------------------------------
 
     add_definitions(-DUsingMSVC)
 
-    set(RADICAL_BASE   "C:/Source/CMake/Radicalware")
-    set(CMAKE_PATH     "C:/Program Files/CMake/share/cmake-$ENV{CMAKE_VERSION}/Modules")
+    #set(Qt6_DIR         "D:/AIE/vcpkg/installed/x64-windows/share/Qt6")
+    set(Qt6_DIR         "D:/AIE/Qt/6.4.2/msvc2019_64/lib/cmake/Qt6")
+    set(CMAKE_PATH      "C:/Program Files/CMake/share/cmake-$ENV{CMAKE_VERSION}/Modules")
+    set(RADICAL_BASE    "C:/Source/CMake/Radicalware")
 
     SET(INSTALL_PREFIX "${RADICAL_BASE}")
     SET(INSTALL_DIR    "${RADICAL_BASE}/Libraries/Projects")
+
+    set(Vulkan_INCLUDE_DIR "${VCPKG_INCLUDE}/vulkan")
+    find_path(VULKAN_HEADERS_INCLUDE_DIRS "${Vulkan_INCLUDE_DIR}/vulkan.hpp")
 
     # BUILD_DIR   = ready to install cpp files
     # INSTALL_DIR = install location of those cpp files
@@ -74,8 +78,11 @@ if(WIN32) # --------------------------------------------------------------------
     # add_link_options("/ignore:4204") # Ignore PDB Warnings
     # add_link_options("/INCREMENTAL:NO")
 
-    list(APPEND CMAKE_MODULE_PATH ${CMAKE_PATH})
-    list(APPEND CMAKE_MODULE_PATH ${RADICAL_PATH})
+    list(APPEND CMAKE_MODULE_PATH "${CMAKE_PATH}")
+    list(APPEND CMAKE_MODULE_PATH "${Qt6_DIR}")
+    list(APPEND CMAKE_MODULE_PATH "${RADICAL_PATH}")
+
+    PrintList(CMAKE_MODULE_PATH)
 
     set(PF  "")    # Prefix
     set(ST  "lib") # STatic
@@ -148,6 +155,8 @@ set(PROJECT_DIR ${INSTALL_PREFIX}/Libraries/Projects)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(installed_libs) # Used to link targets and set dependencies
+
+include_directories("${VCPKG_INCLUDE}")
 
 # --------------- DON'T MODIFY (CALCULATED) ------------------------------------------
 

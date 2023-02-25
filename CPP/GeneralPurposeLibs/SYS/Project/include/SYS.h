@@ -61,7 +61,7 @@ namespace RA
     private:
         bool MbArgsSet = false;
 
-        uint MnSize = 0;
+        xint MnSize = 0;
         xvector<xstring> MvCliArgs;
         xmap<xstring, char> MmAliasSC; // Alias
         xmap<char, xstring> MmAliasCS; // Alias

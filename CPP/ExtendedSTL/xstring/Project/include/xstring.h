@@ -69,6 +69,12 @@ public:
     xstring(const wchar_t* chrs);
     xstring(const std::wstring& wstr);
 
+    void operator=(const char chr);
+    void operator=(const char* chrs);
+    void operator=(const unsigned char* chrs);
+    void operator=(const wchar_t* chrs);
+    void operator=(const std::wstring&  wstr);
+
     bool operator!(void) const;
 
     void operator+=(const char chr);
@@ -427,7 +433,7 @@ namespace RA
             else if(FnPercision)
             {
                 Out += '.';
-                for (uint i = 0; i < FnPercision; i++)
+                for (xint i = 0; i < FnPercision; i++)
                     Out += '0';
             }
             return Out;

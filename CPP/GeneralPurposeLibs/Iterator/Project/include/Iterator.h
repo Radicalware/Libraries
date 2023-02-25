@@ -35,11 +35,13 @@
 #define The (*this)
 #endif // !The
 
-#ifndef _uint_
-#define _uint_
-using uint = size_t;
+#ifndef _xint_
+#define _xint_
+using xint = size_t;
+// in ASM EAX =    Extended Register 32bit
+//        RAX = Re-Extended Register 64bit
+// xint = 32bit/64bit (depending on the compiler)
 #endif
-
 
 namespace RA
 {

@@ -13,7 +13,7 @@ using std::endl;
 RA::AES Encryption()
 {
     Begin();
-    xstring Plaintext = "This is my secret message, don't abuse it!";
+    xstring Plaintext = "The is my secret message, don't abuse it!";
     RA::AES EncryptedAES;
     EncryptedAES.SetPlainText(Plaintext);
     EncryptedAES.SetAllRandomValues();

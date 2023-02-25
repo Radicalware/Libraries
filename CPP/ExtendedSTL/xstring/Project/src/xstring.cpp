@@ -61,6 +61,39 @@ xstring::xstring(const std::wstring& wstr)
     The = RA::WTXS(wstr.c_str());
 }
 
+void xstring::operator=(const char chr)
+{
+    The.insert(The.begin(), chr);
+}
+
+void xstring::operator=(const char* chrs)
+{
+    size_t len = strlen(chrs) + 1;
+    The.resize(len);
+    The.insert(The.begin(), chrs, &chrs[len]);
+    RemoveNulls();
+}
+
+void xstring::operator=(const unsigned char* chrs)
+{
+    //for (const unsigned char* ptr = chrs; static_cast<char>(*ptr) != '\0'; ptr++)
+    //    The.insert(The.end(), static_cast<char>(*ptr));
+    size_t len = strlen(reinterpret_cast<const char*>(chrs));
+    The.resize(len);
+    The.insert(The.begin(), chrs, &chrs[len]);
+    // RemoveNulls(); // unsigned char is often uesd for byte-arrays
+}
+
+void xstring::operator=(const wchar_t* chrs)
+{
+    The = RA::WTXS(chrs);
+}
+
+void xstring::operator=(const std::wstring& wstr)
+{
+    The = RA::WTXS(wstr.c_str());
+}
+
 bool xstring::operator!(void) const { 
     return bool(The.size() == 0); 
 }
@@ -145,35 +178,35 @@ char& xstring::At(size_t Idx)
 
 char xstring::First(size_t Idx) const
 {
-    if (Idx >= This.Size())
+    if (Idx >= The.Size())
         throw "Index Out Of Range";
     return The.operator[](Idx);
 }
 
 char& xstring::First(size_t Idx)
 {
-    if (Idx >= This.Size())
+    if (Idx >= The.Size())
         throw "Index Out Of Range";
     return The.operator[](Idx);
 }
 
 char xstring::Last(size_t Idx) const
 {
-    if (Idx >= This.Size())
+    if (Idx >= The.Size())
         throw "Index Out Of Range";
     return The.operator[](this->size() - Idx - 1);
 }
 
 char& xstring::Last(size_t Idx)
 {
-    if (Idx >= This.Size())
+    if (Idx >= The.Size())
         throw "Index Out Of Range";
     return The.operator[](this->size() - Idx - 1);
 }
 
 void xstring::Print() const
 {
-    printf("%s\n", This.c_str()); // printf is faster than std::cout
+    printf("%s\n", The.c_str()); // printf is faster than std::cout
 }
 
 void xstring::Print(int num) const
@@ -342,7 +375,7 @@ xstring xstring::Remove(const char val) const
 
 void xstring::InRemove(const char val)
 {
-    This.erase(remove(This.begin(), This.end(), val), This.end());
+    The.erase(remove(The.begin(), The.end(), val), The.end());
 }
 
 xstring xstring::Reverse() const
@@ -379,11 +412,11 @@ xvector<xstring> xstring::Split(size_t SegSize) const
     if (!SegSize)
         throw "Seg Size is Zero";
     xvector<xstring> Vec;
-    Vec.reserve(This.Size() / SegSize + 1);
+    Vec.reserve(The.Size() / SegSize + 1);
     xstring CurrentStr;
     CurrentStr.resize(SegSize + 1);
     size_t Idx = 0;
-    for (xstring::const_iterator It = This.cbegin(); It != This.cend(); It++)
+    for (xstring::const_iterator It = The.cbegin(); It != The.cend(); It++)
     {
         if (SegSize > Idx)
         {
@@ -397,7 +430,7 @@ xvector<xstring> xstring::Split(size_t SegSize) const
         }
         Idx++;
     }
-    if(This.Size() % SegSize > 0)
+    if(The.Size() % SegSize > 0)
         Vec << CurrentStr.substr(0, Idx);
     return Vec;
 }
@@ -419,7 +452,7 @@ xvector<xstring> xstring::Split(const char splitter, RXM::Type mod) const
 {
     xvector<xstring> Vec;
     xstring Current;
-    for (xstring::const_iterator It = This.cbegin(); It != This.cend(); It++)
+    for (xstring::const_iterator It = The.cbegin(); It != The.cend(); It++)
     {
         if (*It != splitter)
             Current += *It;
@@ -1013,20 +1046,20 @@ xstring& xstring::RightTrim(const xstring& trim)
 xstring xstring::operator()(const long long int x) const
 {
     if (x == 0)
-        return This;
+        return The;
 
-    if (x > 0 && x >= This.size())
+    if (x > 0 && x >= The.size())
         return "";
 
     if (x < 0 && std::abs(x) > size())
-        return This;
+        return The;
 
     if (x == 0)
-        return This;
+        return The;
     else if (x > 0)
-        return This.substr(x, size() - x);
+        return The.substr(x, size() - x);
     else
-        return This.substr(size() + x, size() - (size() + x));
+        return The.substr(size() + x, size() - (size() + x));
 }
 
 xstring xstring::operator()(

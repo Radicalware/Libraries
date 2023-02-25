@@ -39,7 +39,7 @@ int main()
     cout << "xmap1.size()  = " << xmap1.size() << "\n\n";
 
     cout << "smap1.size()  = " << smap1.size() << '\n';
-    xmap<xstring, int> xmap2 = std::move(smap1); 
+    xmap<xstring, int> xmap2 = std::move(smap1);
     cout << "smap1.size()  = " << smap1.size() << '\n';
     cout << "xmap2.size()  = " << xmap2.size() << "\n\n";
 
@@ -140,8 +140,10 @@ int main()
     }).Join('\n').Print(2);
 
     xmap<xstring, xstring> tmp_mp;
-    std::map<xstring, xstring> std_map = smap.ToStdMap(); tmp_mp = std_map;
-    std::unordered_map<xstring, xstring> std_u_map = smap.ToStdUnorderedMap(); tmp_mp = std_u_map;
+    std::map<xstring, xstring> std_map = smap.ToStdMap(); 
+    tmp_mp = std_map;
+    std::unordered_map<xstring, xstring> std_u_map = smap.ToStdUnorderedMap(); 
+    tmp_mp = std_u_map;
     tmp_mp.Print();
 
 

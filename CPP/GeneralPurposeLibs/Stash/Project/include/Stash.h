@@ -46,7 +46,7 @@ namespace RA
         RA::JSON GetAll(RA::JSON::Init FeInit = RA::JSON::Init::Both);
 
         template<typename K, typename V>
-        uint Count(const K& FxKey, const V& FxValue);
+        xint Count(const K& FxKey, const V& FxValue);
 
         template<typename K, typename V>
         RA::JSON Match(const K& FxKey, const V& FxValue, RA::JSON::Init FeInit = RA::JSON::Init::Both);
@@ -80,13 +80,13 @@ namespace RA
 
 
 template<typename K, typename V>
-inline uint RA::Stash::Count(const K& FxKey, const V& FxValue)
+inline xint RA::Stash::Count(const K& FxKey, const V& FxValue)
 {
     Begin();
     BSON::Pipeline Pipeline{};
     Pipeline.match(BSON::MakeDocument(BSON::KVP(FxKey, FxValue)));
     BSON::Cursor Cursor = MoCollection.aggregate(Pipeline, BSON::Aggregate{});
-    uint Count = 0;
+    xint Count = 0;
     for (auto& Val : Cursor)
         Count++;
     return Count;

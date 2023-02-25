@@ -18,7 +18,7 @@ using std::vector;
 
 void Split() {
     cout << "\n===(SPLIT)======================================================\n";
-    string tester = "This is our test string!\nline one\nline two\nline three   \n\n\n  ";
+    string tester = "The is our test string!\nline one\nline two\nline three   \n\n\n  ";
 
     cout << RE::Strip(tester);
     cout << "\n*****" << endl;
@@ -32,7 +32,7 @@ void Split() {
 
 
     // OUTPUT
-    // This |<>| is |<>| our |<>| test |<>| string! |<>| 
+    // The |<>| is |<>| our |<>| test |<>| string! |<>| 
 
     cout << '\n';
 }

@@ -51,7 +51,7 @@ private:
     RA::Atomic<long long int> MnInstTaskCount = 0;
 
     std::vector<std::thread>           MvThreads;     // these threads start in the constructor and don't stop until Nexus is over
-    std::deque<RA::SharedPtr<Task<T>>> McTaskDeque;   // This is where tasks are held before being run
+    std::deque<RA::SharedPtr<Task<T>>> McTaskDeque;   // The is where tasks are held before being run
                                             // deque chosen over queue because the deque has an iterator
 
     // These values are used for pulling outpu tdata from your jobs.
@@ -182,7 +182,7 @@ INL Nexus<T>::Nexus()
 template<typename T>
 INL Nexus<T>::~Nexus()
 {
-    This.WaitAll();
+    The.WaitAll();
     MbFinishTasks = true;
     MoMutex.UnlockAll();
     for (auto& t : MvThreads) 
@@ -196,7 +196,7 @@ template<typename F, typename ...A>
 INL UsingFunction(void) Nexus<T>::AddJob(const std::string& key, F&& function, A&& ...Args)
 {
     auto Lock = MoMutex.CreateLock();
-    This.AddKVP(key, function, std::ref(Args)...);
+    The.AddKVP(key, function, std::ref(Args)...);
 }
 
 template<typename T>
@@ -204,7 +204,7 @@ template<typename F, typename ...A>
 INL UsingFunction(void) Nexus<T>::AddJob(const char* key, F&& function, A&& ...Args)
 {
     auto Lock = MoMutex.CreateLock();
-    This.AddKVP(std::string(key), function, std::ref(Args)...);
+    The.AddKVP(std::string(key), function, std::ref(Args)...);
 }
 
 template<typename T>
@@ -212,7 +212,7 @@ template <typename F, typename ...A>
 INL UsingFunction(void) Nexus<T>::AddJob(F&& function, A&& ...Args)
 {
     auto Lock = MoMutex.CreateLock();
-    This.Add(function, std::ref(Args)...);
+    The.Add(function, std::ref(Args)...);
 }
 
 //template<typename T>
@@ -272,7 +272,7 @@ INL Job<T>& Nexus<T>::operator()(const size_t Input)
 template<typename T>
 INL std::vector<T> Nexus<T>::GetAll()
 {
-    This.WaitAll();
+    The.WaitAll();
     auto Lock = MoMutex.CreateLock();
     std::vector<T> Captures;
     for (std::pair<const size_t, RA::SharedPtr<Job<T>>>& Target : MmIdxJob)
@@ -296,7 +296,7 @@ INL std::vector<T> Nexus<T>::GetAll()
 template<typename T>
 INL std::vector<T> Nexus<T>::GetMoveAllIndices()
 {
-    This.WaitAll();
+    The.WaitAll();
     auto Lock = MoMutex.CreateLock();
     std::vector<T> Captures;
     Captures.reserve(Size());
@@ -311,12 +311,12 @@ INL std::vector<T> Nexus<T>::GetMoveAllIndices()
 
 template<typename T>
 INL Job<T>& Nexus<T>::Get(const std::string& Input) {
-    return This.operator()(Input);
+    return The.operator()(Input);
 }
 
 template<typename T>
 INL Job<T>& Nexus<T>::Get(const char* Input) {
-    return This.operator()(std::string(Input));
+    return The.operator()(std::string(Input));
 }
 
 template<typename T>
@@ -326,7 +326,7 @@ INL Job<T>& Nexus<T>::GetWithoutProtection(const size_t val) noexcept{
 
 template<typename T>
 INL Job<T>& Nexus<T>::Get(const size_t Input) {
-    return This.operator()(Input);
+    return The.operator()(Input);
 }
 
 
@@ -343,7 +343,7 @@ INL void Nexus<T>::WaitAll()
 {
     while (McTaskDeque.size() || MnInstTaskCount > 0)
     {
-        This.Sleep(1);
+        The.Sleep(1);
     }
 }
 

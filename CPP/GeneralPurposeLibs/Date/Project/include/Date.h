@@ -24,7 +24,7 @@
 #endif
 
 
-using uint = size_t;
+using xint = size_t;
 
 namespace RA
 {
@@ -78,7 +78,7 @@ namespace RA
         ~Date();
         Date(Offset FeOffset);
         Date(const Date& Other, Offset FeOffset);
-        Date(uint FnEpochTime = 0, Offset FeOffset = Offset::None);
+        Date(xint FnEpochTime = 0, Offset FeOffset = Offset::None);
 
         // Format: "2021-06-23 20:00:00"
         Date(const xstring& FsDateTime, Offset FeOffset = Offset::None);
@@ -88,7 +88,7 @@ namespace RA
         Date(const Date& Other);
         Date(Date&& Other) noexcept;
 
-        void operator=(const uint FnTime);
+        void operator=(const xint FnTime);
         void operator=(const Date& Other);
         void operator=(Date&& Other) noexcept;
 
@@ -106,10 +106,10 @@ namespace RA
 
         Date::EpochTime GetEpochTime() const;
 
-        uint            GetEpochTimeInt() const;
+        xint            GetEpochTimeInt() const;
         int             GetEpochTimeInt32() const;
-        uint            GetEpochTimeMilliseconds() const;
-        uint            GetEpochTimeEvenMilliseconds() const;
+        xint            GetEpochTimeMilliseconds() const;
+        xint            GetEpochTimeEvenMilliseconds() const;
 
         xstring         GetEpochTimeStr() const;
         xstring         GetNumericTimeStr();
@@ -164,18 +164,18 @@ namespace RA
     };
 };
 
-EXI bool operator==(const RA::Date& Left, const uint Right);
-EXI bool operator!=(const RA::Date& Left, const uint Right);
-EXI bool operator>=(const RA::Date& Left, const uint Right);
-EXI bool operator<=(const RA::Date& Left, const uint Right);
-EXI bool operator> (const RA::Date& Left, const uint Right);
-EXI bool operator< (const RA::Date& Left, const uint Right);
+EXI bool operator==(const RA::Date& Left, const xint Right);
+EXI bool operator!=(const RA::Date& Left, const xint Right);
+EXI bool operator>=(const RA::Date& Left, const xint Right);
+EXI bool operator<=(const RA::Date& Left, const xint Right);
+EXI bool operator> (const RA::Date& Left, const xint Right);
+EXI bool operator< (const RA::Date& Left, const xint Right);
 
-EXI bool operator==(const uint& Left, const RA::Date& Right);
-EXI bool operator!=(const uint& Left, const RA::Date& Right);
-EXI bool operator>=(const uint& Left, const RA::Date& Right);
-EXI bool operator<=(const uint& Left, const RA::Date& Right);
-EXI bool operator> (const uint& Left, const RA::Date& Right);
-EXI bool operator< (const uint& Left, const RA::Date& Right);
+EXI bool operator==(const xint& Left, const RA::Date& Right);
+EXI bool operator!=(const xint& Left, const RA::Date& Right);
+EXI bool operator>=(const xint& Left, const RA::Date& Right);
+EXI bool operator<=(const xint& Left, const RA::Date& Right);
+EXI bool operator> (const xint& Left, const RA::Date& Right);
+EXI bool operator< (const xint& Left, const RA::Date& Right);
 
 EXI std::ostream& operator<<(std::ostream& out, const RA::Date& obj);

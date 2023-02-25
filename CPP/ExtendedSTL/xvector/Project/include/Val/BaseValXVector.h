@@ -1016,31 +1016,31 @@ template<typename T>
 xvector<T> ValXVector<T>::operator()(const long long int x) const
 {
     if (x == 0)
-        return This;
+        return The;
 
-    if (x > 0 && x >= This.size())
+    if (x > 0 && x >= The.size())
         return xvector<T>{};
 
-    if (x < 0 && std::abs(x) > This.size())
-        return This;
+    if (x < 0 && std::abs(x) > The.size())
+        return The;
 
     else if (x > 0)
     {
-        // return This.substr(x, size() - x);
+        // return The.substr(x, size() - x);
         xvector<T> ret;
         typename ValXVector<T>::const_iterator it = The.begin();
         it += x;
-        for (; it != This.end(); it++)
+        for (; it != The.end(); it++)
             ret.push_back(*it);
         return ret;
     }
     else
     {
-        // return This.substr(size() + x, size() - (size() + x));
+        // return The.substr(size() + x, size() - (size() + x));
         xvector<T> ret;
         typename ValXVector<T>::const_iterator it = The.begin();
-        it += This.Size() + x;
-        for (; it != This.end(); it++)
+        it += The.Size() + x;
+        for (; it != The.end(); it++)
             ret.push_back(*it);
         return ret;
     }

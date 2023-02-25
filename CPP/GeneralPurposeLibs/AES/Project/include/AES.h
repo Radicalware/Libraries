@@ -32,7 +32,7 @@ namespace RA
 	class EXI AES
 	{
 	public:
-		AES(const uint FnEncryptionSize = 0); // Takes Smallest Possible Size
+		AES(const xint FnEncryptionSize = 0); // Takes Smallest Possible Size
 		~AES();
 
 		AES(const RA::AES&  Other);
@@ -76,8 +76,8 @@ namespace RA
 		xstring MsKey;
 		xstring MsIV;
 		xstring MsTag;
-		uint    MnEncryptionSize = 0;
-		uint    MnCipherTextSize = 0;
+		xint    MnEncryptionSize = 0;
+		xint    MnCipherTextSize = 0;
 
 		void ThrowErrors() const;
 	};

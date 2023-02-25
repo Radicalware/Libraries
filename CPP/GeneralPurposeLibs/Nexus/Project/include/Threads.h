@@ -3,10 +3,6 @@
 #include<thread>
 #include<atomic>
 
-#ifndef __THIS__
-#define This (*this)
-#endif
-
 namespace RA
 {
     class Threads

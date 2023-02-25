@@ -94,10 +94,13 @@ include_directories(${THIS} PRIVATE
 )
 
 #       (This is location 2 of 3)
+find_package(re2)
+
 find_package(RE)
 find_package(AC)
 find_package(MC)
 
+find_package(Iterator)
 find_package(Memory)
 find_package(Nexus)
 find_package(xvector)
@@ -119,8 +122,8 @@ find_package(Socket)
 find_package(cpprestsdk CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(OpenSSL REQUIRED)
-find_package(CURL CONFIG REQUIRED)
-find_package(jsoncpp CONFIG REQUIRED)
+# find_package(CURL CONFIG REQUIRED)
+# find_package(jsoncpp CONFIG REQUIRED)
 
 message("====================================")
 PrintLibs()
@@ -134,6 +137,7 @@ foreach(EXE ${EXES})
             Radical::AC
             Radical::MC
 
+            Radical::Iterator
             Radical::Memory
             Radical::Nexus
             Radical::xvector
@@ -146,24 +150,28 @@ foreach(EXE ${EXES})
             # Radical::CudaBridge # TODO: RE-ADD
             # -----------------------------------------
             
-            cpprestsdk::cpprest 
-            cpprestsdk::cpprestsdk_zlib_internal 
+            cpprestsdk::cpprest
+            cpprestsdk::cpprestsdk_zlib_internal
             cpprestsdk::cpprestsdk_brotli_internal
 
-            nlohmann_json 
+            mongo::bsoncxx_shared
+            mongo::mongocxx_shared
+
+            nlohmann_json
             nlohmann_json::nlohmann_json
 
-            jsoncpp_lib 
-            jsoncpp_object
-
-            OpenSSL::SSL 
+            OpenSSL::SSL
             OpenSSL::Crypto
 
-            CURL::libcurl
+            # jsoncpp_lib
+            # jsoncpp_object
+
+            # CURL::libcurl
         )
 
         PrintEXEsAndDLLs()
         set_target_properties(${EXE} PROPERTIES COMPILE_DEFINITIONS DLL_EXPORT=1)
+        LinkStatic(${EXE} re2)
 endforeach()
 message("====================================")
 

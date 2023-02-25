@@ -109,7 +109,7 @@ RA::JSON RA::Stash::CursorToJSON(BSON::Cursor& FoCursor, RA::JSON::Init FeInit)
 {
     Begin();
     std::ostringstream Json;
-    uint Count = 0;
+    xint Count = 0;
 
     Json << '[';
     for (const BSON::View& Document : FoCursor)

@@ -249,7 +249,7 @@ bool RA::JSON::Has(const wchar_t* FsObjectName) const
     RescueThrow([this]() { RA::JSON(This).ZoomReset().GetPrettyJson().Print(); });
 }
 
-uint RA::JSON::Size() const
+xint RA::JSON::Size() const
 {
     Begin();
     if (MoZoomedJsonPtr)
@@ -263,7 +263,7 @@ uint RA::JSON::Size() const
     RescueThrow([this]() { RA::JSON(This).ZoomReset().GetPrettyJson().Print(); });
 }
 
-RA::JSON& RA::JSON::Zoom(const uint Idx)
+RA::JSON& RA::JSON::Zoom(const xint Idx)
 {
     Begin();
     GSS(MoFullJson);
@@ -406,7 +406,7 @@ web::json::value RA::JSON::GetValue(const wchar_t* FacObject) const
     Rescue();
 }
 
-web::json::object RA::JSON::GetObj(const uint Idx) const
+web::json::object RA::JSON::GetObj(const xint Idx) const
 {
     Begin();
     return MoFullJsonPtr.Get().as_array().at(Idx).as_object();
@@ -427,7 +427,7 @@ web::json::object RA::JSON::GetObj(const xstring& FsObject) const
     Rescue();
 }
 
-web::json::array RA::JSON::GetArr(const uint Idx) const
+web::json::array RA::JSON::GetArr(const xint Idx) const
 {
     Begin();
     return MoFullJsonPtr.Get().as_array().at(Idx).as_array();
@@ -477,21 +477,21 @@ int RA::JSON::GetInt(const xstring& FacObject) const
     Rescue();
 }
 
-uint RA::JSON::GetUInt(const char* FacObject) const
+xint RA::JSON::GetUInt(const char* FacObject) const
 {
     Begin();
     return GetValue(FacObject).as_number().to_uint64();
     Rescue();
 }
 
-uint RA::JSON::GetUInt(const wchar_t* FacObject) const
+xint RA::JSON::GetUInt(const wchar_t* FacObject) const
 {
     Begin();
     return GetValue(FacObject).as_number().to_uint64();
     Rescue();
 }
 
-uint RA::JSON::GetUInt(const xstring& FacObject) const
+xint RA::JSON::GetUInt(const xstring& FacObject) const
 {
     Begin();
     return GetValue(FacObject.Ptr()).as_number().to_uint64();

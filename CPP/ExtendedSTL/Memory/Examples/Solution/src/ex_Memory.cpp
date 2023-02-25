@@ -19,8 +19,9 @@ class Player
 {
 public:
     Player(const xstring& FsName) : MsPlayerName(FsName) {}
-    auto& GetPlayerName() const { return MsPlayerName; }
-    virtual void Attack() const = 0;
+    INL     auto&   GetPlayerName() const { return MsPlayerName; }
+    virtual xstring Attack() const = 0;
+    TTT INL T&      Cast() { return *dynamic_cast<T*>(this); }
 protected:
     xstring MsPlayerName;
 };
@@ -29,15 +30,36 @@ class Barbarian : public Player
 {
 public:
     using Player::Player;
-    virtual ~Barbarian() {};
-    virtual void Attack() const { cout << "Swing Axe" << endl; }
+    INL virtual         ~Barbarian() {};
+    INL virtual xstring Attack() const { return "Swing Axe"; }
+    INL         auto&   GetArmor() const { return MsArmor; }
+    INL         void    SetArmor(const xstring& Str) { MsArmor = Str; }
+protected:
+    xstring MsArmor;
 };
+
+xp<Player> GetBarbarian(const xstring& FsName)
+{
+    MSP(Player, LoPlayer, MKP<Barbarian>(FsName));
+    return LoPlayerPtr;
+}
 
 void TestSharedPtr()
 {
-    MSP(Player, LoPlayer, MKP<Barbarian>("KingKozaK"));
+    Begin();
+    Nexus<xp<Player>> Nex;
+    Nex.AddJob(&GetBarbarian, "KingKozaK");
+    Nex.WaitAll();
+
+    xvector<xp<Player>> Players = Nex.GetMoveAllIndices();
+    auto& LoPlayer = Players.First();
+
+
     cout << LoPlayer.GetPlayerName() << endl;
-    LoPlayer.Attack();
+    cout << LoPlayer.Attack() << endl;
+            LoPlayer.Cast<Barbarian>().SetArmor("Light");
+    cout << LoPlayer.Cast<Barbarian>().GetArmor() << endl;
+    Rescue();
 }
 
 int main()

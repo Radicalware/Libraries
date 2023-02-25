@@ -5,7 +5,7 @@
 
 
 
-xstring GetStr(pint FInt)
+xstring GetStr(xint FInt)
 {
 	return RA::BindStr("Num: ", FInt);
 }

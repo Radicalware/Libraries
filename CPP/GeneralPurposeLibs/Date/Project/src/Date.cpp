@@ -33,7 +33,7 @@ RA::Date::Date(const Date& Other, Offset FeOffset)
 }
 
 
-RA::Date::Date(uint FnEpochTime, Offset FeOffset)
+RA::Date::Date(xint FnEpochTime, Offset FeOffset)
 {
     if (FnEpochTime > 9999999999)
         FnEpochTime /= 1000;
@@ -100,7 +100,7 @@ RA::Date::Date(Date&& Other) noexcept
     *this = std::move(Other);
 }
 
-void RA::Date::operator=(const uint FnTime)
+void RA::Date::operator=(const xint FnTime)
 {
     This = RA::Date(FnTime);
 }
@@ -272,9 +272,9 @@ RA::Date::EpochTime RA::Date::GetEpochTime() const {
     return MoEpochTime;
 }
 
-uint RA::Date::GetEpochTimeInt() const
+xint RA::Date::GetEpochTimeInt() const
 {
-    return static_cast<uint>(MoEpochTime);
+    return static_cast<xint>(MoEpochTime);
 }
 
 int RA::Date::GetEpochTimeInt32() const
@@ -282,20 +282,20 @@ int RA::Date::GetEpochTimeInt32() const
     return static_cast<int>(MoEpochTime);
 }
 
-uint RA::Date::GetEpochTimeMilliseconds() const
+xint RA::Date::GetEpochTimeMilliseconds() const
 {
     if (!MbDateCurrent)
         return GetEpochTimeInt() * 1000;
 
     auto Rounded = GetEpochTimeInt();
-    size_t Milliseconds =  static_cast<uint>(
+    size_t Milliseconds =  static_cast<xint>(
         std::chrono::duration_cast<std::chrono::microseconds>(
             std::chrono::system_clock::now().time_since_epoch()
         ).count()) % 1000;
     return Rounded * 1000 + Milliseconds;
 }
 
-uint RA::Date::GetEpochTimeEvenMilliseconds() const
+xint RA::Date::GetEpochTimeEvenMilliseconds() const
 {
     return GetEpochTimeInt() * 1000;
 }
@@ -578,20 +578,20 @@ void RA::Date::SetSecond(int FnSecond)
 }
 // ------------------------------------------------------
 
-bool operator==(const RA::Date& Left, const uint Right) { return Left.GetEpochTime() == Right; }
-bool operator!=(const RA::Date& Left, const uint Right) { return Left.GetEpochTime() != Right; }
-bool operator>=(const RA::Date& Left, const uint Right) { return Left.GetEpochTime() >= Right; }
-bool operator<=(const RA::Date& Left, const uint Right) { return Left.GetEpochTime() <= Right; }
-bool operator> (const RA::Date& Left, const uint Right) { return Left.GetEpochTime() >  Right; }
-bool operator< (const RA::Date& Left, const uint Right) { return Left.GetEpochTime() <  Right; }
+bool operator==(const RA::Date& Left, const xint Right) { return Left.GetEpochTime() == Right; }
+bool operator!=(const RA::Date& Left, const xint Right) { return Left.GetEpochTime() != Right; }
+bool operator>=(const RA::Date& Left, const xint Right) { return Left.GetEpochTime() >= Right; }
+bool operator<=(const RA::Date& Left, const xint Right) { return Left.GetEpochTime() <= Right; }
+bool operator> (const RA::Date& Left, const xint Right) { return Left.GetEpochTime() >  Right; }
+bool operator< (const RA::Date& Left, const xint Right) { return Left.GetEpochTime() <  Right; }
 
 
-bool operator==(const uint& Left, const RA::Date& Right) { return Left == Right.GetEpochTime(); }
-bool operator!=(const uint& Left, const RA::Date& Right) { return Left != Right.GetEpochTime(); }
-bool operator>=(const uint& Left, const RA::Date& Right) { return Left >= Right.GetEpochTime(); }
-bool operator<=(const uint& Left, const RA::Date& Right) { return Left <= Right.GetEpochTime(); }
-bool operator> (const uint& Left, const RA::Date& Right) { return Left >  Right.GetEpochTime(); }
-bool operator< (const uint& Left, const RA::Date& Right) { return Left <  Right.GetEpochTime(); }
+bool operator==(const xint& Left, const RA::Date& Right) { return Left == Right.GetEpochTime(); }
+bool operator!=(const xint& Left, const RA::Date& Right) { return Left != Right.GetEpochTime(); }
+bool operator>=(const xint& Left, const RA::Date& Right) { return Left >= Right.GetEpochTime(); }
+bool operator<=(const xint& Left, const RA::Date& Right) { return Left <= Right.GetEpochTime(); }
+bool operator> (const xint& Left, const RA::Date& Right) { return Left >  Right.GetEpochTime(); }
+bool operator< (const xint& Left, const RA::Date& Right) { return Left <  Right.GetEpochTime(); }
 
 std::ostream& operator<<(std::ostream& out, const RA::Date& obj)
 {

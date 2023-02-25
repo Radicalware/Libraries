@@ -36,7 +36,7 @@ struct Balance
         AccountName[Size] = 0;
     }
 
-    uint CryptoID = 335;
+    xint CryptoID = 335;
     double Amount = 3453.57839;
     int Multiplier = 0;
 

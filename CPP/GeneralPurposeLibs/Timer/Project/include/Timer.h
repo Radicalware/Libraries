@@ -37,8 +37,8 @@ namespace RA
     {
 
 #ifndef UsingNVCC
-        xvector<uint>       m_laps_xv;
-        xmap<xstring, uint> m_laps_xm;
+        xvector<xint>       m_laps_xv;
+        xmap<xstring, xint> m_laps_xm;
 #endif // !UsingNVCC
 
         // SteadyClock = Stopwatch   Use Case
@@ -51,12 +51,12 @@ namespace RA
 
         Timer();
         void Reset();
-        uint GetElapsedTimeSeconds() const;
-        uint GetElapsedTimeMilliseconds() const;
-        uint GetElapsedTime() const; // Milliseconds
-        uint GetElapsedTimeMicroseconds() const;
+        xint GetElapsedTimeSeconds() const;
+        xint GetElapsedTimeMilliseconds() const;
+        xint GetElapsedTime() const; // Milliseconds
+        xint GetElapsedTimeMicroseconds() const;
 
-        static void WaitSeconds(uint extent);
+        static void WaitSeconds(xint extent);
         static void WaitMilliseconds(unsigned long extent);
         static void Wait(unsigned long extent); // wait_milliseconds
         static void WaitUntil(unsigned long extent, std::function<bool()>&& Function);
@@ -72,11 +72,11 @@ namespace RA
         void Lap(xstring&& key);
         void Clear();
 
-        uint Get(size_t idx) const;
-        uint Get(const xstring& key) const;
+        xint Get(size_t idx) const;
+        xint Get(const xstring& key) const;
 
-        xvector<uint> GetVector() const;
-        xmap<xstring, uint> GetMap() const;
+        xvector<xint> GetVector() const;
+        xmap<xstring, xint> GetMap() const;
 #endif // !UsingNVCC
     };
 };

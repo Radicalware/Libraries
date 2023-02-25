@@ -7,7 +7,7 @@
 #include <openssl/aes.h>
 #include <openssl/err.h>
 
-RA::AES::AES(const uint FnEncryptionSize)
+RA::AES::AES(const xint FnEncryptionSize)
 {
     OpenSSL_add_all_algorithms();
     ERR_load_crypto_strings();
@@ -87,7 +87,7 @@ RA::AES& RA::AES::Encrypt()
     auto CipherTextPtr = RA::SharedPtr<unsigned char[]>(MnEncryptionSize * 2);
     auto CipherText = CipherTextPtr.Raw();
 
-    const uint TagLen = MnEncryptionSize / 8;
+    const xint TagLen = MnEncryptionSize / 8;
     MsTagPtr = RA::SharedPtr<unsigned char[]>(TagLen);
     auto Tag    = MsTagPtr.Raw();
 

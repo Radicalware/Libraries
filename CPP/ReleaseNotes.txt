@@ -4,13 +4,21 @@
 
 ---------------------------------------------------------------------
 
-02/21/2023 >> Libs 22.0.1
+02/21/2023 >> Libs v22.0.2
+
+Fixed outdated examples. AllExamples work again. Also, I refreshed
+all packages from vcpkg and a few updates were made. Lastly, Qt6
+has been integrated to work now.
+
+---------------------------------------------------------------------
+
+02/21/2023 >> Libs v22.0.1
 
 Abstract Decay Support Macros for quick ABS class building.
 
 ---------------------------------------------------------------------
 
-02/13/2023 >> Libs 22.0.0
+02/13/2023 >> Libs v22.0.0
 
 Warning, this is a big push and I am uploading this for security
 reasons. This push is not yet stable, please pull previous branch
@@ -26,7 +34,7 @@ they exit vld tested
 
 ---------------------------------------------------------------------
 
-11/13/2022 >> Libs 21.0.6
+11/13/2022 >> Libs v21.0.6
 
 CUDA Mutexing Added, CudaBridge functions are now variadic,
 CUDA Timer added and the ability to grab any global CUDA
@@ -34,7 +42,7 @@ thread index. Device overloading to compare dim3 added as well.
 
 ---------------------------------------------------------------------
 
-11/13/2022 >> Libs 21.0.5
+11/13/2022 >> Libs v21.0.5
 
 Added bld.ps1 which is a very useful build script to compile
 Radicalware exe's on the fly! It works for both CL.exe & NVCC.exe
@@ -70,7 +78,7 @@ or AtPtr (instead of just At).
 
 ---------------------------------------------------------------------
 
-10/22/2021 >> Libs 20.0.0
+10/22/2021 >> Libs v20.0.0
 
 Memory has been added which is a collection of extended memory
 objects. Mutex is the main one. Now your Mutex holds both
@@ -81,7 +89,7 @@ in favor of shared pointers in Nexus resulting in faster rurntime.
 
 ---------------------------------------------------------------------
 
-10/15/2021 >> Libs 19.3.0
+10/15/2021 >> Libs v19.3.0
 
 Builds are now designed to use VS 2022. This comes at the cost of 
 not being able to use CUDA. Due to rapid development right now, 
@@ -93,7 +101,7 @@ Rapid dev right now so releases will be bumpy atm.
 
 ---------------------------------------------------------------------
 
-09/18/2021 >> Libs 19.1.0
+09/18/2021 >> Libs v19.1.0
 
 There is now a major overhaul to the libs buid platform.
 Installing libs, apps and creating finders are all done with 
@@ -105,7 +113,7 @@ solution making for some easy library modifications!
 
 ---------------------------------------------------------------------
 
-08/11/2021 >> Libs 19.0.0
+08/11/2021 >> Libs v19.0.0
 
 Macros lib was released. This library will continue to grow as
 I come accross new ways to automate with macros. Macros are 
@@ -116,7 +124,7 @@ function can't do.
 
 ---------------------------------------------------------------------
 
-07/29/2021 >> Libs 18.0.0
+07/29/2021 >> Libs v18.0.0
 
 JSON and Stash have been added. JSON makes it easy to handle 
 incomming data form Microsoft's CppRestSdk and Stash moves that
@@ -125,7 +133,7 @@ have an easy time handling the data that comes from the server!
 
 ---------------------------------------------------------------------
 
-07/05/2021 >> Libs 16.0.0
+07/05/2021 >> Libs v16.0.0
 
 Cmake Upgrades. Also, I have started to change the naming scheme to
 pascal case. This is because more and more of C++ is going into
