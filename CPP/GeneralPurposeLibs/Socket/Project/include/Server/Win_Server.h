@@ -14,7 +14,7 @@
 #include <stdio.h>
 #pragma comment (lib, "Ws2_32.lib")
 
-// This Code is based off of Microsoft's Approved and Tested Client/Server Methods
+// The Code is based off of Microsoft's Approved and Tested Client/Server Methods
 // https://docs.microsoft.com/en-us/windows/win32/winsock/complete-client-code
 // https://docs.microsoft.com/en-us/windows/win32/winsock/complete-server-code
 

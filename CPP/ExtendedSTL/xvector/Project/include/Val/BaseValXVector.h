@@ -815,8 +815,8 @@ inline xvector<T> ValXVector<T>::SubAll(const re2::RE2& in_pattern, const std::s
 {
     xvector<E> RetVec;
     RetVec.reserve(The.size() + 1);
-    for (const T* Val : *this)
-        RetVec << *Val;
+    for (const T& Val : *this)
+        RetVec << Val;
 
     for (typename ValXVector<T>::iterator iter = RetVec.begin(); iter != RetVec.end(); iter++)
         RE2::GlobalReplace(&*iter, in_pattern, replacement.c_str());

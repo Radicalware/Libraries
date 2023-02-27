@@ -54,10 +54,10 @@ private:
     
     // thread not jthread for NVCC
     istatic std::vector<std::thread> MvThreads; // these threads start in the constructor and don't stop until Nexus is over
-    istatic std::queue<RA::SharedPtr<Task<void>>> ScTaskQueue; // This is where tasks are held before being run
+    istatic std::queue<RA::SharedPtr<Task<void>>> ScTaskQueue; // The is where tasks are held before being run
     // No Getter Mutex/Sig for Nexus<void> because you pass in by ref, you don't pull any stored values
     istatic std::unordered_map<size_t, RA::SharedPtr<RA::Mutex>> SmMutex; // for objects in threads
-    istatic RA::SharedPtr<RA::Mutex> SoBlankMutexPtr = RA::MakeShared<RA::Mutex>(); // This blank Mutex used when no mutex is given as a param
+    istatic RA::SharedPtr<RA::Mutex> SoBlankMutexPtr = RA::MakeShared<RA::Mutex>(); // The blank Mutex used when no mutex is given as a param
     // Nexus<void> can't store output, hance no storage containers here
 
     istatic void TaskLooper(int thread_idx);
@@ -203,7 +203,7 @@ INL void Nexus<void>::ForceStop()
 
 }
 
-// If you are meaning to get an object version, pass in "This" instead of "this"
+// If you are meaning to get an object version, pass in "The" instead of "this"
 template<typename F, typename ...A>
 INL UsingFunction(void) Nexus<void>::AddJob(F&& Function, A&& ...Args)
 {

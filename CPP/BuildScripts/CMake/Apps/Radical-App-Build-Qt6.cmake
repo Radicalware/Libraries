@@ -2,6 +2,9 @@
 
 macro(BuildRadicalQt6Solution InPrivateLibs InPublicLibs)
 
+    RunSilentPowershell("rm ${CMAKE_CURRENT_SOURCE_DIR}/.clang-format_11")
+    RunSilentPowershell("New-Item ${CMAKE_CURRENT_SOURCE_DIR}/.clang-format_11 | Out-Null")
+
     add_definitions(-DQtAPP)
 
     set(SOLUTION "${CMAKE_SOURCE_DIR}/Solution")
@@ -10,6 +13,7 @@ macro(BuildRadicalQt6Solution InPrivateLibs InPublicLibs)
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
     find_package(re2)
+    find_package(Threads)
 
     find_package(
         Qt6  REQUIRED COMPONENTS 

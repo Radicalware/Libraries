@@ -20,12 +20,12 @@ RA::AES::~AES()
 
 RA::AES::AES(const RA::AES& Other)
 {
-    This = Other;
+    The = Other;
 }
 
 RA::AES::AES(RA::AES&& Other) noexcept
 {
-    This = Other;
+    The = Other;
 }
 
 void RA::AES::operator=(const RA::AES& Other)
@@ -96,40 +96,40 @@ RA::AES& RA::AES::Encrypt()
 
     /* Create and initialise the context */
     if (!(Context = EVP_CIPHER_CTX_new())) 
-        This.ThrowErrors();
+        The.ThrowErrors();
     /* Initialise the encryption operation. */
     if (1 != EVP_EncryptInit_ex(Context, EVP_aes_256_gcm(), nullptr, nullptr, nullptr))
-        This.ThrowErrors();
+        The.ThrowErrors();
     /* Set IV length if default 12 bytes (96 bits) is not appropriate */
     if (1 != EVP_CIPHER_CTX_ctrl(Context, EVP_CTRL_GCM_SET_IVLEN, IvLen, nullptr))
-        This.ThrowErrors();
+        The.ThrowErrors();
     /* Initialise Key and IV */
     if (1 != EVP_EncryptInit_ex(Context, nullptr, nullptr, Key, IV)) 
-        This.ThrowErrors();
-    /* Provide any AAD data. This can be called zero or more times as required*/
+        The.ThrowErrors();
+    /* Provide any AAD data. The can be called zero or more times as required*/
     if (AAD && AADLen > 0)
     {
         if (1 != EVP_EncryptUpdate(Context, nullptr, &Len, AAD, AADLen))
-            This.ThrowErrors();
+            The.ThrowErrors();
     }
     /* Provide the message to be encrypted, and obtain the encrypted output.
      * EVP_EncryptUpdate can be called multiple times if necessary */
     if (PlainText)
     {
         if (1 != EVP_EncryptUpdate(Context, CipherText, &Len, PlainText, PlainTextLen))
-            This.ThrowErrors();
+            The.ThrowErrors();
 
         MnCipherTextSize = Len;
     }
     /* Finalise the encryption. Normally CipherText bytes may be written at
      * this stage, but this does not occur in GCM mode */
     if (1 != EVP_EncryptFinal_ex(Context, CipherText + Len, &Len)) 
-        This.ThrowErrors();
+        The.ThrowErrors();
     MnCipherTextSize += Len;
 
     /* Get the Tag */
     if (1 != EVP_CIPHER_CTX_ctrl(Context, EVP_CTRL_GCM_GET_TAG, TagLen, Tag))
-        This.ThrowErrors();
+        The.ThrowErrors();
 
     /* Clean up */
     EVP_CIPHER_CTX_free(Context);
@@ -137,7 +137,7 @@ RA::AES& RA::AES::Encrypt()
     MsTag = xstring(MsTagPtr.Raw(), TagLen);
     MsCipherText = xstring(CipherTextPtr.Raw(), MnEncryptionSize);
 
-    return This;
+    return The;
     Rescue();
 }
 
@@ -159,26 +159,26 @@ xstring RA::AES::Decrypt()
 
     /* Create and initialise the context */
     if (!(Context = EVP_CIPHER_CTX_new())) 
-        This.ThrowErrors();
+        The.ThrowErrors();
 
     /* Initialise the decryption operation. */
     if (!EVP_DecryptInit_ex(Context, EVP_aes_256_gcm(), NULL, NULL, NULL))
-        This.ThrowErrors();
+        The.ThrowErrors();
 
     /* Set IV length. Not necessary if this is 12 bytes (96 bits) */
     if (!EVP_CIPHER_CTX_ctrl(Context, EVP_CTRL_GCM_SET_IVLEN, IvLen, NULL))
-        This.ThrowErrors();
+        The.ThrowErrors();
 
     /* Initialise Key and IV */
     if (!EVP_DecryptInit_ex(Context, NULL, NULL, Key, IV)) 
-        This.ThrowErrors();
+        The.ThrowErrors();
 
-    /* Provide any AAD data. This can be called zero or more times as
+    /* Provide any AAD data. The can be called zero or more times as
      * required */
     if (AAD && AADLen > 0)
     {
         if (!EVP_DecryptUpdate(Context, NULL, &Len, AAD, AADLen))
-            This.ThrowErrors();
+            The.ThrowErrors();
     }
 
     /* Provide the message to be decrypted, and obtain the PlainText output.
@@ -188,13 +188,13 @@ xstring RA::AES::Decrypt()
 
     auto MsDecryptedTextPtr = RA::SharedPtr<unsigned char[]>(MnCipherTextSize * 2);
     if (!EVP_DecryptUpdate(Context, MsDecryptedTextPtr.Raw(), &Len, CipherText, MnCipherTextSize))
-        This.ThrowErrors();
+        The.ThrowErrors();
     PlainTextLen = Len;
 
     /* Set expected Tag value. Works in OpenSSL 1.0.1d and later */
     MsTagPtr = MsTag.ToUnsignedChar();
     if (!EVP_CIPHER_CTX_ctrl(Context, EVP_CTRL_GCM_SET_TAG, MsTag.Size(), MsTagPtr.Raw()))
-        This.ThrowErrors();
+        The.ThrowErrors();
 
     /* Finalise the decryption. A positive return value indicates success,
      * anything else is a failure - the PlainText is not trustworthy.*/
@@ -220,22 +220,22 @@ RA::AES& RA::AES::SetPlainText(const xstring& FsPlainText)
         ThrowIt("The string exceeds the 128 Byte Limit");
     MsPlaintext        = FsPlainText;
     MnEncryptionSize   = MsPlaintext.Size();
-    return This;
+    return The;
 }
 
 RA::AES& RA::AES::SetCipherText(const xstring& FsCipherText)
 {
     MsCipherText     = FsCipherText;
     MnCipherTextSize = MsCipherText.Size();
-    return This;
+    return The;
 }
 
 RA::AES& RA::AES::SetAllRandomValues()
 {
-    This.SetRandomAAD();
-    This.SetRandomKey();
-    This.SetRandomIV();
-    return This;
+    The.SetRandomAAD();
+    The.SetRandomKey();
+    The.SetRandomIV();
+    return The;
 }
 
 void RA::AES::SetRandomAAD()

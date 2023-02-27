@@ -95,9 +95,10 @@ public:
     inline void RemoveDups();
 
     template<typename F>
-    inline xvector<xp<T>>& Sort(F func);
+    inline xvector<xp<T>>& Sort(F&& func);
     inline xvector<xp<T>>& Sort();
-    inline xvector<xp<T>>& ReverseSort();
+    template<typename F>
+    inline xvector<xp<T>>& ReverseSort(F&& func);
     inline xvector<xp<T>>& ReverseIt();
 
     template<typename F, typename... A>
@@ -501,9 +502,40 @@ inline void SPtrXVector<xp<T>>::RemoveDups()
 
 template<typename T>
 template<typename F>
-inline xvector<xp<T>>& SPtrXVector<xp<T>>::Sort(F func)
+inline xvector<xp<T>>& SPtrXVector<xp<T>>::Sort(F&& func)
 {
-    std::sort(The.begin(), The.end(), func);
+    // Step through each element of the LvArray except the last
+    const auto LnLeng = The.Size();
+    for (xint iteration = 0; iteration < LnLeng - 1; ++iteration)
+    {
+        // Account for the fact that the last element is already sorted with each subsequent iteration
+        // so our FvArray "ends" one element sooner
+        const xint LnEndOfArray = LnLeng - iteration;
+
+        bool LbSwapped = false; // Keep track of whether any elements were swapped this iteration
+
+        // Search through all elements up to the end of the FvArray - 1
+        // The last element has no pair to compare against
+        for (int Idx = 0; Idx < LnEndOfArray - 1; ++Idx)
+        {
+            // If the current element is larger than the element after it
+            if (func(The[Idx], The[Idx + 1])) // Generally testing (Left > Right)
+            {
+                // Swap them
+                std::swap(The[Idx], The[Idx + 1]);
+                LbSwapped = true;
+            }
+        }
+
+        // If we haven't swapped any elements this iteration, we're done early
+        if (!LbSwapped)
+        {
+            // iteration is 0 based, but counting iterations is 1-based.  So add 1 here to adjust.
+            break;
+        }
+    }
+
+    //std::sort(The.begin(), The.end(), func);
     return *reinterpret_cast<xvector<xp<T>>*>(this);
 }
 
@@ -515,9 +547,29 @@ inline xvector<xp<T>>& SPtrXVector<xp<T>>::Sort()
 }
 
 template<typename T>
-inline xvector<xp<T>>& SPtrXVector<xp<T>>::ReverseSort()
+template<typename F>
+inline xvector<xp<T>>& SPtrXVector<xp<T>>::ReverseSort(F&& func)
 {
-    std::sort(The.begin(), The.end(), std::greater<xp<T>>());
+    const auto LnLeng = The.Size();
+    for (xint iteration = LnLeng - 1; iteration > 0; iteration--)
+    {
+        const xint LnEndOfArray = LnLeng - iteration;
+        bool LbSwapped = false;
+        for (xint Idx = LnEndOfArray - 1; Idx > 0 - 1; Idx--)
+        {
+            if (func(*The[Idx], *The[Idx + 1])) // Generally testing (Left < Right)
+            {
+                std::swap(The[Idx], The[Idx + 1]);
+                LbSwapped = true;
+            }
+        }
+
+        if (!LbSwapped)
+        {
+            std::cout << "Early termination on iteration: " << iteration + 1 << '\n';
+            break;
+        }
+    }
     return *reinterpret_cast<xvector<xp<T>>*>(this);
 }
 

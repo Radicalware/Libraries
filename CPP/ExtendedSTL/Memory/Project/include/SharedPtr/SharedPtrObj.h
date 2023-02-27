@@ -75,7 +75,7 @@ namespace RA
         _NODISCARD inline       std::remove_extent_t<T>* Raw()       noexcept { return The.get(); }
         _NODISCARD inline const std::remove_extent_t<T>* Raw() const noexcept { return The.get(); }
 
-        // inline xint Size() const { throw "RA::SharedPtr<T>::Size >> Don't Call This Function"; }
+        // inline xint Size() const { throw "RA::SharedPtr<T>::Size >> Don't Call The Function"; }
     };
 };
 

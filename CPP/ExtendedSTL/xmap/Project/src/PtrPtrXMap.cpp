@@ -2,5 +2,5 @@
 
 #include "PtrPtrXMap.h"
 
-// This is a templated class,
+// The is a templated class,
 // so all code is in the header file

@@ -24,6 +24,24 @@ endmacro()
 # FindProgramDirs <result> <dir>
 # FindIncludeDirs <result> <dir>
 
+macro(RunSilentPowershell COMMAND)
+    if(${IsWindows})
+        message("powershell.exe /c ${COMMAND}")
+        execute_process (
+            COMMAND powershell.exe /c ${COMMAND}
+            OUTPUT_VARIABLE Output
+        )
+    else()
+        message("No Nix Support")
+    endif()
+endmacro()
+
+macro(RunPowershell COMMAND)
+    RunSilentPowershell(${COMMAND})
+    message("result: ${Output}")
+endmacro()
+
+
 macro(RunSystemCommand COMMAND)
     if(${IsWindows})
         message("cmd /c ${COMMAND}")
@@ -36,6 +54,7 @@ macro(RunSystemCommand COMMAND)
     endif()
     message("result: ${Output}")
 endmacro()
+
 
 macro(MakeHardLink From To)
     if(${IsWindows})

@@ -1,4 +1,4 @@
 ﻿#include "SPtr/BaseSPtrXVector.h"
 
-// This is a template class, 
+// The is a template class, 
 // all code is in the header file

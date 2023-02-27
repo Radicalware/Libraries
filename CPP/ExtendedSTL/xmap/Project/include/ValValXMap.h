@@ -23,7 +23,7 @@
 #include "BaseXMap.h"
 
 template<typename K, typename V, typename H>
-class xmap : public BaseXMap<K,V,H>
+class xmap : public BaseXMap<K,V, H>
 {
 public:
     // ======== INITALIZATION ========================================================================

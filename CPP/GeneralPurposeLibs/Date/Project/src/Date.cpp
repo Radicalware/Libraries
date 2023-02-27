@@ -102,7 +102,7 @@ RA::Date::Date(Date&& Other) noexcept
 
 void RA::Date::operator=(const xint FnTime)
 {
-    This = RA::Date(FnTime);
+    The = RA::Date(FnTime);
 }
 
 void RA::Date::operator=(const Date& Other)
@@ -254,7 +254,7 @@ bool RA::Date::IsLeapYear()
 
 bool RA::Date::IsEvenHour()
 {
-    const auto& Layout = This.GetLayout();
+    const auto& Layout = The.GetLayout();
     if (Layout.Sec == 0 && Layout.Min == 0)
         return true;
     return false;
@@ -262,7 +262,7 @@ bool RA::Date::IsEvenHour()
 
 bool RA::Date::IsEvenHour(const int FnRound)
 {
-    const auto& Layout = This.GetLayout();
+    const auto& Layout = The.GetLayout();
     if (Layout.Sec == 0 && Layout.Min == 0 && ((Layout.Hour + 1) % FnRound) == 0)
         return true;
     return false;
@@ -333,12 +333,12 @@ xstring RA::Date::GetNumericTimeStr()
 
 xstring RA::Date::GetEpochTimeMillisecondsStr() const
 {
-    return RA::ToXString(This.GetEpochTimeMilliseconds());
+    return RA::ToXString(The.GetEpochTimeMilliseconds());
 }
 
 xstring RA::Date::GetEpochTimeEvenMillisecondsStr() const
 {
-    return RA::ToXString(This.GetEpochTimeEvenMilliseconds());
+    return RA::ToXString(The.GetEpochTimeEvenMilliseconds());
 }
 
 int RA::Date::GetComputerOffset()
@@ -374,19 +374,19 @@ int RA::Date::GetHoursOffset() {
 }
 
 RA::Date RA::Date::ToLocal() const {
-    return This.Hour(SnOffsetUTC);
+    return The.Hour(SnOffsetUTC);
 }
 
 RA::Date RA::Date::FromLocal() const {
-    return This.Hour(-SnOffsetUTC);
+    return The.Hour(-SnOffsetUTC);
 }
 
 RA::Date RA::Date::ToUTC() const {
-    return This.Hour(-SnOffsetUTC);
+    return The.Hour(-SnOffsetUTC);
 }
 
 RA::Date RA::Date::FromUTC() const {
-    return This.Hour(+SnOffsetUTC);
+    return The.Hour(+SnOffsetUTC);
 }
 
 int RA::Date::GetSecondsOffset(Offset FeOffset)
@@ -499,7 +499,7 @@ RA::Date RA::Date::Month(int FnMonth) const
         LoLayout.Month  = MoveMonths - 12;
     }
     else
-        throw "This won't happen";
+        throw "The won't happen";
 
     RoDate.SetDateTime(LoLayout);
     return RoDate;

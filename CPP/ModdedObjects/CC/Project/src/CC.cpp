@@ -25,7 +25,7 @@
 #endif
 
 
-// This headers provides the `isatty()`/`fileno()` functions,
+// The headers provides the `isatty()`/`fileno()` functions,
 // which are used for testing whether a standart stream refers
 // to the terminal. As for Windows, we also need WinApi funcs
 // for changing colors attributes of the terminal.

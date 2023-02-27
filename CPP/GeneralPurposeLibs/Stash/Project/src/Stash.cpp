@@ -160,7 +160,7 @@ RA::JSON RA::Stash::GetAll(RA::JSON::Init FeInit)
 RA::JSON RA::Stash::FindOne(const BSON::Data& FnData, RA::JSON::Init FeInit)
 {
     Begin();
-    return RA::JSON(MoCollection.find_one(FnData).get(), FeInit);
+    return RA::JSON(MoCollection.find_one(FnData).value(), FeInit);
     Rescue();
 }
 
