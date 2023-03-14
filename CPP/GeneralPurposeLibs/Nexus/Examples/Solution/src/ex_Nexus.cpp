@@ -21,7 +21,7 @@ using std::bind;
 #include "ObjectMutexHandling.h"
 #include "ObjectReturnHandling.h"
 #include "Benchmark.h"
-
+#include "Timer.h"
 
 int main() 
 {
@@ -32,11 +32,30 @@ int main()
     // static classes static and instnace classes instance based to not confuse anyone. 
     // -------------------------------------------------------------------------------------
 
-    ObjectMutexHandling();
+    //ObjectMutexHandling();
     ObjectReturnHandling();
+    Benchmark();
 
-    //Benchmark();
-    
+    //RA::Timer Time;
+
+    //constexpr xint LnLoops = 10000000;
+    //RA::Atomic<xint> Val1 = 0;
+    //for (xint i = 0; i < LnLoops; i++) {
+    //    ++Val1;
+    //}
+    //cout << Val1 << " " << Time.GetElapsedTimeMilliseconds() << endl;
+
+    //Time.Reset();
+    //xint Val2 = 0;
+    //std::mutex SimpleMtx;
+    //RA::Mutex Mtx;
+    //for (xint i = 0; i < LnLoops; i++) {
+    //    //auto Lock = std::unique_lock(SimpleMtx);
+    //    auto Lock = Mtx.CreateLock([] {return true; });
+    //    ++Val2;
+    //}
+    //cout << Val2 << " " << Time.GetElapsedTimeMilliseconds() << endl;
+
     RescuePrint();
     Nexus<>::Stop();
     return 0;

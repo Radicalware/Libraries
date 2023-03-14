@@ -89,7 +89,7 @@ public:
     inline void operator+=(const xvector<xp<T>>& other);
     inline xvector<xp<T>> operator+(const xvector<xp<T>>& other) const;
 
-    size_t Size() const;
+    xint Size() const;
 
     inline void Organize();
     inline void RemoveDups();
@@ -466,7 +466,7 @@ xvector<xp<T>> SPtrXVector<xp<T>>::operator+(const xvector<xp<T>>& other) const
 // ------------------------------------------------------------------------------------------------
 
 template<typename T>
-inline size_t SPtrXVector<xp<T>>::Size() const {
+inline xint SPtrXVector<xp<T>>::Size() const {
     return The.size();
 }
 

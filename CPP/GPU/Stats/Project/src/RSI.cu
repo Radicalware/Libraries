@@ -6,9 +6,9 @@
 
 RA::RSI::RSI(
     const double* FvValues,
-    const uint    FnLogicalSize,
-    const uint   *FnStorageSizePtr,
-    const uint   *FnInsertIdxPtr)
+    const xint    FnLogicalSize,
+    const xint   *FnStorageSizePtr,
+    const xint   *FnInsertIdxPtr)
     :
     MvValues(FvValues),
     MnLogicalSize(FnLogicalSize),
@@ -55,21 +55,21 @@ DXF void RA::RSI::Update()
     }
 
     double LnUpShift = 0;
-    uint   LnUpTicks = 0;
+    xint   LnUpTicks = 0;
 
     double LnDownShift = 0;
-    uint   LnDownTicks = 0;
+    xint   LnDownTicks = 0;
 
     // https://www.investopedia.com/terms/r/rsi.asp
 
-    const auto& LnStart   = *This.MnInsertIdxPtr; 
-    const auto& LnStorage = *This.MnStorageSizePtr;
-    const auto& LnLogic   = This.MnLogicalSize;
+    const auto& LnStart   = *The.MnInsertIdxPtr; 
+    const auto& LnStorage = *The.MnStorageSizePtr;
+    const auto& LnLogic   = The.MnLogicalSize;
 
-    uint Idx = LnStart;
-    for (uint i = LnStart; i < LnStart + LnLogic; i++)
+    xint Idx = LnStart;
+    for (xint i = LnStart; i < LnStart + LnLogic; i++)
     {
-        //const uint Idx = i;
+        //const xint Idx = i;
 
         //if (Idx > 0)
         //{

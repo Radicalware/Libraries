@@ -6,13 +6,27 @@
 
 // Copyright via Apache v2 Licence [2023][Joel Leagues aka Scourge]
 
+DXF double RA::Joinery::InsertNum(const double FnNum)
+{
+    const auto LnReplaced = MvValues[MnIdx];
+    MnSum += FnNum;
+    MnSum -= LnReplaced;
+    MvValues[MnIdx] = FnNum;
+    if (MnIdx < MnSize - 1)
+        MnIdx++;
+    else
+        MnIdx = 0;
+    return LnReplaced;
+}
+
 RA::Stats::Stats()
 {
 }
 
 RA::Stats::~Stats()
 {
-    Clear();
+    if(MbDelete)
+        Clear();
 }
 
 void RA::Stats::Clear()
@@ -20,18 +34,44 @@ void RA::Stats::Clear()
     Begin();
 
     ClearStorageRequriedObjs();
+    ClearJoinery();
     if (MeHardware == EHardware::GPU) {
         CudaDelete(MvValues);
-        CudaDelete(MvJoinery);
     }
     else if (MeHardware == EHardware::CPU) {
         HostDelete(MvValues);
-        HostDelete(MvJoinery);
     }
     else
         ThrowIt("EHardware (GPU/CPU) Option Not Given");
 
     Rescue();
+}
+
+void RA::Stats::ClearJoinery()
+{
+
+    if (MeHardware == EHardware::GPU) 
+    {
+        if (MvJoinery)
+        {
+            for (xint i = 0; i < MnStorageSize; i++) {
+                CudaDelete(MvJoinery[i].MvValues);
+            }
+            CudaDelete(MvJoinery);
+        }
+    }
+    else if (MeHardware == EHardware::CPU)
+    {
+        if (MvJoinery)
+        {
+            for (xint i = 0; i < MnStorageSize; i++) {
+                HostDelete(MvJoinery[i].MvValues);
+            }
+            HostDelete(MvJoinery);
+        }
+    }
+    else
+        ThrowIt("EHardware (GPU/CPU) Option Not Given");
 }
 
 void RA::Stats::ClearStorageRequriedObjs()
@@ -60,7 +100,7 @@ void RA::Stats::ClearStorageRequriedObjs()
 }
 
 
-void RA::Stats::CreateObjs(const xmap<EOptions, uint>& FmOptions)
+void RA::Stats::CreateObjs(const xmap<EOptions, xint>& FmOptions)
 {
     Begin();
     ClearStorageRequriedObjs();
@@ -68,7 +108,7 @@ void RA::Stats::CreateObjs(const xmap<EOptions, uint>& FmOptions)
     {
         case RA::EHardware::CPU:
         {
-            for (const std::pair<EOptions, uint>& Pair : FmOptions)
+            for (const std::pair<EOptions, xint>& Pair : FmOptions)
             {
                 if (Pair.first == EOptions::AVG)
                     MoAvgPtr = new AVG(MvValues, Pair.second, &MnStorageSize, &MnInsertIdx);
@@ -82,7 +122,7 @@ void RA::Stats::CreateObjs(const xmap<EOptions, uint>& FmOptions)
 #ifndef UsingMSVC
         case RA::EHardware::GPU:
         {
-            for (const std::pair<EOptions, uint>& Pair : FmOptions)
+            for (const std::pair<EOptions, xint>& Pair : FmOptions)
             {
                 if (Pair.first == EOptions::AVG)
                     MoAvgPtr = RA::Host::AllocateObjOnDevice<AVG>(MvValues, Pair.second, &MnStorageSize, &MnInsertIdx);
@@ -100,7 +140,7 @@ void RA::Stats::CreateObjs(const xmap<EOptions, uint>& FmOptions)
     Rescue();
 }
 
-void RA::Stats::Allocate(const uint FnStorageSize, const double FnDefaultVal)
+void RA::Stats::Allocate(const xint FnStorageSize, const double FnDefaultVal)
 {
     Begin();
     Clear();
@@ -150,8 +190,8 @@ void RA::Stats::Allocate(const uint FnStorageSize, const double FnDefaultVal)
 }
 
 void RA::Stats::Construct(
-    const uint FnStorageSize,
-    const xmap<EOptions, uint>& FmOptions,
+    const xint FnStorageSize,
+    const xmap<EOptions, xint>& FmOptions,
     const double FnDefaultVal)
 {
     Begin();
@@ -184,24 +224,24 @@ void RA::Stats::Construct(
 
 void RA::Stats::Construct(
     const EHardware FeHardware,
-    const uint FnStorageSize,
-    const xmap<EOptions, uint>& FmOptions,
+    const xint FnStorageSize,
+    const xmap<EOptions, xint>& FmOptions,
     const double FnDefaultVal)
 {
     Begin();
     MeHardware = FeHardware;
-    This.Construct(FnStorageSize, FmOptions, FnDefaultVal);
+    The.Construct(FnStorageSize, FmOptions, FnDefaultVal);
     Rescue();
 }
 
 RA::Stats::Stats(
     const EHardware FeHardware,
-    const uint FnStorageSize,
-    const xmap<EOptions, uint>& FmOptions, // Options <> Logical Size
+    const xint FnStorageSize,
+    const xmap<EOptions, xint>& FmOptions, // Options <> Logical Size
     const double FnDefaultVal)
 {
     Begin();
-    This.Construct(FeHardware, FnStorageSize, FmOptions, FnDefaultVal);
+    The.Construct(FeHardware, FnStorageSize, FmOptions, FnDefaultVal);
     Rescue();
 }
 
@@ -237,7 +277,7 @@ void RA::Stats::SetDefaultValues(const double FnDefaultVal)
     Rescue();
 }
 
-void RA::Stats::SetJoinerySize(const uint FCount)
+void RA::Stats::SetJoinerySize(const xint FCount)
 {
     Begin();
     if (FCount <= 1)
@@ -245,6 +285,7 @@ void RA::Stats::SetJoinerySize(const uint FCount)
     MnJoinerySize = FCount;
     MnInsertIdx = 0;
     MbHadFirstInsert = false;
+    ClearJoinery();
 
     switch (MeHardware)
     {
@@ -252,10 +293,17 @@ void RA::Stats::SetJoinerySize(const uint FCount)
         {
             if (MnJoinerySize)
             {
-                DeleteArr(MvJoinery);
-                MvJoinery = new double[MnJoinerySize + 1];
-                for (auto* Ptr = MvJoinery; Ptr < MvJoinery + MnJoinerySize; Ptr++)
-                    *Ptr = 0;
+                MvJoinery = new Joinery[MnStorageSize + 1];
+                for (auto* Ptr = MvJoinery; Ptr < MvJoinery + MnStorageSize; Ptr++)
+                {
+                    auto& Ref = *Ptr;
+                    Ref.MnSum = 0;
+                    Ref.MnIdx = 0;
+                    Ref.MnSize = MnJoinerySize;
+                    Ref.MvValues = new double[Ref.MnSize + 1];
+                    for (auto* Ptr2 = Ref.MvValues; Ptr2 <= Ref.MvValues + Ref.MnSize; Ptr2++)
+                        *Ptr2 = 0;
+                }
             }
             else
                 Clear();
@@ -266,11 +314,19 @@ void RA::Stats::SetJoinerySize(const uint FCount)
         {
             if (MnJoinerySize)
             {
-                CudaDelete(MvJoinery);
-                auto Ptr = RA::MakeShared<double[]>(MnJoinerySize + 1);
+                auto Ptr = RA::MakeShared<Joinery[]>(MnStorageSize + 1);
                 for (auto& Val : Ptr)
-                    Val = FnDefaultVal;
-                MvJoinery = RA::Host::AllocateArrOnDevice<double>(Ptr.Raw(), RA::Allocate(MnJoinerySize, sizeof(double)));
+                {
+                    auto& Ref = *Ptr;
+                    Ref.MnSum = 0;
+                    Ref.MnIdx = 0;
+                    Ref.MnSize = MnJoinerySize;
+                    Ref.MvValues = new double[Ref.MnSize + 1];
+                    for (auto* Ptr2 = Ref.MvValues; Ptr2 <= Ref.MvValues + Ref.MnSize; Ptr2++)
+                        *Ptr2 = 0;
+                }
+                MvJoinery = RA::Host::AllocateArrOnDevice<double>(Ptr.Raw(), RA::Allocate(MnJoinerySize, 
+                    sizeof(Joinery) + (sizeof(double) * MnJoinerySize)));
             }
             else
                 Clear();
@@ -284,10 +340,39 @@ void RA::Stats::SetJoinerySize(const uint FCount)
     Rescue();
 }
 
+DXF double RA::Stats::operator[](const xint IDX) const
+{
+    Begin();
+    if (IDX >= MnStorageSize)
+        ThrowIt(RED "IDX = ", MnStorageSize, " which is too big for size of\n" WHITE);
+    if (MnInsertIdx >= IDX)
+        return MvValues[MnInsertIdx - IDX];
+    const auto LnRelIDX = MnInsertIdx + MnStorageSize - IDX; // 0 + 5 - 1 == 5 - 1 == idx 4 (of size o5)
+    return MvValues[LnRelIDX];
+
+    Rescue();
+}
+
+DXF double RA::Stats::Former(const xint IDX) const
+{
+    Begin();
+    const auto LnIdx = IDX + 1;
+    if (LnIdx >= MnStorageSize)
+        ThrowIt(RED "IDX = ", MnStorageSize, " which is too big for size of\n" WHITE);
+    const auto LnRelIdx = MnInsertIdx + 1 + LnIdx; // where 0 is the start
+    if (LnRelIdx >= MnStorageSize)
+        return MvValues[LnRelIdx - MnStorageSize];
+    return MvValues[LnRelIdx];
+    Rescue();
+}
 
 DXF void RA::Stats::operator<<(const double FnValue)
 {
-    double LnValue = 0;
+    if (!MnStorageSize)
+    {
+        SRef(MoAvgPtr).Update(FnValue);
+        return;
+    }
 
     if (MbHadFirstInsert)
     {
@@ -297,95 +382,54 @@ DXF void RA::Stats::operator<<(const double FnValue)
             if (MnInsertIdx >= MnStorageSize)
                 MnInsertIdx = 0;
         }
-        else
-        {
-            if (++MnJoineryIdx >= MnJoinerySize)
-                MnJoineryIdx = 0;
-            if (!MnJoineryIdx)
-            {
-                MnInsertIdx++; // you get a new idx when MnSkipIdx are 0
-                if (MnInsertIdx >= MnStorageSize)
-                    MnInsertIdx = 0;
-                //MnJoinerySum = MvValues[MnInsertIdx];
-
-                //const auto LnIdxVal = MnJoinerySum / MnJoinerySize;
-                //for (double* Ptr = MvJoinery; Ptr < MvJoinery + MnJoinerySize; Ptr++)
-                //    *Ptr = LnIdxVal;
-            }
-        }
     }
 
     if (!MnStorageSize)
     {
-        if (!MbHadFirstInsert && MnJoinerySize)
-        {
-            for (double* Ptr = MvJoinery; Ptr < MvJoinery + MnJoinerySize; Ptr++)
-                *Ptr = FnValue;
-            MnJoinerySum = FnValue * MnJoinerySize;
-            MbHadFirstInsert = true;
-        }
-
         if (MnJoinerySize)
-        {
-            if (++MnJoineryIdx >= MnJoinerySize)
-                MnJoineryIdx = 0;
+            ThrowIt("You can't have Joinery without real values!");
 
-            MnJoinerySum -= MvJoinery[MnJoineryIdx]; // subtract old val
-            MvJoinery[MnJoineryIdx] = FnValue; // set new val
-            MnJoinerySum += FnValue; // add new val
-
-            LnValue = MnJoinerySum; // set new value to main storage
-
-        }
-        else
-            LnValue = FnValue;
-
-        SRef(MoAvgPtr).Update(LnValue);
+        SRef(MoAvgPtr).Update();
         // storage needed for: Min/Max, RSI, STOCH
         return;
     }
 
     if (!MbHadFirstInsert)
     {
-        double LnFillSize = 0;
-        if (MnJoinerySize)
-        {
-            for (double* Ptr = MvJoinery; Ptr < MvJoinery + MnJoinerySize; Ptr++)
-                *Ptr = FnValue;
-            MnJoinerySum = FnValue * MnJoinerySize;
-            LnFillSize = MnJoinerySum;
-        }
-        else
-            LnFillSize = FnValue;
-
-        for (double* Ptr = MvValues; Ptr < MvValues + MnStorageSize; Ptr++)
-            *Ptr = LnFillSize;
-
+        SetAllValues(FnValue, true);
         MnInsertIdx = 0;
     }
     else
     {
         if (MnJoinerySize)
         {
-            MnJoinerySum -= MvJoinery[MnJoineryIdx]; // subtract old val
-            MvJoinery[MnJoineryIdx] = FnValue; // set new val
-            MnJoinerySum += FnValue; // add new val
+            auto LnVal = FnValue;
+            auto IDX = MnInsertIdx;
+            for (xint i = 0; i < MnStorageSize; i++)
+            {
+                LnVal = MvJoinery[IDX].InsertNum(LnVal);
+                MvValues[IDX] = MvJoinery[IDX].MnSum;
+                IDX = (IDX == 0) ? MnStorageSize - 1 : IDX - 1;
+            }
 
-            MvValues[MnInsertIdx] = MnJoinerySum; // set new value to main storage
         }
         else
             MvValues[MnInsertIdx] = FnValue;
     }
 
-    SRef(MoAvgPtr).Update(FnValue);
+
+    if (MnJoinerySize){
+        SRef(MoAvgPtr).Update(MvValues[MnInsertIdx]);
+    }
+    else{
+        SRef(MoAvgPtr).Update(FnValue);
+    }
+
     SRef(MoRSIPtr).Update();
     SRef(MoSTOCHPtr).Update();
 
-    if (!MbHadFirstInsert)
-    {
-        MbHadFirstInsert = true;
-        return;
-    }
+    MbHadFirstInsert = true;
+    return;
 }
 
 DXF void RA::Stats::Reset()
@@ -401,10 +445,26 @@ DXF void RA::Stats::ZeroOut()
 DXF void RA::Stats::SetAllValues(const double FnValue, const bool FbHadFirstIndent)
 {
     MbHadFirstInsert = FbHadFirstIndent;
+    MnInsertIdx = 1;
     if (!MvValues)
         return;
-    for (auto Ptr = MvValues; Ptr < MvValues + MnStorageSize; Ptr++)
-        *Ptr = FnValue;
+
+    for (double* Ptr = MvValues; Ptr < MvValues + MnStorageSize; Ptr++)
+        *Ptr = FnValue * MAX(MnJoinerySize, 1);
+
+    if (MnJoinerySize)
+    {
+        for (Joinery* Ptr = MvJoinery; Ptr < MvJoinery + MnStorageSize; Ptr++)
+        {
+            auto& Ref = *Ptr;
+            Ref.MnSum = FnValue * Ref.MnSize;
+            Ref.MnIdx = 1;
+            for (auto* Ptr2 = Ref.MvValues; Ptr2 < Ref.MvValues + Ref.MnSize; Ptr2++)
+                *Ptr2 = FnValue;
+            Ref.MvValues[0] = FnValue;
+            Ref.MvValues[Ref.MnSize] = 0;
+        }
+    }
 }
 
 DXF void RA::Stats::SetDeviceJoinery()
@@ -431,5 +491,3 @@ DXF void RA::Stats::SetDeviceJoinery()
         MoObj.MnInsertIdxPtr = &MnInsertIdx;
     }
 }
-
-

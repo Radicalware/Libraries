@@ -21,14 +21,9 @@ namespace RA
         void operator=(const StatsCPU& Other);
         void operator=(StatsCPU&& Other) noexcept;
         StatsCPU(
-            const uint FnStorageSize,
-            const xmap<EOptions, uint>& FmOptions, // Options <> Logical Size
+            const xint FnStorageSize,
+            const xmap<EOptions, xint>& FmOptions, // Options <> Logical Size
             const double FnDefaultVal = 0);
-
-        DHF double  operator[](const uint IDX) const;
-        //DHF double& operator[](const uint IDX) = delete;
-        DHF double  Last(const uint IDX = 0) const;
-        //DHF double& Last(const uint IDX = 0) = delete;
 
         DHF AVG&   GetObjAVG();
         DHF STOCH& GetObjSTOCH();

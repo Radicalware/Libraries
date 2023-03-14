@@ -13,11 +13,11 @@ int RA::Threads::GetThreadCountUsed(){
     return Used.load();
 }
 
-size_t RA::Threads::GetInstCount(){
+xint RA::Threads::GetInstCount(){
     return RA::Threads::InstanceCount.load();
 }
 
-size_t RA::Threads::GetTotalTasksRequested(){
+xint RA::Threads::GetTotalTasksRequested(){
     return RA::Threads::TotalTasksCounted.load();
 }
 // --------------------------------------------------

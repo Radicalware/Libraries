@@ -7,9 +7,9 @@
 
 RA::STOCH::STOCH(
     const double* FvValues,
-    const uint    FnLogicalSize,
-    const uint   *FnStorageSizePtr,
-    const uint   *FnInsertIdxPtr)
+    const xint    FnLogicalSize,
+    const xint   *FnStorageSizePtr,
+    const xint   *FnInsertIdxPtr)
     :
     MvValues(FvValues),
     MnLogicalSize(FnLogicalSize),
@@ -42,12 +42,12 @@ DXF void RA::STOCH::Update()
     MnBiggest  = -DBL_MAX; // min is big   until proven otherwise
     MnSmallest = +DBL_MAX; // max is small until proven otherwise
 
-    const auto& LnStart     = *This.MnInsertIdxPtr;
-    const auto& LnStorage   = *This.MnStorageSizePtr;
-    const auto& LnLogic     =  This.MnLogicalSize;
+    const auto& LnStart     = *The.MnInsertIdxPtr;
+    const auto& LnStorage   = *The.MnStorageSizePtr;
+    const auto& LnLogic     =  The.MnLogicalSize;
 
-    uint Idx = LnStart;
-    for (uint i = LnStart; i < LnStart + LnLogic; i++)
+    xint Idx = LnStart;
+    for (xint i = LnStart; i < LnStart + LnLogic; i++)
     {
         // note: the first value will remove the possibility of DBL_MAX/DBL_MIN
         if (MvValues[Idx] > MnBiggest)
@@ -69,7 +69,7 @@ DXF void RA::STOCH::Update()
     //cout << "stoch val: " << MvValues[LnStart] << " : " << MnSTOCH << endl;
 }
 
-DXF void RA::STOCH::SetLogicalSize(const uint FnLogicalSize)
+DXF void RA::STOCH::SetLogicalSize(const xint FnLogicalSize)
 {
     MnLogicalSize = (FnLogicalSize <= *MnStorageSizePtr) ? FnLogicalSize : *MnStorageSizePtr;
 }

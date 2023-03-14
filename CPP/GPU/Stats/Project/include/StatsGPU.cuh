@@ -18,14 +18,9 @@ namespace RA
         void operator=(const StatsGPU& Other);
         void operator=(StatsGPU&& Other) noexcept;
         StatsGPU(
-            const uint FnStorageSize,
-            const xmap<EOptions, uint>& FmOptions, // Options <> Logical Size
+            const xint FnStorageSize,
+            const xmap<EOptions, xint>& FmOptions, // Options <> Logical Size
             const double FnDefaultVal = 0);
-
-        DDF double  operator[](const uint IDX) const;
-        //DDF double& operator[](const uint IDX) = delete;
-        DDF double  Last(const uint IDX = 0) const;
-        //DDF double& Last(const uint IDX = 0) = delete;
 
         DDF AVG&   GetObjAVG();
         DDF STOCH& GetObjSTOCH();

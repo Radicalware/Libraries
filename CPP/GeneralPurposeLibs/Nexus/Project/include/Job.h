@@ -20,7 +20,7 @@ class Job : protected RA::Threads
     
     std::exception_ptr  m_exc_ptr = nullptr;
     
-    size_t              Idx = 0;
+    xint              Idx = 0;
     bool                MbDone = false;
     bool                MbRemoved = false;
     static std::string  Default_STR;
@@ -28,7 +28,7 @@ class Job : protected RA::Threads
 public:
     // Job(); // required by Linux
     Job(const Job<T>& Other) = delete; // Use Shared Pointer
-    Job(const RA::SharedPtr<Task<T>>&  task, size_t index);
+    Job(const RA::SharedPtr<Task<T>>&  task, xint index);
     ~Job();
     void Run();
     const Task<T>& GetTask() const;
@@ -40,7 +40,7 @@ public:
     std::exception_ptr Exception() const;
     void TestException() const;
     bool IsDone() const;
-    size_t GetIndex() const;
+    xint GetIndex() const;
 
     void operator=(const Job<T>& Other) const = delete;
 
@@ -51,7 +51,7 @@ public:
 template<typename T> std::string Job<T>::Default_STR = "";
 
 template<typename T>
-inline Job<T>::Job(const RA::SharedPtr<Task<T>>& task, size_t index) : 
+inline Job<T>::Job(const RA::SharedPtr<Task<T>>& task, xint index) : 
     MoTaskPtr(task), Idx(index)
 {
 }
@@ -146,7 +146,7 @@ inline bool Job<T>::IsDone() const
 }
 
 template<typename T>
-inline size_t Job<T>::GetIndex() const
+inline xint Job<T>::GetIndex() const
 {
     return Idx;
 }

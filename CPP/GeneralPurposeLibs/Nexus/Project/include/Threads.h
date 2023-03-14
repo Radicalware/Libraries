@@ -3,6 +3,8 @@
 #include<thread>
 #include<atomic>
 
+#include "RawMapping.h"
+
 namespace RA
 {
     class Threads
@@ -15,17 +17,17 @@ namespace RA
         inline static std::atomic<int>  TotalTasksCounted = 0;
 
     public:
-        static int      GetCPUThreadCount();
-        static int      GetAllowedThreadCount();
-        static int      GetThreadCountUsed();
-        static size_t   GetInstCount();
-        static size_t   GetTotalTasksRequested();
+        static int  GetCPUThreadCount();
+        static int  GetAllowedThreadCount();
+        static int  GetThreadCountUsed();
+        static xint GetInstCount();
+        static xint GetTotalTasksRequested();
 
-        static int      GetThreadCountAvailable();
-        static bool     ThreadsAreAvailable();
+        static int  GetThreadCountAvailable();
+        static bool ThreadsAreAvailable();
 
-        static void     ResetAllowedThreadCount();
-        static void     SetAllowedThreadCount(int val);
+        static void ResetAllowedThreadCount();
+        static void SetAllowedThreadCount(int val);
 
         void operator+=(int val);
         void operator++();

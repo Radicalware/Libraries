@@ -20,13 +20,13 @@ RA::StatsGPU::StatsGPU()
 RA::StatsGPU::StatsGPU(const StatsGPU& Other)
 {
     Begin();
-    This = Other;
+    The = Other;
     Rescue();
 }
 
 RA::StatsGPU::StatsGPU(StatsGPU&& Other) noexcept
 {
-    This = std::move(Other);
+    The = std::move(Other);
 }
 
 void RA::StatsGPU::operator=(const StatsGPU& Other)
@@ -75,26 +75,11 @@ void RA::StatsGPU::operator=(StatsGPU&& Other) noexcept
 }
 
 RA::StatsGPU::StatsGPU(
-    const uint FnStorageSize,
-    const xmap<EOptions, uint>& FmOptions,
+    const xint FnStorageSize,
+    const xmap<EOptions, xint>& FmOptions,
     const double FnDefaultVal) :
     RA::Stats(RA::EHardware::GPU, FnStorageSize, FmOptions, FnDefaultVal)
 {
-}
-
-
-DDF double RA::StatsGPU::operator[](const uint IDX) const
-{
-    if (IDX >= MnStorageSize)
-        printf(RED "IDX = %llu which is too big for size of\n" WHITE, MnStorageSize);
-    return MvValues[IDX];
-}
-
-DDF double RA::StatsGPU::Last(const uint IDX) const
-{
-    if (IDX >= MnStorageSize)
-        printf(RED "IDX = %llu which is too big for size of\n" WHITE, MnStorageSize);
-    return MvValues[MnStorageSize - 1 - IDX];
 }
 
 // --------------------------------------------------------

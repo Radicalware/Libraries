@@ -13,9 +13,9 @@ namespace RA
         friend class Stats;
     public:
         AVG(const double* FvValues,
-            const uint    FnLogicalSize,
-            const uint   *FnStorageSizePtr,
-            const uint   *FnInsertIdxPtr);
+            const xint    FnLogicalSize,
+            const xint   *FnStorageSizePtr,
+            const xint   *FnInsertIdxPtr);
 
         IXF auto GetAVG() const { return MnAvg; }
         IXF auto GetSum() const { return MnSum; }
@@ -34,9 +34,9 @@ namespace RA
         DXF void SetDefaultValues(const double FnDefaualt);
 
         const double* MvValues = nullptr;
-              uint    MnLogicalSize = 0;
-        const uint   *MnStorageSizePtr;
-        const uint   *MnInsertIdxPtr;
+              xint    MnLogicalSize = 0;
+        const xint   *MnStorageSizePtr;
+        const xint   *MnInsertIdxPtr;
 
         const bool    MbUseStorageValues;
               double  MnAvg = 0;

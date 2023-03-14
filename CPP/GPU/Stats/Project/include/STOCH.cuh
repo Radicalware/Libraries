@@ -16,9 +16,9 @@ namespace RA
 
         STOCH(
             const double* FvValues,
-            const uint    FnLogicalSize,
-            const uint   *FnStorageSizePtr,
-            const uint   *FnInsertIdxPtr);
+            const xint    FnLogicalSize,
+            const xint   *FnStorageSizePtr,
+            const xint   *FnInsertIdxPtr);
 
         IXF auto GetMax()       const { return MnBiggest; }
         IXF auto GetCurrent()   const { return MvValues[(*MnInsertIdxPtr > 0) ? *MnInsertIdxPtr - 1 : *MnStorageSizePtr - 1]; }
@@ -31,13 +31,13 @@ namespace RA
 
     private:
         DXF void Update();
-        DXF void SetLogicalSize(const uint FnLogicalSize);
+        DXF void SetLogicalSize(const xint FnLogicalSize);
         DXF void SetDefaultValues(const double FnDefaualt);
 
         const double* MvValues;
-              uint    MnLogicalSize = 0;
-        const uint   *MnStorageSizePtr;
-        const uint   *MnInsertIdxPtr;
+              xint    MnLogicalSize = 0;
+        const xint   *MnStorageSizePtr;
+        const xint   *MnInsertIdxPtr;
 
         double  MnBiggest = 0;
         double  MnSmallest = 0;

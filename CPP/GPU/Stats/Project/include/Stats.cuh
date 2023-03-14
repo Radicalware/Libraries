@@ -39,6 +39,16 @@
 
 namespace RA
 {
+    struct Joinery
+    {
+        double* MvValues = nullptr;
+        double MnSum = 0;
+        xint MnIdx = 0;
+        xint MnSize = 0;
+
+        DXF double InsertNum(const double FnNum);
+    };
+
     class Stats
     {        
     public:
@@ -54,35 +64,41 @@ namespace RA
         Stats(); // use StatsGPU or StatsCPU
         ~Stats();
         void Clear();
+        void ClearJoinery();
         void ClearStorageRequriedObjs();
 
-        void CreateObjs(const xmap<EOptions, uint>& FmOptions);
-        void Allocate(const uint FnStorageSize, const double FnDefaultVal = 0);
+        void CreateObjs(const xmap<EOptions, xint>& FmOptions);
+        void Allocate(const xint FnStorageSize, const double FnDefaultVal = 0);
 
     public:
         void Construct(
             const EHardware FeHardware,
-            const uint FnStorageSize,
-            const xmap<EOptions, uint>& FmOptions, // Options <> Logical Size
+            const xint FnStorageSize,
+            const xmap<EOptions, xint>& FmOptions, // Options <> Logical Size
             const double FnDefaultVal = 0);
 
         void Construct(
-            const uint FnStorageSize,
-            const xmap<EOptions, uint>& FmOptions, // Options <> Logical Size
+            const xint FnStorageSize,
+            const xmap<EOptions, xint>& FmOptions, // Options <> Logical Size
             const double FnDefaultVal = 0);
     protected:
         Stats(
             const EHardware FeHardware,
-            const uint FnStorageSize,
-            const xmap<EOptions, uint>& FmOptions, // Options <> Logical Size
+            const xint FnStorageSize,
+            const xmap<EOptions, xint>& FmOptions, // Options <> Logical Size
             const double FnDefaultVal = 0);
 
         void SetStorageSizeZero(const double FnDefaultVal);
         void SetDefaultValues(const double FnDefaultVal);
 
+
     public:
-        void SetJoinerySize(const uint FCount); // Sums FCount values as one value
+        void SetJoinerySize(const xint FCount); // Sums FCount values as one value
         DXF auto GetJoinerySize() const { return MnJoinerySize; }
+
+        DXF double  operator[](const xint IDX) const;
+        DXF double  Recent(const xint IDX = 0) const { return The[IDX]; }
+        DXF double  Former(const xint IDX = 0) const;
 
         DXF void operator<<(const double FnValue);
 
@@ -90,8 +106,9 @@ namespace RA
         DXF void ZeroOut();
         DXF void SetAllValues(const double FnValue, const bool FbHadFirstIndent);
 
-        DXF auto GetStorageSize() const { return MnStorageSize; }
-        DXF auto GetInsertIdx()   const { return MnInsertIdx; }
+        DXF auto GetStorageSize()  const { return MnStorageSize; }
+        DXF auto GetInsertIdx()    const { return MnInsertIdx; }
+        DXF auto GetCurrentValue() const { return MvValues[MnInsertIdx]; }
         DXF void SetDeviceJoinery();
 
         DXF bool BxTrackingAvg()   const { return MoAvgPtr   != nullptr; }
@@ -100,19 +117,17 @@ namespace RA
         DXF void SetHadFirstInsert(const bool FbTruth) { MbHadFirstInsert = FbTruth; }
 
     protected:
-        double* MvValues = nullptr;
-        uint    MnStorageSize = 0;
-        uint    MnInsertIdx = 0;
+        double*  MvValues = nullptr;
+        xint     MnStorageSize = 0;
+        xint     MnInsertIdx = 0;
 
-        double* MvJoinery = nullptr;
-        uint    MnJoinerySize = 0; // for grouping input values as one combined value every Size times
-        uint    MnJoineryIdx = 0;
-        double  MnJoinerySum = 0;
+        Joinery* MvJoinery = nullptr;
+        xint     MnJoinerySize = 0; // for grouping input values as one combined value every Size times
 
-        bool    MbDelete = true;
-        bool    MbHadFirstInsert = false;
+        bool     MbDelete = true;
+        bool     MbHadFirstInsert = false;
 
-        xmap<EOptions, uint> MmOptions;
+        xmap<EOptions, xint> MmOptions;
 
         AVG   *MoAvgPtr   = nullptr;
         STOCH *MoSTOCHPtr = nullptr;

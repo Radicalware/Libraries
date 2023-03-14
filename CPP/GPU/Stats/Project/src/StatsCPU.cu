@@ -13,30 +13,13 @@ RA::StatsCPU::StatsCPU()
 RA::StatsCPU::StatsCPU(const StatsCPU& Other)
 {
     Begin();
-    This = Other;
+    The = Other;
     Rescue();
 }
 
 RA::StatsCPU::StatsCPU(StatsCPU&& Other) noexcept
 {
-    //DeleteArr(MvValues);
-    if (!!Other.MvValues && Other.MnStorageSize)
-    {
-        MvValues = Other.MvValues;
-        Other.MbDelete = false;
-        MnInsertIdx = Other.MnInsertIdx;
-    }
-    else
-    {
-        MnInsertIdx = 0;
-        MbHadFirstInsert = false;
-    }
-
-    MnStorageSize = Other.MnStorageSize;
-    MbHadFirstInsert = Other.MbHadFirstInsert;
-
-    memcpy(MoAvgPtr, Other.MoAvgPtr, sizeof(RA::AVG));
-    memcpy(MoSTOCHPtr, Other.MoSTOCHPtr, sizeof(RA::STOCH));
+    The = std::move(Other);
 }
 
 void RA::StatsCPU::operator=(const StatsCPU& Other)
@@ -56,22 +39,27 @@ void RA::StatsCPU::operator=(const StatsCPU& Other)
         MbHadFirstInsert = false;
     }
 
-    This.Construct(MeHardware, Other.MnStorageSize, Other.MmOptions);
+    The.Construct(MeHardware, Other.MnStorageSize, Other.MmOptions);
+    The.SetJoinerySize(Other.MnJoinerySize);
 
     if (Other.MoAvgPtr)   MoAvgPtr->CopyStats(*Other.MoAvgPtr);
     if (Other.MoSTOCHPtr) MoSTOCHPtr->CopyStats(*Other.MoSTOCHPtr);
     if (Other.MoRSIPtr)   MoRSIPtr->CopyStats(*Other.MoRSIPtr);
+
+    The.SetDeviceJoinery();
 
     Rescue();
 }
 
 void RA::StatsCPU::operator=(StatsCPU&& Other) noexcept
 {
-    //DeleteArr(MvValues);
+    Other.MbDelete = false;
+    MeHardware = Other.MeHardware;
+    Clear();
+
     if (!!Other.MvValues && Other.MnStorageSize)
     {
         MvValues = Other.MvValues;
-        Other.MbDelete = false;
         MnInsertIdx = Other.MnInsertIdx;
     }
     else
@@ -80,35 +68,29 @@ void RA::StatsCPU::operator=(StatsCPU&& Other) noexcept
         MbHadFirstInsert = false;
     }
 
+    MeHardware    = Other.MeHardware;
     MnStorageSize = Other.MnStorageSize;
+    MnInsertIdx   = 0;
+
+    MvJoinery     = Other.MvJoinery;
+    MnJoinerySize = Other.MnJoinerySize;
+
     MbHadFirstInsert = Other.MbHadFirstInsert;
+    MmOptions = std::move(Other.MmOptions);
+
+    MoAvgPtr   = Other.MoAvgPtr;
+    MoRSIPtr   = Other.MoRSIPtr;
+    MoSTOCHPtr = Other.MoSTOCHPtr;
+
+    The.SetDeviceJoinery();
 }
 
 RA::StatsCPU::StatsCPU(
-    const uint FnStorageSize, 
-    const xmap<EOptions, uint>& FmOptions, 
+    const xint FnStorageSize, 
+    const xmap<EOptions, xint>& FmOptions, 
     const double FnDefaultVal)
     : RA::Stats(RA::EHardware::CPU, FnStorageSize, FmOptions, FnDefaultVal)
 {
-}
-
-
-DHF double RA::StatsCPU::operator[](const uint IDX) const
-{
-    Begin();
-    if (IDX >= MnStorageSize)
-        ThrowIt(RED "IDX = ", MnStorageSize, " which is too big for size of\n" WHITE);
-    if (IDX + MnInsertIdx >= MnStorageSize)
-        return MvValues[(IDX + MnInsertIdx) - MnStorageSize];
-    return MvValues[IDX + MnInsertIdx];
-    Rescue();
-}
-
-DHF double RA::StatsCPU::Last(const uint IDX) const
-{
-    Begin();
-    return This[MAX(1, MnStorageSize) - 1 - IDX];
-    Rescue();
 }
 
 // --------------------------------------------------------

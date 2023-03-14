@@ -265,21 +265,30 @@ inline V& xmap<K, V, H>::GetValueFrom(const K& input)
 template<typename K, typename V, typename H>
 inline constexpr bool xmap<K, V, H>::Has(const K& input) const
 {
+#ifdef CXX20
+    return The.contains(input);
+#else
+    auto
     auto it = this->find(input);
     if (it == this->end())
         return false;
     else
         return true;
+#endif
 }
 
 template<typename K, typename V, typename H>
 inline constexpr bool xmap<K, V, H>::Lacks(const K& input) const
 {
+#ifdef CXX20
+    return !The.contains(input);
+#else
     auto it = this->find(input);
     if (it == this->end())
         return true;
     else
         return false;
+#endif
 }
 
 template<typename K, typename V, typename H>

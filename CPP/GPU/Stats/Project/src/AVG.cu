@@ -6,9 +6,9 @@
 
 RA::AVG::AVG(
     const double* FvValues,
-    const uint    FnLogicalSize,
-    const uint   *FnStorageSizePtr,
-    const uint   *FnInsertIdxPtr)
+    const xint    FnLogicalSize,
+    const xint   *FnStorageSizePtr,
+    const xint   *FnInsertIdxPtr)
     :
     MvValues(FvValues),
     MnLogicalSize(FnLogicalSize),
@@ -40,7 +40,7 @@ DXF void RA::AVG::Update()
         MnAvg = MvValues[*MnInsertIdxPtr];
     else
     {
-        //const uint LnStartIdx = (*MnInsertIdxPtr >= MnLogicalSize)
+        //const xint LnStartIdx = (*MnInsertIdxPtr >= MnLogicalSize)
         //    ? *MnInsertIdxPtr - MnLogicalSize
         //    : *MnStorageSizePtr - (MnLogicalSize - *MnInsertIdxPtr);
 
@@ -50,19 +50,19 @@ DXF void RA::AVG::Update()
         //MnAvg = ((LnSumUnderOne + (LnInertVal - (LnReplacedVal - MnAvg))) / MnLogicalSize);
 
 
-        const auto& LnStart     = *This.MnInsertIdxPtr;
-        const auto& LnStorage   = *This.MnStorageSizePtr;
-        const auto& LnLogic     =  This.MnLogicalSize;
+        const auto& LnStart     = *The.MnInsertIdxPtr;
+        const auto& LnStorage   = *The.MnStorageSizePtr;
+        const auto& LnLogic     =  The.MnLogicalSize;
 
-        uint Idx = LnStart;
+        xint Idx = LnStart;
         MnSum = 0;
-        for (uint i = LnStart; i < LnStart + LnLogic; i++)
+        for (xint i = LnStart; i < LnStart + LnLogic; i++)
         {
             const auto& LnVal = MvValues[Idx];
             MnSum += LnVal;
             Idx = (Idx == 0) ? LnStorage - 1 : Idx - 1;
         }
-        MnAvg = MnSum / This.MnLogicalSize;
+        MnAvg = MnSum / The.MnLogicalSize;
     }
 }
 

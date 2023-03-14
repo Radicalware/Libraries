@@ -13,9 +13,9 @@ namespace RA
         friend class Stats;
     public:
         RSI(const double* FvValues,
-            const uint    FnLogicalSize,
-            const uint   *FnStorageSizePtr,
-            const uint   *FnInsertIdxPtr);
+            const xint    FnLogicalSize,
+            const xint   *FnStorageSizePtr,
+            const xint   *FnInsertIdxPtr);
 
         DXF double GetCurvedRSI() const;
         IXF auto   GetRSI() const { return MnRSI; }
@@ -27,9 +27,9 @@ namespace RA
         DXF void SetDefaultValues(const double FnDefaualt = 50);
 
         const double* MvValues = nullptr;
-        uint          MnLogicalSize = 0;
-        const uint   *MnStorageSizePtr;
-        const uint   *MnInsertIdxPtr;
+        xint          MnLogicalSize = 0;
+        const xint   *MnStorageSizePtr;
+        const xint   *MnInsertIdxPtr;
 
         double  MnRSI = 0;
     };
