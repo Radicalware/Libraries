@@ -8,33 +8,33 @@ void Color::Reset()
 }
 
 
-xstring Color::Black    = BLACK;
-xstring Color::Red      = RED;
-xstring Color::Green    = GREEN;
-xstring Color::Yellow   = YELLOW;
-xstring Color::Blue     = BLUE;
-xstring Color::Magenta  = MAGENTA;
-xstring Color::Cyan     = CYAN;
-xstring Color::Grey     = GREY;
-xstring Color::White    = WHITE;
+const xstring Color::Black    = BLACK;
+const xstring Color::Red      = RED;
+const xstring Color::Green    = GREEN;
+const xstring Color::Yellow   = YELLOW;
+const xstring Color::Blue     = BLUE;
+const xstring Color::Magenta  = MAGENTA;
+const xstring Color::Cyan     = CYAN;
+const xstring Color::Grey     = GREY;
+const xstring Color::White    = WHITE;
 
-xstring Color::On::Black    = ON_BLACK;
-xstring Color::On::Red      = ON_RED;
-xstring Color::On::Green    = ON_GREEN;
-xstring Color::On::Yellow   = ON_YELLOW;
-xstring Color::On::Blue     = ON_BLUE;
-xstring Color::On::Magenta  = ON_MAGENTA;
-xstring Color::On::Cyan     = ON_CYAN;
-xstring Color::On::Grey     = ON_GREY;
-xstring Color::On::White    = ON_WHITE;
+const xstring Color::On::Black    = ON_BLACK;
+const xstring Color::On::Red      = ON_RED;
+const xstring Color::On::Green    = ON_GREEN;
+const xstring Color::On::Yellow   = ON_YELLOW;
+const xstring Color::On::Blue     = ON_BLUE;
+const xstring Color::On::Magenta  = ON_MAGENTA;
+const xstring Color::On::Cyan     = ON_CYAN;
+const xstring Color::On::Grey     = ON_GREY;
+const xstring Color::On::White    = ON_WHITE;
 
 
-xstring Color::Mod::Reset     = RESET;
-xstring Color::Mod::Bold      = BOLD;
-xstring Color::Mod::Underline = UNDERLINE;
-xstring Color::Mod::Reverse   = REVERSE;
+const xstring Color::Mod::Reset     = RESET;
+const xstring Color::Mod::Bold      = BOLD;
+const xstring Color::Mod::Underline = UNDERLINE;
+const xstring Color::Mod::Reverse   = REVERSE;
 
 // Operates only on Linux 
-xstring Color::Mod::Dark  = DARK;
-xstring Color::Mod::Blink = BLINK;
-xstring Color::Mod::Hide  = HIDE;
+const xstring Color::Mod::Dark  = DARK;
+const xstring Color::Mod::Blink = BLINK;
+const xstring Color::Mod::Hide  = HIDE;

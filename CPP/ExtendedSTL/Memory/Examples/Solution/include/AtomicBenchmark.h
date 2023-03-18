@@ -20,10 +20,10 @@ namespace Benchmark
             RA::SharedPtr<RA::Mutex> LoMutex; // REMOVE REMOVE REMOVE REMOVE REMOVE
             for (int i = 0; i < Obj.MnLooper; i++) {
                 if (i % 3 == 0) { // occurs 1/3 of the time
-                    Nexus<>::AddJob(LoMutex, Obj, &Bench::ClassAtomic::AddValue, -2);
+                    Nexus<>::AddTask(LoMutex, Obj, &Bench::ClassAtomic::AddValue, -2);
                 }
                 else {            // occurs 2/3 of the time
-                    Nexus<>::AddJob(LoMutex, Obj, &Bench::ClassAtomic::AddValue, 2);
+                    Nexus<>::AddTask(LoMutex, Obj, &Bench::ClassAtomic::AddValue, 2);
                 }
                 //printf("Count: %u\r", i);
             }
@@ -63,10 +63,10 @@ namespace Benchmark
             RA::SharedPtr<RA::Mutex> LoMutex; // REMOVE REMOVE REMOVE REMOVE REMOVE
             for (int i = 0; i < Obj.MnLooper; i++) {
                 if (i % 3 == 0) { // occurs 1/3 of the time
-                    Nexus<>::AddJob(LoMutex, Obj, &Bench::FundamentalAtomic::AddValue, -2);
+                    Nexus<>::AddTask(LoMutex, Obj, &Bench::FundamentalAtomic::AddValue, -2);
                 }
                 else {            // occurs 2/3 of the time
-                    Nexus<>::AddJob(LoMutex, Obj, &Bench::FundamentalAtomic::AddValue, 2);
+                    Nexus<>::AddTask(LoMutex, Obj, &Bench::FundamentalAtomic::AddValue, 2);
                 }
                 //printf("Count: %u\r", i);
             }
@@ -106,10 +106,10 @@ namespace Benchmark
             RA::SharedPtr<RA::Mutex> LoMutex; // REMOVE REMOVE REMOVE REMOVE REMOVE
             for (int i = 0; i < Obj.MnLooper; i++) {
                 if (i % 3 == 0) { // occurs 1/3 of the time
-                    Nexus<>::AddJob(LoMutex, Obj, &Bench::NoAtomic::AddValue, -2);
+                    Nexus<>::AddTask(LoMutex, Obj, &Bench::NoAtomic::AddValue, -2);
                 }
                 else {            // occurs 2/3 of the time
-                    Nexus<>::AddJob(LoMutex, Obj, &Bench::NoAtomic::AddValue, 2);
+                    Nexus<>::AddTask(LoMutex, Obj, &Bench::NoAtomic::AddValue, 2);
                 }
                 //printf("Count: %u\r", i);
             }

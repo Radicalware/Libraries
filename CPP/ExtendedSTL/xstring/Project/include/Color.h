@@ -37,40 +37,40 @@ class xstring;
 
 struct Color
 {
-    static xstring Black;
-    static xstring Red;
-    static xstring Green;
-    static xstring Yellow;
-    static xstring Blue;
-    static xstring Magenta;
-    static xstring Cyan;
-    static xstring Grey;
-    static xstring White;
+    static const xstring Black;
+    static const xstring Red;
+    static const xstring Green;
+    static const xstring Yellow;
+    static const xstring Blue;
+    static const xstring Magenta;
+    static const xstring Cyan;
+    static const xstring Grey;
+    static const xstring White;
 
     struct On
     {
-        static xstring Black;
-        static xstring Red;
-        static xstring Green;
-        static xstring Yellow;
-        static xstring Blue;
-        static xstring Magenta;
-        static xstring Cyan;
-        static xstring Grey;
-        static xstring White;
+        static const xstring Black;
+        static const xstring Red;
+        static const xstring Green;
+        static const xstring Yellow;
+        static const xstring Blue;
+        static const xstring Magenta;
+        static const xstring Cyan;
+        static const xstring Grey;
+        static const xstring White;
     };
 
     struct Mod
     {
-        static xstring Reset;
-        static xstring Bold;
-        static xstring Underline;
-        static xstring Reverse;
+        static const xstring Reset;
+        static const xstring Bold;
+        static const xstring Underline;
+        static const xstring Reverse;
 
         // Works only on Linux
-        static xstring Dark;
-        static xstring Blink;
-        static xstring Hide;
+        static const xstring Dark;
+        static const xstring Blink;
+        static const xstring Hide;
     };
 
     static void Reset();

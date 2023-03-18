@@ -20,11 +20,12 @@
 * limitations under the License.
 */
 
+#include "XvectorTypes.h"
 #include "BaseSPtrXVector.h"
 #include <type_traits>
 
-template<typename T> class SPtrXVector;
 template<typename T, typename enabler_t> class xvector;
+template<typename T> class SPtrXVector;
 class xstring;
 
 template<typename T>
@@ -35,44 +36,44 @@ public:
     using SPtrXVector<xp<T>>::operator=;
     using E = typename std::remove_const<xp<T>>::type; // E for Erratic
 
-    inline T Expand() const;
+    RIN T Expand() const;
 
-    T Join(const T& str = "") const;
-    T Join(const char str) const;
-    T Join(const char* str) const;
+    RIN T Join(const T& str = "") const;
+    RIN T Join(const char str) const;
+    RIN T Join(const char* str) const;
 };
 
 
 
 template<typename T>
-inline T SPtrObjXVectorAPI::Expand() const
+RIN T SPtrObjXVectorAPI::Expand() const
 {   // go from xvector<xvector<xstring>> to xvector<xstring>
     T expanded_vec;
-    for (typename xvector<T>::const_iterator double_vec = this->begin(); double_vec != this->end(); double_vec++) {
-        for (typename T::const_iterator single_vec = double_vec->begin(); single_vec != double_vec->end(); single_vec++)
-            expanded_vec << *single_vec;
+    for (typename xvector<xp<T>>::const_iterator LoDoubleVec = this->begin(); LoDoubleVec != this->end(); LoDoubleVec++) {
+        for (typename T::const_iterator LoSingleVec = (*LoDoubleVec)->begin(); LoSingleVec != (*LoDoubleVec)->end(); LoSingleVec++)
+            expanded_vec << *LoSingleVec;
     }
     return expanded_vec;
 }
 
 template<typename T>
-inline T SPtrObjXVectorAPI::Join(const T& str) const
+RIN T SPtrObjXVectorAPI::Join(const T& str) const
 {
     T ret;
-    for (typename xvector<T>::const_iterator it = this->begin(); it != this->end(); it++)
+    for (typename xvector<xp<T>>::const_iterator it = this->begin(); it != this->end(); it++)
         ret += (*it).Get() + str;
 
-    size_t Diff = ret.size() - str.size();
+    xint Diff = ret.size() - str.size();
     if (Diff > 0)
         return ret.substr(0, Diff);
     return ret;
 }
 
 template<typename T>
-inline T SPtrObjXVectorAPI::Join(const char str) const
+RIN T SPtrObjXVectorAPI::Join(const char str) const
 {
     T ret;
-    for (typename xvector<E>::const_iterator it = this->begin(); it != this->end(); it++)
+    for (typename xvector<xp<T>>::const_iterator it = this->begin(); it != this->end(); it++)
         ret += (*it).Get() + str;
 
     if (ret.size() > 1)
@@ -81,10 +82,10 @@ inline T SPtrObjXVectorAPI::Join(const char str) const
 }
 
 template<typename T>
-inline T SPtrObjXVectorAPI::Join(const char* str) const
+RIN T SPtrObjXVectorAPI::Join(const char* str) const
 {
     T ret;
-    for (typename xvector<T>::const_iterator it = this->begin(); it != this->end(); it++)
+    for (typename xvector<xp<T>>::const_iterator it = this->begin(); it != this->end(); it++)
         ret += (*it).Get() + str;
 
     long long int Diff = ret.size() - strlen(str);

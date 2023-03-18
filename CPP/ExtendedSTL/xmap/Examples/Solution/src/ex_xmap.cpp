@@ -29,9 +29,9 @@ int main()
 
     xmap<xstring, xp<xstring>> MapPtrs;
 
-    std::map<xstring, int> smap1 = { { "one", 1}, { "two", 2 }, { "Three", 3 } };
+                  xmap<xstring, int>  xxmap = { { "one", 1}, { "two", 2 }, { "Three", 3 } };
+              std::map<xstring, int>  smap1 = { { "one", 1}, { "two", 2 }, { "Three", 3 } };
     std::unordered_map<xstring, int> sumap1 = { { "one", 1}, { "two", 2 }, { "Three", 3 } };
-    xmap<xstring, int> xxmap = { { "one", 1}, { "two", 2 }, { "Three", 3 } };
 
     cout << "xxmap.size()  = " << xxmap.size() << '\n';
     xmap<xstring, int> xmap1 = std::move(xxmap);
@@ -135,13 +135,13 @@ int main()
         { "Audi S5", 349 }
     };
 
-    awd_cars.ForEachThread([](const xstring& key, const int& value) {
+    awd_cars.ForEachThread<xstring>([](const xstring& key, const int& value) {
         return key + " = " + RA::ToXString(value) + " HP";
     }).Join('\n').Print(2);
 
     xmap<xstring, xstring> tmp_mp;
     std::map<xstring, xstring> std_map = smap.ToStdMap(); 
-    tmp_mp = std_map;
+    //tmp_mp = std::move(std_map);
     std::unordered_map<xstring, xstring> std_u_map = smap.ToStdUnorderedMap(); 
     tmp_mp = std_u_map;
     tmp_mp.Print();

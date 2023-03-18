@@ -4,6 +4,16 @@
 
 ---------------------------------------------------------------------
 
+02/21/2023 >> Libs v22.0.4
+
+Major update to Nexus, it is now more stable and faster than ever!
+Loading jobs to Nexus<T> can be done with pool turned off to add
+jobs faster. Upon completion, jobs are passed around with a shared 
+pointer instead of using std::move. xvector/xmap auto turn-off
+and on xmap during loads and also return xp containers.
+
+---------------------------------------------------------------------
+
 02/21/2023 >> Libs v22.0.2
 
 Fixed outdated examples. AllExamples work again. Also, I refreshed

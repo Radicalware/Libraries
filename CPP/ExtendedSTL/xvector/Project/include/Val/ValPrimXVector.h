@@ -19,13 +19,9 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+#include "BaseXVector.h"
 #include "BaseValXVector.h"
 #include <type_traits>
-
-class xstring;
-template<typename T> class ValXVector;
-template<typename T, typename enabler_t> class xvector;
-
 
 template<typename T>
 class ValPrimXVectorAPI : public ValXVector<T>
@@ -37,18 +33,18 @@ public:
 
     typedef T value_type;
 
-    inline T GetCommonItems(char const* item);
+    RIN T GetCommonItems(char const* item);
     template<typename S = std::string>
-    inline S Join(const S& str = "") const;
-    inline std::string Join(const char str) const;
-    inline std::string Join(const char* str) const;
+    RIN S Join(const S& str = "") const;
+    RIN std::string Join(const char str) const;
+    RIN std::string Join(const char* str) const;
 };
 
 
 template<typename T>
-inline T ValPrimXVectorAPI::GetCommonItems(char const* item)
+RIN T ValPrimXVectorAPI::GetCommonItems(char const* item)
 {
-    size_t size = strlen(item);
+    xint size = strlen(item);
     xvector<T> c_vec(size);
 
     for (int i = 0; i < size; i++)
@@ -59,7 +55,7 @@ inline T ValPrimXVectorAPI::GetCommonItems(char const* item)
 
 template<typename T>
 template<typename S>
-inline S ValPrimXVectorAPI::Join(const S& str) const
+RIN S ValPrimXVectorAPI::Join(const S& str) const
 {
     std::ostringstream ostr;
     for (const auto& i : *this) {
@@ -70,7 +66,7 @@ inline S ValPrimXVectorAPI::Join(const S& str) const
 }
 
 template<typename T>
-inline std::string ValPrimXVectorAPI::Join(const char str) const
+RIN std::string ValPrimXVectorAPI::Join(const char str) const
 {
     std::string val;
     val.insert(val.begin(), str);
@@ -78,7 +74,7 @@ inline std::string ValPrimXVectorAPI::Join(const char str) const
 }
 
 template<typename T>
-inline std::string ValPrimXVectorAPI::Join(const char* str) const
+RIN std::string ValPrimXVectorAPI::Join(const char* str) const
 {
     return this->Join(std::string(str));
 }

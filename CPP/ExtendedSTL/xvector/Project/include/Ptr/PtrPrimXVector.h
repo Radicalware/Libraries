@@ -20,12 +20,9 @@
 * limitations under the License.
 */
 
+#include "XvectorTypes.h"
 #include "BasePtrXVector.h"
 #include <type_traits>
-
-template<typename T> class PtrXVector;
-template<typename T, typename enabler_t> class xvector;
-
 
 template<typename T>
 class PtrPrimXVectorAPI : public PtrXVector<T*>
@@ -37,21 +34,21 @@ public:
 
     typedef T value_type;
 
-    ~xvector();
+    RIN ~xvector();
 
     void DeleteAll();
 
     template<typename S>
-    inline auto Join(const S& str)->std::enable_if_t<!std::is_same_v<S, char>, S>;
-    inline std::string Join(const char str) const;
-    inline std::string Join(const char* str) const;
+    RIN auto Join(const S& str)->std::enable_if_t<!std::is_same_v<S, char>, S>;
+    RIN std::string Join(const char str) const;
+    RIN std::string Join(const char* str) const;
 
 };
 
 
 template<typename T>
 template<typename S>
-inline auto PtrPrimXVectorAPI::Join(const S& str)
+RIN auto PtrPrimXVectorAPI::Join(const S& str)
     ->std::enable_if_t<!std::is_same_v<S, char>, S>
 {
     std::string ret;
@@ -61,14 +58,14 @@ inline auto PtrPrimXVectorAPI::Join(const S& str)
 }
 
 template<typename T>
-inline PtrPrimXVectorAPI::~xvector()
+RIN PtrPrimXVectorAPI::~xvector()
 {
     if (The.MbDeleteAllOnExit)
         DeleteAll();
 }
 
 template<typename T>
-inline void PtrPrimXVectorAPI::DeleteAll()
+RIN void PtrPrimXVectorAPI::DeleteAll()
 {
     for (int i = 0; i < The.Size(); i++)
     {
@@ -81,7 +78,7 @@ inline void PtrPrimXVectorAPI::DeleteAll()
 }
 
 template<typename T>
-inline std::string PtrPrimXVectorAPI::Join(const char str) const
+RIN std::string PtrPrimXVectorAPI::Join(const char str) const
 {
     std::ostringstream ostr;
     for (typename xvector<T*>::const_iterator it = this->begin(); it != this->end(); it++) 
@@ -94,7 +91,7 @@ inline std::string PtrPrimXVectorAPI::Join(const char str) const
 }
 
 template<typename T>
-inline std::string PtrPrimXVectorAPI::Join(const char* str) const
+RIN std::string PtrPrimXVectorAPI::Join(const char* str) const
 {
     std::string retstr;
     for (typename xvector<T*>::const_iterator it = this->begin(); it != this->end(); it++)

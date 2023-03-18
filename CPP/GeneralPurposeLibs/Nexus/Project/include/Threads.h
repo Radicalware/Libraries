@@ -10,29 +10,30 @@ namespace RA
     class Threads
     {
     protected:
-        inline static const int         CPUThreads = std::thread::hardware_concurrency();
-        inline static std::atomic<int>  Allowed    = std::thread::hardware_concurrency();
-        inline static std::atomic<int>  Used = 0;
-        inline static std::atomic<int>  InstanceCount = 0;
-        inline static std::atomic<int>  TotalTasksCounted = 0;
+        istatic const int         CPUThreads = std::thread::hardware_concurrency();
+        istatic std::atomic<int>  Allowed    = std::thread::hardware_concurrency();
+        istatic std::atomic<int>  Used = 0;
+        istatic std::atomic<int>  InstanceCount = 0;
+        istatic std::atomic<int>  TotalTasksCounted = 0;
 
     public:
-        static int  GetCPUThreadCount();
-        static int  GetAllowedThreadCount();
-        static int  GetThreadCountUsed();
-        static xint GetInstCount();
-        static xint GetTotalTasksRequested();
+        istatic int  GetCPUThreadCount()       { return RA::Threads::CPUThreads; }
+        istatic int  GetAllowedThreadCount()   { return RA::Threads::Allowed; }
+        istatic int  GetUsedThreadCount()      { return Used.load(); }
+        istatic void IncInstanceCount()        { InstanceCount++; }
+        istatic xint GetInstCount()            { return InstanceCount; }
+        istatic xint GetTotalTasksRequested()  { return RA::Threads::TotalTasksCounted.load(); }
 
-        static int  GetThreadCountAvailable();
-        static bool ThreadsAreAvailable();
+        istatic int  GetThreadCountAvailable() { return Allowed - Used; }
+        istatic bool BxThreadsAreAvailable()   { return Allowed > Used; }
 
-        static void ResetAllowedThreadCount();
-        static void SetAllowedThreadCount(int val);
-
-        void operator+=(int val);
-        void operator++();
-        void operator-=(int val);
-        void operator--();
-        void operator==(int val) const;
+        istatic void ResetAllowedThreadCount() { Allowed = CPUThreads;  }
+         static void SetAllowedThreadCount(int FInt);
+         
+        RIN void operator++() { ++Used;}
+        RIN void operator--() { --Used; }
+        RIN void operator++(int) { ++Used; }
+        RIN void operator--(int) { --Used; }
+        RIN void operator==(int FInt) const { Used = FInt; }
     };
 };

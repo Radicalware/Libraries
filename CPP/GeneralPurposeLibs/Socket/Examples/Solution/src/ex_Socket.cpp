@@ -84,7 +84,7 @@ int main(int argc, char** argv)
         }
         return socket;
     };
-    Nexus<>::AddJob(listen);
+    Nexus<>::AddTask(listen);
     Nexus<>::Sleep(555);
 
     Socket socket = send();

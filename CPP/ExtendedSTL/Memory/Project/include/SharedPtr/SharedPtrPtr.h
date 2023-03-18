@@ -26,38 +26,39 @@ namespace RA
         bool MbInitialized = false;
         T* MPtr = nullptr;
     public:
-        BaseSharedPtr<T*>::BaseSharedPtr;
+        using BaseSharedPtr<T*>::BaseSharedPtr;
+        using BaseSharedPtr<T*>::operator=;
 
         ~SharedPtr();
 
         template<class TT = T, typename std::enable_if<IsFundamental(TT), bool>::type = 0>
-        inline SharedPtr(const xint FnLeng);
+        CIN SharedPtr(const xint FnLeng);
 
         template<typename ...A, class TT = T, typename std::enable_if<!IsFundamental(TT), bool>::type = 0>
-        inline SharedPtr(const xint FnLeng, A&&... Args);
+        CIN SharedPtr(const xint FnLeng, A&&... Args);
 
-        inline SharedPtr(SharedPtr<T*>&& Other);
-        inline SharedPtr(const SharedPtr<T*>& Other);
+        CIN SharedPtr(SharedPtr<T*>&& Other);
+        CIN SharedPtr(const SharedPtr<T*>& Other);
 
-        inline void operator=(SharedPtr<T*>&& Other);
-        inline void operator=(const SharedPtr<T*>& Other);
+        CIN void operator=(SharedPtr<T*>&& Other);
+        CIN void operator=(const SharedPtr<T*>& Other);
 
-        inline void Clone(SharedPtr<T*>&& Other);
-        inline void Clone(const SharedPtr<T*>& Other);
+        CIN void Clone(SharedPtr<T*>&& Other);
+        CIN void Clone(const SharedPtr<T*>& Other);
 
-        _NODISCARD inline       T* Ptr()       noexcept { return MPtr; }
-        _NODISCARD inline const T* Ptr() const noexcept { return MPtr; }
+        _NODISCARD CIN       T* Ptr()       noexcept { return MPtr; }
+        _NODISCARD CIN const T* Ptr() const noexcept { return MPtr; }
 
-        _NODISCARD inline       T* Raw()       noexcept { return MPtr; }
-        _NODISCARD inline const T* Raw() const noexcept { return MPtr; }
+        _NODISCARD CIN       T* Raw()       noexcept { return MPtr; }
+        _NODISCARD CIN const T* Raw() const noexcept { return MPtr; }
 
-        inline        T& operator[](const xint Idx);
-        inline  const T& operator[](const xint Idx) const;
+        CIN        T& operator[](const xint Idx);
+        CIN  const T& operator[](const xint Idx) const;
 
-        constexpr auto Size()   const { return MnLeng; }
-        constexpr auto GetLength() const { return MnLeng; }
-        constexpr auto GetUnitSize() const { return sizeof(T); }
-        constexpr auto GetMallocSize() const { return sizeof(T) * MnLeng + sizeof(xint); }
+        CIN auto Size()   const { return MnLeng; }
+        CIN auto GetLength() const { return MnLeng; }
+        CIN auto GetUnitSize() const { return sizeof(T); }
+        CIN auto GetMallocSize() const { return sizeof(T) * MnLeng + sizeof(xint); }
 
         template<typename F, typename ...A>
         SharedPtr<T*> Proc(F&& Func, A&&... Args);
@@ -78,7 +79,7 @@ namespace RA
 }
 
 template<typename T>
-inline RA::SharedPtr<T*>::~SharedPtr()
+CIN RA::SharedPtr<T*>::~SharedPtr()
 {
     if (!The.MbDestructorSet)
         return;
@@ -100,7 +101,7 @@ inline RA::SharedPtr<T*>::~SharedPtr()
 
 template<typename T>
 template<class TT, typename std::enable_if<IsFundamental(TT), bool>::type>
-inline RA::SharedPtr<T*>::SharedPtr(const xint FnLeng) :
+CIN RA::SharedPtr<T*>::SharedPtr(const xint FnLeng) :
     MPtr(new T[FnLeng + 1]), RA::BaseSharedPtr<T*>(std::make_shared<T*>(MPtr))
 {
     The.MbDestructorSet = true;
@@ -111,7 +112,7 @@ inline RA::SharedPtr<T*>::SharedPtr(const xint FnLeng) :
 
 template<typename T>
 template<typename ...A, class TT, typename std::enable_if<!IsFundamental(TT), bool>::type>
-inline RA::SharedPtr<T*>::SharedPtr(const xint FnLeng, A&&... Args) :
+CIN RA::SharedPtr<T*>::SharedPtr(const xint FnLeng, A&&... Args) :
     MPtr(new T[FnLeng]), RA::BaseSharedPtr<T*>(std::make_shared<T*>(MPtr))
 {
     The.MbDestructorSet = true;
@@ -126,7 +127,7 @@ inline RA::SharedPtr<T*>::SharedPtr(const xint FnLeng, A&&... Args) :
 
 
 template<typename T>
-inline RA::SharedPtr<T*>::SharedPtr(RA::SharedPtr<T*>&& Other)
+CIN RA::SharedPtr<T*>::SharedPtr(RA::SharedPtr<T*>&& Other)
 {
     The.MbDestructorSet = true;
     Other.MbDestructorSet = false;
@@ -137,7 +138,7 @@ inline RA::SharedPtr<T*>::SharedPtr(RA::SharedPtr<T*>&& Other)
 }
 
 template<typename T>
-inline RA::SharedPtr<T*>::SharedPtr(const RA::SharedPtr<T*>& Other)
+CIN RA::SharedPtr<T*>::SharedPtr(const RA::SharedPtr<T*>& Other)
 {
     The.MbDestructorSet = true;
     The._Copy_construct_from(Other);
@@ -147,7 +148,7 @@ inline RA::SharedPtr<T*>::SharedPtr(const RA::SharedPtr<T*>& Other)
 }
 
 template<typename T>
-inline void RA::SharedPtr<T*>::operator=(RA::SharedPtr<T*>&& Other)
+CIN void RA::SharedPtr<T*>::operator=(RA::SharedPtr<T*>&& Other)
 {
     The.MbDestructorSet = true;
     Other.MbDestructorSet = false;
@@ -158,7 +159,7 @@ inline void RA::SharedPtr<T*>::operator=(RA::SharedPtr<T*>&& Other)
 }
 
 template<typename T>
-inline void RA::SharedPtr<T*>::operator=(const RA::SharedPtr<T*>& Other)
+CIN void RA::SharedPtr<T*>::operator=(const RA::SharedPtr<T*>& Other)
 {
     The.MbDestructorSet = true;
     The._Copy_construct_from(Other);
@@ -168,13 +169,13 @@ inline void RA::SharedPtr<T*>::operator=(const RA::SharedPtr<T*>& Other)
 }
 
 template<typename T>
-inline void RA::SharedPtr<T*>::Clone(RA::SharedPtr<T*>&& Other)
+CIN void RA::SharedPtr<T*>::Clone(RA::SharedPtr<T*>&& Other)
 {
     The = std::move(Other);
 }
 
 template<typename T>
-inline void RA::SharedPtr<T*>::Clone(const RA::SharedPtr<T*>& Other)
+CIN void RA::SharedPtr<T*>::Clone(const RA::SharedPtr<T*>& Other)
 {
     The.MbDestructorSet = true;
     if (!Other)
@@ -206,7 +207,7 @@ inline void RA::SharedPtr<T*>::Clone(const RA::SharedPtr<T*>& Other)
 }
 
 template<typename T>
-inline T& RA::SharedPtr<T*>::operator[](const xint Idx)
+CIN T& RA::SharedPtr<T*>::operator[](const xint Idx)
 {
     if (Idx >= MnLeng)
         throw "Idx is out of range!";
@@ -214,7 +215,7 @@ inline T& RA::SharedPtr<T*>::operator[](const xint Idx)
 }
 
 template<typename T>
-inline const T& RA::SharedPtr<T*>::operator[](const xint Idx) const
+CIN const T& RA::SharedPtr<T*>::operator[](const xint Idx) const
 {
     if (Idx >= MnLeng)
         throw "Idx is out of range!";
@@ -223,7 +224,7 @@ inline const T& RA::SharedPtr<T*>::operator[](const xint Idx) const
 
 template<typename T>
 template<typename F, typename ...A>
-inline RA::SharedPtr<T*> RA::SharedPtr<T*>::Proc(F&& Func, A&& ...Args)
+CIN RA::SharedPtr<T*> RA::SharedPtr<T*>::Proc(F&& Func, A&& ...Args)
 {
     for (auto& Elem : The)
         Func(Elem, std::forward<A>(Args)...);
@@ -232,7 +233,7 @@ inline RA::SharedPtr<T*> RA::SharedPtr<T*>::Proc(F&& Func, A&& ...Args)
 
 template<typename T>
 template<typename R, typename F, typename ...A>
-inline RA::SharedPtr<R[]> RA::SharedPtr<T*>::ForEach(F&& Func, A&& ...Args)
+CIN RA::SharedPtr<R[]> RA::SharedPtr<T*>::ForEach(F&& Func, A&& ...Args)
 {
     auto Ret = RA::SharedPtr<T*>(FnLeng, std::forward<T>(Args)...);
     for (xint i = 0; i < MnLeng; i++)
@@ -242,7 +243,7 @@ inline RA::SharedPtr<R[]> RA::SharedPtr<T*>::ForEach(F&& Func, A&& ...Args)
 
 template<typename T>
 template<typename R, typename F, typename ...A>
-inline RA::SharedPtr<R[]> RA::SharedPtr<T*>::ForEach(F&& Func, A && ...Args) const
+CIN RA::SharedPtr<R[]> RA::SharedPtr<T*>::ForEach(F&& Func, A && ...Args) const
 {
     auto Ret = RA::SharedPtr<T*>(FnLeng, std::forward<T>(Args)...);
     for (xint i = 0; i < MnLeng; i++)
@@ -252,7 +253,7 @@ inline RA::SharedPtr<R[]> RA::SharedPtr<T*>::ForEach(F&& Func, A && ...Args) con
 
 template<typename T>
 template<typename R, typename F, typename ...A>
-inline R RA::SharedPtr<T*>::ForEachAdd(F&& Func, A && ...Args)
+CIN R RA::SharedPtr<T*>::ForEachAdd(F&& Func, A && ...Args)
 {
     R Ret = 0;
     for (xint i = 0; i < MnLeng; i++)
@@ -262,7 +263,7 @@ inline R RA::SharedPtr<T*>::ForEachAdd(F&& Func, A && ...Args)
 
 template<typename T>
 template<typename R, typename F, typename ...A>
-inline R RA::SharedPtr<T*>::ForEachAdd(F&& Func, A && ...Args)const
+CIN R RA::SharedPtr<T*>::ForEachAdd(F&& Func, A && ...Args)const
 {
     R Ret = 0;
     for (xint i = 0; i < MnLeng; i++)
@@ -271,14 +272,14 @@ inline R RA::SharedPtr<T*>::ForEachAdd(F&& Func, A && ...Args)const
 }
 
 template<typename T>
-inline void RA::SharedPtr<T*>::__SetSize__(const xint FnLeng)
+CIN void RA::SharedPtr<T*>::__SetSize__(const xint FnLeng)
 {
     MnLeng = FnLeng;
     The.SetIterator(MPtr, &MnLeng);
 }
 
 template<typename T>
-inline void RA::SharedPtr<T*>::__SetInitialized__(const bool FbInit)
+CIN void RA::SharedPtr<T*>::__SetInitialized__(const bool FbInit)
 {
     The.MbInitialized = FbInit;
 }

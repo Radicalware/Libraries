@@ -19,8 +19,7 @@ using std::endl;
 using std::bind;
 
 #include "ObjectMutexHandling.h"
-#include "ObjectReturnHandling.h"
-#include "Benchmark.h"
+#include "NexusBenchmark.h"
 #include "Timer.h"
 
 int main() 
@@ -32,9 +31,8 @@ int main()
     // static classes static and instnace classes instance based to not confuse anyone. 
     // -------------------------------------------------------------------------------------
 
-    //ObjectMutexHandling();
-    ObjectReturnHandling();
-    Benchmark();
+    ObjectMutexHandling();
+    BenchmarkNexus();
 
     //RA::Timer Time;
 

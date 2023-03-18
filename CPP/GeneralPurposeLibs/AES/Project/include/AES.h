@@ -52,19 +52,19 @@ namespace RA
 		void SetRandomKey();
 		void SetRandomIV();
 
-		INL void SetAAD(const xstring& Input) { MsAAD = Input; }
-		INL void SetKey(const xstring& Input) { MsKey = Input; }
-		INL void SetIV( const xstring& Input) { MsIV  = Input; }
-		INL void SetTag(const xstring& Input) { MsTag = Input; }
+		RIN void SetAAD(const xstring& Input) { MsAAD = Input; }
+		RIN void SetKey(const xstring& Input) { MsKey = Input; }
+		RIN void SetIV( const xstring& Input) { MsIV  = Input; }
+		RIN void SetTag(const xstring& Input) { MsTag = Input; }
 
-		INL xstring GetAAD() const { return MsAAD; }
-		INL xstring GetKey() const { return MsKey; }
-		INL xstring GetIV()  const { return MsIV; }
-		INL xstring GetTag() const { return MsTag; }
+		RIN xstring GetAAD() const { return MsAAD; }
+		RIN xstring GetKey() const { return MsKey; }
+		RIN xstring GetIV()  const { return MsIV; }
+		RIN xstring GetTag() const { return MsTag; }
 
-		INL xstring GetPlainText()  const { return MsPlaintext;  }
-		INL xstring GetCipherText() const { return MsCipherText; }
-		INL xstring GetCipherTextByteCode() const { return MsCipherText.ToByteCode().Sub(NullByteRex.Get(), ""); }
+		RIN xstring GetPlainText()  const { return MsPlaintext;  }
+		RIN xstring GetCipherText() const { return MsCipherText; }
+		RIN xstring GetCipherTextByteCode() const { return MsCipherText.ToByteCode().Sub(NullByteRex.Get(), ""); }
 
 	private:
 		inline static xp<RE2> NullByteRex = RA::MakeShared<RE2>(R"((\\x00))");

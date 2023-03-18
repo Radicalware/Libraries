@@ -37,10 +37,11 @@
 
 #ifndef _xint_
 #define _xint_
-using xint = size_t;
-// in ASM EAX =    Extended Register 32bit
-//        RAX = Re-Extended Register 64bit
-// xint = 32bit/64bit (depending on the compiler)
+typedef          short int int8;
+typedef unsigned short int uint8;
+typedef unsigned long      uint32;
+typedef unsigned long long uint64;
+typedef size_t             xint;
 #endif
 
 namespace RA

@@ -21,160 +21,152 @@
 */
 
 
+#include "XvectorTypes.h"
 #include "BaseXVector.h"
 #include <regex>
-
-template<typename T> class PtrXVector;
 
 template<typename T>
 class PtrXVector<T*> : public BaseXVector<T*>
 {
+protected:
+    xp<Nexus<T>> MoNexusPtr = nullptr;
 public:
     using BaseXVector<T*>::BaseXVector;
     using BaseXVector<T*>::operator=;
     using E = typename std::remove_const<T>::type; // E for Erratic
 
-    inline T& At(const size_t Idx);
-    inline const T& At(const size_t Idx) const;
+    RIN T& At(const xint Idx);
+    RIN const T& At(const xint Idx) const;
 
-    inline bool Has(const T& item) const;
-    inline bool Has(char const* item) const;
+    RIN bool Has(const T& item) const;
+    RIN bool Has(char const* item) const;
     template<typename F, typename ...A>
-    inline bool HasTruth(F&& Function, A&& ...Args) const;
+    RIN bool HasTruth(F&& Function, A&& ...Args) const;
     template<typename F, typename ...A>
-    inline const T& GetTruth(F&& Function, A&& ...Args) const;
+    RIN const T& GetTruth(F&& Function, A&& ...Args) const;
     template<typename F, typename ...A>
-    inline T& GetTruth(F&& Function, A&& ...Args);
+    RIN T& GetTruth(F&& Function, A&& ...Args);
     template<typename F, typename ...A>
-    inline xvector<const T*> GetTruths(F&& Function, A&& ...Args) const;
+    RIN xvector<const T*> GetTruths(F&& Function, A&& ...Args) const;
 
-    inline bool Lacks(const T& item) const;
-    inline bool Lacks(char const* item) const;
+    RIN bool Lacks(const T& item) const;
+    RIN bool Lacks(char const* item) const;
     template<typename F, typename ...A>
-    inline bool LacksTruth(F&& Function, A&& ...Args) const;
+    RIN bool LacksTruth(F&& Function, A&& ...Args) const;
 
 
-    inline const T* RawPtr(size_t Idx) const;
-    inline T* RawPtr(size_t Idx);
-    inline const T& operator[](size_t Idx) const;
-    inline T& operator[](size_t Idx);
+    RIN const T* RawPtr(xint Idx) const;
+    RIN T* RawPtr(xint Idx);
+    RIN const T& operator[](xint Idx) const;
+    RIN T& operator[](xint Idx);
 
-    const T& First(size_t Idx = 0) const;
-    T& First(size_t Idx = 0);
+    const T& First(xint Idx = 0) const;
+    T& First(xint Idx = 0);
 
-    const T& Last(size_t Idx = 0) const;
-    T& Last(size_t Idx = 0);
+    const T& Last(xint Idx = 0) const;
+    T& Last(xint Idx = 0);
 
-    inline std::pair<T, T> GetPair() const;
+    RIN std::pair<T, T> GetPair() const;
 
     template<typename I>
-    inline xvector<I> Convert() const;
+    RIN xvector<I> Convert() const;
 
     template<typename I, typename F>
-    inline xvector<I> Convert(F function) const;
+    RIN xvector<I> Convert(F function) const;
     
     template<typename N = unsigned int>
     xvector<xvector<T*>> Split(N count) const;
 
 
-    inline void operator<<(T* item);
+    RIN void operator<<(T* item);
 
-    inline void operator+=(const xvector<T*>& other);
-    inline xvector<T*> operator+(const xvector<T*>& other) const;
+    RIN void operator+=(const xvector<T*>& other);
+    RIN xvector<T*> operator+(const xvector<T*>& other) const;
 
-    inline size_t Size() const;
+    RIN xint Size() const;
 
-    inline void Organize();
-    inline void RemoveDups();
+    RIN void Organize();
+    RIN void RemoveDups();
 
     template<typename F>
-    inline xvector<T*> Sort(F func);
+    RIN xvector<T*> Sort(F func);
 
-    inline xvector<T> GetVals() const;
-    inline T* at(const size_t idx) const;
+    RIN xvector<T> GetVals() const;
+    RIN T* at(const xint idx) const;
 
     template<typename F, typename... A>
-    inline void Proc(F&& function, A&& ...Args);
+    RIN void Proc(F&& function, A&& ...Args);
     template<typename F, typename... A>
-    inline void ProcThread(F&& function, A&& ...Args);
+    RIN void ProcThread(F&& function, A&& ...Args);
 
     // foreach non-const
-    template<typename N = E, typename F, typename ...A>
-    inline xvector<N> ForEach(F&& function, A&& ...Args);
-    template<typename K, typename V, typename F, typename ...A>
-    inline std::unordered_map<K, V> ForEach(F&& function, A&& ...Args);
+    template<typename N = E, typename F, typename ...A>             RIN xvector<N> ForEach(F&& function, A&& ...Args);
+    template<typename K, typename V, typename F, typename ...A>     RIN std::unordered_map<K, V> ForEach(F&& function, A&& ...Args);
     // foreach const
-    template<typename N = E, typename F, typename ...A>
-    inline xvector<N> ForEach(F&& function, A&& ...Args) const;
-    template<typename K, typename V, typename F, typename ...A>
-    inline std::unordered_map<K, V> ForEach(F&& function, A&& ...Args) const;
+    template<typename N = E, typename F, typename ...A>             RIN xvector<N> ForEach(F&& function, A&& ...Args) const;
+    template<typename K, typename V, typename F, typename ...A>     RIN std::unordered_map<K, V> ForEach(F&& function, A&& ...Args) const;
     // multi-threaded foreach
-    template<typename N = E, typename F, typename... A>
-    inline xvector<N> ForEachThread(F&& function, A&& ...Args);
-    template<typename N = E, typename F, typename... A>
-    inline xvector<N> ForEachThread(F&& function, A&& ...Args) const;
-    template<typename K, typename V, typename F, typename ...A>
-    inline std::unordered_map<K, V> ForEachThread(F&& function, A&& ...Args) const;
+    template<typename N = E, typename F, typename... A>             RIN xvector<xp<N>> ForEachThread(F&& function, A&& ...Args);
+    template<typename N = E, typename F, typename... A>             RIN xvector<xp<N>> ForEachThread(F&& function, A&& ...Args) const;
+    template<typename K, typename V, typename F, typename ...A>     RIN std::unordered_map<K, V> ForEachThread(F&& function, A&& ...Args) const;
 
-    template<typename N = E, typename F, typename... A>
-    inline void StartTasks(F&& function, A&& ...Args);
-    template<typename N = E>
-    inline xvector<N> GetTasks() const;
-    inline bool TasksCompleted() const;
+    template<typename N = E, typename F, typename... A>             RIN void StartTasks(F&& function, A&& ...Args);
+    template<typename N = E>                                        RIN xvector<xp<N>> GetTasks() const;
+                                                                    RIN bool TasksCompleted() const;
 
     // =================================== DESIGNED FOR NUMERIC BASED VECTORS ===================================
 
-    inline T GetSum(size_t FnSkipIdx = 0) const;
-    inline T GetMul(size_t FnSkipIdx = 0) const;
-    inline T GetAvg(size_t FnSkipIdx = 0) const;
+    RIN T GetSum(xint FnSkipIdx = 0) const;
+    RIN T GetMul(xint FnSkipIdx = 0) const;
+    RIN T GetAvg(xint FnSkipIdx = 0) const;
 
     // =================================== DESIGNED FOR STRING  BASED VECTORS ===================================
 
-    inline T Join(const T& str = "") const;
-    inline T Join(const char str) const;
-    inline T Join(const char* str) const;
+    RIN T Join(const T& str = "") const;
+    RIN T Join(const char str) const;
+    RIN T Join(const char* str) const;
 
 #ifndef UsingNVCC
-    inline bool FullMatchOne(const re2::RE2& in_pattern) const;
-    inline bool FullMatchAll(const re2::RE2& in_pattern) const;
-    inline bool MatchOne(const re2::RE2& in_pattern) const;
-    inline bool MatchAll(const re2::RE2& in_pattern) const;
-    inline xvector<T*> Take(const re2::RE2& in_pattern) const;
-    inline xvector<T*> Remove(const re2::RE2& in_pattern) const;
-    inline xvector<T>  SubAll(const re2::RE2& in_pattern, const std::string& replacement) const;
+    RIN bool FullMatchOne(const re2::RE2& in_pattern) const;
+    RIN bool FullMatchAll(const re2::RE2& in_pattern) const;
+    RIN bool MatchOne(const re2::RE2& in_pattern) const;
+    RIN bool MatchAll(const re2::RE2& in_pattern) const;
+    RIN xvector<T*> Take(const re2::RE2& in_pattern) const;
+    RIN xvector<T*> Remove(const re2::RE2& in_pattern) const;
+    RIN xvector<T>  SubAll(const re2::RE2& in_pattern, const std::string& replacement) const;
 #endif // !UsingNVCC
 
 
-    inline bool FullMatchOne(const std::string& in_pattern) const;
-    inline bool FullMatchOne(char const* in_pattern) const;
+    RIN bool FullMatchOne(const std::string& in_pattern) const;
+    RIN bool FullMatchOne(char const* in_pattern) const;
 
-    inline bool FullMatchAll(const std::string& in_pattern) const;
-    inline bool FullMatchAll(char const* in_pattern) const;
+    RIN bool FullMatchAll(const std::string& in_pattern) const;
+    RIN bool FullMatchAll(char const* in_pattern) const;
 
-    inline bool MatchOne(const std::string& in_pattern) const;
-    inline bool MatchOne(char const* in_pattern) const;
+    RIN bool MatchOne(const std::string& in_pattern) const;
+    RIN bool MatchOne(char const* in_pattern) const;
 
-    inline bool MatchAll(const std::string& in_pattern) const;
-    inline bool MatchAll(char const* in_pattern) const;
+    RIN bool MatchAll(const std::string& in_pattern) const;
+    RIN bool MatchAll(char const* in_pattern) const;
 
-    inline xvector<T*> Take(const std::string& in_pattern) const;
-    inline xvector<T*> Take(char const* in_pattern) const;
+    RIN xvector<T*> Take(const std::string& in_pattern) const;
+    RIN xvector<T*> Take(char const* in_pattern) const;
 
-    inline xvector<T*> Remove(const std::string& in_pattern) const;
-    inline xvector<T*> Remove(char const* in_pattern) const;
+    RIN xvector<T*> Remove(const std::string& in_pattern) const;
+    RIN xvector<T*> Remove(char const* in_pattern) const;
 
-    inline xvector<T> SubAll(const std::string& in_pattern, const std::string& replacement) const;
-    inline xvector<T> SubAll(char const* in_pattern, char const* replacement) const;
+    RIN xvector<T> SubAll(const std::string& in_pattern, const std::string& replacement) const;
+    RIN xvector<T> SubAll(char const* in_pattern, char const* replacement) const;
 
     // double was chose to hold long signed and unsigned values
-    inline xvector<T*> operator()(long double x = 0, long double y = 0, long double z = 0, const char removal_method = 's') const;
+    RIN xvector<T*> operator()(long double x = 0, long double y = 0, long double z = 0, const char removal_method = 's') const;
     // s = slice perserves values you land on 
     // d = dice  removes values you land on
     // s/d only makes a difference if you modify the 'z' value
     
     // =================================== DESIGNED FOR STRING BASED VECTORS ===================================
 
-    inline void SetDeleteAllOnExit(const bool Truth) { MbDeleteAllOnExit = Truth; }
+    RIN void SetDeleteAllOnExit(const bool Truth) { MbDeleteAllOnExit = Truth; }
 
 protected:
     bool MbDeleteAllOnExit = false;
@@ -183,7 +175,7 @@ protected:
 
 
 template<typename T>
-inline T& PtrXVector<T*>::At(const size_t Idx)
+RIN T& PtrXVector<T*>::At(const xint Idx)
 {
     if (Idx >= Size())
         throw "Index Out Of Range";
@@ -191,7 +183,7 @@ inline T& PtrXVector<T*>::At(const size_t Idx)
 }
 
 template<typename T>
-inline const T& PtrXVector<T*>::At(const size_t Idx) const
+RIN const T& PtrXVector<T*>::At(const xint Idx) const
 {
     if (Idx >= Size())
         throw "Index Out Of Range";
@@ -199,7 +191,7 @@ inline const T& PtrXVector<T*>::At(const size_t Idx) const
 }
 
 template<typename T>
-inline bool PtrXVector<T*>::Has(const T& item)  const
+RIN bool PtrXVector<T*>::Has(const T& item)  const
 {
     for (auto* el : *this) {
         if (*el == item)
@@ -209,7 +201,7 @@ inline bool PtrXVector<T*>::Has(const T& item)  const
 }
 
 template<typename T>
-inline bool PtrXVector<T*>::Has(char const* item)  const
+RIN bool PtrXVector<T*>::Has(char const* item)  const
 {
     for (auto* el : *this) {
         if (*el == item)
@@ -220,7 +212,7 @@ inline bool PtrXVector<T*>::Has(char const* item)  const
 
 template<typename T>
 template<typename F, typename ...A>
-inline bool PtrXVector<T*>::HasTruth(F&& Function, A&& ...Args) const
+RIN bool PtrXVector<T*>::HasTruth(F&& Function, A&& ...Args) const
 {
     for (typename xvector<E>::const_iterator it = The.begin(); it != The.end(); it++) {
         if (Function((**it), std::forward<A>(Args)...))
@@ -231,7 +223,7 @@ inline bool PtrXVector<T*>::HasTruth(F&& Function, A&& ...Args) const
 
 template<typename T>
 template<typename F, typename ...A>
-inline const T& PtrXVector<T*>::GetTruth(F&& Function, A && ...Args) const
+RIN const T& PtrXVector<T*>::GetTruth(F&& Function, A && ...Args) const
 {
     for (typename xvector<E>::const_iterator it = The.begin(); it != The.end(); it++) {
         if (Function(**it, std::forward<A>(Args)...))
@@ -242,7 +234,7 @@ inline const T& PtrXVector<T*>::GetTruth(F&& Function, A && ...Args) const
 
 template<typename T>
 template<typename F, typename ...A>
-inline T& PtrXVector<T*>::GetTruth(F&& Function, A && ...Args)
+RIN T& PtrXVector<T*>::GetTruth(F&& Function, A && ...Args)
 {
     for (typename xvector<E>::const_iterator it = The.begin(); it != The.end(); it++) {
         if (Function(**it, std::forward<A>(Args)...))
@@ -253,7 +245,7 @@ inline T& PtrXVector<T*>::GetTruth(F&& Function, A && ...Args)
 
 template<typename T>
 template<typename F, typename ...A>
-inline xvector<const T*> PtrXVector<T*>::GetTruths(F&& Function, A && ...Args) const
+RIN xvector<const T*> PtrXVector<T*>::GetTruths(F&& Function, A && ...Args) const
 {
     xvector<T*> RetVec;
     for (typename xvector<E>::const_iterator it = The.begin(); it != The.end(); it++) {
@@ -264,18 +256,18 @@ inline xvector<const T*> PtrXVector<T*>::GetTruths(F&& Function, A && ...Args) c
 }
 
 template<typename T>
-inline bool PtrXVector<T*>::Lacks(const T& item) const {
+RIN bool PtrXVector<T*>::Lacks(const T& item) const {
     return !(bool(std::find(The.begin(), The.end(), &item) != The.end()));
 }
 
 template<typename T>
-inline bool PtrXVector<T*>::Lacks(char const* item) const {
+RIN bool PtrXVector<T*>::Lacks(char const* item) const {
     return !(bool(std::find(The.begin(), The.end(), &item) != The.end()));
 }
 
 template<typename T>
 template<typename F, typename ...A>
-inline bool PtrXVector<T*>::LacksTruth(F&& Function, A&& ...Args) const
+RIN bool PtrXVector<T*>::LacksTruth(F&& Function, A&& ...Args) const
 {
     for (typename xvector<E>::const_iterator it = The.begin(); it != The.end(); it++) {
         if (Function((**it), std::forward<A>(Args)...))
@@ -287,7 +279,7 @@ inline bool PtrXVector<T*>::LacksTruth(F&& Function, A&& ...Args) const
 // ------------------------------------------------------------------------------------------------
 
 template<typename T>
-inline const T* PtrXVector<T*>::RawPtr(size_t Idx) const
+RIN const T* PtrXVector<T*>::RawPtr(xint Idx) const
 {
     if (!The.HasIndex(Idx))
         throw "Index out of range";
@@ -295,7 +287,7 @@ inline const T* PtrXVector<T*>::RawPtr(size_t Idx) const
 }
 
 template<typename T>
-inline T* PtrXVector<T*>::RawPtr(size_t Idx)
+RIN T* PtrXVector<T*>::RawPtr(xint Idx)
 {
     if (!The.HasIndex(Idx))
         throw "Index out of range";
@@ -303,7 +295,7 @@ inline T* PtrXVector<T*>::RawPtr(size_t Idx)
 }
 
 template<typename T>
-inline const T& PtrXVector<T*>::operator[](size_t Idx) const
+RIN const T& PtrXVector<T*>::operator[](xint Idx) const
 {
     const T* RetPtr = The.RawPtr(Idx);
     if (!RetPtr)
@@ -312,7 +304,7 @@ inline const T& PtrXVector<T*>::operator[](size_t Idx) const
 }
 
 template<typename T>
-inline T& PtrXVector<T*>::operator[](size_t Idx)
+RIN T& PtrXVector<T*>::operator[](xint Idx)
 {
     T* RetPtr = The.RawPtr(Idx);
     if (!RetPtr)
@@ -321,7 +313,7 @@ inline T& PtrXVector<T*>::operator[](size_t Idx)
 }
 
 template<typename T>
-inline const T& PtrXVector<T*>::First(size_t Idx) const
+RIN const T& PtrXVector<T*>::First(xint Idx) const
 {
     if (!The.HasIndex(Idx))
         throw "Index Out Of Range";
@@ -329,7 +321,7 @@ inline const T& PtrXVector<T*>::First(size_t Idx) const
 }
 
 template<typename T>
-inline T& PtrXVector<T*>::First(size_t Idx)
+RIN T& PtrXVector<T*>::First(xint Idx)
 {
     if (!The.HasIndex(Idx))
         throw "Index Out Of Range";
@@ -337,7 +329,7 @@ inline T& PtrXVector<T*>::First(size_t Idx)
 }
 
 template<typename T>
-inline const T& PtrXVector<T*>::Last(size_t Idx) const
+RIN const T& PtrXVector<T*>::Last(xint Idx) const
 {
     if (!The.HasIndex(Idx))
         throw "Index Out Of Range";
@@ -345,7 +337,7 @@ inline const T& PtrXVector<T*>::Last(size_t Idx) const
 }
 
 template<typename T>
-inline T& PtrXVector<T*>::Last(size_t Idx)
+RIN T& PtrXVector<T*>::Last(xint Idx)
 {
     if (!The.HasIndex(Idx))
         throw "Index Out Of Range";
@@ -353,7 +345,7 @@ inline T& PtrXVector<T*>::Last(size_t Idx)
 }
 
 template<typename T>
-inline std::pair<T, T> PtrXVector<T*>::GetPair() const
+RIN std::pair<T, T> PtrXVector<T*>::GetPair() const
 {
     return std::pair<E*, E*>(The.at(0), The.at(1));
 }
@@ -362,7 +354,7 @@ inline std::pair<T, T> PtrXVector<T*>::GetPair() const
 
 template<typename T>
 template<typename I>
-inline xvector<I> PtrXVector<T*>::Convert() const
+RIN xvector<I> PtrXVector<T*>::Convert() const
 {
     xvector<I> ret;
     for (typename xvector<T*>::const_iterator it = The.begin(); it != The.end(); it++)
@@ -372,7 +364,7 @@ inline xvector<I> PtrXVector<T*>::Convert() const
 
 template<typename T>
 template<typename I, typename F>
-inline xvector<I> PtrXVector<T*>::Convert(F function) const
+RIN xvector<I> PtrXVector<T*>::Convert(F function) const
 {
     xvector<I> ret;
     for (typename xvector<T*>::const_iterator it = The.begin(); it != The.end(); it++)
@@ -382,13 +374,13 @@ inline xvector<I> PtrXVector<T*>::Convert(F function) const
 
 template<typename T>
 template<typename N>
-inline xvector<xvector<T*>> PtrXVector<T*>::Split(N count) const
+RIN xvector<xvector<T*>> PtrXVector<T*>::Split(N count) const
 {
     if (count < 2)
         return xvector<xvector<T*>>{ *this };
 
     xvector<xvector<T*>> RetVec;
-    RetVec.reserve(static_cast<size_t>(count) + 1);
+    RetVec.reserve(static_cast<xint>(count) + 1);
     if (!The.size())
         return RetVec;
 
@@ -399,7 +391,7 @@ inline xvector<xvector<T*>> PtrXVector<T*>::Split(N count) const
         if (count == 0) {
             count = reset;
             RetVec.push_back(xvector<T*>({ *it })); // create new xvec and add first el
-            RetVec[RetVec.size() - 1].reserve(static_cast<size64_t>(new_size));
+            RetVec[RetVec.size() - 1].reserve(static_cast<xint>(new_size));
         }
         else {
             RetVec[RetVec.size() - 1] << *it;
@@ -412,7 +404,7 @@ inline xvector<xvector<T*>> PtrXVector<T*>::Split(N count) const
 // ------------------------------------------------------------------------------------------------
 
 template<typename T>
-inline void PtrXVector<T*>::operator<<(T* item)
+RIN void PtrXVector<T*>::operator<<(T* item)
 {
     The.emplace_back(item);
 }
@@ -425,7 +417,7 @@ void PtrXVector<T*>::operator+=(const xvector<T*>& other)
 
 template<typename T>
 xvector<T*> PtrXVector<T*>::operator+(const xvector<T*>& other) const {
-    size_t sz = The.size();
+    xint sz = The.size();
     xvector<T*> vret = *this;
     vret += other;
     return vret;
@@ -434,13 +426,13 @@ xvector<T*> PtrXVector<T*>::operator+(const xvector<T*>& other) const {
 // ------------------------------------------------------------------------------------------------
 
 template<typename T>
-inline size_t PtrXVector<T*>::Size() const
+RIN xint PtrXVector<T*>::Size() const
 {
     return The.size();
 }
 
 template<typename T>
-inline void PtrXVector<T*>::Organize()
+RIN void PtrXVector<T*>::Organize()
 {
     std::multiset<T*> set_arr;
     for (typename xvector<T*>::const_iterator it = The.begin(); it != The.end(); it++)
@@ -454,7 +446,7 @@ inline void PtrXVector<T*>::Organize()
 }
 
 template<typename T>
-inline void PtrXVector<T*>::RemoveDups()
+RIN void PtrXVector<T*>::RemoveDups()
 {
     std::set<T*> set_arr;
     for (typename xvector<T*>::const_iterator it = The.begin(); it != The.end(); it++)
@@ -472,14 +464,14 @@ inline void PtrXVector<T*>::RemoveDups()
 
 template<typename T>
 template<typename F>
-inline xvector<T*> PtrXVector<T*>::Sort(F func)
+RIN xvector<T*> PtrXVector<T*>::Sort(F func)
 {
     std::sort(The.begin(), The.end(), func);
     return *this;
 }
 
 template<typename T>
-inline xvector<T> PtrXVector<T*>::GetVals() const
+RIN xvector<T> PtrXVector<T*>::GetVals() const
 {
     xvector<E> arr;
     arr.reserve(The.size() + 1);
@@ -489,7 +481,7 @@ inline xvector<T> PtrXVector<T*>::GetVals() const
 }
 
 template<typename T>
-inline T* PtrXVector<T*>::at(const size_t idx) const
+RIN T* PtrXVector<T*>::at(const xint idx) const
 {
     if (idx >= The.size())
         throw std::out_of_range(std::string("Index [") + std::to_string(idx) + "] is out of range!");
@@ -499,135 +491,141 @@ inline T* PtrXVector<T*>::at(const size_t idx) const
 
 template<typename T>
 template<typename F, typename... A>
-inline void PtrXVector<T*>::Proc(F&& function, A&& ...Args)
+RIN void PtrXVector<T*>::Proc(F&& function, A&& ...Args)
 {
     for (typename xvector<E>::iterator it = The.begin(); it != The.end(); it++) {
-        if (function(**it, Args...))
+        if (function(**it, std::forward<A>(Args)...))
             break;
     }
 }
 
 template<typename T>
 template<typename F, typename... A>
-inline void PtrXVector<T*>::ProcThread(F&& function, A&& ...Args)
+RIN void PtrXVector<T*>::ProcThread(F&& function, A&& ...Args)
 {
     for (typename xvector<E*>::iterator it = The.begin(); it != The.end(); it++)
-        Nexus<>::AddJobVal(function, **it, std::ref(Args)...);
+        Nexus<>::AddTaskVal(function, **it, std::ref(Args)...);
 }
 
 template<typename T>
 template<typename N, typename F, typename ...A>
-inline xvector<N> PtrXVector<T*>::ForEach(F&& function, A&& ...Args)
+RIN xvector<N> PtrXVector<T*>::ForEach(F&& function, A&& ...Args)
 {
     xvector<N> vret;
     for (typename xvector<E*>::iterator it = The.begin(); it != The.end(); it++)
-        vret.push_back(function(**it, Args...));
+        vret.push_back(function(**it, std::forward<A>(Args)...));
     return vret;
 }
 
 template<typename T>
 template<typename K, typename V, typename F, typename ...A>
-inline std::unordered_map<K, V> PtrXVector<T*>::ForEach(F&& function, A&& ...Args)
+RIN std::unordered_map<K, V> PtrXVector<T*>::ForEach(F&& function, A&& ...Args)
 {
     std::unordered_map<K, V> rmap;
     for (typename xvector<E*>::iterator it = The.begin(); it != The.end(); it++)
-        rmap.insert(function(**it, Args...));
+        rmap.insert(function(**it, std::forward<A>(Args)...));
     return rmap;
 }
 template<typename T>
 template<typename N, typename F, typename ...A>
-inline xvector<N> PtrXVector<T*>::ForEach(F&& function, A&& ...Args) const
+RIN xvector<N> PtrXVector<T*>::ForEach(F&& function, A&& ...Args) const
 {
     xvector<N> vret;
     for (typename xvector<E*>::const_iterator it = The.begin(); it != The.end(); it++)
-        vret.push_back(function(**it, Args...));
+        vret.push_back(function(**it, std::forward<A>(Args)...));
     return vret;
 }
 
 template<typename T>
 template<typename K, typename V, typename F, typename ...A>
-inline std::unordered_map<K, V> PtrXVector<T*>::ForEach(F&& function, A&& ...Args) const
+RIN std::unordered_map<K, V> PtrXVector<T*>::ForEach(F&& function, A&& ...Args) const
 {
     std::unordered_map<K, V> rmap;
     for (typename xvector<E*>::const_iterator it = The.begin(); it != The.end(); it++)
-        rmap.insert(function(**it, Args...));
+        rmap.insert(function(**it, std::forward<A>(Args)...));
     return rmap;
 }
 
 template<typename T>
 template<typename N, typename F, typename ...A>
-inline xvector<N> PtrXVector<T*>::ForEachThread(F&& function, A&& ...Args)
+RIN xvector<xp<N>> PtrXVector<T*>::ForEachThread(F&& function, A&& ...Args)
 {
     if constexpr (std::is_same_v<N, std::remove_pointer_t<T>>)
     {
-        CheckRenewObj(VectorPool);
+        SSET(MoNexus, MKP<Nexus<T>>());
+        MoNexus.Disable();
         for (typename xvector<E*>::iterator it = The.begin(); it != The.end(); it++)
-            VectorPool.AddJobVal(function, **it, std::ref(Args)...);
-
-        return VectorPool.GetMoveAllIndices();
+            MoNexus.AddTaskVal(function, **it, std::ref(Args)...);
+        MoNexus.Enable();
+        return MoNexus.GetAllPtrs();
     }
     else
     {
         Nexus<N> LoNexus;
+        LoNexus.Disable();
         for (typename xvector<E*>::iterator it = The.begin(); it != The.end(); it++)
-            LoNexus.AddJobVal(function, **it, std::ref(Args)...);
-
-        return LoNexus.GetMoveAllIndices();
+            LoNexus.AddTaskVal(function, **it, std::ref(Args)...);
+        LoNexus.Enable();
+        return LoNexus.GetAllPtrs();
     }
 }
 
 template<typename T>
 template<typename N, typename F, typename ...A>
-inline xvector<N> PtrXVector<T*>::ForEachThread(F&& function, A&& ...Args) const
+RIN xvector<xp<N>> PtrXVector<T*>::ForEachThread(F&& function, A&& ...Args) const
 {
     Nexus<N> LoNexus;
+    LoNexus.Disable();
     for (typename xvector<E*>::const_iterator it = The.begin(); it != The.end(); it++)
-        LoNexus.AddJobVal(function, **it, std::ref(Args)...);
-
-    return LoNexus.GetMoveAllIndices();
+        LoNexus.AddTaskVal(function, **it, std::ref(Args)...);
+    LoNexus.Enable();
+    return LoNexus.GetAllPtrs();
 }
 
 template<typename T>
 template<typename K, typename V, typename F, typename ...A>
-inline std::unordered_map<K, V> PtrXVector<T*>::ForEachThread(F&& function, A&& ...Args) const
+RIN std::unordered_map<K, V> PtrXVector<T*>::ForEachThread(F&& function, A&& ...Args) const
 {
     Nexus<std::pair<K, V>> LoNexus;
+    LoNexus.Disable();
     for (typename xvector<E*>::iterator it = The.begin(); it != The.end(); it++)
-        LoNexus.AddJobVal(function, **it, std::ref(Args)...);
-
+        LoNexus.AddTaskVal(function, **it, std::ref(Args)...);
+    LoNexus.Enable();
     return LoNexus.GetMoveAllIndices();
 }
 
 template<typename T>
 template <typename N, typename F, typename ...A>
-inline void PtrXVector<T*>::StartTasks(F&& function, A&& ...Args)
+RIN void PtrXVector<T*>::StartTasks(F&& function, A&& ...Args)
 {
-    CheckRenewObj(VectorPool);
+    SSET(MoNexus, MKP<Nexus<T>>());
+    MoNexus.Disable();
     for (typename xvector<E>::iterator it = The.begin(); it != The.end(); it++)
-        VectorPool.AddJobVal(function, **it, std::ref(Args)...);
+        MoNexus.AddTaskVal(function, **it, std::ref(Args)...);
+    MoNexus.Enable();
 }
 
 template<typename T>
 template<typename N>
-inline xvector<N> PtrXVector<T*>::GetTasks() const
+RIN xvector<xp<N>> PtrXVector<T*>::GetTasks() const
 {
-    if (!The.VectorPoolPtr)
+    if (!The.MoNexusPtr)
         return std::vector<N>();
-    return The.VectorPoolPtr->GetMoveAllIndices();
+    return The.MoNexusPtr->GetAllPtrs();
 }
 
 template<typename T>
-inline bool PtrXVector<T*>::TasksCompleted() const
+RIN bool PtrXVector<T*>::TasksCompleted() const
 {
-    if (!The.VectorPoolPtr)
+    if (!The.MoNexusPtr)
         return true;
-    return The.VectorPoolPtr->TasksCompleted();
+    return The.MoNexusPtr->TasksCompleted();
 }
 
 // =============================================================================================================
 
 template<typename T>
-inline T PtrXVector<T*>::GetSum(size_t FnSkipIdx) const
+RIN T PtrXVector<T*>::GetSum(xint FnSkipIdx) const
 {
     if (!Size())
         return 0;
@@ -644,7 +642,7 @@ inline T PtrXVector<T*>::GetSum(size_t FnSkipIdx) const
 }
 
 template<typename T>
-inline T PtrXVector<T*>::GetMul(size_t FnSkipIdx) const
+RIN T PtrXVector<T*>::GetMul(xint FnSkipIdx) const
 {
     if (!Size())
         return 0;
@@ -664,7 +662,7 @@ inline T PtrXVector<T*>::GetMul(size_t FnSkipIdx) const
 }
 
 template<typename T>
-inline T PtrXVector<T*>::GetAvg(size_t FnSkipIdx) const
+RIN T PtrXVector<T*>::GetAvg(xint FnSkipIdx) const
 {
     return The.Sum(FnSkipIdx) / (The.Size() - FnSkipIdx);
 }
@@ -705,7 +703,7 @@ T PtrXVector<T*>::Join(const char* str) const
 
 #ifndef UsingNVCC
 template<typename T>
-inline bool PtrXVector<T*>::FullMatchOne(const re2::RE2& in_pattern) const
+RIN bool PtrXVector<T*>::FullMatchOne(const re2::RE2& in_pattern) const
 {
     for (typename xvector<T*>::const_iterator iter = The.begin(); iter != The.end(); iter++) {
         if (RE2::FullMatch(**iter, in_pattern)) {
@@ -716,7 +714,7 @@ inline bool PtrXVector<T*>::FullMatchOne(const re2::RE2& in_pattern) const
 }
 
 template<typename T>
-inline bool PtrXVector<T*>::FullMatchAll(const re2::RE2& in_pattern) const
+RIN bool PtrXVector<T*>::FullMatchAll(const re2::RE2& in_pattern) const
 {
     for (typename xvector<T*>::const_iterator iter = The.begin(); iter != The.end(); iter++) {
         if (!RE2::FullMatch(**iter, in_pattern)) {
@@ -728,7 +726,7 @@ inline bool PtrXVector<T*>::FullMatchAll(const re2::RE2& in_pattern) const
 
 
 template<typename T>
-inline bool PtrXVector<T*>::MatchOne(const re2::RE2& in_pattern) const
+RIN bool PtrXVector<T*>::MatchOne(const re2::RE2& in_pattern) const
 {
     for (typename xvector<T*>::const_iterator iter = The.begin(); iter != The.end(); iter++) {
         if (RE2::PartialMatch(**iter, in_pattern)) {
@@ -739,7 +737,7 @@ inline bool PtrXVector<T*>::MatchOne(const re2::RE2& in_pattern) const
 }
 
 template<typename T>
-inline bool PtrXVector<T*>::MatchAll(const re2::RE2& in_pattern) const
+RIN bool PtrXVector<T*>::MatchAll(const re2::RE2& in_pattern) const
 {
     for (typename xvector<T*>::const_iterator iter = The.begin(); iter != The.end(); iter++) {
         if (!RE2::PartialMatch(**iter, in_pattern)) {
@@ -750,11 +748,11 @@ inline bool PtrXVector<T*>::MatchAll(const re2::RE2& in_pattern) const
 }
 
 template<typename T>
-inline xvector<T*> PtrXVector<T*>::Take(const re2::RE2& in_pattern) const
+RIN xvector<T*> PtrXVector<T*>::Take(const re2::RE2& in_pattern) const
 {
     xvector<T*> RetVec;
     RetVec.reserve(The.size() + 1);
-    for (size_t i = 0; i < The.size(); i++) {
+    for (xint i = 0; i < The.size(); i++) {
         if ((RE2::PartialMatch(*(*this)[i], in_pattern)))
             RetVec.push_back((*this)[i]);
     }
@@ -762,11 +760,11 @@ inline xvector<T*> PtrXVector<T*>::Take(const re2::RE2& in_pattern) const
 }
 
 template<typename T>
-inline xvector<T*> PtrXVector<T*>::Remove(const re2::RE2& in_pattern) const
+RIN xvector<T*> PtrXVector<T*>::Remove(const re2::RE2& in_pattern) const
 {
     xvector<T*> RetVec;
     RetVec.reserve(The.size() + 1);
-    for (size_t i = 0; i < The.size(); i++) {
+    for (xint i = 0; i < The.size(); i++) {
         if (!(RE2::PartialMatch(*(*this)[i], in_pattern)))
             RetVec.push_back((*this)[i]);
     }
@@ -774,7 +772,7 @@ inline xvector<T*> PtrXVector<T*>::Remove(const re2::RE2& in_pattern) const
 }
 
 template<typename T>
-inline xvector<T> PtrXVector<T*>::SubAll(const re2::RE2& in_pattern, const std::string& replacement) const
+RIN xvector<T> PtrXVector<T*>::SubAll(const re2::RE2& in_pattern, const std::string& replacement) const
 {
     xvector<E> RetVec;
     RetVec.reserve(The.size() + 1);
@@ -897,7 +895,7 @@ bool PtrXVector<T*>::MatchAll(char const* in_pattern) const {
 // =============================================================================================================
 
 template<typename T>
-inline xvector<T*> PtrXVector<T*>::Take(const std::string& in_pattern) const
+RIN xvector<T*> PtrXVector<T*>::Take(const std::string& in_pattern) const
 {
 #ifdef UsingNVCC
     xvector<T*> RetVec;
@@ -914,7 +912,7 @@ inline xvector<T*> PtrXVector<T*>::Take(const std::string& in_pattern) const
 }
 
 template<typename T>
-inline xvector<T*> PtrXVector<T*>::Take(char const* in_pattern) const
+RIN xvector<T*> PtrXVector<T*>::Take(char const* in_pattern) const
 {
 #ifdef UsingNVCC
     return The.Take(std::string(in_pattern));
@@ -924,7 +922,7 @@ inline xvector<T*> PtrXVector<T*>::Take(char const* in_pattern) const
 }
 
 template<typename T>
-inline xvector<T*> PtrXVector<T*>::Remove(const std::string& in_pattern) const
+RIN xvector<T*> PtrXVector<T*>::Remove(const std::string& in_pattern) const
 {
 #ifdef UsingNVCC
     xvector<T*> RetVec;
@@ -942,7 +940,7 @@ inline xvector<T*> PtrXVector<T*>::Remove(const std::string& in_pattern) const
 
 
 template<typename T>
-inline xvector<T*> PtrXVector<T*>::Remove(char const* in_pattern) const
+RIN xvector<T*> PtrXVector<T*>::Remove(char const* in_pattern) const
 {
 #ifdef UsingNVCC
     return The.Remove(std::string(in_pattern));
@@ -953,7 +951,7 @@ inline xvector<T*> PtrXVector<T*>::Remove(char const* in_pattern) const
 // =============================================================================================================
 
 template<typename T>
-inline xvector<T> PtrXVector<T*>::SubAll(const std::string& Pattern, const std::string& Replacement) const
+RIN xvector<T> PtrXVector<T*>::SubAll(const std::string& Pattern, const std::string& Replacement) const
 {
 #ifdef UsingNVCC
     xvector<T> RetVec;
@@ -967,7 +965,7 @@ inline xvector<T> PtrXVector<T*>::SubAll(const std::string& Pattern, const std::
 }
 
 template<typename T>
-inline xvector<T> PtrXVector<T*>::SubAll(char const* in_pattern, char const* replacement) const
+RIN xvector<T> PtrXVector<T*>::SubAll(char const* in_pattern, char const* replacement) const
 {
     return The.SubAll(std::string(in_pattern), std::string(replacement));
 }
@@ -977,7 +975,7 @@ inline xvector<T> PtrXVector<T*>::SubAll(char const* in_pattern, char const* rep
 template<typename T>
 xvector<T*> PtrXVector<T*>::operator()(long double x, long double y, long double z, const char removal_method) const {
 
-    size_t m_size = The.size();
+    xint m_size = The.size();
     xvector<T*> n_arr;
     n_arr.reserve(m_size + 4);
 
@@ -994,16 +992,16 @@ xvector<T*> PtrXVector<T*>::operator()(long double x, long double y, long double
         if (x > y) { return n_arr; }
 
         typename xvector<T*>::const_iterator iter = The.begin();
-        typename xvector<T*>::const_iterator stop = The.begin() + static_cast<size_t>(y);
+        typename xvector<T*>::const_iterator stop = The.begin() + static_cast<xint>(y);
 
         if (z == 0) { // forward direction with no skipping
-            for (iter += static_cast<size_t>(x); iter != stop; ++iter)
+            for (iter += static_cast<xint>(x); iter != stop; ++iter)
                 n_arr.push_back(*iter);
         }
         else if (removal_method == 's') { // forward direction with skipping
             double iter_insert = 0;
             --z;
-            for (iter += static_cast<size_t>(x); iter != stop; ++iter) {
+            for (iter += static_cast<xint>(x); iter != stop; ++iter) {
                 if (!iter_insert) {
                     n_arr.push_back(*iter);
                     iter_insert = z;
@@ -1016,7 +1014,7 @@ xvector<T*> PtrXVector<T*>::operator()(long double x, long double y, long double
         else {
             double iter_insert = 0;
             --z;
-            for (iter += static_cast<size_t>(x); iter != stop; ++iter) {
+            for (iter += static_cast<xint>(x); iter != stop; ++iter) {
                 if (!iter_insert) {
                     iter_insert = z;
                 }
@@ -1037,10 +1035,10 @@ xvector<T*> PtrXVector<T*>::operator()(long double x, long double y, long double
 
         if (y > x) { return n_arr; }
 
-        typename xvector<T*>::const_reverse_iterator iter = The.rend() - static_cast<size_t>(x) - 1;
-        typename xvector<T*>::const_reverse_iterator stop = The.rend() - static_cast<size_t>(y);
+        typename xvector<T*>::const_reverse_iterator iter = The.rend() - static_cast<xint>(x) - 1;
+        typename xvector<T*>::const_reverse_iterator stop = The.rend() - static_cast<xint>(y);
 
-        size_t iter_insert = 0;
+        xint iter_insert = 0;
 
         if (z == 0) {
             for (; iter != stop; ++iter) {
@@ -1052,7 +1050,7 @@ xvector<T*> PtrXVector<T*>::operator()(long double x, long double y, long double
             for (; iter != stop; ++iter) {
                 if (!iter_insert) {
                     n_arr.push_back(*iter);
-                    iter_insert = static_cast<size_t>(z);
+                    iter_insert = static_cast<xint>(z);
                 }
                 else {
                     --iter_insert;
@@ -1062,7 +1060,7 @@ xvector<T*> PtrXVector<T*>::operator()(long double x, long double y, long double
         else {
             for (; iter != stop; ++iter) {
                 if (!iter_insert) {
-                    iter_insert = static_cast<size_t>(z);
+                    iter_insert = static_cast<xint>(z);
                 }
                 else {
                     n_arr.push_back(*iter);

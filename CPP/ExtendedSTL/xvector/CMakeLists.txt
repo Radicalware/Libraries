@@ -11,7 +11,6 @@ set(THIS ${ArgProjectName})
 project(${THIS})
 
 set(PrivateLibs "")
-find_package(re2)
 list(APPEND PrivateLibs "Iterator")
 list(APPEND PrivateLibs "Memory")
 list(APPEND PrivateLibs "Nexus")

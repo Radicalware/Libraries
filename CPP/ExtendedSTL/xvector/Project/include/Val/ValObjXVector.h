@@ -20,12 +20,9 @@
 * limitations under the License.
 */
 
+#include "XvectorTypes.h"
 #include "BaseValXVector.h"
 #include <type_traits>
-
-template<typename T> class ValXVector;
-template<typename T, typename enabler_t> class xvector;
-class xstring;
 
 template<typename T>
 class ValObjXVectorAPI : public ValXVector<T>
@@ -35,17 +32,17 @@ public:
     using ValXVector<T>::operator=;
     using E = typename std::remove_const<T>::type; // E for Erratic
 
-    inline T Expand() const;
+    RIN T Expand() const;
 
-    T Join(const T& str = "") const;
-    T Join(const char str) const;
-    T Join(const char* str) const;
+    RIN T Join(const T& str = "") const;
+    RIN T Join(const char str) const;
+    RIN T Join(const char* str) const;
 };
 
 
 
 template<typename T>
-inline T ValObjXVectorAPI::Expand() const
+RIN T ValObjXVectorAPI::Expand() const
 {   // go from xvector<xvector<xstring>> to xvector<xstring>
     E expanded_vec;
     for (typename xvector<T>::const_iterator double_vec = this->begin(); double_vec != this->end(); double_vec++) {
@@ -56,20 +53,20 @@ inline T ValObjXVectorAPI::Expand() const
 }
 
 template<typename T>
-inline T ValObjXVectorAPI::Join(const T& str) const
+RIN T ValObjXVectorAPI::Join(const T& str) const
 {
     E ret;
     for (typename xvector<T>::const_iterator it = this->begin(); it != this->end(); it++)
         ret += *it + str;
 
-    size_t Diff = ret.size() - str.size();
+    xint Diff = ret.size() - str.size();
     if (Diff > 0)
         return ret.substr(0, Diff);
     return ret;
 }
 
 template<typename T>
-inline T ValObjXVectorAPI::Join(const char str) const
+RIN T ValObjXVectorAPI::Join(const char str) const
 {
     E ret;
     for (typename xvector<E>::const_iterator it = this->begin(); it != this->end(); it++)
@@ -81,7 +78,7 @@ inline T ValObjXVectorAPI::Join(const char str) const
 }
 
 template<typename T>
-inline T ValObjXVectorAPI::Join(const char* str) const
+RIN T ValObjXVectorAPI::Join(const char* str) const
 {
     E ret;
     for (typename xvector<T>::const_iterator it = this->begin(); it != this->end(); it++)

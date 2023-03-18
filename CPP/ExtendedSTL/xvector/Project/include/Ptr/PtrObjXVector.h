@@ -20,11 +20,9 @@
 * limitations under the License.
 */
 
+#include "XvectorTypes.h"
 #include "BasePtrXVector.h"
 #include <type_traits>
-
-template<typename T> class PtrXVector;
-template<typename T, typename enabler_t> class xvector;
 
 template<typename T>
 class PtrObjXVectorAPI : public PtrXVector<T*>
@@ -36,24 +34,24 @@ public:
 
     typedef T value_type;
 
-    virtual ~xvector();
+    RIN virtual ~xvector();
 
-    void DeleteAll();
+    RIN void DeleteAll();
 
-    T Join(const T& str = "") const;
-    T Join(const char str) const;
-    T Join(const char* str) const;
+    RIN T Join(const T& str = "") const;
+    RIN T Join(const char str) const;
+    RIN T Join(const char* str) const;
 };
 
 template<typename T>
-inline PtrObjXVectorAPI::~xvector()
+RIN PtrObjXVectorAPI::~xvector()
 {
     if (The.MbDeleteAllOnExit)
         DeleteAll();
 }
 
 template<typename T>
-inline void PtrObjXVectorAPI::DeleteAll()
+RIN void PtrObjXVectorAPI::DeleteAll()
 {
     for (int i = 0; i < The.Size(); i++)
     {
@@ -66,20 +64,20 @@ inline void PtrObjXVectorAPI::DeleteAll()
 }
 
 template<typename T>
-inline T PtrObjXVectorAPI::Join(const T& str) const
+RIN T PtrObjXVectorAPI::Join(const T& str) const
 {
     E ret;
     for (typename xvector<T*>::const_iterator it = this->begin(); it != this->end(); it++)
         ret += **it + str;
 
-    size_t Diff = ret.size() - str.size();
+    xint Diff = ret.size() - str.size();
     if (Diff > 0)
         return ret.substr(0, Diff);
     return ret;
 }
 
 template<typename T>
-inline T PtrObjXVectorAPI::Join(const char str) const
+RIN T PtrObjXVectorAPI::Join(const char str) const
 {
     E ret;
     for (typename xvector<T*>::const_iterator it = this->begin(); it != this->end(); it++)
@@ -91,7 +89,7 @@ inline T PtrObjXVectorAPI::Join(const char str) const
 }
 
 template<typename T>
-inline T PtrObjXVectorAPI::Join(const char* str) const
+RIN T PtrObjXVectorAPI::Join(const char* str) const
 {
     E ret;
     for (typename xvector<T*>::const_iterator it = this->begin(); it != this->end(); it++)

@@ -563,7 +563,7 @@ xstring RA::JSON::ToString() const
         return RA::WTXS((*MoZoomedJsonPtr).to_string().c_str());
     if (!!MoFullJsonPtr)
         return RA::WTXS((*MoFullJsonPtr).to_string().c_str());
-    return xstring::static_class;
+    return xstring::StaticClass;
 }
 
 xstring RA::JSON::ToString(const web::json::value& FwObject)

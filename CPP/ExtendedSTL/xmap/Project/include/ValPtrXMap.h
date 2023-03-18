@@ -34,16 +34,6 @@ public:
     using BaseXMap<K,V*,H>::BaseXMap;
     using BaseXMap<K,V*,H>::operator=;
     inline ~xmap();
-    //inline xmap();
-
-    //inline xmap(const xmap<K,V*,H>& other);
-    //inline xmap(xmap<K,V*,H>&& other) noexcept;
-
-    //inline xmap(const std::unordered_map<K,V*,H>& other);
-    //inline xmap(std::unordered_map<K,V*,H>&& other) noexcept;
-
-    //inline xmap(const std::map<K,V*,H>& other);
-    //inline xmap(std::map<K,V*,H>&& other) noexcept;
 
     inline void AddPair(const K& one, V* two);
     // ======== INITALIZATION ========================================================================
@@ -67,11 +57,6 @@ public:
 
     inline constexpr bool operator()(const K& iKey) const;
     inline constexpr bool operator()(const K& iKey, const V& iValue) const;
-
-    //template<typename O>
-    //inline void operator=(const O& other);
-    //template<typename O>
-    //inline void operator=(O&& other);
 
     // TODO REMOVE
     //inline V& operator[](const K& key);
@@ -102,7 +87,7 @@ public:
     template<typename R = K, typename F, typename ...A>
     inline constexpr xvector<R> ForEach(F&& function, A&& ...Args);
     template<typename T = K, typename R = T, typename F, typename ...A>
-    inline xvector<R> ForEachThread(F&& function, A&& ...Args);
+    inline xvector<xp<R>> ForEachThread(F&& function, A&& ...Args);
 
     inline constexpr std::map<K,V*,H> ToStdMap() const;
     inline constexpr std::unordered_map<K,V*,H> ToStdUnorderedMap() const;
@@ -291,21 +276,6 @@ inline constexpr bool xmap<K,V*,H>::operator()(const K& iKey, const V& iValue) c
         return false;
 }
 
-//template<typename K, typename V, typename H>
-//template<typename O>
-//inline void xmap<K,V*,H>::operator=(const O& other)
-//{
-//    this->clear();
-//    this->insert(other.begin(), other.end());
-//}
-//template<typename K, typename V, typename H>
-//template<typename O>
-//inline void xmap<K,V*,H>::operator=(O&& other)
-//{
-//    this->clear();
-//    this->insert(std::make_move_iterator(other.begin()), std::make_move_iterator(other.end()));
-//}
-
 // TODO REMOVE
 //template<typename K, typename V, typename H>
 //inline const V& xmap<K,V*,H>::operator[](const K& key) const
@@ -397,7 +367,7 @@ template<typename F, typename... A>
 inline void xmap<K,V*,H>::Proc(F&& function, A&& ...Args)
 {
     for (typename xmap<K,V*,H>::iterator iter = this->begin(); iter != this->end(); ++iter){
-        if (function(iter->first, iter->second, Args...))
+        if (function(iter->first, iter->second, std::forward<A>(Args)...))
             break;
     }
 }
@@ -407,7 +377,7 @@ template<typename F, typename... A>
 inline void xmap<K,V*,H>::ThreadProc(F&& function, A&& ...Args)
 {
     for (typename xmap<K,V*,H>::iterator iter = this->begin(); iter != this->end(); ++iter)
-        Nexus<>::AddJobPair(function, iter->first, *iter->second, std::ref(Args)...);
+        Nexus<>::AddTaskPair(function, iter->first, *iter->second, std::ref(Args)...);
 }
 
 template<typename K, typename V, typename H>
@@ -416,28 +386,21 @@ inline constexpr xvector<R> xmap<K,V*,H>::ForEach(F&& function, A&& ...Args)
 {
     xvector<R> vret;
     for (typename std::unordered_map<K,V*,H>::iterator iter = this->begin(); iter != this->end(); ++iter)
-        vret.push_back(function(iter->first, iter->second, Args...));
+        vret.push_back(function(iter->first, iter->second, std::forward<A>(Args)...));
     return vret;
 }
 
 template<typename K, typename V, typename H>
 template<typename T, typename R, typename F, typename ...A>
-inline xvector<R> xmap<K,V*,H>::ForEachThread(F&& function, A&& ...Args)
+inline xvector<xp<R>> xmap<K,V*,H>::ForEachThread(F&& function, A&& ...Args)
 {
-    Nexus<T> td;
-
-    for (typename std::unordered_map<K,V*,H>::iterator iter = this->begin(); iter != this->end(); ++iter)
-        td.AddJobPair(function, iter->first, *iter->second, std::ref(Args)...);
-
-    td.WaitAll();
-    xvector<R> vret;
-    vret.reserve(td.size());
-
-    for (size_t i = 0; i < td.size(); i++)
-        vret << td.GetWithoutProtection(i).GetValue();
-
-    td.clear();
-    return vret;
+    Nexus<R> LoNexus;
+    LoNexus.Disable();
+    for (typename std::unordered_map<K, V*, H>::iterator iter = this->begin(); iter != this->end(); ++iter)
+        LoNexus.AddTaskPair(function, iter->first, *iter->second, std::ref(Args)...);
+    LoNexus.Enable();
+    LoNexus.WaitAll();
+    return LoNexus.GetAllPtrs();
 }
 
 template<typename K, typename V, typename H>

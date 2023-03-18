@@ -28,12 +28,28 @@ int CustomTest()
     Rescue();
 }
 
+void MoveTest()
+{
+    auto xstr1 = xstring("xtest1");
+    auto xstr2 = xstring("xtest2");
+    auto sstr = std::string("stest");
+    cout << xstr1 << endl;
+    cout << xstr2 << endl;
+    cout << sstr << endl;
+    xstr1 = std::move(sstr);
+    cout << sstr << endl;
+    cout << xstr1 << endl;
+    xstr1 = std::move(xstr2);
+    cout << xstr2 << endl;
+    cout << xstr1 << endl;
+}
+
 int main()
 {
-    return CustomTest();
     Begin();
     Nexus<>::Start();
     // NOTE: All test functions are inline to make example reading easier.
+
     Full full;
     full.Basics();
     full.add_n_join();

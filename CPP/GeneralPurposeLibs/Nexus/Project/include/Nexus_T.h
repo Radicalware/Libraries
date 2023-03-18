@@ -28,8 +28,12 @@
 #include "Atomic.h"
 #include "SharedPtr.h"
 #include "Threads.h"
-#include "Task.h"
-#include "Job.h"
+
+#include "Task/TaskVoid.h"
+#include "Task/TaskValue.h"
+#include "Task/TaskXP.h"
+#include "Task/TaskFundamental.h"
+
 
 #if (defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64))
 #ifndef WIN32_LEAN_AND_MEAN
@@ -43,146 +47,205 @@
 // =========================================================================================
 
 template<typename T>
-class __single_inheritance Nexus : public RA::Threads
+class Nexus : public RA::Threads
 {
 private:
-    RA::Mutex MoMutex;
+    RA::Mutex MoThreadMtx;
 
-    std::atomic<bool>         MbFinishTasks = false;
+    istatic RA::Threads SoThreads;
+
+    bool MbDisabled = false;
+    RA::Atomic<bool>          MbFinishTasks = false;
     RA::Atomic<long long int> MnInstTaskCount = 0;
     xint                      MnNextTaskID = 0;
 
-    std::vector<std::thread>           MvThreads;     // these threads start in the constructor and don't stop until Nexus is over
-    std::deque<RA::SharedPtr<Task<T>>> MvTaskDeque;   // The is where tasks are held before being run
+    std::vector<std::thread>  MvThreads;     // these threads start in the constructor and don't stop until Nexus is over
+    std::deque<xp<Task<T>>>   MvTaskDeque;   // The is where tasks are held before being run
                                             // deque chosen over queue because the deque has an iterator
 
     // These values are used for pulling outpu tdata from your jobs.
-    std::unordered_map<std::string, RA::SharedPtr<Job<T>>> MmStrJob;
-    std::unordered_map<xint, RA::SharedPtr<Job<T>>>        MmIdxJob;
+    std::unordered_map<std::string, xp<Task<T>>> MmStrTask;
+    std::unordered_map<xint,        xp<Task<T>>> MmIdxTask;
 
-    INL void TaskLooper(int thread_idx);
+    RIN void TaskLooper(int thread_idx);
 
-    template <typename F, typename ...A>
-    INL void Add(F& function, A&& ...Args);
+    template<typename F, typename ...A> RIN void Add(   F& function, A&& ...Args);
+    template<typename F, typename ...A> RIN void AddRef(F& function, A&& ...Args);
 
-    template<typename F, typename ...A>
-    INL void AddKVP(const std::string& key, F& function, A&& ...Args);
+    template<typename F, typename ...A> RIN void AddKVP(   const std::string& key, F& function, A&& ...Args);
+    template<typename F, typename ...A> RIN void AddKVPRef(const std::string& key, F& function, A&& ...Args);
 
 public:
     typedef T value_type;
 
-    Nexus();
-    ~Nexus();
+    RIN Nexus();
+    RIN ~Nexus();
 
-    template <typename F, typename ...A>
-    INL UsingFunction(void) AddJob(const std::string& key, F&& function, A&& ...Args);
+    RIN void Disable();
+    RIN void Enable();
 
-    template <typename F, typename ...A>
-    INL UsingFunction(void) AddJob(const char* key, F&& function, A&& ...Args);
+    template <typename F, typename ...A> RIN UsingFunction(void) AddTask(   const std::string& key, F&& function, A&& ...Args);
+    template <typename F, typename ...A> RIN UsingFunction(void) AddTaskRef(const std::string& key, F&& function, A&& ...Args);
 
-    template <typename F, typename ...A>
-    INL UsingFunction(void) AddJob(F&& function, A&& ...Args);
+    template <typename F, typename ...A> RIN UsingFunction(void) AddTask(   const char* key, F&& function, A&& ...Args);
+    template <typename F, typename ...A> RIN UsingFunction(void) AddTaskRef(const char* key, F&& function, A&& ...Args);
 
-    //template <typename O, typename F, typename... A>
-    //INL UsingFunction(void) AddJob(O& object, F&& Function, A&& ... Args);
+    template <typename F, typename ...A> RIN UsingFunction(void) AddTask(   F&& function, A&& ...Args);
+    template <typename F, typename ...A> RIN UsingFunction(void) AddTaskRef(F&& function, A&& ...Args);
 
     // These are to be used by xvector/xmap
-    template <typename F, typename ONE, typename ...A>
-    INL void AddJobVal(F&& function, ONE& element, A&& ...Args); // commonly used by xvector
-
-    template <typename K, typename V, typename F, typename ...A>
-    INL void AddJobPair(F&& function, K& key, V& value, A&& ...Args); // commonly used by xmap
+    template <typename F, typename ONE, typename ...A>           RIN void AddTaskVal( F&& function, ONE& element,     A&& ...Args); // commonly used by xvector
+    template <typename K, typename V, typename F, typename ...A> RIN void AddTaskPair(F&& function, K& key, V& value, A&& ...Args); // commonly used by xmap
 
     // Getters can't be const due to the mutex
-    INL Job<T>& operator()(const std::string& val);
-    INL Job<T>& operator()(const xint val);
+    RIN Task<T>& operator()(const std::string& val);
+    RIN Task<T>& operator()(const xint val);
 
     // Getters can't be const due to the mutex
-    INL std::vector<T> GetAll();
-    INL std::vector<T> GetMoveAllIndices();
-    INL Job<T>& Get(const std::string& val);
-    INL Job<T>& Get(const xint val);
-    INL Job<T>& Get(const char* Input);
-    INL Job<T>& GetWithoutProtection(const xint val) noexcept;
+private:
+    template<typename R> RIN std::vector<T> ContGetAll(); 
+    template<typename O, typename I> RIN auto ContGetAllPtrs(); // auto because of Nexus<T> and Nexus<xp<T>>
+    template<typename R> RIN std::vector<T> GetMoveAllIndices();
+public:
+    RIN std::vector<T> GetAll();
+    RIN auto           GetAllPtrs(); // auto because of Nexus<T> and Nexus<xp<T>>
+    RIN std::vector<T> GetMoveAllIndices();
+    RIN Task<T>& Get(const std::string& val);
+    RIN Task<T>& Get(const xint val);
+    RIN Task<T>& Get(const char* Input);
+    RIN Task<T>& GetWithoutProtection(const xint val) noexcept;
 
-    INL xint Size() const;
-    INL void WaitAll();
-    INL bool TaskCompleted() const;
-    INL void Clear();
-    INL void Sleep(unsigned int extent) const;
+    RIN xint Size() const;
+    RIN void WaitAll();
+    RIN bool TaskCompleted() const;
+    RIN void Clear();
+    RIN void Sleep(unsigned int extent) const;
 };
 
 // =========================================================================================
 
 template<typename T>
-INL void Nexus<T>::TaskLooper(int thread_idx)
+RIN void Nexus<T>::TaskLooper(int thread_idx)
 {
-    int LnAtomicIdx = 0;
-    std::list<xint> LvTasks;
-    while (true) 
+    try
     {
-        xint LnTaskIdx = 0;
+        int LnAtomicIdx = 0;
+        std::unordered_map<xint, xp<Task<T>>> LmLocalMap;
+        while (true)
         {
-            auto Lock = MoMutex.CreateLock([this]() {
-                return ((MbFinishTasks || MvTaskDeque.size()) && RA::Threads::GetAllowedThreadCount() > MnInstTaskCount); });
-
-            if (MvTaskDeque.empty())
-                return;
-
-            xint LvTaskCount = MvTaskDeque.size() / RA::Threads::CPUThreads;
-            LvTaskCount += MvTaskDeque.size() % RA::Threads::CPUThreads;
-
-            for (xint i = 0; i < LvTaskCount; i++)
             {
-                LnTaskIdx = The.MvTaskDeque.front().Get().GetID();
-                auto JobPtr = RA::MakeShared<Job<T>>(MvTaskDeque.front(), RA::Threads::TotalTasksCounted);
-                MvTaskDeque.pop_front();
-                MmIdxJob.insert({ LnTaskIdx, JobPtr });
+                const auto LoThreadLock = MoThreadMtx.CreateLock([this]() {
+                    return (
+                        !MbDisabled
+                        && (MbFinishTasks || MvTaskDeque.size())
+                        && RA::Threads::BxThreadsAreAvailable()); });
 
-                if (JobPtr.Get().GetTask().HasName())
-                    MmStrJob.insert({ JobPtr.Get().GetTask().GetName(), JobPtr });
+                //while(!((MbFinishTasks || MvTaskDeque.size()) && RA::Threads::GetAllowedThreadCount() > MnInstTaskCount))
+                //    Sleep(1);
 
-                ++MnInstTaskCount;
-                LvTasks.push_back(LnTaskIdx);
+                if (MvTaskDeque.empty())
+                    return;
+
+                ++SoThreads;
+                const auto LnDivisor = MIN(MvTaskDeque.size(), RA::Threads::CPUThreads);
+                xint LvTaskCount = MvTaskDeque.size() / LnDivisor;
+                LvTaskCount += MvTaskDeque.size() % LnDivisor;
+
+                for (xint i = 0; i < LvTaskCount; i++)
+                {
+                    auto  LoTaskPtr = The.MvTaskDeque.front();
+                    auto& LoTask = *LoTaskPtr;
+                    MvTaskDeque.pop_front();
+                    MmIdxTask .insert({ LoTask.GetID(), LoTaskPtr });
+                    LmLocalMap.insert({ LoTask.GetID(), LoTaskPtr }); // for safe mem managment
+
+                    if (!!LoTask.GetNamePtr())
+                        MmStrTask.insert({ LoTask.GetName(), LoTaskPtr });
+
+                    ++MnInstTaskCount;
+                }
             }
+
+            for (auto& Pair : LmLocalMap)
+                Pair.second.Get().RunTask();
+
+            const auto LnTasksCompletionCount = LmLocalMap.size();
+            LmLocalMap.clear();
+
+            const auto Lock = MoThreadMtx.CreateLock();
+            MnInstTaskCount -= LnTasksCompletionCount;
+            --SoThreads;
         }
-
-        for (auto& LnID : LvTasks)
-            MmIdxJob.at(LnID).Get().Run();
-
-        const auto LnTasksCompletionCount = LvTasks.size();
-        LvTasks.clear();
-
-        auto Lock = MoMutex.CreateLock();
-        MnInstTaskCount -= LnTasksCompletionCount;
-        if (MbFinishTasks && !MvTaskDeque.size() && !MnInstTaskCount)
-        {
-            MnInstTaskCount = 0;
-            return;
-        }
+    }
+    catch (...)
+    {
+        throw "Error @ Nexus<T>::TaskLooper";
     }
 }
 
 template<typename T>
 template<typename F, typename ...A>
-INL void Nexus<T>::Add(F& function, A&& ...Args)
+RIN void Nexus<T>::Add(F& function, A&& ...Args)
 {
-    auto BindedFunction = std::bind(function, std::ref(Args)...);
-    auto Lock = MoMutex.CreateLock();
-    MvTaskDeque.emplace_back(RA::MakeShared<Task<T>>(++MnNextTaskID, std::move(BindedFunction)));
+    auto BindedFunction = std::bind(function, std::forward<A>(Args)...);
+    if (MbDisabled)
+        MvTaskDeque.emplace_back(RA::MakeShared<Task<T>>(++MnNextTaskID, std::move(BindedFunction)));
+    else
+    {
+        const auto Lock = MoThreadMtx.CreateLock();
+        MvTaskDeque.emplace_back(RA::MakeShared<Task<T>>(++MnNextTaskID, std::move(BindedFunction)));
+        MoThreadMtx.SignalOne();
+    }
 }
 
 template<typename T>
 template<typename F, typename ...A>
-INL void Nexus<T>::AddKVP(const std::string& key, F& function, A&& ...Args)
+RIN void Nexus<T>::AddRef(F& function, A&& ...Args)
 {
     auto BindedFunction = std::bind(function, std::ref(Args)...);
-    auto Lock = MoMutex.CreateLock();
-    MvTaskDeque.emplace_back(RA::MakeShared<Task<T>>(++MnNextTaskID, std::move(BindedFunction), key));
+    if (MbDisabled)
+        MvTaskDeque.emplace_back(RA::MakeShared<Task<T>>(++MnNextTaskID, std::move(BindedFunction)));
+    else
+    {
+        const auto Lock = MoThreadMtx.CreateLock();
+        MvTaskDeque.emplace_back(RA::MakeShared<Task<T>>(++MnNextTaskID, std::move(BindedFunction)));
+        MoThreadMtx.SignalOne();
+    }
 }
+
+template<typename T>
+template<typename F, typename ...A>
+RIN void Nexus<T>::AddKVP(const std::string& key, F& function, A&& ...Args)
+{
+    auto BindedFunction = std::bind(function, std::forward<A>(Args)...);
+    if (MbDisabled)
+        MvTaskDeque.emplace_back(RA::MakeShared<Task<T>>(++MnNextTaskID, key, std::move(BindedFunction)));
+    else
+    {
+        const auto Lock = MoThreadMtx.CreateLock();
+        MvTaskDeque.emplace_back(RA::MakeShared<Task<T>>(++MnNextTaskID, key, std::move(BindedFunction)));
+        MoThreadMtx.SignalOne();
+    }
+}
+
+template<typename T>
+template<typename F, typename ...A>
+RIN void Nexus<T>::AddKVPRef(const std::string& key, F& function, A&& ...Args)
+{
+    auto BindedFunction = std::bind(function, std::ref(Args)...);
+    if (MbDisabled)
+        MvTaskDeque.emplace_back(RA::MakeShared<Task<T>>(++MnNextTaskID, key, std::move(BindedFunction)));
+    else
+    {
+        const auto Lock = MoThreadMtx.CreateLock();
+        MvTaskDeque.emplace_back(RA::MakeShared<Task<T>>(++MnNextTaskID, key, std::move(BindedFunction)));
+        MoThreadMtx.SignalOne();
+    }
+}
+
 // ------------------------------------------------------------------------------------------
 template<typename T>
-INL Nexus<T>::Nexus()
+RIN Nexus<T>::Nexus()
 {
     RA::Threads::InstanceCount++;
     MvThreads.reserve(RA::Threads::Allowed);
@@ -192,110 +255,199 @@ INL Nexus<T>::Nexus()
 }
 
 template<typename T>
-INL Nexus<T>::~Nexus()
+RIN Nexus<T>::~Nexus()
 {
+    MbDisabled = false;
     The.WaitAll();
     MbFinishTasks = true;
-    MoMutex.UnlockAll();
+    MoThreadMtx.UnlockAll();
     for (auto& t : MvThreads) 
         t.join();
 }
 
+template<typename T>
+RIN void Nexus<T>::Disable()
+{
+    WaitAll();
+    MbDisabled = true;
+}
+
+template<typename T>
+RIN void Nexus<T>::Enable()
+{
+    MbDisabled = false;
+    MoThreadMtx.SignalOne();
+}
 
 // ------------------------------------------------------------------------------------------
 template<typename T>
 template<typename F, typename ...A>
-INL UsingFunction(void) Nexus<T>::AddJob(const std::string& key, F&& function, A&& ...Args)
+RIN UsingFunction(void) Nexus<T>::AddTask(const std::string& key, F&& function, A&& ...Args)
 {
-    The.AddKVP(key, function, std::ref(Args)...);
+    The.AddKVP(key, function, std::forward<A>(Args)...);
 }
-
 template<typename T>
 template<typename F, typename ...A>
-INL UsingFunction(void) Nexus<T>::AddJob(const char* key, F&& function, A&& ...Args)
+RIN UsingFunction(void) Nexus<T>::AddTaskRef(const std::string& key, F&& function, A&& ...Args)
 {
-    The.AddKVP(std::string(key), function, std::ref(Args)...);
+    The.AddKVPRef(key, function, std::ref(Args)...);
 }
-
+// ------------------------------------------------------------------------------------------
+template<typename T>
+template<typename F, typename ...A>
+RIN UsingFunction(void) Nexus<T>::AddTask(const char* key, F&& function, A&& ...Args)
+{
+    The.AddKVP(std::string(key), function, std::forward<A>(Args)...);
+}
+template<typename T>
+template<typename F, typename ...A>
+RIN UsingFunction(void) Nexus<T>::AddTaskRef(const char* key, F&& function, A&& ...Args)
+{
+    The.AddKVPRef(std::string(key), function, std::ref(Args)...);
+}
+// ------------------------------------------------------------------------------------------
 template<typename T>
 template <typename F, typename ...A>
-INL UsingFunction(void) Nexus<T>::AddJob(F&& function, A&& ...Args)
+RIN UsingFunction(void) Nexus<T>::AddTask(F&& function, A&& ...Args)
 {
-    The.Add(function, std::ref(Args)...);
+    The.Add(function, std::forward<A>(Args)...);
 }
-
+template<typename T>
+template <typename F, typename ...A>
+RIN UsingFunction(void) Nexus<T>::AddTaskRef(F&& function, A&& ...Args)
+{
+    The.AddRef(function, std::ref(Args)...);
+}
+// ------------------------------------------------------------------------------------------
 //template<typename T>
 //template <typename O, typename F, typename... A>
-//INL UsingFunction(void) Nexus<T>::AddJob(O& object, F&& Function, A&& ... Args)
+//RIN UsingFunction(void) Nexus<T>::AddTask(O& object, F&& Function, A&& ... Args)
 //{
 //
 //}
 
 template<typename T>
 template <typename F, typename ONE, typename ...A>
-INL void Nexus<T>::AddJobVal(F&& function, ONE& element, A&& ...Args)
+RIN void Nexus<T>::AddTaskVal(F&& function, ONE& element, A&& ...Args)
 {
-    auto BindedFunction = std::bind(function, std::ref(element), Args...);
-    auto Lock = MoMutex.CreateLock();
-    MvTaskDeque.emplace_back(RA::MakeShared<Task<T>>(++MnNextTaskID, std::move(BindedFunction)));
+    auto BindedFunction = std::bind(function, std::ref(element), std::ref(Args)...);
+    if (MbDisabled)
+        MvTaskDeque.emplace_back(RA::MakeShared<Task<T>>(++MnNextTaskID, std::move(BindedFunction)));
+    else
+    {
+        auto Lock = MoThreadMtx.CreateLock();
+        MvTaskDeque.emplace_back(RA::MakeShared<Task<T>>(++MnNextTaskID, std::move(BindedFunction)));
+        MoThreadMtx.SignalOne();
+    }
 }
 
 template<typename T>
 template<typename K, typename V, typename F, typename ...A>
-INL void Nexus<T>::AddJobPair(F&& function, K& key, V& value, A&& ...Args)
+RIN void Nexus<T>::AddTaskPair(F&& function, K& key, V& value, A&& ...Args)
 {
-    auto BindedFunction = std::bind(function, std::ref(key), std::ref(value), Args...);
-    auto Lock = MoMutex.CreateLock();
-    MvTaskDeque.emplace_back(RA::MakeShared<Task<T>>(++MnNextTaskID, std::move(BindedFunction)));
+    auto BindedFunction = std::bind(function, std::ref(key), std::ref(value), std::ref(Args)...);
+    if (MbDisabled)
+        MvTaskDeque.emplace_back(RA::MakeShared<Task<T>>(++MnNextTaskID, std::move(BindedFunction)));
+    else
+    {
+        auto Lock = MoThreadMtx.CreateLock();
+        MvTaskDeque.emplace_back(RA::MakeShared<Task<T>>(++MnNextTaskID,std::move(BindedFunction)));
+        MoThreadMtx.SignalOne();
+    }
 }
 // ------------------------------------------------------------------------------------------
 
 template<typename T>
-INL Job<T>& Nexus<T>::operator()(const std::string& Input)
+RIN Task<T>& Nexus<T>::operator()(const std::string& Input)
 {
     // If it is not already cached, is it queued?
-    if (!MmStrJob.count(Input))
+    if (!MmStrTask.count(Input))
         throw "Nexus Key(str) Not Found!";
 
-    auto Lock = MoMutex.CreateLock([this, &Input]()
-        { return MmStrJob.count(Input) && MmStrJob[Input].Get().IsDone(); });
-    auto& Target = MmStrJob[Input].Get();
-    Target.TestException();
-    return Target;
+    Task<T>& LoTask = MmStrTask[Input].Get();
+    if (!LoTask.IsDone())
+    {
+        while (LoTask.IsDone() == false)
+            Sleep(1);
+    }
+
+    LoTask.TestException();
+    return LoTask;
 }
 
 
 template<typename T>
-INL Job<T>& Nexus<T>::operator()(const xint Input)
+RIN Task<T>& Nexus<T>::operator()(const xint Input)
 {
-    if (!MmIdxJob.count(Input))
+    if (!MmIdxTask.count(Input))
         throw std::runtime_error("Nexus Key(int) Not Found!");
 
-    auto Lock = MoMutex.CreateLock([this, &Input]() 
-        { return MmIdxJob.count(Input) && MmIdxJob[Input].Get().IsDone(); });
-    auto& Target = MmIdxJob[Input].Get();
-    Target.TestException();
-    return Target;
+    Task<T>& LoTask = MmIdxTask[Input].Get();
+    if (!LoTask.IsDone())
+    {
+        while (LoTask.IsDone() == false)
+            Sleep(1);
+    }
+
+    LoTask.TestException();
+    return LoTask;
 }
 
 template<typename T>
-INL std::vector<T> Nexus<T>::GetAll()
+template<typename O, typename I>
+RIN auto Nexus<T>::ContGetAllPtrs() // Output / Input
+{
+    auto Captures = std::vector<O>(); // T or xp<T>
+    for (std::pair<const xint, xp<Task<I>>>& TaskPair : MmIdxTask)
+    {
+        auto& LoTask = *TaskPair.second;
+        LoTask.TestException();
+        Captures.push_back(LoTask.GetValuePtr());
+    }
+    if (MmStrTask.size())
+    {
+        for (std::pair<const std::string, xp<Task<I>>>& TaskPair : MmStrTask)
+        {
+            auto& LoTask = TaskPair.second.Get();
+            if (!LoTask.BxRemoved())
+            {
+                try {
+                    LoTask.TestException();
+                }
+                catch (...) {
+                    throw "Nexus Task Exception Thrown\n";
+                }
+                Captures.push_back(LoTask.GetValuePtr());
+            }
+        }
+    }
+
+    Clear();
+    return Captures;
+}
+
+template<typename T>
+RIN std::vector<T> Nexus<T>::GetAll()
 {
     The.WaitAll();
-    auto Lock = MoMutex.CreateLock();
+    auto Lock = MoThreadMtx.CreateLock();
     std::vector<T> Captures;
-    for (std::pair<const xint, RA::SharedPtr<Job<T>>>& Target : MmIdxJob)
+    for (std::pair<const xint, xp<Task<T>>>& TaskPair : MmIdxTask)
     {
-        Target.second.Get().TestException();
-        Captures.push_back(Target.second.Get().Move());
+        auto& LoTask = *TaskPair.second;
+        LoTask.TestException();
+        Captures.push_back(LoTask.GetValue());
     }
-    for (std::pair<const std::string, RA::SharedPtr<Job<T>>>& Target : MmStrJob)
+    if (MmStrTask.size())
     {
-        auto& LoJob = Target.second.Get();
-        if (!LoJob.BxRemoved())
+        for (std::pair<const std::string, xp<Task<T>>>& TaskPair : MmStrTask)
         {
-            LoJob.TestException();
-            Captures.push_back(LoJob.Move());
+            auto& LoTask = TaskPair.second.Get();
+            if (!LoTask.BxRemoved())
+            {
+                LoTask.TestException();
+                Captures.push_back(LoTask.GetValue());
+            }
         }
     }
     Clear();
@@ -303,38 +455,61 @@ INL std::vector<T> Nexus<T>::GetAll()
 }
 
 template<typename T>
-INL std::vector<T> Nexus<T>::GetMoveAllIndices()
+RIN auto Nexus<T>::GetAllPtrs()
 {
     The.WaitAll();
-    auto Lock = MoMutex.CreateLock();
+    auto Lock = MoThreadMtx.CreateLock();
+
+    if constexpr (IsSharedPtr(T)){
+        return ContGetAllPtrs<T, T>();
+    }
+    else{
+        return ContGetAllPtrs<xp<T>, T>();
+    }
+}
+
+template<typename T>
+RIN std::vector<T> Nexus<T>::GetMoveAllIndices()
+{
+    The.WaitAll();
+    auto Lock = MoThreadMtx.CreateLock();
     std::vector<T> Captures;
     Captures.reserve(Size());
-    for (std::pair<const xint, RA::SharedPtr<Job<T>>>& Target : MmIdxJob)
+    for (std::pair<xint, xp<Task<T>>>& Target : MmIdxTask)
     {
-        Target.second.Get().TestException();
-        Captures.push_back(std::move(Target.second.Get().GetValue()));
+        auto& LoTask = Target.second.Get();
+        try{
+            LoTask.TestException();
+        }
+        catch (...){
+            throw "Nexus Task Exception Thrown\n";
+        }
+        if constexpr (IsFundamental(T))
+            Captures.push_back(LoTask.GetValue());
+        else
+            Captures.push_back(std::move(LoTask.GetValue()));
     }
     Clear();
     return Captures;
 }
 
 template<typename T>
-INL Job<T>& Nexus<T>::Get(const std::string& Input) {
+RIN Task<T>& Nexus<T>::Get(const std::string& Input) {
     return The.operator()(Input);
 }
 
 template<typename T>
-INL Job<T>& Nexus<T>::Get(const char* Input) {
+RIN Task<T>& Nexus<T>::Get(const char* Input) {
     return The.operator()(std::string(Input));
 }
 
 template<typename T>
-INL Job<T>& Nexus<T>::GetWithoutProtection(const xint val) noexcept{
-    return *MmIdxJob[val];
+RIN Task<T>& Nexus<T>::GetWithoutProtection(const xint val) noexcept{
+    return *MmIdxTask[val];
 }
 
 template<typename T>
-INL Job<T>& Nexus<T>::Get(const xint Input) {
+RIN Task<T>& Nexus<T>::Get(const xint Input) {
     return The.operator()(Input);
 }
 
@@ -342,43 +517,43 @@ INL Job<T>& Nexus<T>::Get(const xint Input) {
 // ------------------------------------------------------------------------------------------
 
 template<typename T>
-INL xint Nexus<T>::Size() const
+RIN xint Nexus<T>::Size() const
 {
-    return MmIdxJob.size();
+    return MmIdxTask.size();
 }
 
 template<typename T>
-INL void Nexus<T>::WaitAll()
+RIN void Nexus<T>::WaitAll()
 {
     while (MvTaskDeque.size() || MnInstTaskCount > 0)
     {
         if (MvTaskDeque.size() && MnInstTaskCount == 0)
-            MoMutex.SignalOne();
+            MoThreadMtx.SignalOne();
         Nexus<T>::Sleep(1);
     }
 }
 
 template<typename T>
-INL bool Nexus<T>::TaskCompleted() const
+RIN bool Nexus<T>::TaskCompleted() const
 {
     return !MvTaskDeque.size();
 }
 
 template<typename T>
-INL void Nexus<T>::Clear()
+RIN void Nexus<T>::Clear()
 {
 
     if (MnInstTaskCount == 0 && MvTaskDeque.size() == 0)
     {
-        MmIdxJob.clear();
-        MmStrJob.clear();
+        MmIdxTask.clear();
+        MmStrTask.clear();
         MnInstTaskCount = 0;
         MnNextTaskID = 0;
     }
 }
 
 template<typename T>
-INL void Nexus<T>::Sleep(unsigned int extent) const
+RIN void Nexus<T>::Sleep(unsigned int extent) const
 {
 #if (defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64))
     ::Sleep(extent);

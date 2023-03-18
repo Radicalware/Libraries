@@ -69,7 +69,7 @@ void RA::SYS::SetArgs(int argc, char** argv)
                 MvKeysChr << MmAliasSC.Key(Arg);
             if (bLastArg)
             {
-                RA::XMapAddKeyArrIdx(MmArgs, MmAliasSC.Key(Arg), xstring::static_class);
+                RA::XMapAddKeyArrIdx(MmArgs, MmAliasSC.Key(Arg), xstring::StaticClass);
                 break;
             }
 
@@ -97,7 +97,7 @@ void RA::SYS::SetArgs(int argc, char** argv)
                 }
                 if (bLastArg) // Map
                 {
-                    RA::XMapAddKeyArrIdx(MmArgs, ChrArg, xstring::static_class);
+                    RA::XMapAddKeyArrIdx(MmArgs, ChrArg, xstring::StaticClass);
                     continue;
                 }
 

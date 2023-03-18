@@ -45,6 +45,14 @@ void move_xvec()
     xvector<xstring> vec2 = std::move(vec1);
     cout << "vec1.size() = " << vec1.Length() << endl;
     cout << "vec2.size() = " << vec2.Length() << endl;
+
+    for (auto& Val : vec1)
+        cout << Val << ' ';
+    cout << endl;
+    for (auto& Val : vec2)
+        cout << Val << ' ';
+    cout << endl;
+    cout << endl;
 }
 
 int main(int argc, char** argv) 
@@ -61,7 +69,7 @@ int main(int argc, char** argv)
     for (auto& Val : SharedPtrs)
         cout << Val.Get() << endl;
     auto SplitPtrs = SharedPtrs.Split(2);
-    cout << SplitPtrs [0][1] << endl;
+    cout << SplitPtrs[0][1] << endl;
 
     xstring val = "hello";
     if (SharedPtrs.HasTruth([&val](auto& Item) { return val == Item; })){
@@ -166,7 +174,9 @@ int main(int argc, char** argv)
     auto sub_function_val2 = [](xstring& elem, xstring& junk, xstring& str) -> xstring {
         return elem.Sub("gmail", str);
     };
-    auto sub_function_ptr = [](xstring& elem, xstring& str) -> xstring {
+
+    // note: lval/rval makes a difference
+    auto sub_function_ptr = [](xstring& elem, xstring&& str) -> xstring {
         return elem.Sub("gmail", str);
     };
 

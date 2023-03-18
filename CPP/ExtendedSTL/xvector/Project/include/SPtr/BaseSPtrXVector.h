@@ -20,6 +20,8 @@
 * limitations under the License.
 */
 
+#include "SharedPtr.h"
+#include "XvectorTypes.h"
 #include "BaseXVector.h"
 #include <vector>
 
@@ -27,159 +29,149 @@ template<typename T> class SPtrXVector;
 
 template<typename T>
 class SPtrXVector<xp<T>> : public BaseXVector<xp<T>>
-{    
+{
+protected:
+    xp<Nexus<T>> MoNexusPtr = nullptr;
 public:
     using BaseXVector<xp<T>>::BaseXVector;
     using BaseXVector<xp<T>>::operator=;
-    using E = typename std::remove_const<xp<T>>::type; // E for Erratic
 
-    inline const T& operator[](const size_t Idx) const;
-    inline T& operator[](const size_t Idx);
-    inline T& At(const size_t Idx);
-    inline const T& At(const size_t Idx) const;
-    inline const xp<T> AtPtr(const size_t Idx) const;
-    inline xp<T> AtPtr(const size_t Idx);
+    RIN const T& operator[](const xint Idx) const;
+    RIN T& operator[](const xint Idx);
+    RIN T& At(const xint Idx);
+    RIN const T& At(const xint Idx) const;
+    RIN const xp<T> AtPtr(const xint Idx) const;
+    RIN xp<T> AtPtr(const xint Idx);
     template<typename C = T>
-    inline xvector<C> GetValues() const;
-    inline xvector<T> GetValues() const;
+    RIN xvector<C> GetValues() const;
+    RIN xvector<T> GetValues() const;
 
     template<typename P = T> 
-    inline bool Has(const P* item) const;
-    inline bool Has(const T& item) const;
-    inline bool Has(char const* item) const;
+    RIN bool Has(const P* item) const;
+    RIN bool Has(const T& item) const;
+    RIN bool Has(char const* item) const;
 
     template<typename F, typename ...A>
-    inline bool HasTruth(F&& Function, A&& ...Args) const;
+    RIN bool HasTruth(F&& Function, A&& ...Args) const;
     template<typename F, typename ...A>
-    inline const T& GetTruth(F&& Function, A&& ...Args) const;
+    RIN const T& GetTruth(F&& Function, A&& ...Args) const;
     template<typename F, typename ...A>
-    inline const xp<T> GetTruthPtr(F&& Function, A&& ...Args) const;
+    RIN const xp<T> GetTruthPtr(F&& Function, A&& ...Args) const;
     template<typename F, typename ...A>
-    inline T& GetTruth(F&& Function, A&& ...Args);
+    RIN T& GetTruth(F&& Function, A&& ...Args);
     template<typename F, typename ...A>
-    inline xvector<xp<T>> GetTruths(F&& Function, A&& ...Args) const;
+    RIN xvector<xp<T>> GetTruths(F&& Function, A&& ...Args) const;
 
-    inline bool Lacks(const T& item) const;
-    inline bool Lacks(char const* item) const;
+    RIN bool Lacks(const T& item) const;
+    RIN bool Lacks(char const* item) const;
     template<typename F, typename ...A>
-    inline bool LacksTruth(F&& Function, A&& ...Args) const;
+    RIN bool LacksTruth(F&& Function, A&& ...Args) const;
 
     template<typename L = xvector<xp<T>>>
-    inline xvector<xp<T>> GetCommonItems(L& item);
+    RIN xvector<xp<T>> GetCommonItems(L& item);
     template<typename L = xvector<xp<T>>>
-    inline xvector<xp<T>> GetCommonItems(L&& item);
+    RIN xvector<xp<T>> GetCommonItems(L&& item);
 
     template<typename ...R>
-    inline void Emplace(R&& ... Args);
-    inline void operator<<(const xp<T>&  item);
-    inline void operator<<(      xp<T>&& item);
+    RIN void Emplace(R&& ... Args);
+    RIN void operator<<(const xp<T>&  item);
+    RIN void operator<<(      xp<T>&& item);
 
-    T& First(size_t Idx = 0);
-    const T& First(size_t Idx = 0) const;
+    T& First(xint Idx = 0);
+    const T& First(xint Idx = 0) const;
 
-    T& Last(size_t Idx = 0);
-    const T& Last(size_t Idx = 0) const;
+    T& Last(xint Idx = 0);
+    const T& Last(xint Idx = 0) const;
 
     template<typename C>
-    inline xvector<C> Convert() const;
+    RIN xvector<C> Convert() const;
 
     template<typename C, typename F>
-    inline xvector<C> Convert(F function) const;
+    RIN xvector<C> Convert(F function) const;
 
-    inline void operator+=(const xvector<xp<T>>& other);
-    inline xvector<xp<T>> operator+(const xvector<xp<T>>& other) const;
+    RIN void operator+=(const xvector<xp<T>>& other);
+    RIN xvector<xp<T>> operator+(const xvector<xp<T>>& other) const;
 
     xint Size() const;
 
-    inline void Organize();
-    inline void RemoveDups();
+    RIN void Organize();
+    RIN void RemoveDups();
 
     template<typename F>
-    inline xvector<xp<T>>& Sort(F&& func);
-    inline xvector<xp<T>>& Sort();
+    RIN xvector<xp<T>>& Sort(F&& func);
+    RIN xvector<xp<T>>& Sort();
     template<typename F>
-    inline xvector<xp<T>>& ReverseSort(F&& func);
-    inline xvector<xp<T>>& ReverseIt();
+    RIN xvector<xp<T>>& ReverseSort(F&& func);
+    RIN xvector<xp<T>>& ReverseIt();
 
-    template<typename F, typename... A>
-    inline void Proc(F&& function, A&& ...Args);
-    template<typename F, typename... A>
-    inline void ProcThread(F&& function, A&& ...Args);
+    template<typename F, typename... A>                                 RIN void Proc(F&& function, A&& ...Args);
+    template<typename F, typename... A>                                 RIN void ProcThread(F&& function, A&& ...Args);
 
     // single threaded non-const
-    template<typename N = E, typename F, typename ...A>
-    inline xvector<N> ForEach(F&& function, A&& ...Args);
-    template<typename K, typename V, typename F, typename ...A>
-    inline std::unordered_map<K, V> ForEach(F&& function, A&& ...Args);
+    template<typename N = T, typename F, typename ...A>                 RIN xvector<N> ForEach(F&& function, A&& ...Args);
+    template<typename K, typename V, typename F, typename ...A>         RIN std::unordered_map<K, V> ForEach(F&& function, A&& ...Args);
     // single threaded const
-    template<typename N = E, typename F, typename ...A>
-    inline xvector<N> ForEach(F&& function, A&& ...Args) const;
-    template<typename K, typename V, typename F, typename ...A>
-    inline std::unordered_map<K, V> ForEach(F&& function, A&& ...Args) const;
+    template<typename N = T, typename F, typename ...A>                 RIN xvector<N> ForEach(F&& function, A&& ...Args) const;
+    template<typename K, typename V, typename F, typename ...A>         RIN std::unordered_map<K, V> ForEach(F&& function, A&& ...Args) const;
     // multi-threaded const & non-const
-    template<typename N = E, typename F, typename... A>
-    inline xvector<N> ForEachThread(F&& function, A&& ...Args);
-    template<typename N = E, typename F, typename... A>
-    inline xvector<N> ForEachThread(F&& function, A&& ...Args) const;
-    template<typename K, typename V, typename F, typename ...A>
-    inline std::unordered_map<K, V> ForEachThread(F&& function, A&& ...Args) const;
+    template<typename N = T, typename F, typename... A>                 RIN xvector<xp<N>> ForEachThread(F&& function, A&& ...Args);
+    template<typename N = T, typename F, typename... A>                 RIN xvector<xp<N>> ForEachThread(F&& function, A&& ...Args) const;
+    template<typename K, typename V, typename F, typename ...A>         RIN std::unordered_map<K, V> ForEachThread(F&& function, A&& ...Args) const;
 
-    template<typename N = E, typename F, typename... A>
-    inline void StartTasks(F&& function, A&& ...Args);
+    template<typename N = T, typename F, typename... A>                 RIN void StartTasks(F&& function, A&& ...Args);
 
-    template<typename N = E>
-    inline typename std::enable_if<!std::is_same<N, void>::value, xvector<N>>::type GetTasks() const;
+    template<typename N = T>                                            RIN xvector<xp<N>> GetTasks() const;
 
-    inline bool TasksCompleted() const;
+                                                                        RIN bool TasksCompleted() const;
 
     // =================================== DESIGNED FOR NUMERIC BASED VECTORS ===================================
 
-    inline T GetSum(size_t FnSkipIdx = 0) const;
-    inline T GetMul(size_t FnSkipIdx = 0) const;
-    inline T GetAvg(size_t FnSkipIdx = 0) const;
+    RIN T GetSum(xint FnSkipIdx = 0) const;
+    RIN T GetMul(xint FnSkipIdx = 0) const;
+    RIN T GetAvg(xint FnSkipIdx = 0) const;
 
     // =================================== DESIGNED FOR STRING  BASED VECTORS ===================================
 
-    inline T Join(const T& str = "") const;
-    inline T Join(const char str) const;
-    inline T Join(const char* str) const;
+    RIN T Join(const T& str = "") const;
+    RIN T Join(const char str) const;
+    RIN T Join(const char* str) const;
 
 #ifndef UsingNVCC
-    inline bool FullMatchOne(const re2::RE2& in_pattern) const;
-    inline bool FullMatchAll(const re2::RE2& in_pattern) const;
-    inline bool MatchOne(const re2::RE2& in_pattern) const;
-    inline bool MatchAll(const re2::RE2& in_pattern) const;
-    inline xvector<xp<T>> Take(const re2::RE2& in_pattern) const;
-    inline xvector<xp<T>> Remove(const re2::RE2& in_pattern) const;
-    inline xvector<T> SubAll(const re2::RE2& in_pattern, const std::string& replacement) const;
+    RIN bool FullMatchOne(const re2::RE2& in_pattern) const;
+    RIN bool FullMatchAll(const re2::RE2& in_pattern) const;
+    RIN bool MatchOne(const re2::RE2& in_pattern) const;
+    RIN bool MatchAll(const re2::RE2& in_pattern) const;
+    RIN xvector<xp<T>> Take(const re2::RE2& in_pattern) const;
+    RIN xvector<xp<T>> Remove(const re2::RE2& in_pattern) const;
+    RIN xvector<T> SubAll(const re2::RE2& in_pattern, const std::string& replacement) const;
 #endif // !UsingNVCC
 
-    inline bool FullMatchOne(const std::string& Pattern) const;
-    inline bool FullMatchOne(char const* Pattern) const;
+    RIN bool FullMatchOne(const std::string& Pattern) const;
+    RIN bool FullMatchOne(char const* Pattern) const;
 
-    inline bool FullMatchAll(const std::string& Pattern) const;
-    inline bool FullMatchAll(char const* Pattern) const;
+    RIN bool FullMatchAll(const std::string& Pattern) const;
+    RIN bool FullMatchAll(char const* Pattern) const;
 
-    inline bool MatchOne(const std::string& Pattern) const;
-    inline bool MatchOne(char const* Pattern) const;
+    RIN bool MatchOne(const std::string& Pattern) const;
+    RIN bool MatchOne(char const* Pattern) const;
 
-    inline bool MatchAll(const std::string& Pattern) const;
-    inline bool MatchAll(char const* Pattern) const;
+    RIN bool MatchAll(const std::string& Pattern) const;
+    RIN bool MatchAll(char const* Pattern) const;
 
-    inline xvector<xp<T>> Take(const std::string& Pattern) const;
-    inline xvector<xp<T>> Take(char const* Pattern) const;
+    RIN xvector<xp<T>> Take(const std::string& Pattern) const;
+    RIN xvector<xp<T>> Take(char const* Pattern) const;
 
-    inline xvector<xp<T>> Remove(const std::string& Pattern) const;
-    inline xvector<xp<T>> Remove(char const* Pattern) const;
+    RIN xvector<xp<T>> Remove(const std::string& Pattern) const;
+    RIN xvector<xp<T>> Remove(char const* Pattern) const;
 
-    inline xvector<T> SubAll(const std::string& Pattern, const std::string& Replacement) const;
-    inline xvector<T> SubAll(char const* Pattern, char const* Replacement)  const;
+    RIN xvector<T> SubAll(const std::string& Pattern, const std::string& Replacement) const;
+    RIN xvector<T> SubAll(char const* Pattern, char const* Replacement)  const;
 
-    inline void InSubAll(const xp<T>& Pattern, const xp<T>& Replacement);
-    inline void InSubOne(const xp<T>& Pattern, const xp<T>& Replacement);
+    RIN void InSubAll(const xp<T>& Pattern, const xp<T>& Replacement);
+    RIN void InSubOne(const xp<T>& Pattern, const xp<T>& Replacement);
 
     // double was chose to hold long signed and unsigned values
-    inline xvector<xp<T>> operator()(long double x = 0, long double y = 0, long double z = 0, const char removal_method = 's') const;
+    RIN xvector<xp<T>> operator()(long double x = 0, long double y = 0, long double z = 0, const char removal_method = 's') const;
     // s = slice perserves values you land on 
     // d = dice  removes values you land on
     // s/d only makes a difference if you modify the 'z' value
@@ -189,31 +181,31 @@ public:
 // =============================================================================================================
 
 template<typename T>
-inline const T& SPtrXVector<xp<T>>::operator[](const size_t Idx) const
+RIN const T& SPtrXVector<xp<T>>::operator[](const xint Idx) const
 {
     return The.AtPtr(Idx).Get();
 }
 
 template<typename T>
-inline T& SPtrXVector<xp<T>>::operator[](const size_t Idx)
+RIN T& SPtrXVector<xp<T>>::operator[](const xint Idx)
 {
     return The.AtPtr(Idx).Get();
 }
 
 template<typename T>
-inline T& SPtrXVector<xp<T>>::At(const size_t Idx)
+RIN T& SPtrXVector<xp<T>>::At(const xint Idx)
 {
     return The[Idx];
 }
 
 template<typename T>
-inline const T& SPtrXVector<xp<T>>::At(const size_t Idx) const
+RIN const T& SPtrXVector<xp<T>>::At(const xint Idx) const
 {
     return The[Idx];
 }
 
 template<typename T>
-inline const xp<T> SPtrXVector<xp<T>>::AtPtr(const size_t Idx) const
+RIN const xp<T> SPtrXVector<xp<T>>::AtPtr(const xint Idx) const
 {
     if (Idx >= The.Size())
         throw "Index Out Of Bounds";
@@ -221,7 +213,7 @@ inline const xp<T> SPtrXVector<xp<T>>::AtPtr(const size_t Idx) const
 }
 
 template<typename T>
-inline xp<T> SPtrXVector<xp<T>>::AtPtr(const size_t Idx)
+RIN xp<T> SPtrXVector<xp<T>>::AtPtr(const xint Idx)
 {
     if (Idx >= The.Size())
         throw "Index Out Of Bounds";
@@ -230,7 +222,7 @@ inline xp<T> SPtrXVector<xp<T>>::AtPtr(const size_t Idx)
 
 template<typename T>
 template<typename C>
-inline xvector<C> SPtrXVector<xp<T>>::GetValues() const
+RIN xvector<C> SPtrXVector<xp<T>>::GetValues() const
 {
     xvector<C> Vec;
     for (typename SPtrXVector<xp<T>>::const_iterator it = The.begin(); it != The.end(); it++)
@@ -239,7 +231,7 @@ inline xvector<C> SPtrXVector<xp<T>>::GetValues() const
 }
 
 template<typename T>
-inline xvector<T> SPtrXVector<xp<T>>::GetValues() const
+RIN xvector<T> SPtrXVector<xp<T>>::GetValues() const
 {
     xvector<T> Vec;
     for (typename SPtrXVector<xp<T>>::const_iterator it = The.begin(); it != The.end(); it++)
@@ -249,7 +241,7 @@ inline xvector<T> SPtrXVector<xp<T>>::GetValues() const
 
 template<typename T>
 template<typename P>
-inline bool SPtrXVector<xp<T>>::Has(const P* item) const
+RIN bool SPtrXVector<xp<T>>::Has(const P* item) const
 {
     for (typename SPtrXVector<xp<T>>::const_iterator it = The.begin(); it != The.end(); it++) {
         if (**it == *item)
@@ -272,7 +264,7 @@ template<typename T>
 template<typename F, typename ...A>
 bool SPtrXVector<xp<T>>::HasTruth(F&& Function, A&& ...Args) const
 {
-    for (typename xvector<E>::const_iterator it = The.begin(); it != The.end(); it++) {
+    for (typename xvector<xp<T>>::const_iterator it = The.begin(); it != The.end(); it++) {
         if (Function((*it).Get(), std::forward<A>(Args)...))
             return true;
     }
@@ -281,9 +273,9 @@ bool SPtrXVector<xp<T>>::HasTruth(F&& Function, A&& ...Args) const
 
 template<typename T>
 template<typename F, typename ...A>
-inline const T& SPtrXVector<xp<T>>::GetTruth(F&& Function, A && ...Args) const
+RIN const T& SPtrXVector<xp<T>>::GetTruth(F&& Function, A && ...Args) const
 {
-    for (typename xvector<E>::const_iterator it = The.begin(); it != The.end(); it++) {
+    for (typename xvector<xp<T>>::const_iterator it = The.begin(); it != The.end(); it++) {
         if (Function((*it).Get(), std::forward<A>(Args)...))
             return (*it).Get();
     }
@@ -292,9 +284,9 @@ inline const T& SPtrXVector<xp<T>>::GetTruth(F&& Function, A && ...Args) const
 
 template<typename T>
 template<typename F, typename ...A>
-inline const xp<T> SPtrXVector<xp<T>>::GetTruthPtr(F&& Function, A && ...Args) const
+RIN const xp<T> SPtrXVector<xp<T>>::GetTruthPtr(F&& Function, A && ...Args) const
 {
-    for (typename xvector<E>::const_iterator it = The.begin(); it != The.end(); it++) {
+    for (typename xvector<xp<T>>::const_iterator it = The.begin(); it != The.end(); it++) {
         if (Function((*it).Get(), std::forward<A>(Args)...))
             return (*it);
     }
@@ -303,9 +295,9 @@ inline const xp<T> SPtrXVector<xp<T>>::GetTruthPtr(F&& Function, A && ...Args) c
 
 template<typename T>
 template<typename F, typename ...A>
-inline T& SPtrXVector<xp<T>>::GetTruth(F&& Function, A && ...Args)
+RIN T& SPtrXVector<xp<T>>::GetTruth(F&& Function, A && ...Args)
 {
-    for (typename xvector<E>::const_iterator it = The.begin(); it != The.end(); it++) {
+    for (typename xvector<xp<T>>::const_iterator it = The.begin(); it != The.end(); it++) {
         if (Function((*it).Get(), std::forward<A>(Args)...))
             return (*it).Get();
     }
@@ -313,10 +305,10 @@ inline T& SPtrXVector<xp<T>>::GetTruth(F&& Function, A && ...Args)
 }
 template<typename T>
 template<typename F, typename ...A>
-inline xvector<xp<T>> SPtrXVector<xp<T>>::GetTruths(F&& Function, A && ...Args) const
+RIN xvector<xp<T>> SPtrXVector<xp<T>>::GetTruths(F&& Function, A && ...Args) const
 {
     xvector<T> RetVec;
-    for (typename xvector<E>::const_iterator it = The.begin(); it != The.end(); it++) {
+    for (typename xvector<xp<T>>::const_iterator it = The.begin(); it != The.end(); it++) {
         if (Function((*it).Get(), std::forward<A>(Args)...))
             RetVec >> *it;
     }
@@ -339,7 +331,7 @@ template<typename T>
 template<typename F, typename ...A>
 bool SPtrXVector<xp<T>>::LacksTruth(F&& Function, A&& ...Args) const
 {
-    for (typename xvector<E>::const_iterator it = The.begin(); it != The.end(); it++) {
+    for (typename xvector<xp<T>>::const_iterator it = The.begin(); it != The.end(); it++) {
         if (Function((*it).Get(), std::forward<A>(Args)...))
             return false;
     }
@@ -369,7 +361,7 @@ xvector<xp<T>> SPtrXVector<xp<T>>::GetCommonItems(L&& item) {
 
 template<typename T>
 template<typename ...R>
-inline void SPtrXVector<xp<T>>::Emplace(R && ...Args)
+RIN void SPtrXVector<xp<T>>::Emplace(R && ...Args)
 {
     The.emplace_back(RA::MakeShared<T>(std::forward<R>(Args)...));
 }
@@ -377,20 +369,20 @@ inline void SPtrXVector<xp<T>>::Emplace(R && ...Args)
 // ------------------------------------------------------------------------------------------------
 
 template<typename T>
-inline void SPtrXVector<xp<T>>::operator<<(const xp<T>& item)
+RIN void SPtrXVector<xp<T>>::operator<<(const xp<T>& item)
 {
     The.emplace_back(item);
 }
 
 template<typename T>
-inline void SPtrXVector<xp<T>>::operator<<(xp<T>&& item){
+RIN void SPtrXVector<xp<T>>::operator<<(xp<T>&& item){
     The.emplace_back(std::move(item));
 }
 
 // ------------------------------------------------------------------------------------------------
 
 template<typename T>
-inline T& SPtrXVector<xp<T>>::First(size_t Idx)
+RIN T& SPtrXVector<xp<T>>::First(xint Idx)
 {
     if (!The.HasIndex(Idx))
         throw "Size is Zero";
@@ -398,7 +390,7 @@ inline T& SPtrXVector<xp<T>>::First(size_t Idx)
 }
 
 template<typename T>
-inline const T& SPtrXVector<xp<T>>::First(size_t Idx) const
+RIN const T& SPtrXVector<xp<T>>::First(xint Idx) const
 {
     if (!The.HasIndex(Idx))
         throw "Size is Zero";
@@ -406,7 +398,7 @@ inline const T& SPtrXVector<xp<T>>::First(size_t Idx) const
 }
 
 template<typename T>
-inline T& SPtrXVector<xp<T>>::Last(size_t Idx)
+RIN T& SPtrXVector<xp<T>>::Last(xint Idx)
 {
     if (!The.HasIndex(Idx))
         throw "Size is Zero";
@@ -415,7 +407,7 @@ inline T& SPtrXVector<xp<T>>::Last(size_t Idx)
 
 
 template<typename T>
-inline const T& SPtrXVector<xp<T>>::Last(size_t Idx) const
+RIN const T& SPtrXVector<xp<T>>::Last(xint Idx) const
 {
     if (!The.HasIndex(Idx))
         throw "Size is Zero";
@@ -426,7 +418,7 @@ inline const T& SPtrXVector<xp<T>>::Last(size_t Idx) const
 
 template<typename T>
 template<typename C>
-inline xvector<C> SPtrXVector<xp<T>>::Convert() const
+RIN xvector<C> SPtrXVector<xp<T>>::Convert() const
 {
     xvector<C> ret;
     for (typename SPtrXVector<xp<T>>::const_iterator it = The.begin(); it != The.end(); it++)
@@ -437,7 +429,7 @@ inline xvector<C> SPtrXVector<xp<T>>::Convert() const
 
 template<typename T>
 template<typename C, typename F>
-inline xvector<C> SPtrXVector<xp<T>>::Convert(F function) const
+RIN xvector<C> SPtrXVector<xp<T>>::Convert(F function) const
 {
     xvector<C> ret;
     for (typename SPtrXVector<xp<T>>::const_iterator it = The.begin(); it != The.end(); it++)
@@ -466,12 +458,12 @@ xvector<xp<T>> SPtrXVector<xp<T>>::operator+(const xvector<xp<T>>& other) const
 // ------------------------------------------------------------------------------------------------
 
 template<typename T>
-inline xint SPtrXVector<xp<T>>::Size() const {
+RIN xint SPtrXVector<xp<T>>::Size() const {
     return The.size();
 }
 
 template<typename T>
-inline void SPtrXVector<xp<T>>::Organize()
+RIN void SPtrXVector<xp<T>>::Organize()
 {
     std::multiset<xp<T>> set_arr;
     for (typename SPtrXVector<xp<T>>::const_iterator it = The.begin(); it != The.end(); it++)
@@ -485,7 +477,7 @@ inline void SPtrXVector<xp<T>>::Organize()
 }
 
 template<typename T>
-inline void SPtrXVector<xp<T>>::RemoveDups()
+RIN void SPtrXVector<xp<T>>::RemoveDups()
 {
     std::set<xp<T>> set_arr;
     for (typename SPtrXVector<xp<T>>::const_iterator it = The.begin(); it != The.end(); it++)
@@ -502,7 +494,7 @@ inline void SPtrXVector<xp<T>>::RemoveDups()
 
 template<typename T>
 template<typename F>
-inline xvector<xp<T>>& SPtrXVector<xp<T>>::Sort(F&& func)
+RIN xvector<xp<T>>& SPtrXVector<xp<T>>::Sort(F&& func)
 {
     // Step through each element of the LvArray except the last
     const auto LnLeng = The.Size();
@@ -540,7 +532,7 @@ inline xvector<xp<T>>& SPtrXVector<xp<T>>::Sort(F&& func)
 }
 
 template<typename T>
-inline xvector<xp<T>>& SPtrXVector<xp<T>>::Sort()
+RIN xvector<xp<T>>& SPtrXVector<xp<T>>::Sort()
 {
     std::sort(The.begin(), The.end());
     return *reinterpret_cast<xvector<xp<T>>*>(this);
@@ -548,7 +540,7 @@ inline xvector<xp<T>>& SPtrXVector<xp<T>>::Sort()
 
 template<typename T>
 template<typename F>
-inline xvector<xp<T>>& SPtrXVector<xp<T>>::ReverseSort(F&& func)
+RIN xvector<xp<T>>& SPtrXVector<xp<T>>::ReverseSort(F&& func)
 {
     const auto LnLeng = The.Size();
     for (xint iteration = LnLeng - 1; iteration > 0; iteration--)
@@ -574,7 +566,7 @@ inline xvector<xp<T>>& SPtrXVector<xp<T>>::ReverseSort(F&& func)
 }
 
 template<typename T>
-inline xvector<xp<T>>& SPtrXVector<xp<T>>::ReverseIt()
+RIN xvector<xp<T>>& SPtrXVector<xp<T>>::ReverseIt()
 {
     std::reverse(The.begin(), The.end());
     return *reinterpret_cast<xvector<xp<T>>*>(this);
@@ -582,137 +574,143 @@ inline xvector<xp<T>>& SPtrXVector<xp<T>>::ReverseIt()
 
 template<typename T>
 template<typename F, typename... A>
-inline void SPtrXVector<xp<T>>::Proc(F&& function, A&& ...Args)
+RIN void SPtrXVector<xp<T>>::Proc(F&& function, A&& ...Args)
 {
-    for (typename xvector<E>::iterator it = The.begin(); it != The.end(); it++) {
-        if (function((*it).Get(), Args...))
+    for (typename xvector<xp<T>>::iterator it = The.begin(); it != The.end(); it++) {
+        if (function((*it).Get(), std::forward<A>(Args)...))
             break;
     }
 }
 
 template<typename T>
 template<typename F, typename... A>
-inline void SPtrXVector<xp<T>>::ProcThread(F&& function, A&& ...Args)
+RIN void SPtrXVector<xp<T>>::ProcThread(F&& function, A&& ...Args)
 {
-    for (typename xvector<E>::iterator it = The.begin(); it != The.end(); it++)
-        Nexus<>::AddJobVal(function, (*it).Get(), std::ref(Args)...);
+    for (typename xvector<xp<T>>::iterator it = The.begin(); it != The.end(); it++)
+        Nexus<>::AddTaskVal(function, (*it).Get(), std::ref(Args)...);
 }
 
 template<typename T>
 template<typename N, typename F, typename ...A>
-inline xvector<N> SPtrXVector<xp<T>>::ForEach(F&& function, A&& ...Args) const
+RIN xvector<N> SPtrXVector<xp<T>>::ForEach(F&& function, A&& ...Args) const
 {
     xvector<N> vret;
-    for (typename xvector<E>::const_iterator it = The.begin(); it != The.end(); it++)
-        vret.push_back(function((*it).Get(), Args...));
+    for (typename xvector<xp<T>>::const_iterator it = The.begin(); it != The.end(); it++)
+        vret.push_back(function((*it).Get(), std::forward<A>(Args)...));
     return vret;
 }
 
 template<typename T>
 template<typename K, typename V, typename F, typename ...A>
-inline std::unordered_map<K, V> SPtrXVector<xp<T>>::ForEach(F&& function, A&& ...Args)
+RIN std::unordered_map<K, V> SPtrXVector<xp<T>>::ForEach(F&& function, A&& ...Args)
 {
     std::unordered_map<K, V> rmap;
-    for (typename xvector<E>::iterator it = The.begin(); it != The.end(); it++)
-        rmap.insert(function((*it).Get(), Args...));
+    for (typename xvector<xp<T>>::iterator it = The.begin(); it != The.end(); it++)
+        rmap.insert(function((*it).Get(), std::forward<A>(Args)...));
     return rmap;
 }
 
 template<typename T>
 template<typename N, typename F, typename ...A>
-inline xvector<N> SPtrXVector<xp<T>>::ForEach(F&& function, A&& ...Args)
+RIN xvector<N> SPtrXVector<xp<T>>::ForEach(F&& function, A&& ...Args)
 {
     xvector<N> vret;
-    for (typename xvector<E>::iterator it = The.begin(); it != The.end(); it++)
-        vret.push_back(function((*it).Get(), Args...));
+    for (typename xvector<xp<T>>::iterator it = The.begin(); it != The.end(); it++)
+        vret.push_back(function((*it).Get(), std::forward<A>(Args)...));
     return vret;
 }
 
 template<typename T>
 template<typename K, typename V, typename F, typename ...A>
-inline std::unordered_map<K, V> SPtrXVector<xp<T>>::ForEach(F&& function, A&& ...Args) const
+RIN std::unordered_map<K, V> SPtrXVector<xp<T>>::ForEach(F&& function, A&& ...Args) const
 {
     std::unordered_map<K, V> rmap;
-    for (typename xvector<E>::const_iterator it = The.begin(); it != The.end(); it++)
-        rmap.insert(function((*it).Get(), Args...));
+    for (typename xvector<xp<T>>::const_iterator it = The.begin(); it != The.end(); it++)
+        rmap.insert(function((*it).Get(), std::forward<A>(Args)...));
     return rmap;
 }
 
 template<typename T>
 template<typename N, typename F, typename ...A>
-inline xvector<N> SPtrXVector<xp<T>>::ForEachThread(F&& function, A&& ...Args)
+RIN xvector<xp<N>> SPtrXVector<xp<T>>::ForEachThread(F&& function, A&& ...Args)
 {
     if constexpr (std::is_same_v<N, T>)
     {
-        CheckRenewObj(VectorPool);
-        for (typename xvector<E>::iterator it = The.begin(); it != The.end(); it++)
-            VectorPool.AddJobVal(function, (*it).Get(), std::ref(Args)...);
-
-        return VectorPool.GetMoveAllIndices();
+        SSET(MoNexus, MKP<Nexus<N>>());
+        MoNexus.Disable();
+        for (typename xvector<xp<T>>::iterator it = The.begin(); it != The.end(); it++)
+            MoNexus.AddTaskVal(function, (*it).Get(), std::ref(Args)...);
+        MoNexus.Enable();
+        return MoNexus.GetAllPtrs();
     }
     else
     {
         Nexus<N> LoNexus;
-        for (typename xvector<E>::iterator it = The.begin(); it != The.end(); it++)
-            LoNexus.AddJobVal(function, (*it).Get(), std::ref(Args)...);
-
-        return LoNexus.GetMoveAllIndices();
+        LoNexus.Disable();
+        for (typename xvector<xp<T>>::iterator it = The.begin(); it != The.end(); it++)
+            LoNexus.AddTaskVal(function, (*it).Get(), std::ref(Args)...);
+        LoNexus.Enable();
+        return LoNexus.GetAllPtrs();
     }
 }
 
 template<typename T>
 template<typename N, typename F, typename ...A>
-inline xvector<N> SPtrXVector<xp<T>>::ForEachThread(F&& function, A&& ...Args) const
+RIN xvector<xp<N>> SPtrXVector<xp<T>>::ForEachThread(F&& function, A&& ...Args) const
 {
     Nexus<N> LoNexus;
-    for (typename xvector<E>::const_iterator it = The.begin(); it != The.end(); it++)
-        LoNexus.AddJobVal(function, (*it).Get(), std::ref(Args)...);
-
-    return LoNexus.GetMoveAllIndices();
+    LoNexus.Disable();
+    for (typename xvector<xp<T>>::const_iterator it = The.begin(); it != The.end(); it++)
+        LoNexus.AddTaskVal(function, (*it).Get(), std::ref(Args)...);
+    LoNexus.Enable();
+    return LoNexus.GetAllPtrs();
 }
 
 template<typename T>
 template<typename K, typename V, typename F, typename ...A>
-inline std::unordered_map<K, V> SPtrXVector<xp<T>>::ForEachThread(F&& function, A&& ...Args) const
+RIN std::unordered_map<K, V> SPtrXVector<xp<T>>::ForEachThread(F&& function, A&& ...Args) const
 {
-    auto& MapPool = *RA::MakeShared<Nexus<std::pair<K, V>>>();
-    for (typename xvector<E>::const_iterator it = The.begin(); it != The.end(); it++)
-        MapPool.AddJobVal(function, (*it).Get(), std::ref(Args)...);
-
+    auto MapPool = Nexus<std::pair<K, V>>();
+    MapPool.Disable();
+    for (typename xvector<xp<T>>::const_iterator it = The.begin(); it != The.end(); it++)
+        MapPool.AddTaskVal(function, (*it).Get(), std::ref(Args)...);
+    MapPool.Enable();
     return MapPool.GetMoveAllIndices();
 }
 
 template<typename T>
 template <typename N, typename F, typename ...A>
-inline void SPtrXVector<xp<T>>::StartTasks(F&& function, A&& ...Args)
+RIN void SPtrXVector<xp<T>>::StartTasks(F&& function, A&& ...Args)
 {
-    CheckRenewObj(VectorPool);
-    for (typename xvector<E>::iterator it = The.begin(); it != The.end(); it++)
-        VectorPool.AddJobVal(function, (*it).Get(), std::ref(Args)...);
+    SSET(MoNexus, MKP<Nexus<T>>());
+    MoNexus.Disable();
+    for (typename xvector<xp<T>>::iterator it = The.begin(); it != The.end(); it++)
+        MoNexus.AddTaskVal(function, (*it).Get(), std::ref(Args)...);
+    MoNexus.Enable();
 }
 
 template<typename T>
 template<typename N>
-inline typename std::enable_if<!std::is_same<N, void>::value, xvector<N>>::type SPtrXVector<xp<T>>::GetTasks() const
+RIN xvector<xp<N>> SPtrXVector<xp<T>>::GetTasks() const
 {
-    if (!The.VectorPoolPtr)
+    if (!The.MoNexusPtr)
         return std::vector<N>();
-    return The.VectorPool->GetMoveAllIndices();
+    return The.MoNexus->GetAllPtrs();
 }
 
 template<typename T>
-inline bool SPtrXVector<xp<T>>::TasksCompleted() const
+RIN bool SPtrXVector<xp<T>>::TasksCompleted() const
 {
-    if (!The.VectorPoolPtr)
+    if (!The.MoNexusPtr)
         return true;
-    return The.VectorPool->TasksCompleted();
+    return The.MoNexus->TasksCompleted();
 }
 
 // =============================================================================================================
 
 
 template<typename T>
-inline T SPtrXVector<xp<T>>::GetSum(size_t FnSkipIdx) const
+RIN T SPtrXVector<xp<T>>::GetSum(xint FnSkipIdx) const
 {
     if (!Size())
         return 0;
@@ -729,7 +727,7 @@ inline T SPtrXVector<xp<T>>::GetSum(size_t FnSkipIdx) const
 }
 
 template<typename T>
-inline T SPtrXVector<xp<T>>::GetMul(size_t FnSkipIdx) const
+RIN T SPtrXVector<xp<T>>::GetMul(xint FnSkipIdx) const
 {
     if (!Size())
         return 0;
@@ -749,7 +747,7 @@ inline T SPtrXVector<xp<T>>::GetMul(size_t FnSkipIdx) const
 }
 
 template<typename T>
-inline T SPtrXVector<xp<T>>::GetAvg(size_t FnSkipIdx) const
+RIN T SPtrXVector<xp<T>>::GetAvg(xint FnSkipIdx) const
 {
     return The.GetSum(FnSkipIdx) / (The.Size() - FnSkipIdx);
 }
@@ -757,7 +755,7 @@ inline T SPtrXVector<xp<T>>::GetAvg(size_t FnSkipIdx) const
 // =============================================================================================================
 
 template<typename T>
-inline T SPtrXVector<xp<T>>::Join(const T& str) const
+RIN T SPtrXVector<xp<T>>::Join(const T& str) const
 {
     T ret;
     for (typename SPtrXVector<xp<T>>::const_iterator it = The.begin(); it != The.end(); it++)
@@ -790,7 +788,7 @@ T SPtrXVector<xp<T>>::Join(const char* str) const
 
 #ifndef UsingNVCC
 template<typename T>
-inline bool SPtrXVector<xp<T>>::FullMatchOne(const re2::RE2& in_pattern) const
+RIN bool SPtrXVector<xp<T>>::FullMatchOne(const re2::RE2& in_pattern) const
 {
     for (typename xvector<T*>::const_iterator iter = The.begin(); iter != The.end(); iter++) {
         if (RE2::FullMatch(**iter, in_pattern)) {
@@ -801,7 +799,7 @@ inline bool SPtrXVector<xp<T>>::FullMatchOne(const re2::RE2& in_pattern) const
 }
 
 template<typename T>
-inline bool SPtrXVector<xp<T>>::FullMatchAll(const re2::RE2& in_pattern) const
+RIN bool SPtrXVector<xp<T>>::FullMatchAll(const re2::RE2& in_pattern) const
 {
     for (typename xvector<T*>::const_iterator iter = The.begin(); iter != The.end(); iter++) {
         if (!RE2::FullMatch(**iter, in_pattern)) {
@@ -813,7 +811,7 @@ inline bool SPtrXVector<xp<T>>::FullMatchAll(const re2::RE2& in_pattern) const
 
 
 template<typename T>
-inline bool SPtrXVector<xp<T>>::MatchOne(const re2::RE2& in_pattern) const
+RIN bool SPtrXVector<xp<T>>::MatchOne(const re2::RE2& in_pattern) const
 {
     for (typename xvector<T*>::const_iterator iter = The.begin(); iter != The.end(); iter++) {
         if (RE2::PartialMatch(**iter, in_pattern)) {
@@ -824,7 +822,7 @@ inline bool SPtrXVector<xp<T>>::MatchOne(const re2::RE2& in_pattern) const
 }
 
 template<typename T>
-inline bool SPtrXVector<xp<T>>::MatchAll(const re2::RE2& in_pattern) const
+RIN bool SPtrXVector<xp<T>>::MatchAll(const re2::RE2& in_pattern) const
 {
     for (typename xvector<T*>::const_iterator iter = The.begin(); iter != The.end(); iter++) {
         if (!RE2::PartialMatch(**iter, in_pattern)) {
@@ -835,11 +833,11 @@ inline bool SPtrXVector<xp<T>>::MatchAll(const re2::RE2& in_pattern) const
 }
 
 template<typename T>
-inline xvector<xp<T>> SPtrXVector<xp<T>>::Take(const re2::RE2& in_pattern) const
+RIN xvector<xp<T>> SPtrXVector<xp<T>>::Take(const re2::RE2& in_pattern) const
 {
     xvector<T*> RetVec;
     RetVec.reserve(The.size() + 1);
-    for (size_t i = 0; i < The.size(); i++) {
+    for (xint i = 0; i < The.size(); i++) {
         if ((RE2::PartialMatch(*(*this)[i], in_pattern)))
             RetVec.push_back((*this)[i]);
     }
@@ -847,11 +845,11 @@ inline xvector<xp<T>> SPtrXVector<xp<T>>::Take(const re2::RE2& in_pattern) const
 }
 
 template<typename T>
-inline xvector<xp<T>> SPtrXVector<xp<T>>::Remove(const re2::RE2& in_pattern) const
+RIN xvector<xp<T>> SPtrXVector<xp<T>>::Remove(const re2::RE2& in_pattern) const
 {
     xvector<T*> RetVec;
     RetVec.reserve(The.size() + 1);
-    for (size_t i = 0; i < The.size(); i++) {
+    for (xint i = 0; i < The.size(); i++) {
         if (!(RE2::PartialMatch(*(*this)[i], in_pattern)))
             RetVec.push_back((*this)[i]);
     }
@@ -859,9 +857,9 @@ inline xvector<xp<T>> SPtrXVector<xp<T>>::Remove(const re2::RE2& in_pattern) con
 }
 
 template<typename T>
-inline xvector<T> SPtrXVector<xp<T>>::SubAll(const re2::RE2& in_pattern, const std::string& replacement) const
+RIN xvector<T> SPtrXVector<xp<T>>::SubAll(const re2::RE2& in_pattern, const std::string& replacement) const
 {
-    xvector<E> RetVec;
+    xvector<xp<T>> RetVec;
     RetVec.reserve(The.size() + 1);
     for (const T* Val : *this)
         RetVec << *Val;
@@ -983,7 +981,7 @@ bool SPtrXVector<xp<T>>::MatchAll(char const* in_pattern) const {
 // =============================================================================================================
 
 template<typename T>
-inline xvector<xp<T>> SPtrXVector<xp<T>>::Take(const std::string& in_pattern) const
+RIN xvector<xp<T>> SPtrXVector<xp<T>>::Take(const std::string& in_pattern) const
 {
 #ifdef UsingNVCC
     xvector<xp<T>> RetVec;
@@ -1000,7 +998,7 @@ inline xvector<xp<T>> SPtrXVector<xp<T>>::Take(const std::string& in_pattern) co
 }
 
 template<typename T>
-inline xvector<xp<T>> SPtrXVector<xp<T>>::Take(char const* in_pattern) const
+RIN xvector<xp<T>> SPtrXVector<xp<T>>::Take(char const* in_pattern) const
 {
 #ifdef UsingNVCC
     return The.Take(std::string(in_pattern));
@@ -1010,7 +1008,7 @@ inline xvector<xp<T>> SPtrXVector<xp<T>>::Take(char const* in_pattern) const
 }
 
 template<typename T>
-inline xvector<xp<T>> SPtrXVector<xp<T>>::Remove(const std::string& in_pattern) const
+RIN xvector<xp<T>> SPtrXVector<xp<T>>::Remove(const std::string& in_pattern) const
 {
 #ifdef UsingNVCC
     xvector<xp<T>> RetVec;
@@ -1028,7 +1026,7 @@ inline xvector<xp<T>> SPtrXVector<xp<T>>::Remove(const std::string& in_pattern) 
 
 
 template<typename T>
-inline xvector<xp<T>> SPtrXVector<xp<T>>::Remove(char const* in_pattern) const
+RIN xvector<xp<T>> SPtrXVector<xp<T>>::Remove(char const* in_pattern) const
 {
 #ifdef UsingNVCC
     return The.Remove(std::string(in_pattern));
@@ -1040,7 +1038,7 @@ inline xvector<xp<T>> SPtrXVector<xp<T>>::Remove(char const* in_pattern) const
 // =============================================================================================================
 
 template<typename T>
-inline xvector<T> SPtrXVector<xp<T>>::SubAll(const std::string& Pattern, const std::string& Replacement) const
+RIN xvector<T> SPtrXVector<xp<T>>::SubAll(const std::string& Pattern, const std::string& Replacement) const
 {
 #ifdef UsingNVCC
     xvector<T> RetVec = The;
@@ -1054,13 +1052,13 @@ inline xvector<T> SPtrXVector<xp<T>>::SubAll(const std::string& Pattern, const s
 }
 
 template<typename T>
-inline xvector<T> SPtrXVector<xp<T>>::SubAll(char const* Pattern, char const* Replacement) const
+RIN xvector<T> SPtrXVector<xp<T>>::SubAll(char const* Pattern, char const* Replacement) const
 {
     return The.SubAll(Pattern, Replacement);
 }
 
 template<typename T>
-inline void SPtrXVector<xp<T>>::InSubAll(const xp<T>& Pattern, const xp<T>& Replacement)
+RIN void SPtrXVector<xp<T>>::InSubAll(const xp<T>& Pattern, const xp<T>& Replacement)
 {
     for (xp<T>& Ptr : The)
     {
@@ -1070,7 +1068,7 @@ inline void SPtrXVector<xp<T>>::InSubAll(const xp<T>& Pattern, const xp<T>& Repl
 }
 
 template<typename T>
-inline void SPtrXVector<xp<T>>::InSubOne(const xp<T>& Pattern, const xp<T>& Replacement)
+RIN void SPtrXVector<xp<T>>::InSubOne(const xp<T>& Pattern, const xp<T>& Replacement)
 {
     for (xp<T>& Ptr : The)
     {
@@ -1087,7 +1085,7 @@ inline void SPtrXVector<xp<T>>::InSubOne(const xp<T>& Pattern, const xp<T>& Repl
 template<typename T>
 xvector<xp<T>> SPtrXVector<xp<T>>::operator()(long double x, long double y, long double z, const char removal_method) const {
 
-    size_t m_size = The.size();
+    xint m_size = The.size();
     xvector<xp<T>> n_arr;
     n_arr.reserve(m_size + 4);
 
@@ -1104,16 +1102,16 @@ xvector<xp<T>> SPtrXVector<xp<T>>::operator()(long double x, long double y, long
         if (x > y) { return n_arr; }
 
         typename SPtrXVector<xp<T>>::const_iterator iter = The.begin();
-        typename SPtrXVector<xp<T>>::const_iterator stop = The.begin() + static_cast<size_t>(y);
+        typename SPtrXVector<xp<T>>::const_iterator stop = The.begin() + static_cast<xint>(y);
 
         if (z == 0) { // forward direction with no skipping
-            for (iter += static_cast<size_t>(x); iter != stop; ++iter)
+            for (iter += static_cast<xint>(x); iter != stop; ++iter)
                 n_arr.push_back(*iter);
         }
         else if (removal_method == 's') { // forward direction with skipping
             double iter_insert = 0;
             --z;
-            for (iter += static_cast<size_t>(x); iter != stop; ++iter) {
+            for (iter += static_cast<xint>(x); iter != stop; ++iter) {
                 if (!iter_insert) {
                     n_arr.push_back(*iter);
                     iter_insert = z;
@@ -1126,7 +1124,7 @@ xvector<xp<T>> SPtrXVector<xp<T>>::operator()(long double x, long double y, long
         else {
             double iter_insert = 0;
             --z;
-            for (iter += static_cast<size_t>(x); iter != stop; ++iter) {
+            for (iter += static_cast<xint>(x); iter != stop; ++iter) {
                 if (!iter_insert) {
                     iter_insert = z;
                 }
@@ -1147,10 +1145,10 @@ xvector<xp<T>> SPtrXVector<xp<T>>::operator()(long double x, long double y, long
 
         if (y > x) { return n_arr; }
         
-        typename SPtrXVector<xp<T>>::const_reverse_iterator iter = The.rend() - static_cast<size_t>(x) - 1;
-        typename SPtrXVector<xp<T>>::const_reverse_iterator stop = The.rend() - static_cast<size_t>(y);
+        typename SPtrXVector<xp<T>>::const_reverse_iterator iter = The.rend() - static_cast<xint>(x) - 1;
+        typename SPtrXVector<xp<T>>::const_reverse_iterator stop = The.rend() - static_cast<xint>(y);
 
-        size_t iter_insert = 0;
+        xint iter_insert = 0;
 
         if (z == 0) {
             for (; iter != stop; ++iter) {
@@ -1162,7 +1160,7 @@ xvector<xp<T>> SPtrXVector<xp<T>>::operator()(long double x, long double y, long
             for (; iter != stop; ++iter) {
                 if (!iter_insert) {
                     n_arr.push_back(*iter);
-                    iter_insert = static_cast<size_t>(z);
+                    iter_insert = static_cast<xint>(z);
                 }
                 else {
                     --iter_insert;
@@ -1172,7 +1170,7 @@ xvector<xp<T>> SPtrXVector<xp<T>>::operator()(long double x, long double y, long
         else {
             for (; iter != stop; ++iter) {
                 if (!iter_insert) {
-                    iter_insert = static_cast<size_t>(z);
+                    iter_insert = static_cast<xint>(z);
                 }
                 else {
                     n_arr.push_back(*iter);

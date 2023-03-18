@@ -24,11 +24,16 @@
 #include<type_traits>
 
 #include "RawMapping.h"
+#include "Memory.h"
 #include "Atomic.h"
 #include "Threads.h"
 #include "Mutex.h"
-#include "Task.h"
-#include "Job.h"
+
+#include "Task/TaskVoid.h"
+#include "Task/TaskValue.h"
+#include "Task/TaskXP.h"
+#include "Task/TaskFundamental.h"
+
 
 #define SyncNexus() Nexus<>::WaitAll()
 #define EXIT() exit(Nexus<>::Stop())
@@ -43,10 +48,13 @@ template<> class Nexus<void>;
 
 // WARNING: MAKE SURE YOU ONLY USE FUNCTIONS THAT TAKE L-VALUE REFERENCE
 template<>
-class __single_inheritance Nexus<void> : public RA::Threads
+class Nexus<void> : public RA::Threads
 {
 private:
+    istatic RA::Threads SoThreads;
     istatic RA::Mutex SoMutex;
+    istatic bool MbDisabled = false;
+
 
     istatic bool SbInitialized = false;
     istatic std::atomic<bool> SbFinishTasks = false;
@@ -54,44 +62,45 @@ private:
     
     // thread not jthread for NVCC
     istatic std::vector<std::thread> MvThreads; // these threads start in the constructor and don't stop until Nexus is over
-    istatic std::queue<RA::SharedPtr<Task<void>>> SvTaskQueue; // The is where tasks are held before being run
+    istatic std::queue<xp<Task<void>>> SvTaskQueue; // The is where Tasks are held before being run
     // No Getter Mutex/Sig for Nexus<void> because you pass in by ref, you don't pull any stored values
-    istatic std::unordered_map<xint, RA::SharedPtr<RA::Mutex>> SmMutex; // for objects in threads
-    istatic RA::SharedPtr<RA::Mutex> SoBlankMutexPtr = RA::MakeShared<RA::Mutex>(); // The blank Mutex used when no mutex is given as a param
+    istatic std::unordered_map<xint, xp<RA::Mutex>> SmMutex; // for objects in threads
+    istatic xp<RA::Mutex> SoBlankMutexPtr = RA::MakeShared<RA::Mutex>(); // The blank Mutex used when no mutex is given as a param
     // Nexus<void> can't store output, hance no storage containers here
 
     istatic void TaskLooper(int thread_idx);
 
 public:
-    INL Nexus(){ Nexus<void>::Start(); }
-    INL virtual ~Nexus() { Nexus<void>::Stop(); }
+    RIN Nexus(){ Nexus<void>::Start(); }
+    RIN virtual ~Nexus() { Nexus<void>::Stop(); }
     istatic void Start();
     istatic int  Stop();
     istatic void ForceStop();
+    istatic void Disable();
+    istatic void Enable();
 
-    // ------------------------------------------------------------------------------------------------------------------------------------------------
-    // Job: Function + Args
-    template <typename F, typename... A>
-    istatic UsingFunction(void) AddJob(F&& Function, A&& ... Args);
+    // ----------------------------------------------------------------------------------------------------------------------------------------------------
+    // Task: Function + Args
+    template <typename F, typename... A> istatic UsingFunction(void) AddTask(   F&& Function, A&& ...Args);
+    template <typename F, typename... A> istatic UsingFunction(void) AddTaskRef(F&& Function, A&& ...Args);
 
-    // Job Object.Function + Args
-    template <typename O, typename F, typename... A>
-    istatic UsingFunction(void) AddJob(O& object, F&& Function, A&& ... Args);
+    // Task Object.Function + Args
+    template <typename O, typename F, typename... A> istatic UsingFunction(void) AddTask(   O& object, F&& Function, A&& ...Args);
+    template <typename O, typename F, typename... A> istatic UsingFunction(void) AddTaskRef(O& object, F&& Function, A&& ...Args);
 
-    //  Job: Mutex + Object.Function + Args
-    template <typename M, typename O, typename F, typename... A>
-    istatic UsingFunction(void) AddJob(M& FoMutex, O& object, F&& Function, A&& ... Args);
-    // ------------------------------------------------------------------------------------------------------------------------------------------------
-    // Job: Function + Ref-Arg + Args
-    template <typename F, typename V, typename... A>
-    istatic void AddJobVal(F&& Function, V& element, A&&... Args);
+    //  Task: Mutex + Object.Function + Args
+    template <typename M, typename O, typename F, typename... A> istatic UsingFunction(void) AddTask(   M& FoMutex, O& object, F&& Function, A&& ...Args);
+    template <typename M, typename O, typename F, typename... A> istatic UsingFunction(void) AddTaskRef(M& FoMutex, O& object, F&& Function, A&& ...Args);
+private:
+    template <typename M, typename F> istatic void MutexTask(M& FoMutex, F& FoBindedFunction);
+public:
+    // ----------------------------------------------------------------------------------------------------------------------------------------------------
+    template <typename F, typename V, typename... A>             istatic void AddTaskVal( F&& Function, V& element,      A&& ...Args); // Used in xvector
+    template <typename K, typename V, typename F, typename... A> istatic void AddTaskPair(F&& Function, K key, V& value, A&& ...Args); // used in xmap
+    // ----------------------------------------------------------------------------------------------------------------------------------------------------
 
-    // Job: Function + Ref-(Key/Value) + Args
-    template <typename K, typename V, typename F, typename... A>
-    istatic void AddJobPair(F&& Function, K key, V& value, A&& ... Args);
-
-    // Required due to Linux not Windows (returns void Job<T>)
-    // static Job<short int> GetWithoutProtection(xint dummy) noexcept;
+    // Required due to Linux not Windows (returns void Task<T>)
+    // static Task<short int> GetWithoutProtection(xint dummy) noexcept;
 
     istatic xint Size() { return SnInstTaskCount; }
 
@@ -105,54 +114,57 @@ public:
 
 // =========================================================================================
 
-
-INL void Nexus<void>::TaskLooper(int thread_idx)
+RIN void Nexus<void>::TaskLooper(int thread_idx)
 {
-    while (true)
+    try
     {
-        xint MutexIdx = 0;
-        RA::SharedPtr<Task<void>> TaskPtr;
+        while (true)
         {
-            auto Lock = SoMutex.CreateLock([]() {
-                //printf("%llu\n", RA::Threads::GetAllowedThreadCount() - SnInstTaskCount);
-                return ((Nexus<void>::SbFinishTasks || Nexus<void>::SvTaskQueue.size()) 
-                    && (RA::Threads::GetAllowedThreadCount() > SnInstTaskCount));
-                });
+            xint MutexIdx = 0;
+            RA::SharedPtr<Task<void>> TaskPtr;
+            {
+                constexpr auto BxNexusVoidThreadReady = []() {
+                    return (
+                        !MbDisabled
+                        && (Nexus<void>::SbFinishTasks || Nexus<void>::SvTaskQueue.size())
+                        && (RA::Threads::BxThreadsAreAvailable()));
+                };
+                auto Lock = SoMutex.CreateLock(BxNexusVoidThreadReady);
 
-            if (SvTaskQueue.empty())
-                return;
+                if (SvTaskQueue.empty())
+                    return;
 
-            TaskPtr  = SvTaskQueue.front();
-            MutexIdx = SvTaskQueue.front().Get().GetMutexID();
-            SvTaskQueue.pop();
-            ++SnInstTaskCount;
+                ++SoThreads;
+                ++SnInstTaskCount;
+                TaskPtr = SvTaskQueue.front();
+                SvTaskQueue.pop();
+                MutexIdx = TaskPtr.Get().GetID();
+            }
+
+            Task<void>& VoidTask = TaskPtr.Get();
+
+            if (!MutexIdx) // no lock given
+                VoidTask.RunTask();
+            else if (SmMutex.at(MutexIdx).Get().BxUseMutex()) // lock was given with a mutex set to on
+            {
+                auto Lock = SmMutex.at(MutexIdx).Get().CreateLock();
+                VoidTask.RunTask();
+            }
+            else // lock was given but the mutex was set to off
+                VoidTask.RunTask();
+
+            auto Lock = SoMutex.CreateLock();
+            --SoThreads;
+            --SnInstTaskCount;
         }
-
-        if (TaskPtr == nullptr)
-            continue;
-        Task<void>& VoidTask = TaskPtr.Get();
-
-        if (!MutexIdx) // no lock given
-            VoidTask.RunTask();
-        else if (SmMutex.at(MutexIdx).Get().BxUseMutex()) // lock was given with a mutex set to on
-        {
-            auto Lock = SmMutex.at(MutexIdx).Get().CreateLock();
-            VoidTask.RunTask();
-        }
-        else // lock was given but the mutex was set to off
-            VoidTask.RunTask();
-
-        auto Lock = SoMutex.CreateLock();
-        if (SbFinishTasks && !SvTaskQueue.size())
-        {
-            SnInstTaskCount = 0;
-            return;
-        }
-        --SnInstTaskCount;
+    }
+    catch (...)
+    {
+        throw "Error @ Nexus<void>::TaskLooper";
     }
 };
 
-INL void Nexus<void>::Start()
+RIN void Nexus<void>::Start()
 {
     SbFinishTasks = false; // Used to exit when threading need to join for the last time;
     if (!SbInitialized)
@@ -161,17 +173,16 @@ INL void Nexus<void>::Start()
         SmMutex.clear();
         SmMutex.insert({ SoBlankMutexPtr.Get().GetID(), SoBlankMutexPtr }); // starts size at 1 and index at 0
 
-        RA::Threads::InstanceCount++;
-        MvThreads.reserve(RA::Threads::Allowed);
-        for (int i = 0; i < RA::Threads::Allowed; ++i)
+        SoThreads.IncInstanceCount();
+        MvThreads.reserve(SoThreads.GetAllowedThreadCount());
+        for (int i = 0; i < SoThreads.GetAllowedThreadCount(); ++i)
             MvThreads.emplace_back(std::bind((void(*)(int)) & Nexus<void>::TaskLooper, i)); // static member Function, don't use "this"
 
-        RA::Threads::Used = 0;
     }
     SbInitialized = true;
 }
 
-INL int Nexus<void>::Stop()
+RIN int Nexus<void>::Stop()
 {
     if (SbInitialized)
     {
@@ -188,45 +199,125 @@ INL int Nexus<void>::Stop()
     return 0;
 }
 
-INL void Nexus<void>::ForceStop()
+RIN void Nexus<void>::ForceStop()
 {
     MvThreads.clear();
     while (SvTaskQueue.size())
         SvTaskQueue.pop();
     SmMutex.clear();
 
-    SbInitialized = false;
-    SbFinishTasks = false;
+    SbInitialized   = false;
+    SbFinishTasks   = false;
     SnInstTaskCount = 0;
-    RA::Threads::InstanceCount--;
-    RA::Threads::Used = 0;
-
 }
 
+RIN void Nexus<void>::Disable()
+{
+    WaitAll();
+    MbDisabled = true;
+}
+
+RIN void Nexus<void>::Enable()
+{
+    MbDisabled = false;
+    SoMutex.SignalOne();
+}
+
+// ------------------------------------------------------------------------------------------------------------
 // If you are meaning to get an object version, pass in "The" instead of "this"
 template<typename F, typename ...A>
-INL UsingFunction(void) Nexus<void>::AddJob(F&& Function, A&& ...Args)
+RIN UsingFunction(void) Nexus<void>::AddTask(F&& Function, A&& ...Args)
 {
-    auto Lock = SoMutex.CreateLock();
     auto BindedFunction = std::bind(std::move(Function), std::forward<A>(Args)...);
-    SvTaskQueue.emplace(RA::MakeShared<Task<void>>(0, std::move(BindedFunction), 0));
+    if (MbDisabled)
+        SvTaskQueue.emplace(RA::MakeShared<Task<void>>(0, std::move(BindedFunction)));
+    else 
+    {
+        auto Lock = SoMutex.CreateLock();
+        SvTaskQueue.emplace(RA::MakeShared<Task<void>>(0, std::move(BindedFunction)));
+        SoMutex.SignalOne();
+    }
 }
-
+template<typename F, typename ...A>
+RIN UsingFunction(void) Nexus<void>::AddTaskRef(F&& Function, A&& ...Args)
+{
+    auto BindedFunction = std::bind(std::move(Function), std::ref(Args)...);
+    if(MbDisabled)
+        SvTaskQueue.emplace(RA::MakeShared<Task<void>>(0, std::move(BindedFunction)));
+    else
+    {
+        auto Lock = SoMutex.CreateLock();
+        SvTaskQueue.emplace(RA::MakeShared<Task<void>>(0, std::move(BindedFunction)));
+        SoMutex.SignalOne();
+    }
+}
+// ------------------------------------------------------------------------------------------------------------
 template<typename O, typename F, typename ...A>
-INL UsingFunction(void) Nexus<void>::AddJob(O& object, F&& Function, A&& ...Args)
+RIN UsingFunction(void) Nexus<void>::AddTask(O& object, F&& Function, A&& ...Args)
 {
-    auto Lock = SoMutex.CreateLock();
     auto BindedFunction = std::bind(std::move(Function), std::ref(object), std::forward<A>(Args)...);
-    SvTaskQueue.emplace(RA::MakeShared<Task<void>>(0, std::move(BindedFunction), 0));
+    if (MbDisabled)
+        SvTaskQueue.emplace(RA::MakeShared<Task<void>>((xint)0, std::move(BindedFunction)));
+    else
+    {
+        auto Lock = SoMutex.CreateLock();
+        SvTaskQueue.emplace(RA::MakeShared<Task<void>>((xint)0, std::move(BindedFunction)));
+        SoMutex.SignalOne();
+    }
 }
-
-template <typename M, typename O, typename F, typename... A>
-INL UsingFunction(void) Nexus<void>::AddJob(M& FoMutex, O& object, F&& Function, A&& ...Args)
+template<typename O, typename F, typename ...A>
+RIN UsingFunction(void) Nexus<void>::AddTaskRef(O& object, F&& Function, A&& ...Args)
 {
-    auto Lock = SoMutex.CreateLock();
-    CheckClearMutexes();
+    auto BindedFunction = std::bind(std::move(Function), std::ref(object), std::ref(Args)...);
+    if (MbDisabled)
+        SvTaskQueue.emplace(RA::MakeShared<Task<void>>(0, std::move(BindedFunction)));
+    else
+    {
+        auto Lock = SoMutex.CreateLock();
+        SvTaskQueue.emplace(RA::MakeShared<Task<void>>(0, std::move(BindedFunction)));
+        SoMutex.SignalOne();
+    }
+}
+// ------------------------------------------------------------------------------------------------------------
+template <typename M, typename O, typename F, typename... A>
+RIN UsingFunction(void) Nexus<void>::AddTask(M& FoMutex, O& object, F&& Function, A&& ...Args)
+{
     auto BindedFunction = std::bind(std::move(Function), std::ref(object), std::forward<A>(Args)...);
-
+    if (MbDisabled)
+    {
+        CheckClearMutexes();
+        MutexTask(FoMutex, BindedFunction);
+    }
+    else
+    {
+        auto Lock = SoMutex.CreateLock();
+        CheckClearMutexes();
+        MutexTask(FoMutex, BindedFunction);
+        SoMutex.SignalOne();
+    }
+    // nxm.id references the location in SmMutex
+}
+template <typename M, typename O, typename F, typename... A>
+RIN UsingFunction(void) Nexus<void>::AddTaskRef(M& FoMutex, O& object, F&& Function, A&& ...Args)
+{
+    auto BindedFunction = std::bind(std::move(Function), std::ref(object), std::ref<A>(Args)...);
+    if (MbDisabled)
+    {
+        CheckClearMutexes();
+        MutexTask(FoMutex, BindedFunction);
+    }
+    else
+    {
+        auto Lock = SoMutex.CreateLock();
+        CheckClearMutexes();
+        MutexTask(FoMutex, BindedFunction);
+        SoMutex.SignalOne();
+    }
+    // nxm.id references the location in SmMutex
+}
+template <typename M, typename F>
+void Nexus<void>::MutexTask(M& FoMutex, F& FoBindedFunction)
+{
     if (FoMutex == nullptr)
     {
         FoMutex = RA::MakeShared<RA::Mutex>();
@@ -241,32 +332,43 @@ INL UsingFunction(void) Nexus<void>::AddJob(M& FoMutex, O& object, F&& Function,
             SmMutex.insert({ FoMutex.Get().GetID(), FoMutex });
     }
 
-    SvTaskQueue.emplace(RA::MakeShared<Task<void>>(0, std::move(BindedFunction), FoMutex.Get().GetID()));
-    // nxm.id references the location in SmMutex
+    SvTaskQueue.emplace(RA::MakeShared<Task<void>>(FoMutex.Get().GetID(), std::move(FoBindedFunction)));
 }
-
+// ------------------------------------------------------------------------------------------------------------
 template <typename F, typename V, typename... A>
-INL void Nexus<void>::AddJobVal(F&& Function, V& element, A&&... Args)
+RIN void Nexus<void>::AddTaskVal(F&& Function, V& element, A&& ...Args)
 {
-    auto Lock = SoMutex.CreateLock();
-    CheckClearMutexes();
     auto BindedFunction = std::bind(std::move(Function), std::ref(element), std::ref(Args)...);
-    SvTaskQueue.emplace(RA::MakeShared<Task<void>>(0, std::move(BindedFunction), 0));
+    if(MbDisabled)
+        SvTaskQueue.emplace(RA::MakeShared<Task<void>>(0, std::move(BindedFunction)));
+    else
+    {
+        auto Lock = SoMutex.CreateLock();
+        CheckClearMutexes();
+        SvTaskQueue.emplace(RA::MakeShared<Task<void>>(0, std::move(BindedFunction)));
+        SoMutex.SignalOne();
+    }
 }
 
 template<typename K, typename V, typename F, typename ...A>
-INL void Nexus<void>::AddJobPair(F&& Function, K key, V& value, A&& ...Args)
+RIN void Nexus<void>::AddTaskPair(F&& Function, K key, V& value, A&& ...Args)
 {
-    auto Lock = SoMutex.CreateLock();
-    CheckClearMutexes();
     auto BindedFunction = std::bind(std::move(Function), std::ref(key), std::ref(value), std::ref(Args)...);
-    SvTaskQueue.emplace(RA::MakeShared<Task<void>>(0, std::move(BindedFunction), 0));
+    if (MbDisabled)
+        SvTaskQueue.emplace(RA::MakeShared<Task<void>>(0, std::move(BindedFunction)));
+    else
+    {
+        auto Lock = SoMutex.CreateLock();
+        CheckClearMutexes();
+        SvTaskQueue.emplace(RA::MakeShared<Task<void>>(0, std::move(BindedFunction)));
+        SoMutex.SignalOne();
+    }
 }
-
+// ------------------------------------------------------------------------------------------------------------
 // Class required due to Linux (not Windows)
-// Job<short int> Nexus<void>::GetWithoutProtection(xint dummy) noexcept { return Job<short int>(); }
+// Task<short int> Nexus<void>::GetWithoutProtection(xint dummy) noexcept { return Task<short int>(); }
 
-INL void Nexus<void>::WaitAll()
+RIN void Nexus<void>::WaitAll()
 {
     while (SvTaskQueue.size() || SnInstTaskCount > 0)
     {
@@ -276,12 +378,12 @@ INL void Nexus<void>::WaitAll()
     }
 }
 
-INL void Nexus<void>::Clear()
+RIN void Nexus<void>::Clear()
 {
     Nexus<void>::WaitAll();
 
     SnInstTaskCount = 0;
-    if (RA::Threads::Used == 0 && SvTaskQueue.size() == 0)
+    if (SoThreads.GetUsedThreadCount() == 0 && SvTaskQueue.size() == 0)
     {
         SmMutex.clear();
         SmMutex.insert({ SoBlankMutexPtr.Get().GetID(), SoBlankMutexPtr });
@@ -289,16 +391,16 @@ INL void Nexus<void>::Clear()
     RA::Mutex::ResetTotalMutexCount();
 }
 
-INL void Nexus<void>::CheckClearMutexes()
+RIN void Nexus<void>::CheckClearMutexes()
 {
-    if (RA::Threads::Used == 0 && SvTaskQueue.size() == 0)
+    if (SoThreads.GetUsedThreadCount() == 0 && SvTaskQueue.size() == 0)
     {
         SmMutex.clear();
         SmMutex.insert({ SoBlankMutexPtr.Get().GetID(), SoBlankMutexPtr });
     }
 }
 
-INL void Nexus<void>::Sleep(unsigned int FnMilliseconds)
+RIN void Nexus<void>::Sleep(unsigned int FnMilliseconds)
 {
 #if (defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64))
     ::Sleep(FnMilliseconds);

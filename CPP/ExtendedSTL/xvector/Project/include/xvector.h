@@ -20,64 +20,8 @@
 * limitations under the License.
 */
 
-
-#if (defined(WIN64) || defined(_WIN64) || defined(WIN32) || defined(_WIN32))
-    using size64_t = __int64;
-#else
-    #include <cstdint>
-    using size64_t = int64_t;
-#endif
-
-#include<vector>
-#include<type_traits>
-#include<initializer_list>
-#include<string>
-#include<regex>
-#include<sstream>
-#include<set>
-#include<type_traits>
-
-#ifndef UsingNVCC
-#include "re2/re2.h"
-#endif
-
-#include "SharedPtr.h"
-#include "Nexus.h"
-
-#ifndef __RXM__
-#define __RXM__
-    // RegeX Mod
-namespace RXM {
-    using namespace std::regex_constants;
-    using Type = syntax_option_type;
-}
-#endif
-
-
-// Declared in xvector.h && BaseXVector.h
-#ifndef __XVECTOR_TYPES__
-#define __XVECTOR_TYPES__
-template<typename T, typename enabler_t = void> class xvector;
-
-// Values (Object/Primitive)
-#define ValObjXVectorAPI  xvector<T, typename std::enable_if_t<!IsFundamental(T) && !IsPointer(T) && !IsSharedPtr(T)>>
-#define ValPrimXVectorAPI xvector<T, typename std::enable_if_t< IsFundamental(T) && !IsPointer(T)>>
-template<typename T> class ValObjXVectorAPI;
-template<typename T> class ValPrimXVectorAPI;
-
-// Pointers (Object/Primitive)
-#define PtrObjXVectorAPI  xvector<T*, typename std::enable_if_t<!IsFundamental(RemovePtr(T*))>>
-#define PtrPrimXVectorAPI xvector<T*, typename std::enable_if_t< IsFundamental(RemovePtr(T*))>>
-template<typename T> class PtrObjXVectorAPI;
-template<typename T> class PtrPrimXVectorAPI;
-
-// Shared Pointers
-#define SPtrObjXVectorAPI xvector<xp<T>, typename std::enable_if_t<!IsFundamental(T) && IsClass(T)>>
-template<typename T> class SPtrObjXVectorAPI;
-#endif
-
-//#include "BaseXVector.h"
-#include "SPtr/SPtrObjXVector.h"
+#include "Memory.h"
+#include "XVectorTypes.h"
 
 //#include "Val/BaseValXVector.h"
 #include "Val/ValObjXVector.h"
@@ -87,22 +31,7 @@ template<typename T> class SPtrObjXVectorAPI;
 #include "Ptr/PtrObjXVector.h"
 #include "Ptr/PtrPrimXVector.h"
 
-
-//template<typename T> class BaseXVector;
-//    
-//template<typename T> class ValXVector;
-//template<typename T> class PtrXVector;
-//
-//template<typename T, typename enabler_t = void> class xvector;
-//    
-//// Values (Object/Primitive)
-//template<typename T> class xvector<T, typename std::enable_if< std::is_class<T>::value && !std::is_pointer<T>::value>::type>; // val_obj_xvector
-//template<typename T> class xvector<T, typename std::enable_if<!std::is_class<T>::value && !std::is_pointer<T>::value>::type>; // val_prim_xvector
-//
-//// Pointers (Object/Primitive)
-//template<typename T> class xvector<T*, typename std::enable_if< std::is_class<std::remove_pointer_t<T*>>::value>::type>; // ptr_obj_xvector
-//template<typename T> class xvector<T*, typename std::enable_if<!std::is_class<std::remove_pointer_t<T*>>::value>::type>; // ptr_prim_xvector
-//
-
+//#include "BaseXVector.h"
+#include "SPtr/SPtrObjXVector.h"
 
 
