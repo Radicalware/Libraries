@@ -22,6 +22,29 @@ using std::bind;
 #include "NexusBenchmark.h"
 #include "Timer.h"
 
+
+double BenchSingleThread()
+{
+    RA::Timer Time;
+    for (int i = 1; i < Nexus<>::GetCPUThreadCount() * 3; i++)
+        cout << PrimeNumber(10000) << endl;
+    cout << __CLASS__ " Time: " << Time.GetElapsedTimeMicroseconds() << endl;
+    return Time.GetElapsedTimeMicroseconds();
+}
+
+double BenchMultiThread()
+{
+    RA::Timer Time;
+    Nexus<>::Disable();
+    for (int i = 1; i < Nexus<>::GetCPUThreadCount() * 3; i++)
+        Nexus<>::AddTask(&PrintPrimeNumber, 10000);
+    Nexus<>::Enable();
+    Nexus<>::WaitAll();
+    cout << __CLASS__ " Time: " << Time.GetElapsedTimeMicroseconds() << endl;
+    return Time.GetElapsedTimeMicroseconds();
+}
+
+
 int main() 
 {
     Begin();
@@ -31,28 +54,14 @@ int main()
     // static classes static and instnace classes instance based to not confuse anyone. 
     // -------------------------------------------------------------------------------------
 
-    ObjectMutexHandling();
-    BenchmarkNexus();
+    //ObjectMutexHandling();
+    //BenchmarkNexus();
 
-    //RA::Timer Time;
 
-    //constexpr xint LnLoops = 10000000;
-    //RA::Atomic<xint> Val1 = 0;
-    //for (xint i = 0; i < LnLoops; i++) {
-    //    ++Val1;
-    //}
-    //cout << Val1 << " " << Time.GetElapsedTimeMilliseconds() << endl;
+    auto LnSingleTime = BenchSingleThread();
+    auto LnMultiTime  = BenchMultiThread();
 
-    //Time.Reset();
-    //xint Val2 = 0;
-    //std::mutex SimpleMtx;
-    //RA::Mutex Mtx;
-    //for (xint i = 0; i < LnLoops; i++) {
-    //    //auto Lock = std::unique_lock(SimpleMtx);
-    //    auto Lock = Mtx.CreateLock([] {return true; });
-    //    ++Val2;
-    //}
-    //cout << Val2 << " " << Time.GetElapsedTimeMilliseconds() << endl;
+    cout << "Threading Speed Inc: " << (LnSingleTime / LnMultiTime) << endl;
 
     RescuePrint();
     Nexus<>::Stop();

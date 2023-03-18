@@ -58,6 +58,7 @@ private:
     RA::Atomic<bool>          MbFinishTasks = false;
     RA::Atomic<long long int> MnInstTaskCount = 0;
     xint                      MnNextTaskID = 0;
+    bool                      MbSetGroupingOn = false;
 
     std::vector<std::thread>  MvThreads;     // these threads start in the constructor and don't stop until Nexus is over
     std::deque<xp<Task<T>>>   MvTaskDeque;   // The is where tasks are held before being run
@@ -103,9 +104,7 @@ public:
 
     // Getters can't be const due to the mutex
 private:
-    template<typename R> RIN std::vector<T> ContGetAll(); 
     template<typename O, typename I> RIN auto ContGetAllPtrs(); // auto because of Nexus<T> and Nexus<xp<T>>
-    template<typename R> RIN std::vector<T> GetMoveAllIndices();
 public:
     RIN std::vector<T> GetAll();
     RIN auto           GetAllPtrs(); // auto because of Nexus<T> and Nexus<xp<T>>
@@ -129,8 +128,8 @@ RIN void Nexus<T>::TaskLooper(int thread_idx)
 {
     try
     {
-        int LnAtomicIdx = 0;
         std::unordered_map<xint, xp<Task<T>>> LmLocalMap;
+        xp<Task<T>> LoSingleTaskPtr;
         while (true)
         {
             {
@@ -140,41 +139,56 @@ RIN void Nexus<T>::TaskLooper(int thread_idx)
                         && (MbFinishTasks || MvTaskDeque.size())
                         && RA::Threads::BxThreadsAreAvailable()); });
 
-                //while(!((MbFinishTasks || MvTaskDeque.size()) && RA::Threads::GetAllowedThreadCount() > MnInstTaskCount))
-                //    Sleep(1);
-
+                if (MbDisabled)
+                    continue;
                 if (MvTaskDeque.empty())
                     return;
 
                 ++SoThreads;
-                const auto LnDivisor = MIN(MvTaskDeque.size(), RA::Threads::CPUThreads);
-                xint LvTaskCount = MvTaskDeque.size() / LnDivisor;
-                LvTaskCount += MvTaskDeque.size() % LnDivisor;
+                ++MnInstTaskCount;
 
-                for (xint i = 0; i < LvTaskCount; i++)
+                xint LvTaskCount = 0;
+                
+                if (MbSetGroupingOn && MvTaskDeque.size() >= RA::Threads::CPUThreads * 2)
                 {
-                    auto  LoTaskPtr = The.MvTaskDeque.front();
-                    auto& LoTask = *LoTaskPtr;
+                    LvTaskCount = MvTaskDeque.size() / RA::Threads::CPUThreads;
+                    LvTaskCount += MvTaskDeque.size() % RA::Threads::CPUThreads;
+                    for (xint i = 0; i < LvTaskCount; i++)
+                    {
+                        auto  LoTaskPtr = The.MvTaskDeque.front();
+                        auto& LoTask = *LoTaskPtr;
+                        MvTaskDeque.pop_front();
+                        MmIdxTask.insert({ LoTask.GetID(), LoTaskPtr });
+                        LmLocalMap.insert({ LoTask.GetID(), LoTaskPtr }); // for safe mem managment
+                        if (!!LoTask.GetNamePtr())
+                            MmStrTask.insert({ LoTask.GetName(), LoTaskPtr });
+                    }
+                }
+                else
+                {
+                    LoSingleTaskPtr = The.MvTaskDeque.front();
+                    auto& LoTask = *LoSingleTaskPtr;
                     MvTaskDeque.pop_front();
-                    MmIdxTask .insert({ LoTask.GetID(), LoTaskPtr });
-                    LmLocalMap.insert({ LoTask.GetID(), LoTaskPtr }); // for safe mem managment
-
+                    MmIdxTask.insert({ LoTask.GetID(), LoSingleTaskPtr });
                     if (!!LoTask.GetNamePtr())
-                        MmStrTask.insert({ LoTask.GetName(), LoTaskPtr });
-
-                    ++MnInstTaskCount;
+                        MmStrTask.insert({ LoTask.GetName(), LoSingleTaskPtr });
                 }
             }
 
-            for (auto& Pair : LmLocalMap)
-                Pair.second.Get().RunTask();
+            if (!!LoSingleTaskPtr)
+            {
+                (*LoSingleTaskPtr).RunTask();
+                LoSingleTaskPtr = nullptr;
+            }
+            else
+            {
+                for (auto& Pair : LmLocalMap)
+                    Pair.second.Get().RunTask();
+                LmLocalMap.clear();
+            }
 
-            const auto LnTasksCompletionCount = LmLocalMap.size();
-            LmLocalMap.clear();
-
-            const auto Lock = MoThreadMtx.CreateLock();
-            MnInstTaskCount -= LnTasksCompletionCount;
             --SoThreads;
+            --MnInstTaskCount;
         }
     }
     catch (...)
