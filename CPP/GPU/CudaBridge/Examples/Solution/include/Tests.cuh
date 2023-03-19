@@ -11,7 +11,7 @@ namespace Test
     void PrintDeviceStats();
     void Features();
     void PrintGridBlockThread();
-    void SumArrayIndiciesMultiStream(const uint FnOperations);
-    void SumArrayIndiciesMultiGPU(const uint FnOperations);
-    void TestBlockMutex(const uint FnOperations);
+    void SumArrayIndiciesMultiStream(const xint FnOperations);
+    void SumArrayIndiciesMultiGPU(const xint FnOperations);
+    void TestBlockMutex(const xint FnOperations);
 }

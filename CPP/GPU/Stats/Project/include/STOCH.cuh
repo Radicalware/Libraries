@@ -21,7 +21,7 @@ namespace RA
             const xint   *FnInsertIdxPtr);
 
         IXF auto GetMax()       const { return MnBiggest; }
-        IXF auto GetCurrent()   const { return MvValues[(*MnInsertIdxPtr > 0) ? *MnInsertIdxPtr - 1 : *MnStorageSizePtr - 1]; }
+        IXF auto GetCurrent()   const { return MvValues[(*MnInsertIdxPtr > 0) ? *MnInsertIdxPtr : *MnStorageSizePtr - 1]; }
         IXF auto GetMin()       const { return MnSmallest; }
         IXF auto GetSTOCH()     const { return MnSTOCH; }
 

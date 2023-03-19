@@ -6,7 +6,7 @@
 #include "cuda_runtime_api.h"
 #include "device_launch_parameters.h"
 
-using uint = size_t;
+using xint = size_t;
 
 #define MAX_UINT 9223372036854775807
 #define MAX_INT  2147483647

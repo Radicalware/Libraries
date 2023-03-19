@@ -183,11 +183,11 @@ __global__ void Print2D()
     );
 }
 
-__global__ void PrintNum(uint Val)
+__global__ void PrintNum(xint Val)
 {
     printf("PrintNum\n");
-    uint Result = 0;
-    for (uint i = 0; i < Val; i++)
+    xint Result = 0;
+    for (xint i = 0; i < Val; i++)
         Result += i;
 
     printf("Result: %llu\n", Result);
@@ -217,7 +217,7 @@ __global__ void DelayedSumArraysIndicesGPU(int* c, const int* a, const int* b, c
     c[GID] = a[GID] + b[GID] + Val;
 }
 
-__global__ void DelayedSumArraysIndicesMultiGPU(const uint FnStart, const uint Size, int* c, const int* a, const int* b)
+__global__ void DelayedSumArraysIndicesMultiGPU(const xint FnStart, const xint Size, int* c, const int* a, const int* b)
 {
     const auto RID = RA::Device::GetThreadID(); // Return ID
     //printf("FnStart: %llu %llu\n", FnStart, Size);
@@ -254,7 +254,7 @@ __host__ void SumArraysIndicesCPU(int* c, const int* a, const int* b, const int 
 
 // =============================================================================================================================
 
-void Test::SumArrayIndiciesMultiStream(const uint FnOperations)
+void Test::SumArrayIndiciesMultiStream(const xint FnOperations)
 {
     Begin();
     const int ArraySize = FnOperations;
@@ -273,14 +273,14 @@ void Test::SumArrayIndiciesMultiStream(const uint FnOperations)
     Nexus<RA::CudaBridge<int>> LoNexus;
 
     RA::Timer Time;
-    LoNexus.AddJob([&]() { return RA::CudaBridge<int>::ARRAY::RunCPU(
+    LoNexus.AddTask([&]() { return RA::CudaBridge<int>::ARRAY::RunCPU(
         HostArray2.GetAllocation(), SumArraysIndicesCPU, HostArray1.GetHost(), HostArray2.GetHost(), ArraySize); });
-    LoNexus.AddJob([&]() { return RA::CudaBridge<int>::ARRAY::RunCPU(
+    LoNexus.AddTask([&]() { return RA::CudaBridge<int>::ARRAY::RunCPU(
         HostArray2.GetAllocation(), SumArraysIndicesCPU, HostArray1.GetHost(), HostArray2.GetHost(), ArraySize); });
 
     LoNexus.WaitAll();
-    auto HostResult1 = LoNexus.Get((size_t)0).GetValue();
-    auto HostResult2 = LoNexus.Get(1).GetValue();
+    auto HostResult1 = LoNexus.Get(1).GetValue();
+    auto HostResult2 = LoNexus.Get(2).GetValue();
 
     cout << "CPU: " << Time.GetElapsedTimeMilliseconds() << endl;
     Time.Reset();
@@ -307,7 +307,7 @@ void Test::SumArrayIndiciesMultiStream(const uint FnOperations)
 
     cout << "Same Device Arrays: " << RA::CudaBridge<>::SameArrays(DeviceResult1, DeviceResult2) << endl;
 
-    cout << "Same Cross Arrays: " << RA::CudaBridge<>::SameArrays(DeviceResult1, HostResult1) << endl;
+    cout << "Same Cross Arrays:  " << RA::CudaBridge<>::SameArrays(DeviceResult1, HostResult1) << endl;
 
     const auto LnPrintSize = 1;
     const auto LnVal = 5555;
@@ -318,7 +318,7 @@ void Test::SumArrayIndiciesMultiStream(const uint FnOperations)
     
     Rescue();
 }
-void Test::SumArrayIndiciesMultiGPU(const uint FnOperations)
+void Test::SumArrayIndiciesMultiGPU(const xint FnOperations)
 {
     Begin();
 
@@ -347,6 +347,7 @@ void Test::SumArrayIndiciesMultiGPU(const uint FnOperations)
     xvector<int> DeviceResultMultiGPU = RA::CudaBridge<int>::ARRAY::RunMultiGPU(
         HostArray1.GetAllocation(),
         DelayedSumArraysIndicesMultiGPU, HostArray1.GetDevice(), HostArray2.GetDevice());
+    RA::CudaBridge<>::SyncAll();
     cout << "Multi  GPU: " << Time.GetElapsedTimeMilliseconds() << endl;
 
     Time.Reset();
@@ -387,8 +388,8 @@ void Test::SumArrayIndiciesMultiGPU(const uint FnOperations)
                 break;
         }
         cout << "-------------" << endl;
-        uint LnZeroCount = 0;
-        for (uint i = 0; i < LvMultiGPU.Size(); i++)
+        xint LnZeroCount = 0;
+        for (xint i = 0; i < LvMultiGPU.Size(); i++)
         {
             if (LvMultiGPU[i] == 0)
                 LnZeroCount++;
@@ -406,7 +407,7 @@ void Test::SumArrayIndiciesMultiGPU(const uint FnOperations)
 // =============================================================================================================================
 
 
-__global__ void BlockLevelMutex(int* FvOutData, const int* FvInDataArray, RA::Device::Mutex* FoMutexPtr, const uint FnSize)
+__global__ void BlockLevelMutex(int* FvOutData, const int* FvInDataArray, RA::Device::Mutex* FoMutexPtr, const xint FnSize)
 {
     auto GID = RA::Device::GetThreadID();
     if (GID > FnSize)
@@ -429,7 +430,7 @@ __device__ bool GreaterThan(const int Left, const int Right) {
 
 // =============================================================================================================================
 
-auto GetTestData(uint FnOperationCount)
+auto GetTestData(xint FnOperationCount)
 {
     RA::CudaBridge<int> FvInDataArray(FnOperationCount);
     FvInDataArray.AllocateHost();
@@ -458,7 +459,7 @@ auto GetTestData(uint FnOperationCount)
 
 
 template<typename F>
-void TestMutex(F&& FfFunction, const xstring& FsFunctionName, const uint FnOperations)
+void TestMutex(F&& FfFunction, const xstring& FsFunctionName, const xint FnOperations)
 {
     Begin();
     auto [LvData, LnMaxVal] = GetTestData(FnOperations);
@@ -497,7 +498,7 @@ void TestMutex(F&& FfFunction, const xstring& FsFunctionName, const uint FnOpera
 
 // ------------------------------------------------------------------------------------
 
-void Test::TestBlockMutex(const uint FnOperations)
+void Test::TestBlockMutex(const xint FnOperations)
 {
     Begin();
     TestMutex(BlockLevelMutex, __CLASS__, FnOperations);
@@ -509,7 +510,7 @@ void Test::TestBlockMutex(const uint FnOperations)
 // https://forums.developer.nvidia.com/t/try-to-use-lock-and-unlock-in-cuda/50761
 // nVidia suggests avoiding a Mutex in favor of reduction algorithms
 // If you need locking, use a block lock and then negotiate for access within a threadblock using ordinary sync
-//void Test::TestThreadMutex(const uint FnOperations)
+//void Test::TestThreadMutex(const xint FnOperations)
 //{
 //    Begin();
 //    TestMutex(ThreadLevelMutex, __CLASS__, FnOperations);

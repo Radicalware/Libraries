@@ -12,7 +12,7 @@
 
 #ifndef _uint_
 #define _uint_
-using uint = size_t;
+using xint = size_t;
 #endif
 
 #define FenceAndSync() \
@@ -23,7 +23,7 @@ namespace RA
 {
     namespace Device
     {
-        __device__ static uint GetThreadID(const bool Print = false);
+        __device__ static xint GetThreadID(const bool Print = false);
         __device__ static void Copy(uint3& Left, const uint3& Right);
 
         __device__  static void Print(const uint3& LvVertex);
@@ -36,7 +36,7 @@ namespace RA
 
 // =====================================================================================================================
 
-__device__ uint RA::Device::GetThreadID(const bool Print)
+__device__ xint RA::Device::GetThreadID(const bool Print)
 {
     ////First section locates and calculates thread offset within a block
     //const unsigned int Column = threadIdx.x;

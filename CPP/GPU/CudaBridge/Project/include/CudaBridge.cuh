@@ -38,103 +38,103 @@ namespace RA
     class CudaBridge : public RA::Iterator<T>
     {
     public:
-        INL static void SetDeviceIdx(const int Idx);
-        INL static auto GetDeviceIdx() { return SnDeviceIdx.load(); }
-        INL static int  GetDeviceCount();
+        RIN static void SetDeviceIdx(const int Idx);
+        RIN static auto GetDeviceIdx() { return SnDeviceIdx.load(); }
+        RIN static int  GetDeviceCount();
 
-        INL void FreeDevice();
-        INL ~CudaBridge();
+        RIN void FreeDevice();
+        RIN ~CudaBridge();
 
-        INL static void Initialize();
-        INL CudaBridge() {}
+        RIN static void Initialize();
+        RIN CudaBridge() {}
 
-        INL CudaBridge(uint FnSize);
-        INL CudaBridge(uint FnSize, uint FnMemSize);
-        INL CudaBridge(const Allocate& FoAllocate);
-        INL CudaBridge(SharedPtr<T[]> FnArray, uint FnSize);
-        INL CudaBridge(SharedPtr<T[]> FnArray, uint FnSize, uint FnMemSize);
+        RIN CudaBridge(xint FnSize);
+        RIN CudaBridge(xint FnSize, xint FnMemSize);
+        RIN CudaBridge(const Allocate& FoAllocate);
+        RIN CudaBridge(SharedPtr<T[]> FnArray, xint FnSize);
+        RIN CudaBridge(SharedPtr<T[]> FnArray, xint FnSize, xint FnMemSize);
 
-        INL CudaBridge(const RA::CudaBridge<T>& Other);
-        INL CudaBridge(RA::CudaBridge<T>&& Other) noexcept;
+        RIN CudaBridge(const RA::CudaBridge<T>& Other);
+        RIN CudaBridge(RA::CudaBridge<T>&& Other) noexcept;
 
-        INL CudaBridge(std::initializer_list<T> FnInit);
+        RIN CudaBridge(std::initializer_list<T> FnInit);
 
-        INL void ResetIterator() { This.SetIterator(MvHost.Ptr(), &MnLeng); }
+        RIN void ResetIterator() { This.SetIterator(MvHost.Ptr(), &MnLeng); }
 
-        INL void SetSizing(uint FnSize);
-        INL void SetSizing(uint FnSize, uint FnMemSize);
+        RIN void SetSizing(xint FnSize);
+        RIN void SetSizing(xint FnSize, xint FnMemSize);
 
-        INL void operator=(const CudaBridge<T>& Other);
-        INL void operator=(CudaBridge<T>&& Other) noexcept;
+        RIN void operator=(const CudaBridge<T>& Other);
+        RIN void operator=(CudaBridge<T>&& Other) noexcept;
 
-        INL void operator=(const std::vector<T>& Other);
-        INL void operator=(std::vector<T>&& Other);
+        RIN void operator=(const std::vector<T>& Other);
+        RIN void operator=(std::vector<T>&& Other);
 
-        INL T& operator[](const uint Idx) { return MvHost[Idx]; }
-        INL const T& operator[](const uint Idx) const { return MvHost[Idx]; }
+        RIN T& operator[](const xint Idx) { return MvHost[Idx]; }
+        RIN const T& operator[](const xint Idx) const { return MvHost[Idx]; }
 
         template<typename ...A>
-        INL void AllocateHost(const uint FnNewSize = 0, A&&... Args);
-        INL void AllocateDevice();
+        RIN void AllocateHost(const xint FnNewSize = 0, A&&... Args);
+        RIN void AllocateDevice();
 
-        INL void ZeroHostData();
+        RIN void ZeroHostData();
 
-        INL uint Size() const { return MnLeng; }
-        INL uint GetUnitByteSize() const { return MnByteSize; }
-        INL uint GetMallocSize()   const { return MnLeng * MnByteSize + sizeof(uint); }
-        INL uint GetMemCopySize()  const { return MnLeng * MnByteSize; }
-        INL Allocate GetAllocation() const { return Allocate(MnLeng, MnByteSize); }
+        RIN xint Size() const { return MnLeng; }
+        RIN xint GetUnitByteSize() const { return MnByteSize; }
+        RIN xint GetMallocSize()   const { return MnLeng * MnByteSize + sizeof(xint); }
+        RIN xint GetMemCopySize()  const { return MnLeng * MnByteSize; }
+        RIN Allocate GetAllocation() const { return Allocate(MnLeng, MnByteSize); }
 
-        INL bool HasHostArray()   const { return bool(MvHost.Ptr()); }
-        INL bool HasDeviceArray() const { return MvDevice != nullptr; }
+        RIN bool HasHostArray()   const { return bool(MvHost.Ptr()); }
+        RIN bool HasDeviceArray() const { return MvDevice != nullptr; }
 
-        INL void CopyHostToDevice();
-        INL void CopyDeviceToHost();
+        RIN void CopyHostToDevice();
+        RIN void CopyDeviceToHost();
 
-        INL void CopyHostToDeviceAsync();
-        INL void CopyDeviceToHostAsync();
-        INL void SyncStream() const;
+        RIN void CopyHostToDeviceAsync();
+        RIN void CopyDeviceToHostAsync();
+        RIN void SyncStream() const;
         
-        INL       T& Get()              { return MvHost[0]; }
-        INL const T& Get()        const { return MvHost[0]; }
-        INL       T& GetHostObj()       { return MvHost[0]; }
-        INL const T& GetHostObj() const { return MvHost[0]; }
+        RIN       T& Get()              { return MvHost[0]; }
+        RIN const T& Get()        const { return MvHost[0]; }
+        RIN       T& GetHostObj()       { return MvHost[0]; }
+        RIN const T& GetHostObj() const { return MvHost[0]; }
 
-        INL const auto& GetStream() const { return MoStream; }
-        INL       T*    GetHost();
-        INL const T*    GetHost() const;
-        INL xvector<T>  GetVec()  const;
+        RIN const auto& GetStream() const { return MoStream; }
+        RIN       T*    GetHost();
+        RIN const T*    GetHost() const;
+        RIN xvector<T>  GetVec()  const;
 
-        INL       SharedPtr<T[]>& GetShared();
-        INL const SharedPtr<T[]>& GetShared() const;
+        RIN       SharedPtr<T[]>& GetShared();
+        RIN const SharedPtr<T[]>& GetShared() const;
 
-        INL       T& GetHost(uint FnIdx);
-        INL const T& GetHost(uint FnIdx) const;
+        RIN       T& GetHost(xint FnIdx);
+        RIN const T& GetHost(xint FnIdx) const;
 
-        INL       T* GetDevice();
-        INL const T* GetDevice() const;
+        RIN       T* GetDevice();
+        RIN const T* GetDevice() const;
 
 
         // =================================================================================================================
         // Reduction
         template<typename F>
-        INL T ReductionCPU(F&& Function, uint Size = 0) const;
+        RIN T ReductionCPU(F&& Function, xint Size = 0) const;
         template<typename F1, typename F2>
-        INL T ReductionGPU(F1&& CudaFunction, F2&& HostFunction, const dim3& FnGrid, const dim3& FnBlock, const int ReductionSize = 0) const;
+        RIN T ReductionGPU(F1&& CudaFunction, F2&& HostFunction, const dim3& FnGrid, const dim3& FnBlock, const int ReductionSize = 0) const;
         // =================================================================================================================
         // Return Nothing from the GPU
         struct NONE
         {
             template<typename F, typename ...A>
-            INL static void RunGPU(const dim3& FnGrid, const dim3& FnBlock, F&& Function, A&&... Args);
+            RIN static void RunGPU(const dim3& FnGrid, const dim3& FnBlock, F&& Function, A&&... Args);
 
             template<typename F, typename ...A>
-            INL static void RunCPU(F&& Function, A&&... Args);
+            RIN static void RunCPU(F&& Function, A&&... Args);
 
             template<typename F, typename ...A>
-            INL static xvector<T>
+            RIN static xvector<T>
                 RunMultiGPU(
-                    const uint FnSize,
+                    const xint FnSize,
                     F&& Function, A&&... Args); // CUDA Kernel Function & Args
         };
         // =================================================================================================================
@@ -142,22 +142,22 @@ namespace RA
         struct ARRAY
         {
             template<typename F, typename ...A>
-            INL static CudaBridge<T> RunGPU(const Allocate& FoAllocate, const dim3& FnGrid, const dim3& FnBlock, F&& Function, A&&... Args);
+            RIN static CudaBridge<T> RunGPU(const Allocate& FoAllocate, const dim3& FnGrid, const dim3& FnBlock, F&& Function, A&&... Args);
             template<typename F, typename ...A>
-            INL static xvector<xp<CudaBridge<T>>>
+            RIN static xvector<xp<CudaBridge<T>>>
                 RunUnjoinedMultiGPU(
                     const Allocate& FoAllocate, // Return config
                     const dim3& FnGrid, const dim3& FnBlock, // CUDA Kernel Config
                     F&& Function, A&&... Args); // CUDA Kernel Function & Args
             template<typename F, typename ...A>
-            INL static xvector<T>
+            RIN static xvector<T>
                 RunMultiGPU(
                     const Allocate& FoAllocate, // Return config
                     F&& Function, A&&... Args); // CUDA Kernel Function & Args
 
 
             template<typename F, typename ...A>
-            INL static CudaBridge<T> RunCPU(const Allocate& FoAllocate, F&& Function, A&&... Args);
+            RIN static CudaBridge<T> RunCPU(const Allocate& FoAllocate, F&& Function, A&&... Args);
         };
 
 
@@ -166,14 +166,14 @@ namespace RA
 
         // =================================================================================================================
         // Misc
-        INL static bool SameArrays(const RA::CudaBridge<T>& One, const RA::CudaBridge<T>& Two);
-        INL static bool SameArrays(const xvector<T>& One, const xvector<T>& Two);
-        INL static CudaBridge<T> SumArraysIndicesCPU(const RA::CudaBridge<T>& One, const RA::CudaBridge<T>& Two);
+        RIN static bool SameArrays(const RA::CudaBridge<T>& One, const RA::CudaBridge<T>& Two);
+        RIN static bool SameArrays(const xvector<T>& One, const xvector<T>& Two);
+        RIN static CudaBridge<T> SumArraysIndicesCPU(const RA::CudaBridge<T>& One, const RA::CudaBridge<T>& Two);
         // -----------------------------------------------------------------------------------------------------------------
 
     private:
-        INL void CopyHostData(const T* FnArray);
-        INL void CopyHostData(const RA::SharedPtr<T[]>& FnArray);
+        RIN void CopyHostData(const T* FnArray);
+        RIN void CopyHostData(const RA::SharedPtr<T[]>& FnArray);
 
         enum class MemType
         {
@@ -184,15 +184,15 @@ namespace RA
         SharedPtr<T[]> MvHost = nullptr;
         T* MvDevice = nullptr;
 
-        uint MnLeng = 0;
-        uint MnByteSize = 0;
+        xint MnLeng = 0;
+        xint MnByteSize = 0;
 
         cudaStream_t MoStream = 0;
         bool MbDelete = true;
 
-        INL static Atomic<int>  SnDeviceIdx = 0;
-        INL static Atomic<int>  SnDeviceCount = 0;
-        INL static Atomic<bool> SbInitialized = false;
+        RIN static Atomic<int>  SnDeviceIdx = 0;
+        RIN static Atomic<int>  SnDeviceCount = 0;
+        RIN static Atomic<bool> SbInitialized = false;
     };
 };
 
@@ -279,13 +279,13 @@ TTT RA::CudaBridge<T>::~CudaBridge()
     FreeDevice();
 }
 
-TTT RA::CudaBridge<T>::CudaBridge(uint FnSize) :
+TTT RA::CudaBridge<T>::CudaBridge(xint FnSize) :
     MnLeng(FnSize), MnByteSize(sizeof(T))
 {
     Initialize();
 }
 
-TTT RA::CudaBridge<T>::CudaBridge(uint FnSize, uint FnMemSize) :
+TTT RA::CudaBridge<T>::CudaBridge(xint FnSize, xint FnMemSize) :
     MnLeng(FnSize), MnByteSize(FnMemSize)
 {
     Initialize();
@@ -297,14 +297,14 @@ TTT RA::CudaBridge<T>::CudaBridge(const RA::Allocate& FoAllocate):
     Initialize();
 }
 
-TTT RA::CudaBridge<T>::CudaBridge(RA::SharedPtr<T[]> FnArray, uint FnSize) :
+TTT RA::CudaBridge<T>::CudaBridge(RA::SharedPtr<T[]> FnArray, xint FnSize) :
     MvHost(FnArray), MnLeng(FnSize), MnByteSize(sizeof(T))
 {
     Initialize();
     SetIterator(MvHost.Ptr(), &MnLeng);
 }
 
-TTT RA::CudaBridge<T>::CudaBridge(RA::SharedPtr<T[]> FnArray, uint FnSize, uint FnMemSize) :
+TTT RA::CudaBridge<T>::CudaBridge(RA::SharedPtr<T[]> FnArray, xint FnSize, xint FnMemSize) :
     MvHost(FnArray), MnLeng(FnSize), MnByteSize(FnMemSize)
 {
     Initialize();
@@ -329,7 +329,7 @@ TTT RA::CudaBridge<T>::CudaBridge(std::initializer_list<T> FnInit)
     if(!MnByteSize)
         MnByteSize = sizeof(T);
     AllocateHost();
-    uint i = 0;
+    xint i = 0;
     for (const T& Val : FnInit)
     {
         MvHost[i] = Val;
@@ -338,7 +338,7 @@ TTT RA::CudaBridge<T>::CudaBridge(std::initializer_list<T> FnInit)
     Rescue();
 }
 
-TTT void RA::CudaBridge<T>::SetSizing(uint FnSize)
+TTT void RA::CudaBridge<T>::SetSizing(xint FnSize)
 {
     if(FnSize) 
         MnLeng = FnSize;
@@ -346,7 +346,7 @@ TTT void RA::CudaBridge<T>::SetSizing(uint FnSize)
         MnByteSize = sizeof(T);
 }
 
-TTT void RA::CudaBridge<T>::SetSizing(uint FnSize, uint FnMemSize)
+TTT void RA::CudaBridge<T>::SetSizing(xint FnSize, xint FnMemSize)
 {
     MnLeng = FnSize;
     MnByteSize = FnMemSize;
@@ -404,14 +404,14 @@ TTT void RA::CudaBridge<T>::operator=(std::vector<T>&& Other)
 
     MoStream = Other.MoStream;
     AllocateHost(Other.size());
-    for (uint i = 0; i < MnLeng; i++)
+    for (xint i = 0; i < MnLeng; i++)
         std::swap_ranges(Other.begin(), Other.end(), &MvHost[i]);
     SetIterator(MvHost.Ptr(), &MnLeng);
     Rescue();
 }
 
 TTT template<typename ...A>
-void RA::CudaBridge<T>::AllocateHost(const uint FnNewSize, A&&... Args)
+void RA::CudaBridge<T>::AllocateHost(const xint FnNewSize, A&&... Args)
 {
     Begin();
     if (MvHost.Size() != FnNewSize || !MvHost) // no reason to re-allocate if you already have the buffer
@@ -562,7 +562,7 @@ TTT const RA::SharedPtr<T[]>& RA::CudaBridge<T>::GetShared() const
     return MvHost;
 }
 
-TTT inline T& RA::CudaBridge<T>::GetHost(uint FnIdx)
+TTT inline T& RA::CudaBridge<T>::GetHost(xint FnIdx)
 {
     if (FnIdx >= MnLeng)
         throw "RA::CudaBridge<T>::Get >> FnIdx Is too big";
@@ -570,7 +570,7 @@ TTT inline T& RA::CudaBridge<T>::GetHost(uint FnIdx)
     return MvHost[FnIdx];
 }
 
-TTT const T& RA::CudaBridge<T>::GetHost(uint FnIdx) const
+TTT const T& RA::CudaBridge<T>::GetHost(xint FnIdx) const
 {
     if (FnIdx >= MnLeng)
         throw "RA::CudaBridge<T>::Get >> FnIdx Is too big";
@@ -589,7 +589,7 @@ TTT const T* RA::CudaBridge<T>::GetDevice() const
 }
 
 TTT template<typename F>
-T RA::CudaBridge<T>::ReductionCPU(F&& Function, uint Size) const
+T RA::CudaBridge<T>::ReductionCPU(F&& Function, xint Size) const
 {
     //RA::CudaBridge<T> HostOutput(MnLeng);
     //HostOutput.AllocateHost();
@@ -657,12 +657,12 @@ void RA::CudaBridge<T>::NONE::RunCPU(F&& Function, A&&... Args)
 
 template<typename T>
 template<typename F, typename ...A>
-INL xvector<T> RA::CudaBridge<T>::NONE::RunMultiGPU(const uint FnSize, F&& Function, A && ...Args)
+RIN xvector<T> RA::CudaBridge<T>::NONE::RunMultiGPU(const xint FnSize, F&& Function, A && ...Args)
 {
     Begin();
     xvector<xp<RA::CudaBridge<T>>> DeviceOutputs;
 
-    uint LnSize = (FnSize / GetDeviceCount());
+    xint LnSize = (FnSize / GetDeviceCount());
     const auto LnStandardDeviceSize = LnSize;
 
     auto [LvGrid, LvBlock] = RA::Host::GetDimensions3D(LnSize);
@@ -714,7 +714,7 @@ INL xvector<T> RA::CudaBridge<T>::NONE::RunMultiGPU(const uint FnSize, F&& Funct
     const auto LnDCount = SnDeviceCount.load();
     for (auto i = 0; i < LnDCount; i++)
     {
-        Nexus<>::AddJob([](cudaEvent_t& FoEvent, const int i) {
+        Nexus<>::AddTask([](cudaEvent_t& FoEvent, const int i) {
             CudaBridge<>::SetDeviceIdx(i);
             auto Error = cudaEventSynchronize(FoEvent);
             if (Error)
@@ -771,7 +771,7 @@ xvector<T> RA::CudaBridge<T>::ARRAY::RunMultiGPU(const Allocate& FoAllocate, F&&
     Begin();
     xvector<xp<RA::CudaBridge<T>>> DeviceOutputs;
 
-    uint LnSize = (FoAllocate.GetLength() / GetDeviceCount());
+    xint LnSize = (FoAllocate.GetLength() / GetDeviceCount());
     const auto LnStandardDeviceSize = LnSize;
 
     auto [LvGrid, LvBlock] = RA::Host::GetDimensions3D(LnSize);
@@ -828,7 +828,7 @@ xvector<T> RA::CudaBridge<T>::ARRAY::RunMultiGPU(const Allocate& FoAllocate, F&&
     const auto LnDCount = SnDeviceCount.load();
     for (auto i = 0; i < LnDCount; i++)
     {
-        Nexus<>::AddJob([](cudaEvent_t& FoEvent, const int i) {
+        Nexus<>::AddTask([](cudaEvent_t& FoEvent, const int i) {
             CudaBridge<>::SetDeviceIdx(i);
             auto Error = cudaEventSynchronize(FoEvent);
             if (Error)
@@ -891,7 +891,7 @@ void RA::CudaBridge<T>::SyncAll()
 {
     Begin();
     cudaDeviceSynchronize();
-    for (uint i = 0; i < SvStreams.size(); i++)
+    for (xint i = 0; i < SvStreams.size(); i++)
     {
         auto Error = cudaStreamDestroy(SvStreams[i]);
         if(Error)
@@ -907,7 +907,7 @@ TTT bool RA::CudaBridge<T>::SameArrays(const RA::CudaBridge<T>& One, const RA::C
         return false;
     try
     {
-        for (uint i = 0; i < One.Size(); i++)
+        for (xint i = 0; i < One.Size(); i++)
         {
             if (One.MvHost[i] != Two.MvHost[i])
                 return false;
@@ -926,7 +926,7 @@ TTT bool RA::CudaBridge<T>::SameArrays(const xvector<T>& One, const xvector<T>& 
         return false;
     try
     {
-        for (uint i = 0; i < One.Size(); i++)
+        for (xint i = 0; i < One.Size(); i++)
         {
             if (One.At(i) != Two.At(i))
                 return false;
@@ -947,7 +947,7 @@ TTT RA::CudaBridge<T> RA::CudaBridge<T>::SumArraysIndicesCPU(
     LoCombinedArray.AllocateHost();
     LoCombinedArray.ZeroHostData();
 
-    for (uint i = 0; i < One.Size(); i++)
+    for (xint i = 0; i < One.Size(); i++)
         LoCombinedArray.MvHost[i] += One.MvHost[i] + Two.MvHost[i];
     return LoCombinedArray;
     Rescue();
@@ -956,7 +956,7 @@ TTT RA::CudaBridge<T> RA::CudaBridge<T>::SumArraysIndicesCPU(
 TTT void RA::CudaBridge<T>::CopyHostData(const T* FnArray)
 {
     AllocateHost();
-    for (uint i = 0; i < MnLeng; i++)
+    for (xint i = 0; i < MnLeng; i++)
         MvHost[i] = FnArray[i];
 }
 
@@ -964,7 +964,7 @@ TTT void RA::CudaBridge<T>::CopyHostData(const RA::SharedPtr<T[]>& FnArray)
 {
     Begin();
     AllocateHost();
-    for (uint i = 0; i < MnLeng; i++)
+    for (xint i = 0; i < MnLeng; i++)
         MvHost[i] = FnArray[i];
     Rescue();
 }

@@ -20,11 +20,11 @@ namespace RA
         IXF auto GetAVG() const { return MnAvg; }
         IXF auto GetSum() const { return MnSum; }
 
-        IXF auto BxUseStorageValues() const { return MbUseStorageValues; }
+        IXF auto BxUseStorageValues() const { return  MbUseStorageValues; }
         IXF auto GetStorageSize()     const { return *MnStorageSizePtr; }
-        IXF auto GetLogicalSize()     const { return MnLogicalSize; }
+        IXF auto GetLogicalSize()     const { return  MnLogicalSize; }
         IXF auto GetInsertIdx()       const { return *MnInsertIdxPtr; }
-        IXF auto GetValues()          const { return MvValues; }
+        IXF auto GetValues()          const { return  MvValues; }
 
         DXF void CopyStats(const AVG& Other);
 

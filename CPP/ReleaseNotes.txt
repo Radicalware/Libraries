@@ -4,6 +4,14 @@
 
 ---------------------------------------------------------------------
 
+03/18/2023 >> Libs v22.0.5
+
+Updated Nexus so grouping is turned off by default. Later I may
+add a grouping size max as an optional variable. GPU code is now
+updated. Streams and Multi-GPU code is still in the works.
+
+---------------------------------------------------------------------
+
 03/18/2023 >> Libs v22.0.4
 
 Major update to Nexus, it is now more stable and faster than ever!

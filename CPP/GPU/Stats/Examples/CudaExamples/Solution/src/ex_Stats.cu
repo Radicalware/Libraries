@@ -431,7 +431,7 @@ int main()
     //RunCPU();
     RunGPU();
 
-    RescuePrint();
+    FinalRescue();
     Nexus<>::Stop();
     return 0;
 }

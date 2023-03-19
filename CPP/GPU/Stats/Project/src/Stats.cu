@@ -3,6 +3,7 @@
 #else
 #include "Stats.cuh"
 #endif
+#include "Memory.h"
 
 // Copyright via Apache v2 Licence [2023][Joel Leagues aka Scourge]
 
@@ -317,16 +318,16 @@ void RA::Stats::SetJoinerySize(const xint FCount)
                 auto Ptr = RA::MakeShared<Joinery[]>(MnStorageSize + 1);
                 for (auto& Val : Ptr)
                 {
-                    auto& Ref = *Ptr;
-                    Ref.MnSum = 0;
-                    Ref.MnIdx = 0;
-                    Ref.MnSize = MnJoinerySize;
-                    Ref.MvValues = new double[Ref.MnSize + 1];
-                    for (auto* Ptr2 = Ref.MvValues; Ptr2 <= Ref.MvValues + Ref.MnSize; Ptr2++)
+                    Val.MnSum = 0;
+                    Val.MnIdx = 0;
+                    Val.MnSize = MnJoinerySize;
+                    Val.MvValues = new double[Val.MnSize + 1];
+                    for (auto* Ptr2 = Val.MvValues; Ptr2 <= Val.MvValues + Val.MnSize; Ptr2++)
                         *Ptr2 = 0;
                 }
-                MvJoinery = RA::Host::AllocateArrOnDevice<double>(Ptr.Raw(), RA::Allocate(MnJoinerySize, 
-                    sizeof(Joinery) + (sizeof(double) * MnJoinerySize)));
+                MvJoinery = RA::Host::AllocateArrOnDevice<Joinery>(
+                    Ptr.Raw(), 
+                    RA::Allocate(MnJoinerySize, sizeof(Joinery) + (sizeof(double) * MnJoinerySize + sizeof(double))));
             }
             else
                 Clear();
@@ -344,7 +345,11 @@ DXF double RA::Stats::operator[](const xint IDX) const
 {
     Begin();
     if (IDX >= MnStorageSize)
-        ThrowIt(RED "IDX = ", MnStorageSize, " which is too big for size of\n" WHITE);
+#ifdef UsingMSVC
+        ThrowIt(RED "IDX = ", MnStorageSize, " which is too big for size of" WHITE);
+#else // UsingMSVC
+        printf(RED "IDX = %llu which is too big for size of\n" WHITE, MnStorageSize);
+#endif
     if (MnInsertIdx >= IDX)
         return MvValues[MnInsertIdx - IDX];
     const auto LnRelIDX = MnInsertIdx + MnStorageSize - IDX; // 0 + 5 - 1 == 5 - 1 == idx 4 (of size o5)
@@ -358,7 +363,11 @@ DXF double RA::Stats::Former(const xint IDX) const
     Begin();
     const auto LnIdx = IDX + 1;
     if (LnIdx >= MnStorageSize)
-        ThrowIt(RED "IDX = ", MnStorageSize, " which is too big for size of\n" WHITE);
+#ifdef UsingMSVC
+        ThrowIt(RED "IDX = ", MnStorageSize, " which is too big for size of" WHITE);
+#else // UsingMSVC
+        printf(RED "IDX = %llu which is too big for size of\n" WHITE, MnStorageSize);
+#endif
     const auto LnRelIdx = MnInsertIdx + 1 + LnIdx; // where 0 is the start
     if (LnRelIdx >= MnStorageSize)
         return MvValues[LnRelIdx - MnStorageSize];
@@ -368,6 +377,7 @@ DXF double RA::Stats::Former(const xint IDX) const
 
 DXF void RA::Stats::operator<<(const double FnValue)
 {
+    Begin();
     if (!MnStorageSize)
     {
         SRef(MoAvgPtr).Update(FnValue);
@@ -387,7 +397,11 @@ DXF void RA::Stats::operator<<(const double FnValue)
     if (!MnStorageSize)
     {
         if (MnJoinerySize)
+#ifdef UsingMSVC
             ThrowIt("You can't have Joinery without real values!");
+#else // UsingMSVC
+        printf(RED "You can't have Joinery without real values!\n" WHITE);
+#endif
 
         SRef(MoAvgPtr).Update();
         // storage needed for: Min/Max, RSI, STOCH
@@ -430,6 +444,7 @@ DXF void RA::Stats::operator<<(const double FnValue)
 
     MbHadFirstInsert = true;
     return;
+    Rescue();
 }
 
 DXF void RA::Stats::Reset()

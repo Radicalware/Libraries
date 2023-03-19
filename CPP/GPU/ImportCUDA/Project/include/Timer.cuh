@@ -19,13 +19,13 @@ namespace RA
         public:
             __device__ __host__ Timer() {}
             __device__ __host__ void Reset();
-            __device__ __host__ uint GetElapsedTimeSeconds() const;
+            __device__ __host__ xint GetElapsedTimeSeconds() const;
             __device__ __host__ void PrintElapsedTimeSeconds(const char* FsNote = "Time = ") const;
-            static __device__ __host__ uint SleepTicks(const uint FnTicks);
+            static __device__ __host__ xint SleepTicks(const xint FnTicks);
 
         };
 
-        static __device__ __host__ uint SleepTicks(const uint FnTicks);
+        static __device__ __host__ xint SleepTicks(const xint FnTicks);
     }
 };
 

@@ -7,10 +7,10 @@ namespace RA
     class Allocate
     {
     public:
-        constexpr Allocate(const uint FnLength) noexcept : 
-            MnLength(FnLength), MnObjSize(sizeof(uint)) {}
+        constexpr Allocate(const xint FnLength) noexcept : 
+            MnLength(FnLength), MnObjSize(sizeof(xint)) {}
 
-        constexpr Allocate(const uint FnLength, const uint FnObjSize) noexcept : 
+        constexpr Allocate(const xint FnLength, const xint FnObjSize) noexcept : 
             MnLength(FnLength), MnObjSize(FnObjSize) {}
 
         Allocate(const Allocate& Other) noexcept 
@@ -19,13 +19,13 @@ namespace RA
         constexpr void operator=(const Allocate& Other) noexcept 
             { MnLength = Other.MnLength; MnObjSize = Other.MnObjSize; }
 
-        constexpr uint GetLength() const { return MnLength; }
-        constexpr uint GetUnitSize() const { return MnObjSize; }
-        constexpr uint GetMallocSize() const { return MnLength * MnObjSize + sizeof(uint); }
-        constexpr uint GetMemCopySize() const { return MnLength * MnObjSize; }
+        constexpr xint GetLength() const { return MnLength; }
+        constexpr xint GetUnitSize() const { return MnObjSize; }
+        constexpr xint GetMallocSize() const { return MnLength * MnObjSize + sizeof(xint); }
+        constexpr xint GetMemCopySize() const { return MnLength * MnObjSize; }
 
     private:
-        uint MnLength;
-        uint MnObjSize;
+        xint MnLength;
+        xint MnObjSize;
     };
 };

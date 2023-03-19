@@ -67,6 +67,7 @@ function(ConfigCUDA BINARY)
                                -diag-suppress=611
                                -diag-suppress=554
                                -diag-suppress=174
+                               -diag-suppress=68
                                -arch=sm_61
                                >)
 
@@ -86,6 +87,7 @@ function(ConfigCUDA BINARY)
                                -diag-suppress=611
                                -diag-suppress=554
                                -diag-suppress=174
+                               -diag-suppress=68
                                -arch=sm_61
                                >)
 

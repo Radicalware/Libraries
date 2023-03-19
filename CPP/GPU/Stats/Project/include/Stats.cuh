@@ -41,10 +41,10 @@ namespace RA
 {
     struct Joinery
     {
-        double* MvValues = nullptr;
         double MnSum = 0;
         xint MnIdx = 0;
         xint MnSize = 0;
+        double* MvValues = nullptr;
 
         DXF double InsertNum(const double FnNum);
     };

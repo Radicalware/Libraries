@@ -27,18 +27,18 @@ int main()
     Begin();
     Nexus<>::Start();
     RA::Timer Time;
-    //const uint LnOperations = 1 << 28;
-    //const uint LnOperations = 1 << 20;
-    //const uint LnOperations = 1 << 15; // best for testing mutex (big enough for sample size) (small enough we don't get multi max nums)
-    //const uint LnOperations = 1 << 10;
-    const uint LnOperations = 4 * 32;
-    //const uint LnOperations = 11;
+    //const xint LnOperations = 1 << 28;
+    //const xint LnOperations = 1 << 20;
+    //const xint LnOperations = 1 << 15; // best for testing mutex (big enough for sample size) (small enough we don't get multi max nums)
+    //const xint LnOperations = 1 << 10;
+    //const xint LnOperations = 4 * 32;
+    //const xint LnOperations = 11;
 
     constexpr auto LnThreadsPerBlock = 1024;
     constexpr auto LnThreadsPerWarps = 32;
 
     //constexpr auto LnOperations = 15;
-    //constexpr auto LnOperations = LnThreadsPerBlock / 15; // 1D
+    constexpr auto LnOperations = LnThreadsPerBlock / 15; // 1D
     //constexpr auto LnOperations = LnThreadsPerBlock; // 1D
     //constexpr auto LnOperations = LnThreadsPerBlock + 1; // 1D
     //constexpr auto LnOperations = LnThreadsPerBlock * (LnThreadsPerWarps / 16); // 2D
@@ -48,7 +48,7 @@ int main()
     cout << "Operations: " << RA::FormatNum(LnOperations) << endl;
 
 
-    int TestID = 4;
+    int TestID = 5;
     switch (TestID)
     {
     case 0: break;
@@ -61,7 +61,7 @@ int main()
     default: ThrowIt("Invalid Idx = ", TestID);
     }
     cout << "Total Execution Time: " << Time.GetElapsedTimeMilliseconds() << endl;
-    RescuePrint();
+    FinalRescue();
     Nexus<>::Stop();
     return 0;
 }

@@ -17,7 +17,7 @@ namespace RA
         TTT static T* CopyHostToDevice(T* FvHostDataPtr, const Allocate& FoAllocate);
 
         TTT static std::enable_if_t<IsFundamental(T), T*>
-                      AllocateArrOnDevice(const uint FnLeng);
+                      AllocateArrOnDevice(const xint FnLeng);
         TTT static T* AllocateArrOnDevice(const Allocate& FoAllocate);
         TTT static T* AllocateArrOnDevice(const T* FoHostPtr, const Allocate& FoAllocate);
 
@@ -41,7 +41,7 @@ namespace RA
         static dim3 SvBlock2D;
         static int  SnDeviceCount = 0;
 
-        istatic uint GetThreadsPerBlock() { return RA::Host::SnThreadsPerBlock; }
+        istatic xint GetThreadsPerBlock() { return RA::Host::SnThreadsPerBlock; }
         istatic dim3 GetBlock3D() { return RA::Host::SvBlock3D; }
         istatic dim3 GetBlock2D() { return RA::Host::SvBlock2D; }
     };
@@ -61,7 +61,7 @@ TTT T* RA::Host::CopyHostToDevice(T* FvHostDataPtr, const RA::Allocate& FoAlloca
     Rescue();
 }
 
-TTT std::enable_if_t<IsFundamental(T), T*> RA::Host::AllocateArrOnDevice(const uint FnLeng)
+TTT std::enable_if_t<IsFundamental(T), T*> RA::Host::AllocateArrOnDevice(const xint FnLeng)
 {
     Begin();
     auto LvHostDataPtr = RA::SharedPtr<T[]>(FnLeng);
