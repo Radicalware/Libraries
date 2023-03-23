@@ -4,7 +4,7 @@
 
 ---------------------------------------------------------------------
 
-03/18/2023 >> Libs v22.0.6
+03/22/2023 >> Libs v22.0.6
 
 Updated to work on Windows 11 and Windows 11 SDK.
 Code is not guaranteed to work on Windows Versions below 11
