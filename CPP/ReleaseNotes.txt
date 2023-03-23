@@ -4,6 +4,14 @@
 
 ---------------------------------------------------------------------
 
+03/18/2023 >> Libs v22.0.6
+
+Updated to work on Windows 11 and Windows 11 SDK.
+Code is not guaranteed to work on Windows Versions below 11
+from this point forward.
+
+---------------------------------------------------------------------
+
 03/18/2023 >> Libs v22.0.5
 
 Updated Nexus so grouping is turned off by default. Later I may

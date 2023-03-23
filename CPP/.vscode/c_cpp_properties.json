@@ -5,11 +5,8 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "${vcpkgRoot}/x64-windows/include",
-                "C:/Source/git/re2",
-                "\"${workspaceFolder}/**",
-                "${vcpkgRoot}/x64-windows/include",
-                "C:/Source/git/re2",
-                "C:/Program Files (x86)/Visual Leak Detector/include"
+                "C:/Program Files (x86)/Visual Leak Detector/include",
+                "C:/Source/git/re2"
             ],
             "defines": [
                 "_DEBUG",
