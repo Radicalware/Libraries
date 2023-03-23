@@ -1,12 +1,10 @@
 ﻿#pragma once
 
-#if (defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64))
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
+#include "RawMapping.h"
+#ifdef BxWindows
 #include<Windows.h>
 #else 
-#include<unistd.h>
+#include <unistd.h>
 #endif
 
 #include<iostream>
@@ -24,7 +22,6 @@
 #include<functional>
 #include<type_traits>
 
-#include "RawMapping.h"
 #include "Atomic.h"
 #include "SharedPtr.h"
 #include "Threads.h"
@@ -33,16 +30,6 @@
 #include "Task/TaskValue.h"
 #include "Task/TaskXP.h"
 #include "Task/TaskFundamental.h"
-
-
-#if (defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64))
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-#include<Windows.h>
-#else 
-#include<unistd.h>
-#endif
 
 // =========================================================================================
 
@@ -569,7 +556,7 @@ RIN void Nexus<T>::Clear()
 template<typename T>
 RIN void Nexus<T>::Sleep(unsigned int extent) const
 {
-#if (defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64))
+#ifdef BxWindows
     ::Sleep(extent);
 #else
     ::usleep(extent);

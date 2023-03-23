@@ -19,6 +19,7 @@ project(${THIS})
 #project(${THIS} LANGUAGES CXX CUDA)
 # ------------------------------------
 
+
 set(PrivateLibs "")
 list(APPEND PrivateLibs "Iterator")
 list(APPEND PrivateLibs "Memory")
@@ -30,6 +31,9 @@ list(APPEND PrivateLibs "xmap")
 list(APPEND PrivateLibs "JSON")
 list(APPEND PrivateLibs "Stash")
 
-BuildRadicalSolution(PrivateLibs "")
+set(PublicLibs "")
+list(APPEND PublicLibs "Timer")
 
-ConfigCUDA(${THIS})
+BuildRadicalSolution(PrivateLibs PublicLibs)
+
+# ConfigCUDA(${THIS})

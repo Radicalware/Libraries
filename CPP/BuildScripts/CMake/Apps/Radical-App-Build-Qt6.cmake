@@ -13,6 +13,7 @@ macro(BuildRadicalQt6Solution InPrivateLibs InPublicLibs)
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
     find_package(re2)
+    find_package(VLD)
     find_package(Threads)
 
     find_package(
@@ -96,9 +97,13 @@ macro(BuildRadicalQt6Solution InPrivateLibs InPublicLibs)
         Qt6::Quick
         Qt6::QuickControls2
         Qt6::QuickTemplates2
-
+        
         #PThreads4W::PThreads4W
     )
+
+    if(${debug})
+        target_link_libraries(${THIS} vld)
+    endif()
 
     LinkAllSharedLibs(${THIS})
     SetAllDependenciesOn(${THIS})

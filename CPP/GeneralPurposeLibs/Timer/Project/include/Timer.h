@@ -5,11 +5,7 @@
 #include "xvector.h"
 #include "xstring.h"
 #include "Macros.h"
-
-#ifndef UsingNVCC
 #include "xmap.h"
-#include "re2/re2.h"
-#endif // !UsingNVCC
 
 /*
 *|| Copyright[2023][Joel Leagues aka Scourge]
@@ -35,16 +31,13 @@ namespace RA
 {
     class EXI Timer
     {
-
-#ifndef UsingNVCC
-        xvector<xint>       m_laps_xv;
-        xmap<xstring, xint> m_laps_xm;
-#endif // !UsingNVCC
+        xvector<xint>       MvLaps;
+        xmap<xstring, xint> MmLaps;
 
         // SteadyClock = Stopwatch   Use Case
         // SystemClock = Wrist-Watch Use Case
         using SteadyClock = std::chrono::steady_clock;
-        std::chrono::time_point<SteadyClock> m_beg = SteadyClock::now();
+        std::chrono::time_point<SteadyClock> MoClock = SteadyClock::now();
 
     public:
         static const Timer StaticClass;
@@ -66,7 +59,6 @@ namespace RA
         static void Sleep(unsigned long FnMilliseconds);
         static void SleepSeconds(unsigned long FnSeconds);
 
-#ifndef UsingNVCC
         void Lap();
         void Lap(const xstring& key);
         void Lap(xstring&& key);
@@ -77,7 +69,6 @@ namespace RA
 
         xvector<xint> GetVector() const;
         xmap<xstring, xint> GetMap() const;
-#endif // !UsingNVCC
     };
 };
 

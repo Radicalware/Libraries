@@ -32,9 +32,9 @@ list(APPEND PrivateLibs "Macros")
 list(APPEND PrivateLibs "ImportCUDA")
 list(APPEND PrivateLibs "CudaBridge")
 
-
 BuildRadicalProject("STATIC" PrivateLibs "")
 
 ConfigCUDA("ImportCUDA")
 ConfigCUDA("CudaBridge")
 ConfigCUDA(${THIS})
+

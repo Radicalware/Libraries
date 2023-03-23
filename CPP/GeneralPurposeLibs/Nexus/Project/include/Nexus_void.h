@@ -1,12 +1,13 @@
 ﻿#pragma once
 
-
-#if (defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64))
+#include "RawMapping.h"
+#ifdef BxWindows
+#include<Windows.h>
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
-#include<Windows.h>
 #else 
+#define BxNix
 #include<unistd.h>
 #endif
 
@@ -23,7 +24,6 @@
 #include<functional>
 #include<type_traits>
 
-#include "RawMapping.h"
 #include "Memory.h"
 #include "Atomic.h"
 #include "Threads.h"
@@ -428,7 +428,7 @@ RIN void Nexus<void>::CheckClearMutexes()
 
 RIN void Nexus<void>::Sleep(unsigned int FnMilliseconds)
 {
-#if (defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64))
+#ifdef BxWindows
     ::Sleep(FnMilliseconds);
 #else
     ::usleep(FnMilliseconds);

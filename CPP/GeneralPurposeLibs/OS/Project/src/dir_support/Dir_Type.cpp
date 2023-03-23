@@ -2,10 +2,10 @@
 
 
 #include<iostream>
-#if defined(WIN_BASE)
+#ifdef BxWindows
 #include<Windows.h>
 #include<direct.h>  
-#elif defined(NIX_BASE)
+#else
 #include<dirent.h>
 #include<sys/stat.h>
 #include<unistd.h>
@@ -26,8 +26,21 @@ RA::OS_O::Dir_Type::~Dir_Type() {}
 
 RA::OS_O::Dir_Type::DT RA::OS_O::Dir_Type::GetDirType(const xstring& input) {
 
-#if defined(NIX_BASE)
+#if defined(BxWindows)
 
+    struct stat st;
+    if (stat(input.Sub("\\\\", "/").c_str(), &st) == 0) {
+        if (st.st_mode & S_IFDIR) {
+            return DT::directory;
+        }
+        else if (st.st_mode & S_IFREG) {
+            return DT::file;
+        }
+        else {
+            return DT::none;
+        }
+    }
+#elif defined(BxNix)
     struct stat path_st;
     char dt = 'n';
 
@@ -45,19 +58,6 @@ RA::OS_O::Dir_Type::DT RA::OS_O::Dir_Type::GetDirType(const xstring& input) {
         case 'd': return DT::directory;break;
         case 'n': return DT::none;
     } 
-
-#elif defined(WIN_BASE)
-
-    struct stat st;
-    if (stat(input.Sub("\\\\", "/").c_str(), &st) == 0) {
-        if (st.st_mode & S_IFDIR) {
-            return DT::directory;
-        } else if (st.st_mode & S_IFREG) {
-            return DT::file;
-        } else {
-            return DT::none;
-        }
-    }
 #endif
     return DT::none;
 }
@@ -99,15 +99,15 @@ xstring RA::OS_O::Dir_Type::GetDirItem(const xstring& input) {
 
 xstring RA::OS_O::Dir_Type::BWD() {
     xstring bwd;
-#if defined(NIX_BASE)
-    char result[FILENAME_MAX];
-    ssize_t count = readlink("/proc/self/exe", result, FILENAME_MAX);
-    bwd = xstring(result).Sub("/[^/]*$", "");
 
-#elif defined(WIN_BASE)
+#if defined(BxWindows)
     char buf[256];
     GetCurrentDirectoryA(256, buf);
     bwd = buf;
+#elif defined(BxNix)
+    char result[FILENAME_MAX];
+    ssize_t count = readlink("/proc/self/exe", result, FILENAME_MAX);
+    bwd = xstring(result).Sub("/[^/]*$", "");
 #endif
     bwd.RemoveNulls();
     return bwd;
@@ -115,22 +115,22 @@ xstring RA::OS_O::Dir_Type::BWD() {
 
 xstring RA::OS_O::Dir_Type::PWD() {
     xstring pwd;
-#if defined(NIX_BASE)
+#if defined(BxWindows)
+    char* buffer;
+    if ((buffer = _getcwd(NULL, 0)) == NULL) {
+        perror("can't get current dir\n"); throw;
+    }
+    else {
+        pwd = buffer;
+        free(buffer);
+    }
+#elif defined(BxNix)
     char c_pwd[256];
     if (NULL == getcwd(c_pwd, sizeof(c_pwd))) {
         perror("can't get current dir\n");
         throw;
-    }
+}
     pwd = c_pwd;
-
-#elif defined(WIN_BASE)
-    char* buffer; 
-    if ((buffer = _getcwd(NULL, 0)) == NULL) {
-        perror("can't get current dir\n"); throw;
-    } else{
-        pwd = buffer;
-        free(buffer);
-    }
 #endif
     pwd.RemoveNulls();
     return pwd;
@@ -139,17 +139,15 @@ xstring RA::OS_O::Dir_Type::PWD() {
 
 xstring RA::OS_O::Dir_Type::Home() {
     xstring home_str;
-#if defined(NIX_BASE)
-    struct passwd *pw = getpwuid(getuid());
-    home_str = pw->pw_dir;
-
-#elif defined(WIN_BASE)
+#if defined(BxWindows)
     char* path_str;
     size_t len;
-    _dupenv_s( &path_str, &len, "USERPROFILE" );
+    _dupenv_s(&path_str, &len, "USERPROFILE");
     home_str = path_str;
     free(path_str);
-    // _dupenv_s( &path_str, &len, "pathext" ); TODO ADD THIS
+#elif defined(BxNix)
+    struct passwd* pw = getpwuid(getuid());
+    home_str = pw->pw_dir;
 #endif
     home_str.RemoveNulls();
     return home_str;
@@ -168,25 +166,25 @@ xstring RA::OS_O::Dir_Type::FullPath(const xstring& file)
 
     else if (file[0] == '.' && (file[1] == '/' || file[1] == '\\')) // continued directory
     {
-#if defined(WIN_BASE)
-        return PWD() + file(1).Sub(s_forwardslash, "\\\\").RightTrim("\\/");
-#elif defined(NIX_BASE)
-        return PWD() + file(1).Sub(s_backslash, "/").RightTrim("\\/");
+#if defined(BxWindows)
+        return PWD() + file(1).InSub('/', '\\').RightTrim("\\/");
+#elif defined(BxNix)
+        return PWD() + file(1).InSub('\\', '//').RightTrim("\\/");
 #endif
     }
 
-
-#ifdef WIN_BASE
+#if defined(BxWindows)
     char full[_MAX_PATH];
-#else
+#elif defined(BxNix)
     char full[PATH_MAX];
 #endif
+
     xstring full_path;
-#if defined(WIN_BASE)
-    const char* unused = _fullpath(full, file.Sub(s_forwardslash, "\\\\").c_str(), _MAX_PATH);
-#elif defined(NIX_BASE)
+#if defined(BxWindows)
+    const char* unused = _fullpath(full, file.Sub('/', '\\').c_str(), _MAX_PATH);
+#elif defined(BxNix)
     xstring awkward_path = PWD() + '/' + file;
-    const char* unused = realpath(awkward_path.Sub(s_forwardslash, "/").c_str(), full);
+    const char* unused = realpath(awkward_path.c_str(), full);
 #endif
     full_path = full;
     full_path.RemoveNulls();

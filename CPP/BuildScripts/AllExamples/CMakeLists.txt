@@ -94,6 +94,8 @@ include_directories(${THIS} PRIVATE
 )
 
 #       (This is location 2 of 3)
+
+find_package(VLD)
 find_package(re2)
 
 find_package(RE)
@@ -122,6 +124,7 @@ find_package(Socket)
 find_package(cpprestsdk CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(OpenSSL REQUIRED)
+find_package(bson-1.0 CONFIG REQUIRED)
 # find_package(CURL CONFIG REQUIRED)
 # find_package(jsoncpp CONFIG REQUIRED)
 
@@ -152,9 +155,11 @@ foreach(EXE ${EXES})
             
             cpprestsdk::cpprest
             cpprestsdk::cpprestsdk_zlib_internal
+            cpprestsdk::cpprestsdk_boost_internal
             cpprestsdk::cpprestsdk_brotli_internal
 
             mongo::bsoncxx_shared
+            mongo::bson_shared
             mongo::mongocxx_shared
 
             nlohmann_json
@@ -170,6 +175,9 @@ foreach(EXE ${EXES})
         )
 
         PrintEXEsAndDLLs()
+        if(${debug})
+            target_link_libraries(${THIS} ${VLD_TARGET})
+        endif()
         set_target_properties(${EXE} PROPERTIES COMPILE_DEFINITIONS DLL_EXPORT=1)
         LinkStatic(${EXE} re2)
 endforeach()

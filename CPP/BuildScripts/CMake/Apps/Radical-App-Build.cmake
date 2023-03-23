@@ -5,6 +5,7 @@ macro(BuildRadicalSolution InPrivateLibs InPublicLibs)
     add_compile_definitions("BuildingApp")
     
     find_package(re2)
+    find_package(VLD)
     
     SetLocalInstallDirs()
     FindProgramFiles(SolutionFiles "${CMAKE_CURRENT_SOURCE_DIR}/Solution")
@@ -29,6 +30,14 @@ macro(BuildRadicalSolution InPrivateLibs InPublicLibs)
             message(" >> Linking Static Radical::${Lib}")
             target_link_libraries(${THIS} "Radical::${Lib}")
         endforeach()
+    endif()
+
+    if(${debug})
+        message("(Debug Build)")
+        # target_link_libraries(${THIS} vld.lib) # unreliable
+        target_link_libraries(${THIS} "${VLD_TARGET}")
+    else()
+        message("(Release Build)")
     endif()
 
     PrintList(TargetLibs)

@@ -86,7 +86,8 @@ namespace RA
         void SetArgs(int argc, char** argv);
         void AddAlias(const char FChr, const xstring& FStr); // char_arg, string_arg
         // -------------------------------------------------------------------------------------------------------------------
-        int ArgC() const;
+        RIN int ArgC() const { return MnSize; } // Includes File Name
+        RIN int ArgCount() const { return MnSize - 1; }
         xvector<xstring> ArgV() const;
         xstring ArgV(const size_t Idx) const;
         bool    Arg(const size_t Idx, const char FChar) const;

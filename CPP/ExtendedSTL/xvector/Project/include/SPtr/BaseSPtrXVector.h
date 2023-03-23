@@ -25,7 +25,8 @@
 #include "BaseXVector.h"
 #include <vector>
 
-template<typename T> class SPtrXVector;
+TTT class SPtrXVector;
+TTT std::ostream& operator<<(std::ostream& out, const SPtrXVector<xp<T>>& FVector);
 
 template<typename T>
 class SPtrXVector<xp<T>> : public BaseXVector<xp<T>>
@@ -35,6 +36,8 @@ protected:
 public:
     using BaseXVector<xp<T>>::BaseXVector;
     using BaseXVector<xp<T>>::operator=;
+
+    RIN void Print() const { std::cout << The << std::endl; }
 
     RIN const T& operator[](const xint Idx) const;
     RIN T& operator[](const xint Idx);
@@ -1180,4 +1183,18 @@ xvector<xp<T>> SPtrXVector<xp<T>>::operator()(long double x, long double y, long
         }
     }
     return n_arr;
+}
+
+TTT std::ostream& operator<<(std::ostream& out, const SPtrXVector<xp<T*>>& FVector)
+{
+    out << '[';
+    const auto LnSize = FVector.Size();
+    for (xint i = 0; i < LnSize;)
+    {
+        out << *FVector[i];
+        if (++i < LnSize)
+            out << ',';
+    }
+    out << ']';
+    return out;
 }

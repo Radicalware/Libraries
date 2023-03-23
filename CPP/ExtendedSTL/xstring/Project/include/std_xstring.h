@@ -1,5 +1,6 @@
 ﻿#pragma once
-#include "xstring.h"
+
+#include "ra_xstring.h"
 
 #if defined(__unix__)
 #define   _NODISCARD

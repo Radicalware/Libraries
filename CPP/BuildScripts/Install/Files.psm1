@@ -12,9 +12,9 @@ class Files
         "../../ExtendedSTL/Memory/install.ps1",
         "../../ExtendedSTL/xvector/install.ps1",
         "../../ExtendedSTL/xstring/install.ps1",
+        "../../GeneralPurposeLibs/Macros/install.ps1",
         "../../ExtendedSTL/xmap/install.ps1",
 
-        "../../GeneralPurposeLibs/Macros/install.ps1",
         "../../GeneralPurposeLibs/Iterator/install.ps1",
         "../../ModdedObjects/CC/install.ps1"
 
@@ -26,7 +26,10 @@ class Files
         "../../GeneralPurposeLibs/JSON/install.ps1",
         "../../GeneralPurposeLibs/Stash/install.ps1",
         "../../GeneralPurposeLibs/AES/install.ps1",
-        "../../GeneralPurposeLibs/CudaBridge/install.ps1"
+        
+        "../../GPU/CudaImport/install.ps1"
+        "../../GPU/CudaBridge/install.ps1"
+        "../../GPU/Stats/install.ps1"
     )
         # --------------------------------------------------
     $examples = @(
@@ -47,10 +50,12 @@ class Files
         "../../GeneralPurposeLibs/OS/Examples/run.ps1",
         "../../GeneralPurposeLibs/SYS/Examples/run.ps1",
         "../../GeneralPurposeLibs/Timer/Examples/run.ps1",
-        "../../GeneralPurposeLibs/Socket/Examples/run.ps1",
+        # "../../GeneralPurposeLibs/Socket/Examples/run.ps1", # removed due to permissions and testing locks
         "../../GeneralPurposeLibs/Date/Examples/run.ps1",
         "../../GeneralPurposeLibs/Stash/Examples/run.ps1",
         "../../GeneralPurposeLibs/AES/Examples/run.ps1",
-        "../../GeneralPurposeLibs/CudaBridge/Examples/run.ps1"
+
+        "../../GPU/CudaBridge/Examples/run.ps1"
+        "../../GPU/Stats/Examples/run.ps1"
     )
 }

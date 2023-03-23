@@ -26,6 +26,9 @@
 #include <vector>
 #include <type_traits>
 
+TTT class ValXVector;
+TTT std::ostream& operator<<(std::ostream& out, const ValXVector<T>& FVector);
+
 template<typename T>
 class ValXVector : public BaseXVector<T>
 {
@@ -35,6 +38,8 @@ public:
     using BaseXVector<T>::BaseXVector;
     using BaseXVector<T>::operator=;
     using E = typename std::remove_const<T>::type; // E for Erratic
+
+    RIN void Print() const { std::cout << The << std::endl; }
 
     RIN T& At(const xint Idx);
     RIN const T& At(const xint Idx) const;
@@ -1122,4 +1127,18 @@ xvector<T> ValXVector<T>::operator()(
         }
     }
     return n_arr;
+}
+
+TTT std::ostream& operator<<(std::ostream& out, const ValXVector<T>& FVector)
+{
+    out << '[';
+    const auto LnSize = FVector.Size();
+    for (xint i = 0; i < LnSize;)
+    {
+        out << FVector[i];
+        if (++i < LnSize)
+            out << ',';
+    }
+    out << ']';
+    return out;
 }

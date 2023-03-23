@@ -5,6 +5,10 @@
 #ifndef RE2_RE2_H_
 #define RE2_RE2_H_
 
+#if !defined(NDEBUG)
+#define _ITERATOR_DEBUG_LEVEL 2
+#endif
+
 // C++ interface to the re2 regular-expression library.
 // RE2 supports Perl-style regular expressions (with extensions like
 // \d, \w, \s, ...).

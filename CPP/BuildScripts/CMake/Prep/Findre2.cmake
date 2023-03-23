@@ -9,6 +9,10 @@
 
 include("${RADICAL_PATH}/Radical-Static-Libs-Methods.cmake")
 
+if(${debug})
+    add_definitions(-D_ITERATOR_DEBUG_LEVEL=2)
+endif()
+
 if(WIN32) 
     set(RE2_LIB "re2")
     if(${debug})

@@ -22,8 +22,42 @@
 /// FROM:   "CUDA C/C++"        >> "Additional Include Directories" 
 /// TO:     "VC++ Directories"  >> Include Directories
 
+template<typename R, typename V>
+double NRoot(R FnRoot, V FnVal) 
+{
+    if (FnVal == 0)
+        return 0;
+    if(FnVal < 0)
+        return -std::pow((-1 * FnVal), (R)1 / FnRoot);
+    return std::pow(FnVal, (R)1 / FnRoot);
+}
+
 int main()
 {
+    // std::pow(n, 1/3)
+    double x = 5;
+    double LnRoot = 3;
+    double LnExp = 4;
+    double Start = NRoot(LnRoot, pow(x, LnExp));
+    cout << Start << endl;
+
+    auto LnBalance1 = (LnExp / LnRoot) + 1;
+    auto LnBalance2 = (LnExp / LnRoot) + (LnRoot / LnRoot);
+
+    auto LnNumerator = LnExp + LnRoot;
+    auto LnDenom     = LnRoot;
+    auto LnBalance3 = (LnNumerator / LnDenom);
+    auto LnCrossOut = (LnDenom / LnNumerator);
+
+    auto Mid = (LnCrossOut, pow(x, LnBalance3));
+    cout << Mid << endl;
+
+    auto End = LnCrossOut * NRoot(LnDenom, pow(x, LnNumerator));
+    cout << End << endl;
+
+
+    return 0;
+
     Begin();
     Nexus<>::Start();
     RA::Timer Time;

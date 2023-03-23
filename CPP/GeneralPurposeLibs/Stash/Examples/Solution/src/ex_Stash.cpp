@@ -4,6 +4,8 @@
 
 #include "Macros.h"
 
+#include "Timer.h"
+
 using std::cout;
 using std::endl;
 
@@ -39,8 +41,27 @@ int main()
     xstring Line = "-----------------------------------------------------";
     Line.Print();
 
-    // insert
     BSON::Result::InsertOne InsertResult = Stash << Document;
+
+    auto LnBenchmark = false;
+    if (LnBenchmark) // takes about 10x longer to insert one at a time than using InsertMany
+    {
+        Stash << Document;
+        xvector<BSON::Value> Docs;
+
+        auto Time = RA::Timer();
+        auto Num = 1000 * 1000;
+
+        for (xint i = 0; i < Num; i++)
+            Docs << Document;
+        cout << "Time to Create Vector: " << Time.GetElapsedTimeMilliseconds() << endl;
+        Time.Reset();
+
+        Stash.InsertMany(Docs);
+        cout << "Milliseconds: " << Time.GetElapsedTimeMilliseconds() << endl;
+        return Nexus<>::Stop();
+    }
+
     if (InsertResult)
     {
         std::cout << "New document ID: " << InsertResult->inserted_id().get_oid().value.to_string() << "\n";

@@ -25,6 +25,9 @@
 #include "BaseXVector.h"
 #include <regex>
 
+TTT class SPtrXVector;
+TTT std::ostream& operator<<(std::ostream& out, const PtrXVector<T*>& FVector);
+
 template<typename T>
 class PtrXVector<T*> : public BaseXVector<T*>
 {
@@ -34,6 +37,8 @@ public:
     using BaseXVector<T*>::BaseXVector;
     using BaseXVector<T*>::operator=;
     using E = typename std::remove_const<T>::type; // E for Erratic
+
+    RIN void Print() const { std::cout << The << std::endl; }
 
     RIN T& At(const xint Idx);
     RIN const T& At(const xint Idx) const;
@@ -1072,5 +1077,16 @@ xvector<T*> PtrXVector<T*>::operator()(long double x, long double y, long double
     return n_arr;
 }
 
-
-
+TTT std::ostream& operator<<(std::ostream& out, const PtrXVector<T*>& FVector)
+{
+    out << '[';
+    const auto LnSize = FVector.Size();
+    for (xint i = 0; i < LnSize;)
+    {
+        out << *FVector[i];
+        if (++i < LnSize)
+            out << ',';
+    }
+    out << ']';
+    return out;
+}

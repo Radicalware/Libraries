@@ -205,19 +205,17 @@ void Test::PrintGridBlockThread()
 
 // =============================================================================================================================
 
-__global__ void DelayedSumArraysIndicesGPU(int* c, const int* a, const int* b, const int size)
+__global__ void SumPrimeNumberArraysIndicesGPU(int* c, const int* a, const int* b, const int size)
 {
     const auto GID = RA::Device::GetThreadID();
 
     if (GID >= size)
         return;
 
-    auto Val = RA::Device::Timer::SleepTicks(1000 * 1000 * 100);
-    //printf("%llu\n", RA::Device::Timer::SleepTicks(1000 /** 1000 * 100*/));
-    c[GID] = a[GID] + b[GID] + Val;
+    c[GID] = a[GID] + b[GID];
 }
 
-__global__ void DelayedSumArraysIndicesMultiGPU(const xint FnStart, const xint Size, int* c, const int* a, const int* b)
+__global__ void SumPrimeNumberArraysIndicesMultiGPU(const xint FnStart, const xint Size, int* c, const int* a, const int* b)
 {
     const auto RID = RA::Device::GetThreadID(); // Return ID
     //printf("FnStart: %llu %llu\n", FnStart, Size);
@@ -225,9 +223,7 @@ __global__ void DelayedSumArraysIndicesMultiGPU(const xint FnStart, const xint S
         return;
     auto GID = RID + FnStart; // Global ID
 
-    auto Val = RA::Device::Timer::SleepTicks(1000 * 1000 * 100);
-    //printf("%llu -- %llu\n", FnStart, RA::Device::Timer::SleepTicks(1000 /** 1000 * 100*/));
-    c[RID] = a[GID] + b[GID] + Val;
+    c[RID] = a[GID] + b[GID];
 }
 
 __global__ void SumArraysIndicesGPU(int* c, const int* a, const int* b, const int size)
@@ -274,9 +270,13 @@ void Test::SumArrayIndiciesMultiStream(const xint FnOperations)
 
     RA::Timer Time;
     LoNexus.AddTask([&]() { return RA::CudaBridge<int>::ARRAY::RunCPU(
-        HostArray2.GetAllocation(), SumArraysIndicesCPU, HostArray1.GetHost(), HostArray2.GetHost(), ArraySize); });
+        HostArray2.GetAllocation(), 
+        SumArraysIndicesCPU, 
+        HostArray1.GetHost(), HostArray2.GetHost(), ArraySize); });
     LoNexus.AddTask([&]() { return RA::CudaBridge<int>::ARRAY::RunCPU(
-        HostArray2.GetAllocation(), SumArraysIndicesCPU, HostArray1.GetHost(), HostArray2.GetHost(), ArraySize); });
+        HostArray2.GetAllocation(), 
+        SumArraysIndicesCPU, 
+        HostArray1.GetHost(), HostArray2.GetHost(), ArraySize); });
 
     LoNexus.WaitAll();
     auto HostResult1 = LoNexus.Get(1).GetValue();
@@ -289,11 +289,15 @@ void Test::SumArrayIndiciesMultiStream(const xint FnOperations)
 
     Time.Reset();
     auto [LvGrid, LvBlock] = RA::Host::GetDimensions3D(ArraySize);
-    auto DeviceResult1 = RA::CudaBridge<int>::ARRAY::RunGPU(HostArray1.GetAllocation(), LvGrid, LvBlock,
-        SumArraysIndicesGPU, HostArray1.GetDevice(), HostArray2.GetDevice(), ArraySize);
+    auto DeviceResult1 = RA::CudaBridge<int>::ARRAY::RunGPU(
+        HostArray1.GetAllocation(), LvGrid, LvBlock,
+        SumArraysIndicesGPU, 
+        HostArray1.GetDevice(), HostArray2.GetDevice(), ArraySize);
 
-    auto DeviceResult2 = RA::CudaBridge<int>::ARRAY::RunGPU(HostArray1.GetAllocation(), LvGrid, LvBlock,
-        SumArraysIndicesGPU, HostArray1.GetDevice(), HostArray2.GetDevice(), ArraySize);
+    auto DeviceResult2 = RA::CudaBridge<int>::ARRAY::RunGPU(
+        HostArray1.GetAllocation(), LvGrid, LvBlock,
+        SumArraysIndicesGPU, 
+        HostArray1.GetDevice(), HostArray2.GetDevice(), ArraySize);
 
     RA::CudaBridge<>::SyncAll();
     DeviceResult1.CopyDeviceToHost();
@@ -321,7 +325,7 @@ void Test::SumArrayIndiciesMultiStream(const xint FnOperations)
 void Test::SumArrayIndiciesMultiGPU(const xint FnOperations)
 {
     Begin();
-
+    ThrowIt("Still Building");
     const int ArraySize = FnOperations;
 
     auto HostArray1 = RA::CudaBridge<int>(ArraySize);
@@ -340,21 +344,29 @@ void Test::SumArrayIndiciesMultiGPU(const xint FnOperations)
     //dim3 LvGrid((HostArray1.Size() / LvBlock.x) + 1);
     RA::Timer Time;
     auto HostResult = RA::CudaBridge<int>::ARRAY::RunCPU(
-        HostArray2.GetAllocation(), SumArraysIndicesCPU, HostArray1.GetHost(), HostArray2.GetHost(), ArraySize);
+        HostArray2.GetAllocation(), 
+        SumArraysIndicesCPU, 
+        HostArray1.GetHost(), HostArray2.GetHost(), ArraySize);
     cout << "CPU: " << Time.GetElapsedTimeMilliseconds() << endl;
 
     Time.Reset();
-    xvector<int> DeviceResultMultiGPU = RA::CudaBridge<int>::ARRAY::RunMultiGPU(
-        HostArray1.GetAllocation(),
-        DelayedSumArraysIndicesMultiGPU, HostArray1.GetDevice(), HostArray2.GetDevice());
-    RA::CudaBridge<>::SyncAll();
-    cout << "Multi  GPU: " << Time.GetElapsedTimeMilliseconds() << endl;
+    //xvector<int> DeviceResultMultiGPU = RA::CudaBridge<int>::ARRAY::RunMultiGPU(
+    //    HostArray1.GetAllocation(),
+    //    SumPrimeNumberArraysIndicesMultiGPU, HostArray1.GetDevice(), HostArray2.GetDevice());
+    //RA::CudaBridge<>::SyncAll();
+    //cout << "Multi  GPU: " << Time.GetElapsedTimeMilliseconds() << endl;
 
     Time.Reset();
     auto [LvGrid, LvBlock] = RA::Host::GetDimensions3D(ArraySize);
     RA::CudaBridge<int> DeviceResultSingleGPU = RA::CudaBridge<int>::ARRAY::RunGPU(
-        HostArray1.GetAllocation(), LvGrid, LvBlock, 
-        DelayedSumArraysIndicesGPU, HostArray1.GetDevice(), HostArray2.GetDevice(), ArraySize);
+        HostArray1.GetAllocation(), 
+        LvGrid, LvBlock, 
+        SumPrimeNumberArraysIndicesGPU, 
+        HostArray1.GetDevice(), HostArray2.GetDevice(), ArraySize);
+    RA::CudaBridge<>::SyncAll();
+    DeviceResultSingleGPU.CopyDeviceToHostAsync();
+    RA::CudaBridge<>::SyncAll();
+
     cout << "Single GPU: " << Time.GetElapsedTimeMilliseconds() << endl;
 
     cout << "Array Size: " << HostArray1.Size() << " " << ArraySize << endl;
@@ -366,38 +378,38 @@ void Test::SumArrayIndiciesMultiGPU(const xint FnOperations)
     else
         cout << "Single GPU Arrays are different\n";
 
-    const auto  LvCPU = HostResult.GetVec().ReverseSort();
-    const auto& LvMultiGPU = DeviceResultMultiGPU.ReverseSort();
-    if (RA::CudaBridge<>::SameArrays(LvCPU, LvMultiGPU))
-        cout << "Multi  GPU Arrays are the same\n";
-    else
-    {
-        cout << "-------------" << endl;
-        cout << "Multi  GPU Arrays are different\n";
-        for (auto i = 0; i < LvMultiGPU.Size(); i++)
-        {
-            printf("C/D: %d/%d\n", LvCPU[i], LvMultiGPU[i]);
-            if (i > 10)
-                break;
-        }
-        cout << "-------------" << endl;
-        for (auto i = LvMultiGPU.Size()-1; i > 0; i--)
-        {
-            printf("C/D: %d/%d\n", LvCPU[i], LvMultiGPU[i]);
-            if (LvMultiGPU.Size() - 10 > i)
-                break;
-        }
-        cout << "-------------" << endl;
-        xint LnZeroCount = 0;
-        for (xint i = 0; i < LvMultiGPU.Size(); i++)
-        {
-            if (LvMultiGPU[i] == 0)
-                LnZeroCount++;
-        }
-        cout << "ZeroRatio: " << (double)LnZeroCount / LvMultiGPU.Size() << endl;
-        if (LvMultiGPU.Size() == 0)
-            cout << "Multi  GPU size is Zero\n";
-    }
+    //const auto  LvCPU = HostResult.GetVec().ReverseSort();
+    //const auto& LvMultiGPU = DeviceResultMultiGPU.ReverseSort();
+    //if (RA::CudaBridge<>::SameArrays(LvCPU, LvMultiGPU))
+    //    cout << "Multi  GPU Arrays are the same\n";
+    //else
+    //{
+    //    cout << "-------------" << endl;
+    //    cout << "Multi  GPU Arrays are different\n";
+    //    for (auto i = 0; i < LvMultiGPU.Size(); i++)
+    //    {
+    //        printf("C/D: %d/%d\n", LvCPU[i], LvMultiGPU[i]);
+    //        if (i > 10)
+    //            break;
+    //    }
+    //    cout << "-------------" << endl;
+    //    for (auto i = LvMultiGPU.Size()-1; i > 0; i--)
+    //    {
+    //        printf("C/D: %d/%d\n", LvCPU[i], LvMultiGPU[i]);
+    //        if (LvMultiGPU.Size() - 10 > i)
+    //            break;
+    //    }
+    //    cout << "-------------" << endl;
+    //    xint LnZeroCount = 0;
+    //    for (xint i = 0; i < LvMultiGPU.Size(); i++)
+    //    {
+    //        if (LvMultiGPU[i] == 0)
+    //            LnZeroCount++;
+    //    }
+    //    cout << "ZeroRatio: " << (double)LnZeroCount / LvMultiGPU.Size() << endl;
+    //    if (LvMultiGPU.Size() == 0)
+    //        cout << "Multi  GPU size is Zero\n";
+    //}
 
     //for (int i = 0; i < 10; i++)
     //    cout << HostResult[i] << " -- " << DeviceResult[i] << endl;

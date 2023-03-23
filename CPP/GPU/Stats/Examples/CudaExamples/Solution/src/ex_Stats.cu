@@ -20,7 +20,7 @@ namespace Test
 {
     namespace Kernel
     {
-        static __global__ void AddValuesOneToTweanty(RA::StatsGPU *StatsPtr, const uint LoopCount)
+        static __global__ void AddValuesOneToTweanty(RA::StatsGPU *StatsPtr, const xint LoopCount)
         {
             auto& Stats = *StatsPtr;
 
@@ -28,7 +28,7 @@ namespace Test
                 Stats << i;
         }
 
-        static __global__ void AddValuesForSTOCH_1(RA::StatsGPU* StatsPtr, const uint LoopCount)
+        static __global__ void AddValuesForSTOCH_1(RA::StatsGPU* StatsPtr, const xint LoopCount)
         {
             auto& Stats = *StatsPtr;
 
@@ -39,7 +39,7 @@ namespace Test
             Stats << 35;
         }
 
-        static __global__ void AddValuesForSTOCH_2(RA::StatsGPU* StatsPtr, const uint LoopCount)
+        static __global__ void AddValuesForSTOCH_2(RA::StatsGPU* StatsPtr, const xint LoopCount)
         {
             auto& Stats = *StatsPtr;
 
@@ -51,12 +51,12 @@ namespace Test
             Stats << 55;
         }
 
-        static __global__ void AddValuesForRSI_Up(RA::StatsGPU* StatsPtr, const uint LoopCount)
+        static __global__ void AddValuesForRSI_Up(RA::StatsGPU* StatsPtr, const xint LoopCount)
         {
             auto& Stats = *StatsPtr;
 
             double LnPrice = 50;
-            for (uint i = 0; i <= Stats.GetStorageSize(); i++)
+            for (xint i = 0; i <= Stats.GetStorageSize(); i++)
             {
                 if (i % 2)
                     LnPrice -= 1;
@@ -67,12 +67,12 @@ namespace Test
             }
         }
 
-        static __global__ void AddValuesForRSI_Down(RA::StatsGPU* StatsPtr, const uint LoopCount)
+        static __global__ void AddValuesForRSI_Down(RA::StatsGPU* StatsPtr, const xint LoopCount)
         {
             auto& Stats = *StatsPtr;
 
             double LnPrice = 50;
-            for (uint i = 0; i <= Stats.GetStorageSize(); i++)
+            for (xint i = 0; i <= Stats.GetStorageSize(); i++)
             {
                 if (i % 2)
                     LnPrice += 1;
@@ -131,7 +131,7 @@ namespace Test
                     cout << endl;
                 };
 
-                for (uint i = 1; i <= One.GetStorageSize(); i++)
+                for (xint i = 1; i <= One.GetStorageSize(); i++)
                     One << i;
 
                 auto Two = One;
@@ -156,7 +156,7 @@ namespace Test
 
                 {
                     double LnPrice = 50;
-                    for (uint i = 0; i <= Stoch.GetStorageSize(); i++)
+                    for (xint i = 0; i <= Stoch.GetStorageSize(); i++)
                         Stoch << LnPrice;
 
                     Stoch << 25;
@@ -170,7 +170,7 @@ namespace Test
                 }
                 {
                     double LnPrice = 50;
-                    for (uint i = 0; i <= Stoch.GetStorageSize(); i++)
+                    for (xint i = 0; i <= Stoch.GetStorageSize(); i++)
                         Stoch << LnPrice;
 
                     Stoch << 25;
@@ -201,7 +201,7 @@ namespace Test
 
                 {
                     double LnPrice = 50;
-                    for (uint i = 0; i <= RSI.GetStorageSize(); i++)
+                    for (xint i = 0; i <= RSI.GetStorageSize(); i++)
                     {
                         if (i % 2)
                             LnPrice += 1;
@@ -217,7 +217,7 @@ namespace Test
                 }
                 {
                     double LnPrice = 50;
-                    for (uint i = 0; i <= RSI.GetStorageSize(); i++)
+                    for (xint i = 0; i <= RSI.GetStorageSize(); i++)
                     {
                         if (i % 2)
                             LnPrice += 3;
@@ -247,7 +247,7 @@ namespace Test
                 // note: if storage size is 0, logical size must also be 0
                 // logical size increases indefinatly if storage size is 0
                 auto AvgGPU = RA::Host::AllocateObjOnDevice<RA::StatsGPU>(LnStorageSize,
-                    xmap<RA::Stats::EOptions, uint>({
+                    xmap<RA::Stats::EOptions, xint>({
                         {RA::Stats::EOptions::AVG, LnLogicalSize}
                         })
                     );
@@ -274,7 +274,7 @@ namespace Test
                 // note: if storage size is 0, logical size must also be 0
                 // logical size increases indefinatly if storage size is 0
                 auto Stoch = RA::Host::AllocateObjOnDevice<RA::StatsGPU>(LnStorageSize,
-                    xmap<RA::Stats::EOptions, uint>({
+                    xmap<RA::Stats::EOptions, xint>({
                         {RA::Stats::EOptions::STOCH, LnLogicalSize}
                         })
                     );
@@ -307,7 +307,7 @@ namespace Test
                 // note: if storage size is 0, logical size must also be 0
                 // logical size increases indefinatly if storage size is 0
                 auto RSI = RA::Host::AllocateObjOnDevice<RA::StatsGPU>(LnStorageSize,
-                    xmap<RA::Stats::EOptions, uint>({
+                    xmap<RA::Stats::EOptions, xint>({
                         {RA::Stats::EOptions::RSI, LnLogicalSize}
                         })
                     );
@@ -360,7 +360,7 @@ namespace Test
                     cout << endl;
                 };
 
-                for (uint i = 1; i <= 20; i++)
+                for (xint i = 1; i <= 20; i++)
                     One << i;
 
                 PrintVals(One);
@@ -380,7 +380,7 @@ namespace Test
                     // note: if storage size is 0, logical size must also be 0
                     // logical size increases indefinatly if storage size is 0
                     auto AvgGPU = RA::Host::AllocateObjOnDevice<RA::StatsGPU>(LnStorageSize,
-                        xmap<RA::Stats::EOptions, uint>({
+                        xmap<RA::Stats::EOptions, xint>({
                             {RA::Stats::EOptions::AVG, LnLogicalSize}
                             })
                         );

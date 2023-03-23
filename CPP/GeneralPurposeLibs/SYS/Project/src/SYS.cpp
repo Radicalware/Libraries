@@ -33,7 +33,7 @@
 RA::SYS::SYS(int argc, char** argv, char** env)
 {
     Begin();
-    (this)->SetArgs(argc, argv);
+    SetArgs(argc, argv);
     if (env != nullptr)
     {
         ThrowIt("Not Implemented Yet");
@@ -129,9 +129,6 @@ void RA::SYS::AddAlias(const char FChr, const xstring& FStr)
 }
 
 // -------------------------------------------------------------------------------------------------------------------
-int RA::SYS::ArgC() const {
-    return MnSize;
-}
 
 xvector<xstring> RA::SYS::ArgV() const {
     return MvCliArgs;
@@ -192,12 +189,12 @@ bool RA::SYS::Has(const char FKey) const {
 
 bool RA::SYS::HasVal(const xstring& FKey) const
 {
-    return Has(FKey) && Key(FKey).HasRange(1);
+    return Has(FKey) && Key(FKey).First().size() >= 1;
 }
 
 bool RA::SYS::HasVal(const char FKey) const
 {
-    return Has(FKey) && Key(FKey).HasRange(1);
+    return Has(FKey) && Key(FKey).First().size() >= 1;
 }
 
 xstring RA::SYS::GetVal(const xstring& FKey) const

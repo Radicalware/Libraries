@@ -99,11 +99,10 @@ void RA::OS_O::File::RM()
     if(!OS_O::Dir_Type::HasFile(m_name))
         throw std::runtime_error(std::string("Error Filename: ") + m_name + " Does Not Exist!\n");
     try {
-
-#if   defined(NIX_BASE)
-        remove(m_name.c_str());
-#elif defined(WIN_BASE)
+#if defined(BxWindows)
         DeleteFileA(m_name.c_str());
+#elif defined(BxNix)
+        remove(m_name.c_str());
 #endif
         if (errno)
             throw;

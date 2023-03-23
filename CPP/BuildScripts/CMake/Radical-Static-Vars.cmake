@@ -30,11 +30,11 @@ endif()
 
 
 if(NOT DEFINED CUDA_VERSION)
-set(VCPKG_ROOT      "D:/AIE/vcpkg")
+set(VCPKG_ROOT            "C:/Source/Git/vcpkg")
 set(VCPKG_RELEASE_LIB_DIR "${VCPKG_ROOT}/installed/x64-windows/lib")
 set(VCPKG_DEBUG_LIB_DIR   "${VCPKG_ROOT}/installed/x64-windows/lib")
-set(VCPKG_SCRIPT    "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
-set(VCPKG_INCLUDE   "${VCPKG_ROOT}/installed/x64-windows/include")
+set(VCPKG_SCRIPT          "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
+set(VCPKG_INCLUDE         "${VCPKG_ROOT}/installed/x64-windows/include")
 endif()
 
 set(CMAKE_CXX_IGNORE_EXTENSIONS      "${CMAKE_CXX_IGNORE_EXTENSIONS};txt;rc")
@@ -52,10 +52,12 @@ if(WIN32) # --------------------------------------------------------------------
 
     add_definitions(-DUsingMSVC)
 
-    #set(Qt6_DIR         "D:/AIE/vcpkg/installed/x64-windows/share/Qt6")
-    set(Qt6_DIR         "D:/AIE/Qt/6.4.2/msvc2019_64/lib/cmake/Qt6")
+    # RUN: vcpkg integrate install
+    set(CMAKE_TOOLCHAIN_FILE ${VCPKG_SCRIPT})
+    set(Qt6_DIR         "C:/AIE/Qt/6.4.2/msvc2019_64/lib/cmake/Qt6")
     set(CMAKE_PATH      "C:/Program Files/CMake/share/cmake-$ENV{CMAKE_VERSION}/Modules")
     set(RADICAL_BASE    "C:/Source/CMake/Radicalware")
+    #set(Qt6_DIR         "D:/AIE/vcpkg/installed/x64-windows/share/Qt6")
 
     SET(INSTALL_PREFIX "${RADICAL_BASE}")
     SET(INSTALL_DIR    "${RADICAL_BASE}/Libraries/Projects")
@@ -66,7 +68,7 @@ if(WIN32) # --------------------------------------------------------------------
     # BUILD_DIR   = ready to install cpp files
     # INSTALL_DIR = install location of those cpp files
     FindProgramFiles(RADICAL_PROGRAM_FILES "${INSTALL_DIR}")
-    set(RE2_DIR "D:/AIE/Git/re2")
+    set(RE2_DIR "C:/Source/Git/re2")
 
     set(C_ARGS   "${CPP_ARGS} ${C_ARGS}")
     set(C_ARGS "  ${C_ARGS}   /std:c17")

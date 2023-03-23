@@ -34,4 +34,3 @@
 //#include "BaseXVector.h"
 #include "SPtr/SPtrObjXVector.h"
 
-

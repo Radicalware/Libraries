@@ -58,7 +58,7 @@ class Lib_Handler
     {    
         $From = "$($this.CMakeInstallDir)\$Lib\*"
         $To   = "$($this.GitSourceDir)\$($this.dir)\$Lib\Project"
-        # Write-Host "Copying: $From >> $To"
+        #Write-Host "Copying: $From >> $To"
         $this.CopyLib($From, $To);
     }
 

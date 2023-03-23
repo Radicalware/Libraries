@@ -40,7 +40,6 @@ namespace RA
 
         BSON::Result::InsertOne  operator<<(const BSON::Value& FoView);
         BSON::Result::InsertOne  operator<<(const xstring& FoJsonStr);
-        //BSON::Result::InsertMany operator<<(const BSON::Document& FoDocument);
        
         static RA::JSON CursorToJSON(BSON::Cursor& FoCursor, RA::JSON::Init FeInit);
         RA::JSON GetAll(RA::JSON::Init FeInit = RA::JSON::Init::Both);
@@ -52,6 +51,11 @@ namespace RA
         RA::JSON Match(const K& FxKey, const V& FxValue, RA::JSON::Init FeInit = RA::JSON::Init::Both);
         RA::JSON FindOne(const BSON::Data& FnData, RA::JSON::Init FeInit = RA::JSON::Init::Both);
         RA::JSON FindMany(const BSON::Data& FnData, RA::JSON::Init FeInit = RA::JSON::Init::Both);
+
+
+        BSON::Result::InsertOne  InsertOne(const BSON::Value& FvBSON) { return The << FvBSON; }
+        BSON::Result::InsertOne  InsertOne(const xstring& FoJsonStr)  { return The << FoJsonStr; }
+        BSON::Result::InsertMany InsertMany(const xvector<BSON::Value>& FvBSON);
 
         BSON::Result::Update UpdateOne (const BSON::Value& FoFind, const BSON::Value& FoReplace);
         BSON::Result::Update UpdateMany(const BSON::Value& FoFind, const BSON::Value& FoReplace);

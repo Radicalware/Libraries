@@ -30,13 +30,8 @@ list(APPEND PrivateLibs "Stats")
 
 set(PublicLibs "")
 list(APPEND PublicLibs "Timer")
-include_directories("C:/Program Files (x86)/Visual Leak Detector/include")
 
 BuildRadicalSolution(PrivateLibs PublicLibs)
-target_link_libraries(
-    ${THIS}
-    vld.lib
-)
 
 ConfigCUDA("ImportCUDA")
 ConfigCUDA("CudaBridge")

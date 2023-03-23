@@ -1,8 +1,16 @@
 ﻿
-$TargetPath = "C:\Source\CMake\Radicalware\Libraries\Projects\HostStats\include"
+
+$ProjectPath = "C:\Source\CMake\Radicalware\Libraries\Projects\HostStats"
+
+if($(Test-Path $ProjectPath) -eq $false)
+{
+    New-Item -ItemType Directory $ProjectPath
+}
+
+$TargetPath = "$ProjectPath\include"
 Remove-Item -Recurse $TargetPath
 New-Item -ItemType Directory $TargetPath
-cd $TargetPath
+Set-Location $TargetPath
 
 foreach ( $item in $(Get-ChildItem C:\Source\CMake\Radicalware\Libraries\Projects\Stats\include))
 {
@@ -11,10 +19,10 @@ foreach ( $item in $(Get-ChildItem C:\Source\CMake\Radicalware\Libraries\Project
 }
 
 
-$TargetPath = "C:\Source\CMake\Radicalware\Libraries\Projects\HostStats\src"
+$TargetPath = "$ProjectPath\src"
 Remove-Item -Recurse $TargetPath
 New-Item -ItemType Directory $TargetPath
-cd $TargetPath
+Set-Location $TargetPath
 
 foreach ( $item in $(Get-ChildItem C:\Source\CMake\Radicalware\Libraries\Projects\Stats\src))
 {
@@ -22,7 +30,7 @@ foreach ( $item in $(Get-ChildItem C:\Source\CMake\Radicalware\Libraries\Project
     New-Item -ItemType HardLink -Name "$NewName" -Value $item.FullName
 }
 
-cd "C:\Source\Radicalware\Libraries\GPU\Stats"
+Set-Location "C:\Source\Radicalware\Libraries\GPU\Stats"
 
 Copy-Item -Force .\FindHostStats.cmake C:\Source\CMake\Modules
 

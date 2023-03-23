@@ -6,26 +6,26 @@
 
 const RA::Timer RA::Timer::StaticClass;
 
-RA::Timer::Timer() : m_beg(SteadyClock::now()) {   }
+RA::Timer::Timer() : MoClock(SteadyClock::now()) {   }
 
 void RA::Timer::Reset() {
-    m_beg = SteadyClock::now();
+    MoClock = SteadyClock::now();
 }
 
 xint RA::Timer::GetElapsedTimeSeconds() const {
-    return static_cast<xint>(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - m_beg).count());
+    return static_cast<xint>(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - MoClock).count());
 }
 
 xint RA::Timer::GetElapsedTimeMilliseconds() const {
-    return static_cast<xint>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - m_beg).count());
+    return static_cast<xint>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - MoClock).count());
 }
 
 xint RA::Timer::GetElapsedTime() const {
-    return static_cast<xint>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - m_beg).count());
+    return static_cast<xint>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - MoClock).count());
 }
 
 xint RA::Timer::GetElapsedTimeMicroseconds() const {
-    return static_cast<xint>(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - m_beg).count());
+    return static_cast<xint>(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - MoClock).count());
 }
 
 void RA::Timer::WaitSeconds(xint extent)
@@ -88,14 +88,14 @@ void RA::Timer::SleepSeconds(unsigned long FnSeconds)
 #ifndef UsingNVCC
 void RA::Timer::Lap()
 {
-    m_laps_xv << GetElapsedTimeMilliseconds();
+    MvLaps << GetElapsedTimeMilliseconds();
 }
 
 void RA::Timer::Lap(const xstring& key)
 {
-    xint val = GetElapsedTimeMilliseconds();
-    m_laps_xm.AddPair(key, val);
-    m_laps_xv.push_back(val);
+    xint LnTime = GetElapsedTimeMilliseconds();
+    MmLaps.AddPair(key, LnTime);
+    MvLaps.Add(LnTime);
 }
 
 void RA::Timer::Lap(xstring&& key)
@@ -105,28 +105,28 @@ void RA::Timer::Lap(xstring&& key)
 
 void RA::Timer::Clear()
 {
-    m_laps_xv.clear();
-    m_laps_xm.clear();
+    MvLaps.clear();
+    MmLaps.clear();
 }
 
 xint RA::Timer::Get(size_t idx) const
 {
-    return m_laps_xv[idx];
+    return MvLaps[idx];
 }
 
 xint RA::Timer::Get(const xstring& key) const
 {
-    return m_laps_xm.at(key);
+    return MmLaps.Key(key);
 }
 
 xvector<xint> RA::Timer::GetVector() const
 {
-    return m_laps_xv;
+    return MvLaps;
 }
 
 xmap<xstring, xint> RA::Timer::GetMap() const
 {
-    return m_laps_xm;
+    return MmLaps;
 }
 #endif // !UsingNVCC
 

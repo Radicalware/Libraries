@@ -100,11 +100,6 @@ BSON::Result::InsertOne RA::Stash::operator<<(const xstring& FoJsonStr)
     Rescue();
 }
 
- //BSON::Result::InsertMany RA::Stash::operator<<(const BSON::Document& FoDocument)
- //{
- //   return MoCollection.insert_many(FoDocument);
- //}
-
 RA::JSON RA::Stash::CursorToJSON(BSON::Cursor& FoCursor, RA::JSON::Init FeInit)
 {
     Begin();
@@ -169,6 +164,13 @@ RA::JSON RA::Stash::FindMany(const BSON::Data& FnData, RA::JSON::Init FeInit)
     Begin();
     auto Data = MoCollection.find(FnData);
     return RA::Stash::CursorToJSON(Data, FeInit);
+    Rescue();
+}
+
+BSON::Result::InsertMany RA::Stash::InsertMany(const xvector<BSON::Value>& FvBSON)
+{
+    Begin();
+    return MoCollection.insert_many(FvBSON);
     Rescue();
 }
 

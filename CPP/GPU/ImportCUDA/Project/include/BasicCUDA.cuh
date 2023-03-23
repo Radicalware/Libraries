@@ -1,6 +1,12 @@
 #pragma once
 
 #include <stdio.h>
+#include <corecrt_math_defines.h>
+#include <iostream>
+#include <cuda.h>
+#include <stdio.h>
+#include <cstdio>
+#include <ciso646>
 
 #include "cuda_runtime.h"
 #include "cuda_runtime_api.h"

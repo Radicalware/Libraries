@@ -25,6 +25,7 @@ BuildRadicalProject("STATIC" PrivateLibs "")
 find_package(cpprestsdk CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 
+find_package(bson-1.0 CONFIG REQUIRED)
 find_package(bsoncxx CONFIG REQUIRED)
 find_package(mongocxx CONFIG REQUIRED)
 
@@ -40,4 +41,5 @@ link_libraries(
 
     mongo::bsoncxx_shared
     mongo::mongocxx_shared
+    mongo::bson_shared
 )
