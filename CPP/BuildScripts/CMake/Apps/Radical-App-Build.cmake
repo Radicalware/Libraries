@@ -35,6 +35,7 @@ macro(BuildRadicalSolution InPrivateLibs InPublicLibs)
     if(${debug})
         message("(Debug Build)")
         # target_link_libraries(${THIS} vld.lib) # unreliable
+        message("Linking: ${VLD_TARGET}")
         target_link_libraries(${THIS} "${VLD_TARGET}")
     else()
         message("(Release Build)")

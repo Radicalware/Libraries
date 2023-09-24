@@ -1,4 +1,4 @@
-#if UsingMSVC
+﻿#if UsingMSVC
 #include "RSI.h"
 #else
 #include "RSI.cuh"

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 // Copyright[2023][Joel Leagues aka Scourge] under the Apache V2 Licence
 

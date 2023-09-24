@@ -1,4 +1,4 @@
-#include "JSON.h"
+﻿#include "JSON.h"
 #include "Macros.h"
 #include <nlohmann/json.hpp>
 #include <cpprest/json.h>

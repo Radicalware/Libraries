@@ -1,4 +1,4 @@
-#pragma warning (disable : 26444) // allow anynomous objects
+﻿#pragma warning (disable : 26444) // allow anynomous objects
 #pragma warning (disable : 26812) // allow normal enums from STL
 
 #include "ra_xstring.h"
@@ -681,11 +681,11 @@ xstring& xstring::InRemove(const char FsRex)
 
 xstring xstring::Remove(const char val) const
 {
-    xstring Str = The;
+    xstring Str;
     Str.reserve(The.size()+1);
     for (const char Chr : The)
-        if (Chr != val)
-            Str += val;
+        if (val != Chr)
+            Str += Chr;
     return Str;
 }
 

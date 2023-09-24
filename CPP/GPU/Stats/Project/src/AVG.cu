@@ -1,4 +1,4 @@
-#if UsingMSVC
+﻿#if UsingMSVC
 #include "AVG.h"
 #else
 #include "AVG.cuh"
@@ -29,54 +29,46 @@ DXF void RA::AVG::CopyStats(const RA::AVG& Other)
     MnLogicalSize = Other.MnLogicalSize;
 }
 
-DXF void RA::AVG::Update()
+DXF void RA::AVG::SetDefaultValues(const double FnDefaualt)
 {
-#if UsingMSVC
-    if (!MnLogicalSize || !MbUseStorageValues)
-        ThrowIt("No Logical Size");
-#endif
+    MnAvg = FnDefaualt;
+    MnSum = MnAvg * MnLogicalSize;
+}
 
-    if (MnAvg == 0 && *MnInsertIdxPtr == 0)
-        MnAvg = MvValues[*MnInsertIdxPtr];
-    else
-    {
-        //const xint LnStartIdx = (*MnInsertIdxPtr >= MnLogicalSize)
-        //    ? *MnInsertIdxPtr - MnLogicalSize
-        //    : *MnStorageSizePtr - (MnLogicalSize - *MnInsertIdxPtr);
+DXF xint RA::AVG::GetOldIDX() const
+{
+    const auto& LnStorage   = *The.MnStorageSizePtr;
+    const auto  LnLogicSize =  The.MnLogicalSize;
+    const auto& LnStart     = *The.MnInsertIdxPtr;
 
-        //const auto& LnReplacedVal = MvValues[LnStartIdx];
-        //const auto& LnInertVal    = MvValues[*MnInsertIdxPtr];
-        //const auto  LnSumUnderOne = MnAvg * (MnLogicalSize - 1);
-        //MnAvg = ((LnSumUnderOne + (LnInertVal - (LnReplacedVal - MnAvg))) / MnLogicalSize);
-
-
-        const auto& LnStart     = *The.MnInsertIdxPtr;
-        const auto& LnStorage   = *The.MnStorageSizePtr;
-        const auto& LnLogic     =  The.MnLogicalSize;
-
-        xint Idx = LnStart;
-        MnSum = 0;
-        for (xint i = LnStart; i < LnStart + LnLogic; i++)
-        {
-            const auto& LnVal = MvValues[Idx];
-            MnSum += LnVal;
-            Idx = (Idx == 0) ? LnStorage - 1 : Idx - 1;
-        }
-        MnAvg = MnSum / The.MnLogicalSize;
-    }
+    return ((LnStart >= LnLogicSize)
+        ? LnStart - LnLogicSize
+        : (LnStorage - (LnLogicSize - LnStart)));
 }
 
 DXF void RA::AVG::Update(const double FnValue)
 {
     if (MbUseStorageValues)
-        return Update();
-    MnAvg = ((MnAvg * MnLogicalSize) + FnValue) / (MnLogicalSize + 1);
-    MnLogicalSize++;
-    MnSum = MnAvg * MnLogicalSize;
-}
-
-DXF void RA::AVG::SetDefaultValues(const double FnDefaualt)
-{
-    MnAvg = FnDefaualt;
+    {
+#if UsingMSVC
+        if (!MnLogicalSize || !MbUseStorageValues)
+            ThrowIt("No Logical Size");
+#endif
+        if (MnAvg == 0 && *MnInsertIdxPtr == 0)
+            SetDefaultValues(FnValue);
+        else
+        {
+            MnSum += FnValue;
+            MnSum -= GetOldValue();
+            MnAvg  = MnSum / The.MnLogicalSize;
+        }
+    }
+    else
+    {
+        MnAvg = ((MnAvg * MnLogicalSize) + FnValue) / (MnLogicalSize + 1);
+        if(MnMaxTraceSize == 0 || MnMaxTraceSize > MnLogicalSize)
+            MnLogicalSize++;
+        MnSum = MnAvg * MnLogicalSize;
+    }
 }
 

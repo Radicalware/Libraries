@@ -54,7 +54,7 @@ if(WIN32) # --------------------------------------------------------------------
 
     # RUN: vcpkg integrate install
     set(CMAKE_TOOLCHAIN_FILE ${VCPKG_SCRIPT})
-    set(Qt6_DIR         "C:/AIE/Qt/6.4.2/msvc2019_64/lib/cmake/Qt6")
+    set(Qt6_DIR         "C:/Qt/6.5.2/msvc2019_64/lib/cmake/Qt6")
     set(CMAKE_PATH      "C:/Program Files/CMake/share/cmake-$ENV{CMAKE_VERSION}/Modules")
     set(RADICAL_BASE    "C:/Source/CMake/Radicalware")
     #set(Qt6_DIR         "D:/AIE/vcpkg/installed/x64-windows/share/Qt6")

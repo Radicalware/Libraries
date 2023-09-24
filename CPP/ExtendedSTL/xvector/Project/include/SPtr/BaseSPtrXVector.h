@@ -517,7 +517,9 @@ RIN xvector<xp<T>>& SPtrXVector<xp<T>>::Sort(F&& func)
             if (func(The[Idx], The[Idx + 1])) // Generally testing (Left > Right)
             {
                 // Swap them
-                std::swap(The[Idx], The[Idx + 1]);
+                auto LoHold        = The.AtPtr(Idx);
+                The.AtPtr(Idx)     = The.AtPtr(Idx + 1);
+                The.AtPtr(Idx + 1) = LoHold;
                 LbSwapped = true;
             }
         }
@@ -554,7 +556,9 @@ RIN xvector<xp<T>>& SPtrXVector<xp<T>>::ReverseSort(F&& func)
         {
             if (func(*The[Idx], *The[Idx + 1])) // Generally testing (Left < Right)
             {
-                std::swap(The[Idx], The[Idx + 1]);
+                auto LoHold        = The.AtPtr(Idx);
+                The.AtPtr(Idx)     = The.AtPtr(Idx + 1);
+                The.AtPtr(Idx + 1) = LoHold;
                 LbSwapped = true;
             }
         }

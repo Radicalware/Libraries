@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include<vector>
 #include<type_traits>
@@ -8,6 +8,8 @@
 #include<sstream>
 #include<set>
 #include<type_traits>
+#include <algorithm>
+#include <execution>
 
 #include "re2/re2.h"
 #include "Memory.h"

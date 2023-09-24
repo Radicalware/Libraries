@@ -77,7 +77,6 @@ AddExecutable("ExtendedSTL" "xmap")
 
 AddExecutable("GeneralPurposeLibs" "Macros")
 AddExecutable("GeneralPurposeLibs" "Nexus")
-# AddExecutable("GeneralPurposeLibs" "CudaBridge") # TODO: RE-ADD
 AddExecutable("GeneralPurposeLibs" "Timer")
 AddExecutable("GeneralPurposeLibs" "Date")
 AddExecutable("GeneralPurposeLibs" "OS")

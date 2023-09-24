@@ -68,7 +68,7 @@ int main(int argc, char** argv)
     // they were both used which in most cases is not intended
     // this is to show you that even if the user does that, the program still works fine.
     
-    cout << "\n\n all args = " << Args.ArgV()(1).Join(' ');
+    cout << WHITE << "\n\n all args = " << Args.ArgV()(1).Join(' ');
     // we skipped the first arg (which is the program) using a slice
 
     //// and see the count via
@@ -86,47 +86,52 @@ int main(int argc, char** argv)
     cout << "\n file        = " << Args.File() << "\n\n\n";
 
     // ----------------------------------------------------------------
-    if ( Args.Has("--key-B") && Args("--key-B")) {  // both methods are the same
-        cout << "--key-B exists\n"; 
+    if (Args.Has("--key-B") && Args("--key-B")) {  // both methods are the same
+        cout << WHITE "--key-B exists\n"; 
     }
     else {
-        cout << "error: --key-B does not exists\n"; exit(1);
+        cout << RED "error: --key-B does not exists\n"; exit(1);
     }
     // ----------------------------------------------------------------
+    if (Args.Has("--Key-A") && Args.Has('a'))
+        cout << WHITE "Key A Exists" << endl;
+    else
+        cout << RED << "Key A Does NOT Exist" << endl;
+    // ----------------------------------------------------------------
     if (Args.Has("--key-D") || Args("--key-D")) { // both methods are the same
-        cout << "error: --key-D exists\n"; exit(1);
+        cout << RED "error: --key-D exists\n"; exit(1);
     }
     else {
-        cout << "--key-D does not exist\n";  
+        cout << WHITE "--key-D should not exist\n";
     }
     // ----------------------------------------------------------------
     if (Args('n') && Args('x')) {
-        cout << "-n and -x options are both used\n";
+        cout << WHITE "-n and -x options are both used\n";
     }
     else {
-        cout << "error: -n and -x are not used together or not at all \n"; exit(1);
+        cout << RED "error: -n and -x are not used together or not at all \n"; exit(1);
     }
     // ----------------------------------------------------------------
     if (Args('x') && Args("--key-X")) { 
         // note: both were given (this is ok because thare are no associated values with either x or --key-X)
-        cout << "-x and the alias --key-X are both used\n";
+        cout << WHITE "-x and the alias --key-X are both used\n";
     }
     else {
-        cout << "error: -x and the alias --key-X are not found together\n"; exit(1);
+        cout << RED "error: -x and the alias --key-X are not found together\n"; exit(1);
     }
     // ----------------------------------------------------------------
     if (Args('f') && Args("--key-F")) {
-        cout << "-f and the alias --key-F are both usable but only one was given\n";
+        cout << WHITE "-f and the alias --key-F are both usable but only one was given\n";
     }
     else {
-        cout << "error: -f and the alias --key-F are not found together\n"; exit(1);
+        cout << RED "error: -f and the alias --key-F are not found together\n"; exit(1);
     }
     // ----------------------------------------------------------------
     if (Args('b') && Args("--key-B")) { 
-        cout << "-b and the alias --key-B are both usable but only --key-B was given\n";
+        cout << WHITE "-b and the alias --key-B are both usable but only --key-B was given\n";
     }
     else {
-        cout << "error: -b and the alias --key-B are not found together\n"; exit(1);
+        cout << RED "error: -b and the alias --key-B are not found together\n"; exit(1);
     }
     // ----------------------------------------------------------------
     bool pass = false;
@@ -138,28 +143,28 @@ int main(int argc, char** argv)
         }
     }
     if(!pass){
-        cout << "error: -p is not set" << endl; exit(1);
+        cout << RED "error: -p is not set" << endl; exit(1);
     }
     // ----------------------------------------------------------------
     if (Args.Key("--key-A").Has("sub-B-2") || Args("--key-A", "sub-B-2")) {
-        cout << "error: value sub-B-2 exist in --key-A\n"; exit(1);
+        cout << RED "error: value sub-B-2 exist in --key-A\n"; exit(1);
     }
     else {
-        cout << "value sub-B-2 does not exist in --key-A\n";
+        cout << WHITE "value sub-B-2 does not exist in --key-A\n";
     }
     // ----------------------------------------------------------------
     if (Args.Key("--key-A").Has("sub-A-2") && Args("--key-A", "sub-A-3") ) {
-        cout << "value sub-A-2 and sub-A-3 exist under --key-A\n";
+        cout << WHITE "value sub-A-2 and sub-A-3 exist under --key-A\n";
     }
     else {
-        cout << "error: value sub-A-2 and sub-A-3 not found under --key-A\n"; exit(1);
+        cout << RED "error: value sub-A-2 and sub-A-3 not found under --key-A\n"; exit(1);
     }
     // ----------------------------------------------------------------
     if (Args["--key-A"][1] == "sub-A-2" && Args['p'][1] == "9090") {
-        cout << "the 2nd elements for targed str and char keys passed\n";
+        cout << WHITE "the 2nd elements for targed str and char keys passed\n";
     }
     else {
-        cout << "error: str or char keys' value not found\n"; exit(1);
+        cout << RED "error: str or char keys' value not found\n"; exit(1);
     }
     // ----------------------------------------------------------------
 
@@ -167,7 +172,7 @@ int main(int argc, char** argv)
     // here is the shorthand for
     // 1. returning  key-values
     // 2. validating key-values
-    cout << "\n\n";
+    cout << WHITE "\n\n";
     cout << R"(Args["--key-A"].Join(' ')  ==  )" << Args["--key-A"].Join(' ') << endl;
     cout << R"(Args("--key-A", "sub-A-1") ==  )" << Args("--key-A", "sub-A-1") << endl;
     cout << R"(Args("--key-A", "sub-A-5") ==  )" << Args("--key-A", "sub-A-5") << "\n\n";

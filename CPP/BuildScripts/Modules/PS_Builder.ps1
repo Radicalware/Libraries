@@ -39,7 +39,7 @@ Class PS_Builder
             # $this.comp_args = " -std=c++20 -Wfatal-errors -finput-charset=UTF-8 -fPIC -pthread"
         }else{ # Windows
             $this.cmake_command = "cmake.exe -A x64 "
-            $this.win_ver = '10.0.17763.0'
+            #$this.win_ver = '10.0.17763.0'
             $this.vcvars = "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Auxiliary/Build/vcvars64.bat"
 
             # $this.part_module_path  = 'Source/CMake/Modules'  
@@ -136,7 +136,7 @@ Class PS_Builder
             
                 Get-Content "$env:temp\vcvars.txt" | Foreach-Object {
                     if ($_ -match "^(.*?)=(.*)$") {
-                        Set-Content "env:\$($matches[1])" $matches[2]
+                        Set-Content "env:\$($matches[1])" $matches[2];
                     }
                 }
             }else{

@@ -23,6 +23,8 @@ namespace RA
 
         template<typename T, typename ...A>
         static T* AllocateObjOnDevice(A&&... Args);
+        template<typename B, typename D, typename ...A>
+        static B* AllocateObjOnDevice(A&&... Args);
 
         static void PrintDeviceStats();
 
@@ -96,6 +98,13 @@ T* RA::Host::AllocateObjOnDevice(A&& ...Args)
 {
     auto LvHostDataPtr = RA::MakeShared<T>(std::forward<A>(Args)...);
     return RA::Host::CopyHostToDevice<T>(LvHostDataPtr.Ptr(), Allocate(1, sizeof(T)));
+}
+
+template<typename B, typename D, typename ...A>
+B* RA::Host::AllocateObjOnDevice(A&& ...Args)
+{
+    xp<B> LvHostDataPtr = RA::MakeShared<D>(std::forward<A>(Args)...);
+    return RA::Host::CopyHostToDevice<B>(LvHostDataPtr.Ptr(), Allocate(1, sizeof(B)));
 }
 
 void RA::Host::PrintDeviceStats()

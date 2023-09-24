@@ -19,7 +19,8 @@ Write-Host "                         OS, SYS, Stash, JSON"
 Write-Host "2. ExtendedSTL         : Memory, xvector, xstring, xmap"
 Write-Host "3. FunctionalSTL       : re, ac, mc"
 Write-Host "4. ModdedObjects       : cc"
-Write-Host "4. GPU/Device/CUDA     : ImportCUDA, CudaBridge, Stats"
+Write-Host "4. GPU/Device/CUDA     : ImportCUDA, CudaBridge"
+Write-Host "                         Cipher, Stats"
 
 # ALERT!!! AFTER MAKING MODS, BE SURE TO COPY THIS FILE TO YOUR POWRSHELL PATH !!!
 
@@ -105,6 +106,7 @@ $handler.CopyLib("CC")
 $handler.dir = $GPU
 $handler.CopyLib("ImportCUDA")
 $handler.CopyLib("CudaBridge")
+$handler.CopyLib("Cipher")
 $handler.CopyLib("Stats")
 
 

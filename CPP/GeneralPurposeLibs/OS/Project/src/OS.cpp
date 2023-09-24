@@ -1,4 +1,4 @@
-#pragma warning ( disable : 26444) // Allow un-named objects
+﻿#pragma warning ( disable : 26444) // Allow un-named objects
 /*
 * Copyright[2018][Joel Leagues aka Scourge]
 * Scourge /at\ protonmail /dot\ com
@@ -362,6 +362,7 @@ xstring RA::OS::Read(char content, bool close_file /* = false */)
     case 'c':  return CMD.m_out;
     default:  return xstring("none");
     }
+
     if (close_file)
         this->Close();
     Rescue();
@@ -380,11 +381,8 @@ xstring RA::OS::InstRead()
         while (getline(File.m_in_stream, line))
             File.m_data += line + '\n';
     }
-    else {
-        xstring err("Error (" + RA::ToXString(errno) + "): File Locked: ");
-        err += File.m_name;
-        throw std::runtime_error(err.c_str());
-    }
+    else 
+        ThrowIt("Error (" + RA::ToXString(errno) + "): File Locked: ", File.m_name);
     return File.m_data;
     Rescue();
 }

@@ -22,6 +22,7 @@ public:
     Player(const xstring& FsName) : MsPlayerName(FsName) {}
     RIN     auto&   GetPlayerName() const { return MsPlayerName; }
     virtual xstring Attack() const = 0;
+    void SetName(const xstring& Fname) { MsPlayerName = Fname; }
     TTT RIN T&      Cast() { return *dynamic_cast<T*>(this); }
 protected:
     xstring MsPlayerName;
@@ -54,9 +55,12 @@ void TestSharedPtr()
 
     xvector<xp<Player>> Players = Nex.GetAllPtrs();
     auto& LoPlayer = Players.First();
-
-
+    auto PlayersCopy = Players;
     cout << LoPlayer.GetPlayerName() << endl;
+    PlayersCopy.First().SetName("KingKozaK the 2nd");
+    cout << LoPlayer.GetPlayerName() << endl;
+
+
     cout << LoPlayer.Attack() << endl;
             LoPlayer.Cast<Barbarian>().SetArmor("Light");
     cout << LoPlayer.Cast<Barbarian>().GetArmor() << endl;
@@ -69,22 +73,22 @@ int main()
     Begin();
 
     TestSharedPtr();
-    TestClone();
-    TestCopy();
-    ReferencePtrTest::Run();
-    Abstract::Run();
+    //TestClone();
+    //TestCopy();
+    //ReferencePtrTest::Run();
+    //Abstract::Run();
 
-    if(false) // true, false
-    {
-        Nexus<xstring> Nex;
-        //Nex.AddTask("BenchAtomicClass",       Benchmark::AtomicClass);
-        //Nex.AddTask("BenchAtomicFundamental", Benchmark::AtomicFundamental);
-        //Nex.AddTask("BenchSharedPtr",         Benchmark::SharedPtr);
+    //if(false) // true, false
+    //{
+    //    Nexus<xstring> Nex;
+    //    //Nex.AddTask("BenchAtomicClass",       Benchmark::AtomicClass);
+    //    //Nex.AddTask("BenchAtomicFundamental", Benchmark::AtomicFundamental);
+    //    //Nex.AddTask("BenchSharedPtr",         Benchmark::SharedPtr);
 
-        cout << "\n\n";
-        for (xstring& Output : Nex.GetAll())
-            cout << Output << endl;
-    }
+    //    cout << "\n\n";
+    //    for (xstring& Output : Nex.GetAll())
+    //        cout << Output << endl;
+    //}
 
     RescuePrint();
     return Nexus<>::Stop();

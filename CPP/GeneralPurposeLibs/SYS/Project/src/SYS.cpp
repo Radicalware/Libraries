@@ -1,4 +1,4 @@
-/*
+﻿/*
 * Copyright[2018][Joel Leagues aka Scourge]
 * Scourge /at\ protonmail /dot\ com
 * www.Radicalware.com
@@ -51,7 +51,13 @@ void RA::SYS::SetArgs(int argc, char** argv)
     MbArgsSet = true;
     MvCliArgs.reserve(argc);
     for (int i = 0; i < argc; i++)
-        MvCliArgs << xstring(argv[i]);
+    {
+        auto LsArg = xstring(argv[i]);
+        if (IsArgType(LsArg))
+            MvCliArgs << LsArg.ToLower();
+        else
+            MvCliArgs << std::move(LsArg);
+    }
     MnSize = MvCliArgs.Size();
 
     size_t program_split_loc = MvCliArgs[0].find_last_of("/\\");
@@ -125,7 +131,7 @@ void RA::SYS::SetArgs(int argc, char** argv)
 
 void RA::SYS::AddAlias(const char FChr, const xstring& FStr)
 {
-    MmAliasSC.AddPair(FStr, FChr);
+    MmAliasSC.AddPair(FStr.ToLower(), FChr);
 }
 
 // -------------------------------------------------------------------------------------------------------------------
@@ -163,9 +169,10 @@ xstring RA::SYS::File() { return MsFile; }
 xvector<xstring> RA::SYS::Key(const xstring& FKey) const
 {
     Begin();
-    if (!MvKeysStr.Has(FKey))
+    const auto LoKey = FKey.ToLower();
+    if (!MvKeysStr.Has(LoKey))
         ThrowIt("CLI argument not found for key: ", FKey);
-    return MmArgs.Key(MmAliasSC.Key(FKey));
+    return MmArgs.Key(MmAliasSC.Key(LoKey));
     Rescue();
 }
 xvector<xstring> RA::SYS::Key(const char FKey) const
@@ -179,8 +186,10 @@ xvector<xstring> RA::SYS::Key(const char FKey) const
 bool RA::SYS::HasArgs() const { return MnSize > 1; }
 // -------------------------------------------------------------------------------------------------------------------
 
-bool RA::SYS::Has(const xstring& FKey) const {
-    return MvKeysStr.Has(FKey) || MmArgs.Has(MmAliasSC.at(FKey)) || MvKeysChr.Has(MmAliasSC.at(FKey));
+bool RA::SYS::Has(const xstring& FKey) const 
+{
+    const auto LoKey = FKey.ToLower();
+    return MvKeysStr.Has(LoKey) || (MmAliasSC.Has(LoKey) && (MmArgs.Has(MmAliasSC.at(LoKey)) || MvKeysChr.Has(MmAliasSC.at(LoKey))));
 }
 
 bool RA::SYS::Has(const char FKey) const {
@@ -238,13 +247,13 @@ xstring RA::SYS::operator[](int FKey)
 
 bool RA::SYS::operator()(const xstring& FKey) const
 {
-    return MvKeysStr.Has(FKey);
+    return MvKeysStr.Has(FKey.ToLower());
 }
 
 bool RA::SYS::operator()(const xstring& FKey, const xstring& FValue) const
 {
     Begin();
-    const char ChrArg = MmAliasSC.Key(FKey);
+    const char ChrArg = MmAliasSC.Key(FKey.ToLower());
     return The(ChrArg, FValue);
     Rescue();
 }
@@ -285,9 +294,9 @@ bool RA::SYS::Help()
 bool RA::SYS::HasSingleDash(const xstring& FsArg) const
 {
     Begin();
-    if (!FsArg.Size() || FsArg.Match(R"(^\-[\d\.]+$)"))
+    if (!FsArg || FsArg.Match(R"(^\-[\d\.]+$)")) // false if no size or negative number
         return false;
-    return (FsArg[0] == '-');
+    return (FsArg[0] == '-'); // else do real test
     Rescue();
 }
 

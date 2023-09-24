@@ -84,7 +84,7 @@ public:
     RIN xvector<C> Convert() const;
 
     template<typename C, typename F>
-    RIN xvector<C> Convert(F function) const;
+    RIN xvector<C> Convert(F FfFunction) const;
 
     template<typename N = unsigned int>
     RIN xvector<xvector<T>> Split(N count = 1) const;
@@ -106,21 +106,22 @@ public:
     RIN xvector<T*> GetPtrs();
 
     template<typename F, typename... A>
-    RIN void Proc(F&& function, A&& ...Args);
+    RIN void Proc(F&& FfFunction, A&& ...Args);
     template<typename F, typename... A>
-    RIN void ProcThread(F&& function, A&& ...Args);
+    RIN void ProcThread(F&& FfFunction, A&& ...Args);
 
     // single threaded non-const
-    template<typename N = E, typename F, typename ...A>             RIN xvector<N> ForEach(F&& function, A&& ...Args);
-    template<typename K, typename V, typename F, typename ...A>     RIN std::unordered_map<K, V> ForEach(F&& function, A&& ...Args);
+    template<typename N = E, typename F, typename ...A>             RIN xvector<N> ForEach(F&& FfFunction, A&& ...Args);
+    template<typename K, typename V, typename F, typename ...A>     RIN std::unordered_map<K, V> ForEach(F&& FfFunction, A&& ...Args);
     // single threaded const
-    template<typename N = E, typename F, typename ...A>             RIN xvector<N> ForEach(F&& function, A&& ...Args) const;
-    template<typename K, typename V, typename F, typename ...A>     RIN std::unordered_map<K, V> ForEach(F&& function, A&& ...Args) const;
+    template<typename N = E, typename F, typename ...A>             RIN xvector<N> ForEach(F&& FfFunction, A&& ...Args) const;
+    template<typename K, typename V, typename F, typename ...A>     RIN std::unordered_map<K, V> ForEach(F&& FfFunction, A&& ...Args) const;
     // multi-threaded const & non-const
-    template<typename N = E, typename F, typename... A>             RIN xvector<xp<N>> ForEachThread(F&& function, A&& ...Args);
-    //template<typename K, typename V, typename F, typename ...A>     RIN std::unordered_map<K, V> ForEachThread(F&& function, A&& ...Args) const;
 
-    template<typename N = E, typename F, typename... A>             RIN void StartTasks(F&& function, A&& ...Args);
+    template<typename N = E, typename F, typename... A>             RIN xvector<N> ForEachThread(F&& FfFunction, A&& ...Args);
+    //template<typename K, typename V, typename F, typename ...A>     RIN std::unordered_map<K, V> ForEachThread(F&& FfFunction, A&& ...Args) const;
+
+    template<typename N = E, typename F, typename... A>             RIN void StartTasks(F&& FfFunction, A&& ...Args);
 
     template<typename N = E>                                        RIN xvector<xp<T>> GetTasks() const;
 
@@ -387,11 +388,11 @@ RIN xvector<C> ValXVector<T>::Convert() const
 
 template<typename T>
 template<typename C, typename F>
-RIN xvector<C> ValXVector<T>::Convert(F function) const
+RIN xvector<C> ValXVector<T>::Convert(F FfFunction) const
 {
     xvector<C> ret;
     for (typename ValXVector<T>::const_iterator it = The.begin(); it != The.end(); it++)
-        ret << function(*it);
+        ret << FfFunction(*it);
     return ret;
 }
 
@@ -524,72 +525,78 @@ RIN xvector<T*> ValXVector<T>::GetPtrs()
 
 template<typename T>
 template<typename F, typename... A>
-RIN void ValXVector<T>::Proc(F&& function, A&& ...Args)
+RIN void ValXVector<T>::Proc(F&& FfFunction, A&& ...Args)
 {
     for (typename xvector<E>::iterator it = The.begin(); it != The.end(); it++) {
-        if (function(*it, std::forward<A>(Args)...))
+        if (FfFunction(*it, std::forward<A>(Args)...))
             break;
     }
 }
 
 template<typename T>
 template<typename F, typename... A>
-RIN void ValXVector<T>::ProcThread(F&& function, A&& ...Args)
+RIN void ValXVector<T>::ProcThread(F&& FfFunction, A&& ...Args)
 {
     for (typename xvector<E>::iterator it = The.begin(); it != The.end(); it++)
-        Nexus<>::AddTaskVal(function, *it, std::ref(Args)...);
+        Nexus<>::AddTaskVal(FfFunction, *it, std::ref(Args)...);
 }
 
 template<typename T>
 template<typename N, typename F, typename ...A>
-RIN xvector<N> ValXVector<T>::ForEach(F&& function, A&& ...Args) const
+RIN xvector<N> ValXVector<T>::ForEach(F&& FfFunction, A&& ...Args) const
 {
     xvector<N> vret;
     for (typename xvector<E>::const_iterator it = The.begin(); it != The.end(); it++)
-        vret.push_back(function(*it, std::forward<A>(Args)...));
+        vret.push_back(FfFunction(*it, std::forward<A>(Args)...));
     return vret;
 }
 
 template<typename T>
 template<typename K, typename V, typename F, typename ...A>
-RIN std::unordered_map<K, V> ValXVector<T>::ForEach(F&& function, A&& ...Args)
+RIN std::unordered_map<K, V> ValXVector<T>::ForEach(F&& FfFunction, A&& ...Args)
 {
     std::unordered_map<K, V> rmap;
     for (typename xvector<E>::iterator it = The.begin(); it != The.end(); it++)
-        rmap.insert(function(*it, std::forward<A>(Args)...));
+        rmap.insert(FfFunction(*it, std::forward<A>(Args)...));
     return rmap;
 }
 
 template<typename T>
 template<typename N, typename F, typename ...A>
-RIN xvector<N> ValXVector<T>::ForEach(F&& function, A&& ...Args)
+RIN xvector<N> ValXVector<T>::ForEach(F&& FfFunction, A&& ...Args)
 {
     xvector<N> vret;
     for (typename xvector<E>::iterator it = The.begin(); it != The.end(); it++)
-        vret.push_back(function(*it, std::forward<A>(Args)...));
+        vret.push_back(FfFunction(*it, std::forward<A>(Args)...));
     return vret;
 }
 
 template<typename T>
 template<typename K, typename V, typename F, typename ...A>
-RIN std::unordered_map<K, V> ValXVector<T>::ForEach(F&& function, A&& ...Args) const
+RIN std::unordered_map<K, V> ValXVector<T>::ForEach(F&& FfFunction, A&& ...Args) const
 {
     std::unordered_map<K, V> rmap;
     for (typename xvector<E>::const_iterator it = The.begin(); it != The.end(); it++)
-        rmap.insert(function(*it, std::forward<A>(Args)...));
+        rmap.insert(FfFunction(*it, std::forward<A>(Args)...));
     return rmap;
 }
 
 template<typename T>
 template<typename N, typename F, typename ...A>
-RIN xvector<xp<N>> ValXVector<T>::ForEachThread(F&& function, A&& ...Args)
+RIN xvector<N> ValXVector<T>::ForEachThread(F&& FfFunction, A&& ...Args)
 {
-    if constexpr (std::is_same_v<N, T>)
+#ifdef UsingMSVC
+    if constexpr (sizeof...(Args) == 0)
+        return The.ForEachThreadUnseq<N>(FfFunction);
+#endif // UsingMSVC
+
+
+    if constexpr (IsSame(N, T))
     {
         SSET(MoNexus, MKP<Nexus<T>>());
         MoNexus.Disable();
         for (typename xvector<E>::iterator it = The.begin(); it != The.end(); it++)
-            MoNexus.AddTaskVal(function, *it, std::ref(Args)...);
+            MoNexus.AddTaskVal(FfFunction, *it, std::ref(Args)...);
         MoNexus.Enable();
         return MoNexus.GetAllPtrs();
     }
@@ -598,32 +605,33 @@ RIN xvector<xp<N>> ValXVector<T>::ForEachThread(F&& function, A&& ...Args)
         Nexus<N> LoNexus;
         LoNexus.Disable();
         for (typename xvector<E>::iterator it = The.begin(); it != The.end(); it++)
-            LoNexus.AddTaskVal(function, *it, std::ref(Args)...);
+            LoNexus.AddTaskVal(FfFunction, *it, std::ref(Args)...);
         LoNexus.Enable();
         return LoNexus.GetAllPtrs();
     }
 }
 
+
 //template<typename T>
 //template<typename K, typename V, typename F, typename ...A>
-//RIN std::unordered_map<K, V> ValXVector<T>::ForEachThread(F&& function, A&& ...Args) const
+//RIN std::unordered_map<K, V> ValXVector<T>::ForEachThread(F&& FfFunction, A&& ...Args) const
 //{
 //    auto MapPool = Nexus<std::pair<K, V>>();
 //    MapPool.Disable();
 //    for (typename xvector<E>::const_iterator it = The.begin(); it != The.end(); it++)
-//        MapPool.AddTaskVal(function, *it, std::ref(Args)...);
+//        MapPool.AddTaskVal(FfFunction, *it, std::ref(Args)...);
 //    MapPool.Enable();
 //    return MapPool.GetMoveAllIndices();
 //}
 
 template<typename T>
 template <typename N, typename F, typename ...A>
-RIN void ValXVector<T>::StartTasks(F&& function, A&& ...Args)
+RIN void ValXVector<T>::StartTasks(F&& FfFunction, A&& ...Args)
 {
     SSET(MoNexus, MKP<Nexus<T>>());
     MoNexus.Disable();
     for (typename xvector<E>::iterator it = The.begin(); it != The.end(); it++)
-        MoNexus.AddTaskVal(function, *it, std::ref(Args)...);
+        MoNexus.AddTaskVal(FfFunction, *it, std::ref(Args)...);
     MoNexus.Enable();
 }
 

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #ifndef UsingMSVC
 #include "ImportCUDA.cuh"
@@ -11,11 +11,20 @@ namespace RA
     class AVG
     {
         friend class Stats;
+        friend class Deviation;
+        friend class MeanAbsoluteDeviation;
+        friend class StandardDeviation;
     public:
         AVG(const double* FvValues,
             const xint    FnLogicalSize,
             const xint   *FnStorageSizePtr,
             const xint   *FnInsertIdxPtr);
+
+        IXF void SetMaxTraceSize(const xint FSize) { MnMaxTraceSize = FSize; }
+
+        DXF void CopyStats(const AVG& Other);
+
+        DXF void SetDefaultValues(const double FnDefaualt);
 
         IXF auto GetAVG() const { return MnAvg; }
         IXF auto GetSum() const { return MnSum; }
@@ -26,18 +35,18 @@ namespace RA
         IXF auto GetInsertIdx()       const { return *MnInsertIdxPtr; }
         IXF auto GetValues()          const { return  MvValues; }
 
-        DXF void CopyStats(const AVG& Other);
+        IXF double GetOldValue() const { return MvValues[GetOldIDX()]; }
+        DXF xint   GetOldIDX() const;
+
+        DXF void Update(const double FnValue);
 
     private:
-        DXF void Update();
-        DXF void Update(const double FnValue);
-        DXF void SetDefaultValues(const double FnDefaualt);
-
         const double* MvValues = nullptr;
               xint    MnLogicalSize = 0;
         const xint   *MnStorageSizePtr;
         const xint   *MnInsertIdxPtr;
 
+              xint    MnMaxTraceSize = 0;
         const bool    MbUseStorageValues;
               double  MnAvg = 0;
               double  MnSum = 0;

@@ -29,6 +29,7 @@ class Files
         
         "../../GPU/CudaImport/install.ps1"
         "../../GPU/CudaBridge/install.ps1"
+        "../../GPU/Cipher/install.ps1"
         "../../GPU/Stats/install.ps1"
     )
         # --------------------------------------------------
@@ -56,6 +57,7 @@ class Files
         "../../GeneralPurposeLibs/AES/Examples/run.ps1",
 
         "../../GPU/CudaBridge/Examples/run.ps1"
-        "../../GPU/Stats/Examples/run.ps1"
+        "../../GPU/Cipher/Examples/CudaExamples/run.ps1"
+        "../../GPU/Stats/Examples/CudaExamples/run.ps1"
     )
 }

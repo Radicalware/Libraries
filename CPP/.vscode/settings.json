@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "sstream": "cpp",
-        "memory": "cpp"
+        "memory": "cpp",
+        "exception": "cpp"
     }
 }

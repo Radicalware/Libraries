@@ -3,113 +3,236 @@
 #include "Macros.h"
 #include "xmap.h"
 
-#include "StatsCPU.cuh"
 #include "StatsGPU.cuh"
-
-#include "ImportCUDA.cuh"
-#include "Host.cuh"
 #include "CudaBridge.cuh"
 
-#include "vld.h"
+// #include "vld.h"
 
 using std::cout;
 using std::endl;
+
+template<typename ...R>
+void CudaShot(R... Args)
+{
+    RA::CudaBridge<>::NONE::RunGPU(dim3(1), dim3(1), std::forward<R>(Args)...);
+    RA::CudaBridge<>::SyncAll();
+}
 
 
 namespace Test
 {
     namespace Kernel
     {
-        static __global__ void AddValuesOneToTweanty(RA::StatsGPU *StatsPtr, const xint LoopCount)
+        namespace Add
         {
-            auto& Stats = *StatsPtr;
-
-            for (int i = 1; i <= LoopCount; i++)
-                Stats << i;
-        }
-
-        static __global__ void AddValuesForSTOCH_1(RA::StatsGPU* StatsPtr, const xint LoopCount)
-        {
-            auto& Stats = *StatsPtr;
-
-            for (int i = 1; i <= LoopCount; i++)
-                Stats << i;
-
-            Stats << 25;
-            Stats << 35;
-        }
-
-        static __global__ void AddValuesForSTOCH_2(RA::StatsGPU* StatsPtr, const xint LoopCount)
-        {
-            auto& Stats = *StatsPtr;
-
-            for (int i = 1; i <= LoopCount; i++)
-                Stats << i;
-
-            Stats << 25;
-            Stats << 60;
-            Stats << 55;
-        }
-
-        static __global__ void AddValuesForRSI_Up(RA::StatsGPU* StatsPtr, const xint LoopCount)
-        {
-            auto& Stats = *StatsPtr;
-
-            double LnPrice = 50;
-            for (xint i = 0; i <= Stats.GetStorageSize(); i++)
+            static __global__ void Value(RA::StatsGPU* StatsPtr, const double FnValue)
             {
-                if (i % 2)
-                    LnPrice -= 1;
-                else
-                    LnPrice += 3;
+                if (!StatsPtr)
+                    printf(RED "Null Arg in: " __CLASS__ "\n" WHITE);
+                *StatsPtr << FnValue;
+            }
+            static __global__ void ValuesToRange(RA::StatsGPU* StatsPtr, const xint FnStart, const xint FnEnd)
+            {
+                if (!StatsPtr)
+                    printf(RED "Null Arg in: " __CLASS__ "\n" WHITE);
+                auto& Stats = *StatsPtr;
+                for (int i = FnStart; i <= FnEnd; i++)
+                    Stats << i;
+            }
+            static __global__ void StaticValueToRange(RA::StatsGPU* StatsPtr, const double FnValue, const xint FnStart, const xint FnEnd)
+            {
+                if (!StatsPtr)
+                    printf(RED "Null Arg in: " __CLASS__ "\n" WHITE);
+                auto& Stats = *StatsPtr;
+                for (int i = FnStart; i <= FnEnd; i++)
+                    Stats << FnValue;
+            }
 
-                Stats << LnPrice;
+
+            static __global__ void AddIncreasingRSI(RA::StatsGPU* StatsPtr, double FnValue, const xint FnStart, const xint FnEnd)
+            {
+                if (!StatsPtr)
+                    printf(RED "Null Arg in: " __CLASS__ "\n" WHITE);
+                auto& Stats = *StatsPtr;
+
+                for (int i = FnStart; i <= FnEnd; i++)
+                {
+                    if (i % 2)
+                        FnValue += 3;
+                    else
+                        FnValue -= 1;
+
+                    if (FnValue < 0)
+                        printf("Price below zero in " __CLASS__);
+
+                    Stats << FnValue;
+                }
+            }
+
+            static __global__ void AddDecreasingRSI(RA::StatsGPU* StatsPtr, double FnValue, const xint FnStart, const xint FnEnd)
+            {
+                if (!StatsPtr)
+                    printf(RED "Null Arg in: " __CLASS__ "\n" WHITE);
+                auto& Stats = *StatsPtr;
+
+                for (int i = FnStart; i <= FnEnd; i++)
+                {
+                    if (i % 2)
+                        FnValue += 1;
+                    else
+                        FnValue -= 3;
+
+                    if (FnValue < 0)
+                        printf("Price below zero in " __CLASS__);
+
+                    Stats << FnValue;
+                }
             }
         }
 
-        static __global__ void AddValuesForRSI_Down(RA::StatsGPU* StatsPtr, const xint LoopCount)
+        namespace Check
         {
-            auto& Stats = *StatsPtr;
-
-            double LnPrice = 50;
-            for (xint i = 0; i <= Stats.GetStorageSize(); i++)
+            static __global__ void AverageEquals(RA::StatsGPU* StatsPtr, const double FnAvg)
             {
-                if (i % 2)
-                    LnPrice += 1;
-                else
-                    LnPrice -= 3;
+                if (!StatsPtr)
+                    printf(RED "Null Arg in: " __CLASS__ "\n" WHITE);
+                auto& Stats = *StatsPtr;
+                constexpr auto LnAllowedVariance = 0.0003;
+                if (FnAvg > Stats.AVG().GetAVG() + LnAllowedVariance
+                    || FnAvg < Stats.AVG().GetAVG() - LnAllowedVariance)
+                    printf(RED "%fll != %fll\n" WHITE, Stats.AVG().GetAVG(), FnAvg);
+            }
 
-                Stats << LnPrice;
+            static __global__ void StochEquals(RA::StatsGPU* StatsPtr, const double FnAvg)
+            {
+                if (!StatsPtr)
+                    printf(RED "Null Arg in: " __CLASS__ "\n" WHITE);
+                auto& Stats = *StatsPtr;
+                constexpr auto LnAllowedVariance = 0.0003;
+                if (FnAvg > Stats.STOCH().GetSTOCH() + LnAllowedVariance
+                    || FnAvg < Stats.STOCH().GetSTOCH() - LnAllowedVariance)
+                    printf(RED "%fll != %fll\n" WHITE, Stats.STOCH().GetSTOCH(), FnAvg);
+            }
+
+            static __global__ void RSIEquals(RA::StatsGPU* StatsPtr, const double FnAvg)
+            {
+                if (!StatsPtr)
+                    printf(RED "Null Arg in: " __CLASS__ "\n" WHITE);
+                auto& Stats = *StatsPtr;
+                constexpr auto LnAllowedVariance = 0.0003;
+                if (FnAvg > Stats.RSI().GetRSI() + LnAllowedVariance
+                    || FnAvg < Stats.RSI().GetRSI() - LnAllowedVariance)
+                    printf(RED "%fll != %fll\n" WHITE, Stats.RSI().GetRSI(), FnAvg);
+            }
+
+            static __global__ void MeanAbsoluteDeviationEquals(RA::StatsGPU* StatsPtr, const double FnAvg)
+            {
+                if (!StatsPtr)
+                    printf(RED "Null Arg in: " __CLASS__ "\n" WHITE);
+                auto& Stats = *StatsPtr;
+                constexpr auto LnAllowedVariance = 0.0003;
+                if (FnAvg > Stats.MAD().GetDeviation() + LnAllowedVariance
+                    || FnAvg < Stats.MAD().GetDeviation() - LnAllowedVariance)
+                    printf(RED "%fll != %fll\n" WHITE, Stats.MAD().GetDeviation(), FnAvg);
+            }
+            static __global__ void StandardDeviationEquals(RA::StatsGPU* StatsPtr, const double FnAvg)
+            {
+                if (!StatsPtr)
+                    printf(RED "Null Arg in: " __CLASS__ "\n" WHITE);
+                auto& Stats = *StatsPtr;
+                constexpr auto LnAllowedVariance = 0.0003;
+                if (FnAvg > Stats.SD().GetDeviation() + LnAllowedVariance
+                    || FnAvg < Stats.SD().GetDeviation() - LnAllowedVariance)
+                    printf(RED "%fll != %fll\n" WHITE, Stats.SD().GetDeviation(), FnAvg);
+            }
+
+            static __global__ void MeanAbsoluteDeviationOffsetEquals(RA::StatsGPU* StatsPtr, const double FnAvg)
+            {
+                if (!StatsPtr)
+                    printf(RED "Null Arg in: " __CLASS__ "\n" WHITE);
+                auto& Stats = *StatsPtr;
+                constexpr auto LnAllowedVariance = 0.0003;
+                if (FnAvg > Stats.MAD().GetOffset() + LnAllowedVariance
+                    || FnAvg < Stats.MAD().GetOffset() - LnAllowedVariance)
+                    printf(RED "%fll != %fll\n" WHITE, Stats.MAD().GetOffset(), FnAvg);
+            }
+            static __global__ void StandardDeviationOffsetEquals(RA::StatsGPU* StatsPtr, const double FnAvg)
+            {
+                if (!StatsPtr)
+                    printf(RED "Null Arg in: " __CLASS__ "\n" WHITE);
+                auto& Stats = *StatsPtr;
+                constexpr auto LnAllowedVariance = 0.0003;
+                if (FnAvg > Stats.SD().GetOffset() + LnAllowedVariance
+                    || FnAvg < Stats.SD().GetOffset() - LnAllowedVariance)
+                    printf(RED "%fll != %fll\n" WHITE, Stats.SD().GetOffset(), FnAvg);
             }
         }
 
-        static __global__ void PrintAVG(RA::StatsGPU* StatsPtr)
+        namespace Print
         {
-            auto& Stats = *StatsPtr;
-            printf("AVG: %lf\n", Stats.AVG().GetAVG());
-            printf("SUM: %lf\n", Stats.AVG().GetSum());
-            printf("\n");
-        }
-        static __global__ void PrintSTOCH(RA::StatsGPU* StatsPtr)
-        {
-            auto& Stats = *StatsPtr;
-            printf("MAX: %lf\n", Stats.STOCH().GetMax());
-            printf("CUR: %lf\n", Stats.STOCH().GetCurrent());
-            printf("MIN: %lf\n", Stats.STOCH().GetMin());
-            printf("STO: %lf\n", Stats.STOCH().GetSTOCH());
-            printf("\n");
-        }
-        static __global__ void PrintRSI(RA::StatsGPU* StatsPtr)
-        {
-            auto& Stats = *StatsPtr;
-            printf("RSI: %lf\n", Stats.GetRSI());
-            printf("\n");
+            static __global__ void SumAndAVG(RA::StatsGPU* StatsPtr)
+            {
+                if (!StatsPtr)
+                    printf(RED "Null Arg in: " __CLASS__ "\n" WHITE);
+                auto& Stats = *StatsPtr;
+                printf("AVG: %lf\n", Stats.AVG().GetAVG());
+                printf("SUM: %lf\n", Stats.AVG().GetSum());
+                printf("\n");
+            }
+            static __global__ void MaxMinStoch(RA::StatsGPU* StatsPtr)
+            {
+                if (!StatsPtr)
+                    printf(RED "Null Arg in: " __CLASS__ "\n" WHITE);
+                auto& Stats = *StatsPtr;
+                printf("MAX: %lf\n", Stats.STOCH().GetMax());
+                printf("MIN: %lf\n", Stats.STOCH().GetMin());
+                printf("STO: %lf\n", Stats.STOCH().GetSTOCH());
+                printf("\n");
+            }
+            static __global__ void RSI(RA::StatsGPU* StatsPtr)
+            {
+                if (!StatsPtr)
+                    printf(RED "Null Arg in: " __CLASS__ "\n" WHITE);
+                auto& Stats = *StatsPtr;
+                printf("RSI: %lf\n", Stats.GetRSI());
+            }
+
+            static __global__ void StandardDeviation(RA::StatsGPU* StatsPtr)
+            {
+                if (!StatsPtr)
+                    printf(RED "Null Arg in: " __CLASS__ "\n" WHITE);
+                auto& Stats = *StatsPtr;
+                printf("SD: %lf\n", Stats.SD().GetDeviation());
+            }
+            static __global__ void MeanAbsoluteDeviation(RA::StatsGPU* StatsPtr)
+            {
+                if (!StatsPtr)
+                    printf(RED "Null Arg in: " __CLASS__ "\n" WHITE);
+                auto& Stats = *StatsPtr;
+                printf("MAD: %lf\n", Stats.MAD().GetDeviation());
+            }
+
+            static __global__ void StandardDeviationOffset(RA::StatsGPU* StatsPtr)
+            {
+                if (!StatsPtr)
+                    printf(RED "Null Arg in: " __CLASS__ "\n" WHITE);
+                auto& Stats = *StatsPtr;
+                printf("SD Offset: %lf\n", Stats.SD().GetOffset());
+            }
+            static __global__ void MeanAbsoluteDeviationOffset(RA::StatsGPU* StatsPtr)
+            {
+                if (!StatsPtr)
+                    printf(RED "Null Arg in: " __CLASS__ "\n" WHITE);
+                auto& Stats = *StatsPtr;
+                printf("MAD Offset: %lf\n", Stats.MAD().GetOffset());
+            }
+
         }
     }
 
     namespace Storage
     {
-        namespace CPU
+        namespace GPU
         {
             void AVG()
             {
@@ -119,24 +242,28 @@ namespace Test
                 const auto LnStorageSize = 20;
                 const auto LnLogicalSize = 10;
 
-                auto One = RA::StatsCPU(LnStorageSize,
-                    {
-                        {RA::Stats::EOptions::AVG,   LnLogicalSize},
-                    });
+                auto Stats1 = RA::Host::AllocateObjOnDevice<RA::StatsGPU>(LnStorageSize,
+                    xmap<RA::EStatOpt, xint>({
+                        {RA::EStatOpt::AVG, LnLogicalSize} // half storage size
+                        })
+                );
 
-                auto PrintVals = [](const RA::StatsCPU& Obj) ->void
-                {
-                    cout << "AVG: " << Obj.AVG().GetAVG() << endl;
-                    cout << "SUM: " << Obj.AVG().GetSum() << endl;
-                    cout << endl;
-                };
+                const auto LnLogicalLoopSize = 20;
 
-                for (xint i = 1; i <= One.GetStorageSize(); i++)
-                    One << i;
+                RA::Host::ConfigureStatsSync(Stats1);
+                CudaShot(&Kernel::Add::ValuesToRange, Stats1, 1, LnLogicalLoopSize);
+                CudaShot(&Kernel::Print::SumAndAVG, Stats1);
+                CudaShot(&Kernel::Check::AverageEquals, Stats1, 15.5);
 
-                auto Two = One;
-                PrintVals(One);
-                PrintVals(Two);
+                auto Stats2 = RA::Host::AllocateObjOnDevice<RA::StatsGPU>(LnStorageSize,
+                    xmap<RA::EStatOpt, xint>({
+                        {RA::EStatOpt::AVG, LnStorageSize} // full storage size
+                        })
+                );
+                RA::Host::ConfigureStatsSync(Stats2);
+                CudaShot(&Kernel::Add::ValuesToRange, Stats2, 1, LnLogicalLoopSize * 2);
+                CudaShot(&Kernel::Print::SumAndAVG, Stats2);
+                CudaShot(&Kernel::Check::AverageEquals, Stats2, 30.5);
                 Rescue();
             }
 
@@ -148,40 +275,41 @@ namespace Test
                 const auto LnStorageSize = 20;
                 const auto LnLogicalSize = 10;
 
-                auto Stoch = RA::StatsCPU(LnStorageSize,
-                    {
-                        {RA::Stats::EOptions::STOCH, LnLogicalSize}
-                    });
-
-
                 {
+                    auto Stats = RA::Host::AllocateObjOnDevice<RA::StatsGPU>(LnStorageSize,
+                        xmap<RA::EStatOpt, xint>({
+                            {RA::EStatOpt::AVG, LnLogicalSize},
+                            {RA::EStatOpt::STOCH, LnLogicalSize},
+                            })
+                    );
+                    RA::Host::ConfigureStatsSync(Stats);
+
                     double LnPrice = 50;
-                    for (xint i = 0; i <= Stoch.GetStorageSize(); i++)
-                        Stoch << LnPrice;
+                    CudaShot(&Kernel::Add::StaticValueToRange, Stats, LnPrice, 0, LnStorageSize);
+                    CudaShot(&Kernel::Add::Value, Stats, 25);
+                    CudaShot(&Kernel::Add::Value, Stats, 35);
 
-                    Stoch << 25;
-                    Stoch << 35;
-
-                    // will be under 50 because closing 35 is under the ATH of 50
-                    cout << "MAX: " << Stoch.STOCH().GetMax() << endl;
-                    cout << "MIN: " << Stoch.STOCH().GetMin() << endl;
-                    cout << "STO: " << Stoch.STOCH().GetSTOCH() << endl;
-                    cout << endl;
+                    CudaShot(&Kernel::Print::MaxMinStoch, Stats);
+                    CudaShot(&Kernel::Check::StochEquals, Stats, 40);
                 }
                 {
+                    auto Stats = RA::Host::AllocateObjOnDevice<RA::StatsGPU>(LnStorageSize,
+                        xmap<RA::EStatOpt, xint>({
+                            {RA::EStatOpt::AVG, LnLogicalSize},
+                            {RA::EStatOpt::STOCH, LnLogicalSize}
+                            })
+                    );
+                    RA::Host::ConfigureStatsSync(Stats);
+
                     double LnPrice = 50;
-                    for (xint i = 0; i <= Stoch.GetStorageSize(); i++)
-                        Stoch << LnPrice;
+                    CudaShot(&Kernel::Add::StaticValueToRange, Stats, LnPrice, 0, LnStorageSize);
+                    CudaShot(&Kernel::Add::Value, Stats, 25);
+                    CudaShot(&Kernel::Add::Value, Stats, 60);
+                    CudaShot(&Kernel::Add::Value, Stats, 55);
 
-                    Stoch << 25;
-                    Stoch << 60;
-                    Stoch << 55;
-
-                    cout << "MAX: " << Stoch.STOCH().GetMax() << endl;
-                    cout << "MIN: " << Stoch.STOCH().GetMin() << endl;
-                    cout << "STO: " << Stoch.STOCH().GetSTOCH() << endl;
+                    CudaShot(&Kernel::Print::MaxMinStoch, Stats);
+                    CudaShot(&Kernel::Check::StochEquals, Stats, 85.7143);
                 }
-
                 Rescue();
             }
 
@@ -193,143 +321,96 @@ namespace Test
                 const auto LnStorageSize = 20;
                 const auto LnLogicalSize = 14;
 
-                auto RSI = RA::StatsCPU(LnStorageSize,
-                    {
-                        {RA::Stats::EOptions::RSI, LnLogicalSize}
-                    });
+
+                auto Stats = RA::Host::AllocateObjOnDevice<RA::StatsGPU>(LnStorageSize,
+                    xmap<RA::EStatOpt, xint>({
+                        {RA::EStatOpt::RSI, LnLogicalSize} })
+                        );
+                RA::Host::ConfigureStatsSync(Stats);
+
+                double LnPrice = 50;
+
+                CudaShot(&Kernel::Add::AddDecreasingRSI, Stats, LnPrice, 0, LnStorageSize);
+                CudaShot(&Kernel::Print::RSI, Stats);
+                CudaShot(&Kernel::Check::RSIEquals, Stats, 25);
+
+                CudaShot(&Kernel::Add::AddIncreasingRSI, Stats, LnPrice, 0, LnStorageSize);
+                CudaShot(&Kernel::Print::RSI, Stats);
+                CudaShot(&Kernel::Check::RSIEquals, Stats, 75);
+
+                CudaShot(&Kernel::Add::AddDecreasingRSI, Stats, LnPrice, 0, LnStorageSize);
+                CudaShot(&Kernel::Print::RSI, Stats);
+                CudaShot(&Kernel::Check::RSIEquals, Stats, 25);
 
 
+
+                Rescue();
+            }
+
+            void StandardDeviation()
+            {
+                Begin();
+                cout << '\n' << __CLASS__ << '\n';
+
+                const auto LnStorageSize = 4;
+                const auto LnLogicalSize = 4;
+
+                auto Stats = RA::Host::AllocateObjOnDevice<RA::StatsGPU>(LnStorageSize,
+                    xmap<RA::EStatOpt, xint>({
+                        {RA::EStatOpt::AVG, LnLogicalSize},
+                        {RA::EStatOpt::SD, LnLogicalSize}
+                        }));
+                RA::Host::ConfigureStatsSync(Stats);
+
+                for (xint i = 0; i < 2; i++)
                 {
-                    double LnPrice = 50;
-                    for (xint i = 0; i <= RSI.GetStorageSize(); i++)
-                    {
-                        if (i % 2)
-                            LnPrice += 1;
-                        else
-                            LnPrice -= 3;
-
-                        if (LnPrice < 0)
-                            ThrowIt("Price below zero");
-
-                        RSI << LnPrice;
-                    }
-                    cout << "RSI: " << RSI.GetRSI() << endl;
+                    CudaShot(&Kernel::Add::Value, Stats, 2);
+                    CudaShot(&Kernel::Add::Value, Stats, 5);
+                    CudaShot(&Kernel::Add::Value, Stats, 9);
+                    CudaShot(&Kernel::Add::Value, Stats, 12);
                 }
+                CudaShot(&Kernel::Print::StandardDeviation, Stats);
+                CudaShot(&Kernel::Print::StandardDeviationOffset, Stats);
+                CudaShot(&Kernel::Check::StandardDeviationEquals, Stats, 4.39697);
+
+                Rescue();
+            }
+
+            void MeanAbsoluteDeviation()
+            {
+                Begin();
+                cout << '\n' << __CLASS__ << '\n';
+
+                const auto LnStorageSize = 6;
+                const auto LnLogicalSize = 6;
+
+                auto Stats = RA::Host::AllocateObjOnDevice<RA::StatsGPU>(LnStorageSize,
+                    xmap<RA::EStatOpt, xint>({
+                        {RA::EStatOpt::AVG, LnLogicalSize},
+                        {RA::EStatOpt::MAD, LnLogicalSize}
+                        }));
+                RA::Host::ConfigureStatsSync(Stats);
+
+                for (xint i = 0; i < 2; i++)
                 {
-                    double LnPrice = 50;
-                    for (xint i = 0; i <= RSI.GetStorageSize(); i++)
-                    {
-                        if (i % 2)
-                            LnPrice += 3;
-                        else
-                            LnPrice -= 1;
-
-                        if (LnPrice < 0)
-                            ThrowIt("Price below zero");
-
-                        RSI << LnPrice;
-                    }
-                    cout << "RSI: " << RSI.GetRSI() << endl;
+                    CudaShot(&Kernel::Print::MeanAbsoluteDeviation, Stats);
+                    CudaShot(&Kernel::Add::Value, Stats, 3);
+                    CudaShot(&Kernel::Print::MeanAbsoluteDeviation, Stats);
+                    CudaShot(&Kernel::Add::Value, Stats, 3);
+                    CudaShot(&Kernel::Print::MeanAbsoluteDeviation, Stats);
+                    CudaShot(&Kernel::Add::Value, Stats, 5);
+                    CudaShot(&Kernel::Print::MeanAbsoluteDeviation, Stats);
+                    CudaShot(&Kernel::Add::Value, Stats, 8);
+                    CudaShot(&Kernel::Print::MeanAbsoluteDeviation, Stats);
+                    CudaShot(&Kernel::Add::Value, Stats, 8);
+                    CudaShot(&Kernel::Print::MeanAbsoluteDeviation, Stats);
+                    CudaShot(&Kernel::Add::Value, Stats, 12);
+                    CudaShot(&Kernel::Print::MeanAbsoluteDeviation, Stats);
                 }
-                Rescue();
-            }
-        }
+                CudaShot(&Kernel::Print::MeanAbsoluteDeviation, Stats);
+                CudaShot(&Kernel::Print::MeanAbsoluteDeviationOffset, Stats);
+                CudaShot(&Kernel::Check::MeanAbsoluteDeviationEquals, Stats, 2.83333);
 
-        namespace GPU
-        {
-            void AVG()
-            {
-                Begin();
-                cout << '\n' << __CLASS__ << '\n';
-
-                const auto LnStorageSize = 20;
-                const auto LnLogicalSize = 10;
-                // note: if storage size is 0, logical size must also be 0
-                // logical size increases indefinatly if storage size is 0
-                auto AvgGPU = RA::Host::AllocateObjOnDevice<RA::StatsGPU>(LnStorageSize,
-                    xmap<RA::Stats::EOptions, xint>({
-                        {RA::Stats::EOptions::AVG, LnLogicalSize}
-                        })
-                    );
-
-                const auto LnLogicalLoopSize = 20;
-
-                RA::Host::ConfigureStatsSync(AvgGPU);
-
-                RA::CudaBridge<>::NONE::RunGPU(dim3(1), dim3(1), &Test::Kernel::AddValuesOneToTweanty, AvgGPU, LnLogicalLoopSize);
-                RA::CudaBridge<>::SyncAll();
-
-                RA::CudaBridge<>::NONE::RunGPU(dim3(1), dim3(1), &Test::Kernel::PrintAVG, AvgGPU);
-                RA::CudaBridge<>::SyncAll();
-                Rescue();
-            }
-
-            void STOCH()
-            {
-                Begin();
-                cout << '\n' << __CLASS__ << '\n';
-
-                const auto LnStorageSize = 20;
-                const auto LnLogicalSize = 10;
-                // note: if storage size is 0, logical size must also be 0
-                // logical size increases indefinatly if storage size is 0
-                auto Stoch = RA::Host::AllocateObjOnDevice<RA::StatsGPU>(LnStorageSize,
-                    xmap<RA::Stats::EOptions, xint>({
-                        {RA::Stats::EOptions::STOCH, LnLogicalSize}
-                        })
-                    );
-
-                const auto LnLogicalLoopSize = 20;
-
-                RA::Host::ConfigureStatsSync(Stoch);
-
-                RA::CudaBridge<>::NONE::RunGPU(dim3(1), dim3(1), &Test::Kernel::AddValuesForSTOCH_1, Stoch, LnLogicalLoopSize);
-                RA::CudaBridge<>::SyncAll();
-
-                RA::CudaBridge<>::NONE::RunGPU(dim3(1), dim3(1), &Test::Kernel::PrintSTOCH, Stoch);
-                RA::CudaBridge<>::SyncAll();
-
-                RA::CudaBridge<>::NONE::RunGPU(dim3(1), dim3(1), &Test::Kernel::AddValuesForSTOCH_2, Stoch, LnLogicalLoopSize);
-                RA::CudaBridge<>::SyncAll();
-
-                RA::CudaBridge<>::NONE::RunGPU(dim3(1), dim3(1), &Test::Kernel::PrintSTOCH, Stoch);
-                RA::CudaBridge<>::SyncAll();
-                Rescue();
-            }
-
-            void RSI()
-            {
-                Begin();
-                cout << '\n' << __CLASS__ << '\n';
-
-                const auto LnStorageSize = 20;
-                const auto LnLogicalSize = 10;
-                // note: if storage size is 0, logical size must also be 0
-                // logical size increases indefinatly if storage size is 0
-                auto RSI = RA::Host::AllocateObjOnDevice<RA::StatsGPU>(LnStorageSize,
-                    xmap<RA::Stats::EOptions, xint>({
-                        {RA::Stats::EOptions::RSI, LnLogicalSize}
-                        })
-                    );
-
-                const auto LnLogicalLoopSize = 20;
-
-                RA::Host::ConfigureStatsSync(RSI);
-
-                cout << "RSI UP" << endl;
-                RA::CudaBridge<>::NONE::RunGPU(dim3(1), dim3(1), &Test::Kernel::AddValuesForRSI_Up, RSI, LnLogicalLoopSize);
-                RA::CudaBridge<>::SyncAll();
-
-                RA::CudaBridge<>::NONE::RunGPU(dim3(1), dim3(1), &Test::Kernel::PrintRSI, RSI);
-                RA::CudaBridge<>::SyncAll();
-
-
-                cout << "RSI DOWN" << endl;
-                RA::CudaBridge<>::NONE::RunGPU(dim3(1), dim3(1), &Test::Kernel::AddValuesForRSI_Down, RSI, LnLogicalLoopSize);
-                RA::CudaBridge<>::SyncAll();
-
-                RA::CudaBridge<>::NONE::RunGPU(dim3(1), dim3(1), &Test::Kernel::PrintRSI, RSI);
-                RA::CudaBridge<>::SyncAll();
                 Rescue();
             }
         }
@@ -337,80 +418,117 @@ namespace Test
 
     namespace Logical
     {
-        namespace CPU
-        {
-            void AVG()
-            {
-                cout << '\n' << __CLASS__ << '\n';
-
-                const auto LnStorageSize = 0;
-                const auto LnLogicalSize = 0;
-                // note: if storage size is 0, logical size must also be 0
-                // logical size increases indefinatly if storage size is 0
-
-                auto One = RA::StatsCPU(LnStorageSize,
-                    {
-                        {RA::Stats::EOptions::AVG, LnLogicalSize}
-                    });
-
-                auto PrintVals = [](const RA::StatsCPU& Obj) ->void
-                {
-                    cout << "AVG: " << Obj.AVG().GetAVG() << endl;
-                    cout << "SUM: " << Obj.AVG().GetSum() << endl;
-                    cout << endl;
-                };
-
-                for (xint i = 1; i <= 20; i++)
-                    One << i;
-
-                PrintVals(One);
-            }
-        }
-
         namespace GPU
         {
             void AVG()
             {
                 Begin();
+                cout << '\n' << __CLASS__ << '\n';
+
+                const auto LnStorageSize = 0;
+                const auto LnLogicalSize = 0;
+
+                auto Stats1 = RA::Host::AllocateObjOnDevice<RA::StatsGPU>(LnStorageSize,
+                    xmap<RA::EStatOpt, xint>({
+                        {RA::EStatOpt::AVG, LnLogicalSize} // half storage size
+                        })
+                );
+
+                RA::Host::ConfigureStatsSync(Stats1);
+                CudaShot(&Kernel::Add::ValuesToRange, Stats1, 1, 20);
+                CudaShot(&Kernel::Print::SumAndAVG, Stats1);
+                CudaShot(&Kernel::Check::AverageEquals, Stats1, 10.5);
+                Rescue();
+            }
+
+            void MeanAbsoluteDeviation()
+            {
+                Begin();
+                cout << '\n' << __CLASS__ << '\n';
+
+                const auto LnStorageSize = 4;
+                const auto LnLogicalSize = 4;
+
+                auto LoStorage = RA::Host::AllocateObjOnDevice<RA::StatsGPU>(LnStorageSize,
+                    xmap<RA::EStatOpt, xint>({
+                        {RA::EStatOpt::AVG, LnLogicalSize},
+                        {RA::EStatOpt::MAD, LnLogicalSize}
+                        }));
+                RA::Host::ConfigureStatsSync(LoStorage);
+
+                auto LoLogical = RA::Host::AllocateObjOnDevice<RA::StatsGPU>(0,
+                    xmap<RA::EStatOpt, xint>({
+                        {RA::EStatOpt::AVG, 0},
+                        {RA::EStatOpt::MAD, 0}
+                        }));
+                RA::Host::ConfigureStatsSync(LoLogical);
+
+
+                auto LoDistributor = RA::Rand::GetDistributor<int>(0, 100);
+                for (xint i = 0; i < 100; i++)
                 {
-                    cout << '\n' << __CLASS__ << '\n';
-
-                    const auto LnStorageSize = 0;
-                    const auto LnLogicalSize = 0;
-                    // note: if storage size is 0, logical size must also be 0
-                    // logical size increases indefinatly if storage size is 0
-                    auto AvgGPU = RA::Host::AllocateObjOnDevice<RA::StatsGPU>(LnStorageSize,
-                        xmap<RA::Stats::EOptions, xint>({
-                            {RA::Stats::EOptions::AVG, LnLogicalSize}
-                            })
-                        );
-
-                    const auto LnLogicalLoopSize = 20;
-
-                    RA::Host::ConfigureStatsSync(AvgGPU);
-
-                    RA::CudaBridge<>::NONE::RunGPU(dim3(1), dim3(1), &Test::Kernel::AddValuesOneToTweanty, AvgGPU, LnLogicalLoopSize);
-                    RA::CudaBridge<>::SyncAll();
-
-                    RA::CudaBridge<>::NONE::RunGPU(dim3(1), dim3(1), &Test::Kernel::PrintAVG, AvgGPU);
-                    RA::CudaBridge<>::SyncAll();
+                    cvar LnVal = (double)RA::Rand::GetValue(LoDistributor);
+                    CudaShot(&Kernel::Add::Value, LoStorage, LnVal);
+                    CudaShot(&Kernel::Add::Value, LoLogical, LnVal);
                 }
+
+                CudaShot(&Kernel::Print::MeanAbsoluteDeviation, LoStorage);
+                CudaShot(&Kernel::Print::MeanAbsoluteDeviation, LoLogical);
+
+                Rescue();
+            }
+
+            void StandardDeviation()
+            {
+                Begin();
+                cout << '\n' << __CLASS__ << '\n';
+
+                const auto LnStorageSize = 4;
+                const auto LnLogicalSize = 4;
+
+                auto LoStorage = RA::Host::AllocateObjOnDevice<RA::StatsGPU>(LnStorageSize,
+                    xmap<RA::EStatOpt, xint>({
+                        {RA::EStatOpt::AVG, LnLogicalSize},
+                        {RA::EStatOpt::SD, LnLogicalSize}
+                        }));
+                RA::Host::ConfigureStatsSync(LoStorage);
+
+                auto LoLogical = RA::Host::AllocateObjOnDevice<RA::StatsGPU>(0,
+                    xmap<RA::EStatOpt, xint>({
+                        {RA::EStatOpt::AVG, 0},
+                        {RA::EStatOpt::SD, 0}
+                        }));
+                RA::Host::ConfigureStatsSync(LoLogical);
+
+
+                auto LoDistributor = RA::Rand::GetDistributor<int>(0, 100);
+                for (xint i = 0; i < 100; i++)
+                {
+                    cvar LnVal = (double)RA::Rand::GetValue(LoDistributor);
+                    CudaShot(&Kernel::Add::Value, LoStorage, LnVal);
+                    CudaShot(&Kernel::Add::Value, LoLogical, LnVal);
+                }
+
+                CudaShot(&Kernel::Print::StandardDeviation, LoStorage);
+                CudaShot(&Kernel::Print::StandardDeviation, LoLogical);
+
                 Rescue();
             }
         }
     }
+
+    namespace Miscellaneous
+    {
+        void Joinery()
+        {
+            Begin();
+            cout << "Joinery on the GPU is Untested!\n";
+            Rescue();
+        }
+    }
 }
 
-void RunCPU()
-{
-    Begin();
-    Test::Storage::CPU::AVG();
-    Test::Logical::CPU::AVG();
 
-    Test::Storage::CPU::RSI();
-    Test::Storage::CPU::STOCH();
-    Rescue();
-}
 
 void RunGPU()
 {
@@ -418,20 +536,27 @@ void RunGPU()
     Test::Storage::GPU::AVG();
     Test::Logical::GPU::AVG();
 
-    Test::Storage::GPU::RSI();
     Test::Storage::GPU::STOCH();
+    Test::Storage::GPU::RSI();
+
+    //Test::Miscellaneous::Joinery();
+
+    Test::Storage::GPU::MeanAbsoluteDeviation();
+    Test::Logical::GPU::MeanAbsoluteDeviation();
+
+    Test::Storage::GPU::StandardDeviation();
+    Test::Logical::GPU::StandardDeviation();
+
     Rescue();
 }
 
-int main() 
+int main()
 {
     Nexus<>::Start();
-    Begin();
 
-    //RunCPU();
     RunGPU();
+    cout << "\n\n";
 
-    FinalRescue();
     Nexus<>::Stop();
     return 0;
 }

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 /*
 *|| Copyright[2023][Joel Leagues aka Scourge]
@@ -28,13 +28,17 @@
 #include "xmap.h"
 
 #if UsingMSVC
+#include "Support.h"
 #include "AVG.h"
 #include "STOCH.h"
 #include "RSI.h"
+#include "Deviation.h"
 #else
+#include "Support.cuh"
 #include "AVG.cuh"
 #include "STOCH.cuh"
 #include "RSI.cuh"
+#include "Deviation.cuh"
 #endif
 
 namespace RA
@@ -51,50 +55,43 @@ namespace RA
 
     class Stats
     {        
-    public:
-        enum class EOptions : int
-        {
-            NONE,
-            AVG,
-            RSI,
-            STOCH
-        };
-
     protected:
         Stats(); // use StatsGPU or StatsCPU
-        ~Stats();
         void Clear();
         void ClearJoinery();
         void ClearStorageRequriedObjs();
 
-        void CreateObjs(const xmap<EOptions, xint>& FmOptions);
+        void CreateObjs(const xmap<EStatOpt, xint>& FmOptions);
         void Allocate(const xint FnStorageSize, const double FnDefaultVal = 0);
 
     public:
+        ~Stats();
         void Construct(
             const EHardware FeHardware,
             const xint FnStorageSize,
-            const xmap<EOptions, xint>& FmOptions, // Options <> Logical Size
+            const xmap<EStatOpt, xint>& FmOptions, // Options <> Logical Size
             const double FnDefaultVal = 0);
 
         void Construct(
             const xint FnStorageSize,
-            const xmap<EOptions, xint>& FmOptions, // Options <> Logical Size
+            const xmap<EStatOpt, xint>& FmOptions, // Options <> Logical Size
             const double FnDefaultVal = 0);
     protected:
         Stats(
             const EHardware FeHardware,
             const xint FnStorageSize,
-            const xmap<EOptions, xint>& FmOptions, // Options <> Logical Size
+            const xmap<EStatOpt, xint>& FmOptions, // Options <> Logical Size
             const double FnDefaultVal = 0);
 
         void SetStorageSizeZero(const double FnDefaultVal);
-        void SetDefaultValues(const double FnDefaultVal);
-
+        DXF void SetDefaultValues(const double FnDefaultVal);
 
     public:
         void SetJoinerySize(const xint FCount); // Sums FCount values as one value
         DXF auto GetJoinerySize() const { return MnJoinerySize; }
+        
+        DXF void SetMaxTraceSize(const xint FSize);
+        DXF auto GetMaxTraceSize() const { return MnMaxTraceSize; }
 
         DXF double  operator[](const xint IDX) const;
         DXF double  Recent(const xint IDX = 0) const { return The[IDX]; }
@@ -108,33 +105,37 @@ namespace RA
 
         DXF auto GetStorageSize()  const { return MnStorageSize; }
         DXF auto GetInsertIdx()    const { return MnInsertIdx; }
-        DXF auto GetCurrentValue() const { return MvValues[MnInsertIdx]; }
+        DXF auto GetCurrentValue() const { return (MnStorageSize) ? MvValues[MnInsertIdx] : MnLastValue; }
         DXF void SetDeviceJoinery();
 
         DXF bool BxTrackingAvg()   const { return MoAvgPtr   != nullptr; }
         DXF bool BxTrackingRSI()   const { return MoRSIPtr   != nullptr; }
         DXF bool BxTrackingSTOCH() const { return MoSTOCHPtr != nullptr; }
+        DXF bool BxTrackingDeviation() const { return MoSTOCHPtr != nullptr; }
         DXF void SetHadFirstInsert(const bool FbTruth) { MbHadFirstInsert = FbTruth; }
 
     protected:
-        double*  MvValues = nullptr;
+        EHardware MeHardware = EHardware::Default;
         xint     MnStorageSize = 0;
+        xmap<EStatOpt, xint> MmOptions;
+
+        double   MnLastValue = 0;
+        double*  MvValues = nullptr;
         xint     MnInsertIdx = 0;
 
         Joinery* MvJoinery = nullptr;
         xint     MnJoinerySize = 0; // for grouping input values as one combined value every Size times
+        xint     MnMaxTraceSize = 0; // 0 = infinite; any other is the max divisor for avgs
 
         bool     MbDelete = true;
         bool     MbHadFirstInsert = false;
 
-        xmap<EOptions, xint> MmOptions;
 
-        AVG   *MoAvgPtr   = nullptr;
-        STOCH *MoSTOCHPtr = nullptr;
-        RSI   *MoRSIPtr   = nullptr;
-        //STOCH     *MoSTOCHPtr = nullptr;
+        AVG         *MoAvgPtr   = nullptr;
+        STOCH       *MoSTOCHPtr = nullptr;
+        RSI         *MoRSIPtr   = nullptr;
+        Deviation   *MoMeanAbsoluteDeviationPtr = nullptr;
+        Deviation   *MoStandardDeviationPtr     = nullptr;
 
-        EHardware MeHardware = EHardware::Default;
     };
 }
-

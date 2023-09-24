@@ -140,7 +140,7 @@ RIN void Nexus<void>::TaskLooper(int thread_idx)
                 ++SoThreads;
                 ++SnInstTaskCount;
 
-                if (!!SbGroupingOn && SvTaskQueue.size() >= RA::Threads::CPUThreads * 2)
+                if (!!SbGroupingOn && SvTaskQueue.size() >= (xint)RA::Threads::CPUThreads * 2)
                 {
                     xint LvTaskCount = SvTaskQueue.size() / RA::Threads::CPUThreads;
                     LvTaskCount += SvTaskQueue.size() % RA::Threads::CPUThreads;

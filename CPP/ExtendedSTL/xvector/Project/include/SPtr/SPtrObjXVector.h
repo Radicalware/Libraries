@@ -28,6 +28,8 @@ template<typename T, typename enabler_t> class xvector;
 template<typename T> class SPtrXVector;
 class xstring;
 
+#define ForAll(__VECTOR__) for(xint i = 0; i < __VECTOR__.Size(); i++)
+
 template<typename T>
 class SPtrObjXVectorAPI : public SPtrXVector<xp<T>>
 {

@@ -243,7 +243,7 @@ void RA::AES::SetRandomAAD()
     Begin();
     if (!MnEncryptionSize)
         ThrowIt("Encryption Size is Zero");
-    MsAAD = RA::GetRandomStr(16, 48, 57); // INT 48 - 57 = ASCII 0 - 9
+    MsAAD = RA::Rand::GetRandomStr(16, 48, 57); // INT 48 - 57 = ASCII 0 - 9
     Rescue();
 }
 
@@ -252,7 +252,7 @@ void RA::AES::SetRandomKey()
     Begin();
     if (!MnEncryptionSize)
         ThrowIt("Encryption Size is Zero");
-    MsKey = RA::GetRandomStr(32, 48, 57);
+    MsKey = RA::Rand::GetRandomStr(32, 48, 57);
     Rescue();
 }
 
@@ -261,7 +261,7 @@ void RA::AES::SetRandomIV()
     Begin();
     if (!MnEncryptionSize)
         ThrowIt("Encryption Size is Zero");
-    MsIV = RA::GetRandomStr(16, 48, 57);
+    MsIV = RA::Rand::GetRandomStr(16, 48, 57);
     Rescue();
 }
 

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Thread/Lock.h"
 #include "Thread/Mutex.h"

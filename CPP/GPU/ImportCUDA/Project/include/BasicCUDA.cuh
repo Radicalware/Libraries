@@ -22,15 +22,22 @@ using xint = size_t;
 
 #define This (*this)
 
-// Inline ___ Functions
+// Divergent ___ Functions
+// DHF = Inline Host Function
+// DDF = Inline Device Function
+// DXF = Inline Cross Function
+// DXF = Inline Global Function
 #define IHF inline __host__
 #define IDF inline __device__
 #define IXF inline __host__ __device__
 #define IGF static __global__
 
 // Divergent ___ Functions
-#define DDF __device__
+// DHF = Divergent Host Function
+// DDF = Divergent Device Function
+// DXF = Divergent Cross Function
 #define DHF __host__
+#define DDF __device__
 #define DXF __host__ __device__
 
 // -----------------------------------------------------

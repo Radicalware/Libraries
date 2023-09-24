@@ -1,4 +1,4 @@
-#include "Stash.h"
+﻿#include "Stash.h"
 #include "Macros.h"
 
 #include <bson/bson.h>

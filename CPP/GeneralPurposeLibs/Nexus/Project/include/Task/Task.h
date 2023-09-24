@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "RawMapping.h"
 #include "Memory.h"

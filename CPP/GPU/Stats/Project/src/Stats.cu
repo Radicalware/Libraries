@@ -1,4 +1,4 @@
-#if UsingMSVC
+﻿#if UsingMSVC
 #include "Stats.h"
 #else
 #include "Stats.cuh"
@@ -85,6 +85,8 @@ void RA::Stats::ClearStorageRequriedObjs()
             CudaDelete(MoAvgPtr);
             CudaDelete(MoSTOCHPtr);
             CudaDelete(MoRSIPtr);
+            CudaDelete(MoStandardDeviationPtr);
+            CudaDelete(MoMeanAbsoluteDeviationPtr);
             break;
         }
         case EHardware::CPU:
@@ -92,6 +94,8 @@ void RA::Stats::ClearStorageRequriedObjs()
             HostDelete(MoAvgPtr);
             HostDelete(MoSTOCHPtr);
             HostDelete(MoRSIPtr);
+            HostDelete(MoStandardDeviationPtr);
+            HostDelete(MoMeanAbsoluteDeviationPtr);
             break;
         }
         default:
@@ -101,36 +105,45 @@ void RA::Stats::ClearStorageRequriedObjs()
 }
 
 
-void RA::Stats::CreateObjs(const xmap<EOptions, xint>& FmOptions)
+void RA::Stats::CreateObjs(const xmap<EStatOpt, xint>& FmOptions)
 {
     Begin();
+    MmOptions = FmOptions;
     ClearStorageRequriedObjs();
     switch (MeHardware)
     {
         case RA::EHardware::CPU:
         {
-            for (const std::pair<EOptions, xint>& Pair : FmOptions)
+            for (const std::pair<EStatOpt, xint>& Pair : FmOptions)
             {
-                if (Pair.first == EOptions::AVG)
+                if (Pair.first == EStatOpt::AVG)
                     MoAvgPtr = new AVG(MvValues, Pair.second, &MnStorageSize, &MnInsertIdx);
-                else if (Pair.first == EOptions::STOCH)
+                else if (Pair.first == EStatOpt::STOCH)
                     MoSTOCHPtr = new STOCH(MvValues, Pair.second, &MnStorageSize, &MnInsertIdx);
-                else if (Pair.first == EOptions::RSI)
+                else if (Pair.first == EStatOpt::RSI)
                     MoRSIPtr = new RSI(MvValues, Pair.second, &MnStorageSize, &MnInsertIdx);
+                else if (Pair.first == EStatOpt::SD)
+                    MoStandardDeviationPtr = new Deviation(MoAvgPtr, Deviation::EType::SD);
+                else if (Pair.first == EStatOpt::MAD)
+                    MoMeanAbsoluteDeviationPtr = new Deviation(MoAvgPtr, Deviation::EType::SD);
             }
             break;
         }
 #ifndef UsingMSVC
         case RA::EHardware::GPU:
         {
-            for (const std::pair<EOptions, xint>& Pair : FmOptions)
+            for (const std::pair<EStatOpt, xint>& Pair : FmOptions)
             {
-                if (Pair.first == EOptions::AVG)
+                if (Pair.first == EStatOpt::AVG)
                     MoAvgPtr = RA::Host::AllocateObjOnDevice<AVG>(MvValues, Pair.second, &MnStorageSize, &MnInsertIdx);
-                else if (Pair.first == EOptions::STOCH)
+                else if (Pair.first == EStatOpt::STOCH)
                     MoSTOCHPtr = RA::Host::AllocateObjOnDevice<STOCH>(MvValues, Pair.second, &MnStorageSize, &MnInsertIdx);
-                else if (Pair.first == EOptions::RSI)
+                else if (Pair.first == EStatOpt::RSI)
                     MoRSIPtr = RA::Host::AllocateObjOnDevice<RSI>(MvValues, Pair.second, &MnStorageSize, &MnInsertIdx);
+                else if (Pair.first == EStatOpt::SD)
+                    MoStandardDeviationPtr = RA::Host::AllocateObjOnDevice<Deviation>(MoAvgPtr, Deviation::EType::SD);
+                else if (Pair.first == EStatOpt::MAD)
+                    MoMeanAbsoluteDeviationPtr = RA::Host::AllocateObjOnDevice<Deviation>(MoAvgPtr, Deviation::EType::MAD);
             }
             break;
         }
@@ -159,8 +172,6 @@ void RA::Stats::Allocate(const xint FnStorageSize, const double FnDefaultVal)
                 for (auto* Ptr = MvValues; Ptr < MvValues + FnStorageSize; Ptr++)
                     *Ptr = FnDefaultVal;
             }
-            else
-                Clear();
             break;
         }
 
@@ -178,8 +189,6 @@ void RA::Stats::Allocate(const xint FnStorageSize, const double FnDefaultVal)
                     Val = FnDefaultVal;
                 MvValues = RA::Host::AllocateArrOnDevice<double>(Ptr.Raw(), RA::Allocate(MnStorageSize, sizeof(double)));
             }
-            else
-                Clear();
             break;
         }
 #endif
@@ -192,7 +201,7 @@ void RA::Stats::Allocate(const xint FnStorageSize, const double FnDefaultVal)
 
 void RA::Stats::Construct(
     const xint FnStorageSize,
-    const xmap<EOptions, xint>& FmOptions,
+    const xmap<EStatOpt, xint>& FmOptions,
     const double FnDefaultVal)
 {
     Begin();
@@ -204,17 +213,12 @@ void RA::Stats::Construct(
     }
 
     MnStorageSize = FnStorageSize;
-    MmOptions = FmOptions;
 
     Allocate(MnStorageSize, FnDefaultVal);
     CreateObjs(FmOptions);
 
     if (MeHardware == EHardware::CPU)
-    {
-        SRef(MoAvgPtr).SetDefaultValues(FnDefaultVal);
-        SRef(MoSTOCHPtr).SetDefaultValues(FnDefaultVal);
-        SRef(MoRSIPtr).SetDefaultValues();
-    }
+        SetDefaultValues(FnDefaultVal);
 
     MnInsertIdx = 0;
     MbHadFirstInsert = false;
@@ -226,7 +230,7 @@ void RA::Stats::Construct(
 void RA::Stats::Construct(
     const EHardware FeHardware,
     const xint FnStorageSize,
-    const xmap<EOptions, xint>& FmOptions,
+    const xmap<EStatOpt, xint>& FmOptions,
     const double FnDefaultVal)
 {
     Begin();
@@ -238,7 +242,7 @@ void RA::Stats::Construct(
 RA::Stats::Stats(
     const EHardware FeHardware,
     const xint FnStorageSize,
-    const xmap<EOptions, xint>& FmOptions, // Options <> Logical Size
+    const xmap<EStatOpt, xint>& FmOptions, // Options <> Logical Size
     const double FnDefaultVal)
 {
     Begin();
@@ -268,13 +272,14 @@ void RA::Stats::SetStorageSizeZero(const double FnDefaultVal)
     Rescue();
 }
 
-void RA::Stats::SetDefaultValues(const double FnDefaultVal)
+DXF void RA::Stats::SetDefaultValues(const double FnDefaultVal)
 {
     Begin();
-    GET(MoAvg);
-    GET(MoSTOCH);
-    MoAvg.SetDefaultValues(FnDefaultVal);
-    MoSTOCH.SetDefaultValues(FnDefaultVal);
+    SRef(MoAvgPtr).SetDefaultValues(FnDefaultVal);
+    SRef(MoSTOCHPtr).SetDefaultValues(FnDefaultVal);
+    SRef(MoRSIPtr).SetDefaultValues();
+    SRef(MoStandardDeviationPtr).SetDefaultValues();
+    SRef(MoMeanAbsoluteDeviationPtr).SetDefaultValues();
     Rescue();
 }
 
@@ -341,6 +346,15 @@ void RA::Stats::SetJoinerySize(const xint FCount)
     Rescue();
 }
 
+
+DXF void RA::Stats::SetMaxTraceSize(const xint FSize)
+{
+    MnMaxTraceSize = FSize;
+    SRef(MoAvgPtr).SetMaxTraceSize(FSize);
+    SRef(MoStandardDeviationPtr).SetMaxTraceSize(FSize);
+    SRef(MoMeanAbsoluteDeviationPtr).SetMaxTraceSize(FSize);
+}
+
 DXF double RA::Stats::operator[](const xint IDX) const
 {
     Begin();
@@ -378,9 +392,12 @@ DXF double RA::Stats::Former(const xint IDX) const
 DXF void RA::Stats::operator<<(const double FnValue)
 {
     Begin();
-    if (!MnStorageSize)
+    if (!MnStorageSize || !MvValues)
     {
+        MnLastValue = FnValue;
         SRef(MoAvgPtr).Update(FnValue);
+        SRef(MoStandardDeviationPtr).Update(FnValue);
+        SRef(MoMeanAbsoluteDeviationPtr).Update(FnValue);
         return;
     }
 
@@ -403,7 +420,7 @@ DXF void RA::Stats::operator<<(const double FnValue)
         printf(RED "You can't have Joinery without real values!\n" WHITE);
 #endif
 
-        SRef(MoAvgPtr).Update();
+        SRef(MoAvgPtr).Update(FnValue);
         // storage needed for: Min/Max, RSI, STOCH
         return;
     }
@@ -411,33 +428,36 @@ DXF void RA::Stats::operator<<(const double FnValue)
     if (!MbHadFirstInsert)
     {
         SetAllValues(FnValue, true);
-        MnInsertIdx = 0;
+        MnInsertIdx = (MnStorageSize > 1) ? 1 : 0;
+        return;
+    }
+    
+
+    // You must send new val as an argument so you
+    // have the old and new value instead of just
+    // the new value
+    SRef(MoAvgPtr).Update(FnValue);
+    SRef(MoStandardDeviationPtr).Update(FnValue);
+
+    // SRef(MoMeanAbsoluteDeviationPtr).Update(FnValue);
+    if (MoMeanAbsoluteDeviationPtr)
+        (*MoMeanAbsoluteDeviationPtr).Update(FnValue);
+
+
+    if (MnJoinerySize)
+    {
+        auto LnVal = FnValue;
+        auto IDX = MnInsertIdx;
+        for (xint i = 0; i < MnStorageSize; i++)
+        {
+            LnVal = MvJoinery[IDX].InsertNum(LnVal);
+            MvValues[IDX] = MvJoinery[IDX].MnSum;
+            IDX = (IDX == 0) ? MnStorageSize - 1 : IDX - 1;
+        }
+
     }
     else
-    {
-        if (MnJoinerySize)
-        {
-            auto LnVal = FnValue;
-            auto IDX = MnInsertIdx;
-            for (xint i = 0; i < MnStorageSize; i++)
-            {
-                LnVal = MvJoinery[IDX].InsertNum(LnVal);
-                MvValues[IDX] = MvJoinery[IDX].MnSum;
-                IDX = (IDX == 0) ? MnStorageSize - 1 : IDX - 1;
-            }
-
-        }
-        else
-            MvValues[MnInsertIdx] = FnValue;
-    }
-
-
-    if (MnJoinerySize){
-        SRef(MoAvgPtr).Update(MvValues[MnInsertIdx]);
-    }
-    else{
-        SRef(MoAvgPtr).Update(FnValue);
-    }
+        MvValues[MnInsertIdx] = FnValue;
 
     SRef(MoRSIPtr).Update();
     SRef(MoSTOCHPtr).Update();
@@ -480,6 +500,8 @@ DXF void RA::Stats::SetAllValues(const double FnValue, const bool FbHadFirstInde
             Ref.MvValues[Ref.MnSize] = 0;
         }
     }
+
+    SetDefaultValues(FnValue);
 }
 
 DXF void RA::Stats::SetDeviceJoinery()
@@ -505,4 +527,6 @@ DXF void RA::Stats::SetDeviceJoinery()
         MoObj.MnStorageSizePtr = &MnStorageSize;
         MoObj.MnInsertIdxPtr = &MnInsertIdx;
     }
+    SRef(MoStandardDeviationPtr).SetAvg(MoAvgPtr);
+    SRef(MoMeanAbsoluteDeviationPtr).SetAvg(MoAvgPtr);
 }

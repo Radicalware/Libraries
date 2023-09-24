@@ -46,18 +46,18 @@ public:
     RIN bool Has(const T& item) const;
     RIN bool Has(char const* item) const;
     template<typename F, typename ...A>
-    RIN bool HasTruth(F&& Function, A&& ...Args) const;
+    RIN bool HasTruth(F&& FfFunction, A&& ...Args) const;
     template<typename F, typename ...A>
-    RIN const T& GetTruth(F&& Function, A&& ...Args) const;
+    RIN const T& GetTruth(F&& FfFunction, A&& ...Args) const;
     template<typename F, typename ...A>
-    RIN T& GetTruth(F&& Function, A&& ...Args);
+    RIN T& GetTruth(F&& FfFunction, A&& ...Args);
     template<typename F, typename ...A>
-    RIN xvector<const T*> GetTruths(F&& Function, A&& ...Args) const;
+    RIN xvector<const T*> GetTruths(F&& FfFunction, A&& ...Args) const;
 
     RIN bool Lacks(const T& item) const;
     RIN bool Lacks(char const* item) const;
     template<typename F, typename ...A>
-    RIN bool LacksTruth(F&& Function, A&& ...Args) const;
+    RIN bool LacksTruth(F&& FfFunction, A&& ...Args) const;
 
 
     RIN const T* RawPtr(xint Idx) const;
@@ -77,7 +77,7 @@ public:
     RIN xvector<I> Convert() const;
 
     template<typename I, typename F>
-    RIN xvector<I> Convert(F function) const;
+    RIN xvector<I> Convert(F FfFunction) const;
     
     template<typename N = unsigned int>
     xvector<xvector<T*>> Split(N count) const;
@@ -100,22 +100,23 @@ public:
     RIN T* at(const xint idx) const;
 
     template<typename F, typename... A>
-    RIN void Proc(F&& function, A&& ...Args);
+    RIN void Proc(F&& FfFunction, A&& ...Args);
     template<typename F, typename... A>
-    RIN void ProcThread(F&& function, A&& ...Args);
+    RIN void ProcThread(F&& FfFunction, A&& ...Args);
 
     // foreach non-const
-    template<typename N = E, typename F, typename ...A>             RIN xvector<N> ForEach(F&& function, A&& ...Args);
-    template<typename K, typename V, typename F, typename ...A>     RIN std::unordered_map<K, V> ForEach(F&& function, A&& ...Args);
+    template<typename N = E, typename F, typename ...A>             RIN xvector<N> ForEach(F&& FfFunction, A&& ...Args);
+    template<typename K, typename V, typename F, typename ...A>     RIN std::unordered_map<K, V> ForEach(F&& FfFunction, A&& ...Args);
     // foreach const
-    template<typename N = E, typename F, typename ...A>             RIN xvector<N> ForEach(F&& function, A&& ...Args) const;
-    template<typename K, typename V, typename F, typename ...A>     RIN std::unordered_map<K, V> ForEach(F&& function, A&& ...Args) const;
+    template<typename N = E, typename F, typename ...A>             RIN xvector<N> ForEach(F&& FfFunction, A&& ...Args) const;
+    template<typename K, typename V, typename F, typename ...A>     RIN std::unordered_map<K, V> ForEach(F&& FfFunction, A&& ...Args) const;
     // multi-threaded foreach
-    template<typename N = E, typename F, typename... A>             RIN xvector<xp<N>> ForEachThread(F&& function, A&& ...Args);
-    template<typename N = E, typename F, typename... A>             RIN xvector<xp<N>> ForEachThread(F&& function, A&& ...Args) const;
-    template<typename K, typename V, typename F, typename ...A>     RIN std::unordered_map<K, V> ForEachThread(F&& function, A&& ...Args) const;
+    template<typename N = E, typename F, typename... A>             RIN xvector<xp<N>> ForEachThread(F&& FfFunction, A&& ...Args);
+    template<typename N = E, typename F, typename... A>             RIN xvector<xp<N>> ForEachThread(F&& FfFunction, A&& ...Args) const;
 
-    template<typename N = E, typename F, typename... A>             RIN void StartTasks(F&& function, A&& ...Args);
+    template<typename K, typename V, typename F, typename ...A>     RIN std::unordered_map<K, V> ForEachThread(F&& FfFunction, A&& ...Args) const;
+
+    template<typename N = E, typename F, typename... A>             RIN void StartTasks(F&& FfFunction, A&& ...Args);
     template<typename N = E>                                        RIN xvector<xp<N>> GetTasks() const;
                                                                     RIN bool TasksCompleted() const;
 
@@ -217,10 +218,10 @@ RIN bool PtrXVector<T*>::Has(char const* item)  const
 
 template<typename T>
 template<typename F, typename ...A>
-RIN bool PtrXVector<T*>::HasTruth(F&& Function, A&& ...Args) const
+RIN bool PtrXVector<T*>::HasTruth(F&& FfFunction, A&& ...Args) const
 {
     for (typename xvector<E>::const_iterator it = The.begin(); it != The.end(); it++) {
-        if (Function((**it), std::forward<A>(Args)...))
+        if (FfFunction((**it), std::forward<A>(Args)...))
             return true;
     }
     return false;
@@ -228,10 +229,10 @@ RIN bool PtrXVector<T*>::HasTruth(F&& Function, A&& ...Args) const
 
 template<typename T>
 template<typename F, typename ...A>
-RIN const T& PtrXVector<T*>::GetTruth(F&& Function, A && ...Args) const
+RIN const T& PtrXVector<T*>::GetTruth(F&& FfFunction, A && ...Args) const
 {
     for (typename xvector<E>::const_iterator it = The.begin(); it != The.end(); it++) {
-        if (Function(**it, std::forward<A>(Args)...))
+        if (FfFunction(**it, std::forward<A>(Args)...))
             return **it;
     }
     throw "Truth Not Found";
@@ -239,10 +240,10 @@ RIN const T& PtrXVector<T*>::GetTruth(F&& Function, A && ...Args) const
 
 template<typename T>
 template<typename F, typename ...A>
-RIN T& PtrXVector<T*>::GetTruth(F&& Function, A && ...Args)
+RIN T& PtrXVector<T*>::GetTruth(F&& FfFunction, A && ...Args)
 {
     for (typename xvector<E>::const_iterator it = The.begin(); it != The.end(); it++) {
-        if (Function(**it, std::forward<A>(Args)...))
+        if (FfFunction(**it, std::forward<A>(Args)...))
             return **it;
     }
     throw "Truth Not Found";
@@ -250,11 +251,11 @@ RIN T& PtrXVector<T*>::GetTruth(F&& Function, A && ...Args)
 
 template<typename T>
 template<typename F, typename ...A>
-RIN xvector<const T*> PtrXVector<T*>::GetTruths(F&& Function, A && ...Args) const
+RIN xvector<const T*> PtrXVector<T*>::GetTruths(F&& FfFunction, A && ...Args) const
 {
     xvector<T*> RetVec;
     for (typename xvector<E>::const_iterator it = The.begin(); it != The.end(); it++) {
-        if (Function(**it, std::forward<A>(Args)...))
+        if (FfFunction(**it, std::forward<A>(Args)...))
             RetVec << **it;
     }
     return RetVec;
@@ -272,10 +273,10 @@ RIN bool PtrXVector<T*>::Lacks(char const* item) const {
 
 template<typename T>
 template<typename F, typename ...A>
-RIN bool PtrXVector<T*>::LacksTruth(F&& Function, A&& ...Args) const
+RIN bool PtrXVector<T*>::LacksTruth(F&& FfFunction, A&& ...Args) const
 {
     for (typename xvector<E>::const_iterator it = The.begin(); it != The.end(); it++) {
-        if (Function((**it), std::forward<A>(Args)...))
+        if (FfFunction((**it), std::forward<A>(Args)...))
             return false;
     }
     return true;
@@ -369,11 +370,11 @@ RIN xvector<I> PtrXVector<T*>::Convert() const
 
 template<typename T>
 template<typename I, typename F>
-RIN xvector<I> PtrXVector<T*>::Convert(F function) const
+RIN xvector<I> PtrXVector<T*>::Convert(F FfFunction) const
 {
     xvector<I> ret;
     for (typename xvector<T*>::const_iterator it = The.begin(); it != The.end(); it++)
-        ret << function(*it);
+        ret << FfFunction(*it);
     return ret;
 }
 
@@ -496,71 +497,71 @@ RIN T* PtrXVector<T*>::at(const xint idx) const
 
 template<typename T>
 template<typename F, typename... A>
-RIN void PtrXVector<T*>::Proc(F&& function, A&& ...Args)
+RIN void PtrXVector<T*>::Proc(F&& FfFunction, A&& ...Args)
 {
     for (typename xvector<E>::iterator it = The.begin(); it != The.end(); it++) {
-        if (function(**it, std::forward<A>(Args)...))
+        if (FfFunction(**it, std::forward<A>(Args)...))
             break;
     }
 }
 
 template<typename T>
 template<typename F, typename... A>
-RIN void PtrXVector<T*>::ProcThread(F&& function, A&& ...Args)
+RIN void PtrXVector<T*>::ProcThread(F&& FfFunction, A&& ...Args)
 {
     for (typename xvector<E*>::iterator it = The.begin(); it != The.end(); it++)
-        Nexus<>::AddTaskVal(function, **it, std::ref(Args)...);
+        Nexus<>::AddTaskVal(FfFunction, **it, std::ref(Args)...);
 }
 
 template<typename T>
 template<typename N, typename F, typename ...A>
-RIN xvector<N> PtrXVector<T*>::ForEach(F&& function, A&& ...Args)
+RIN xvector<N> PtrXVector<T*>::ForEach(F&& FfFunction, A&& ...Args)
 {
     xvector<N> vret;
     for (typename xvector<E*>::iterator it = The.begin(); it != The.end(); it++)
-        vret.push_back(function(**it, std::forward<A>(Args)...));
+        vret.push_back(FfFunction(**it, std::forward<A>(Args)...));
     return vret;
 }
 
 template<typename T>
 template<typename K, typename V, typename F, typename ...A>
-RIN std::unordered_map<K, V> PtrXVector<T*>::ForEach(F&& function, A&& ...Args)
+RIN std::unordered_map<K, V> PtrXVector<T*>::ForEach(F&& FfFunction, A&& ...Args)
 {
     std::unordered_map<K, V> rmap;
     for (typename xvector<E*>::iterator it = The.begin(); it != The.end(); it++)
-        rmap.insert(function(**it, std::forward<A>(Args)...));
+        rmap.insert(FfFunction(**it, std::forward<A>(Args)...));
     return rmap;
 }
 template<typename T>
 template<typename N, typename F, typename ...A>
-RIN xvector<N> PtrXVector<T*>::ForEach(F&& function, A&& ...Args) const
+RIN xvector<N> PtrXVector<T*>::ForEach(F&& FfFunction, A&& ...Args) const
 {
     xvector<N> vret;
     for (typename xvector<E*>::const_iterator it = The.begin(); it != The.end(); it++)
-        vret.push_back(function(**it, std::forward<A>(Args)...));
+        vret.push_back(FfFunction(**it, std::forward<A>(Args)...));
     return vret;
 }
 
 template<typename T>
 template<typename K, typename V, typename F, typename ...A>
-RIN std::unordered_map<K, V> PtrXVector<T*>::ForEach(F&& function, A&& ...Args) const
+RIN std::unordered_map<K, V> PtrXVector<T*>::ForEach(F&& FfFunction, A&& ...Args) const
 {
     std::unordered_map<K, V> rmap;
     for (typename xvector<E*>::const_iterator it = The.begin(); it != The.end(); it++)
-        rmap.insert(function(**it, std::forward<A>(Args)...));
+        rmap.insert(FfFunction(**it, std::forward<A>(Args)...));
     return rmap;
 }
 
 template<typename T>
 template<typename N, typename F, typename ...A>
-RIN xvector<xp<N>> PtrXVector<T*>::ForEachThread(F&& function, A&& ...Args)
+RIN xvector<xp<N>> PtrXVector<T*>::ForEachThread(F&& FfFunction, A&& ...Args)
 {
     if constexpr (std::is_same_v<N, std::remove_pointer_t<T>>)
     {
         SSET(MoNexus, MKP<Nexus<T>>());
         MoNexus.Disable();
         for (typename xvector<E*>::iterator it = The.begin(); it != The.end(); it++)
-            MoNexus.AddTaskVal(function, **it, std::ref(Args)...);
+            MoNexus.AddTaskVal(FfFunction, **it, std::ref(Args)...);
         MoNexus.Enable();
         return MoNexus.GetAllPtrs();
     }
@@ -569,7 +570,7 @@ RIN xvector<xp<N>> PtrXVector<T*>::ForEachThread(F&& function, A&& ...Args)
         Nexus<N> LoNexus;
         LoNexus.Disable();
         for (typename xvector<E*>::iterator it = The.begin(); it != The.end(); it++)
-            LoNexus.AddTaskVal(function, **it, std::ref(Args)...);
+            LoNexus.AddTaskVal(FfFunction, **it, std::ref(Args)...);
         LoNexus.Enable();
         return LoNexus.GetAllPtrs();
     }
@@ -577,36 +578,36 @@ RIN xvector<xp<N>> PtrXVector<T*>::ForEachThread(F&& function, A&& ...Args)
 
 template<typename T>
 template<typename N, typename F, typename ...A>
-RIN xvector<xp<N>> PtrXVector<T*>::ForEachThread(F&& function, A&& ...Args) const
+RIN xvector<xp<N>> PtrXVector<T*>::ForEachThread(F&& FfFunction, A&& ...Args) const
 {
     Nexus<N> LoNexus;
     LoNexus.Disable();
     for (typename xvector<E*>::const_iterator it = The.begin(); it != The.end(); it++)
-        LoNexus.AddTaskVal(function, **it, std::ref(Args)...);
+        LoNexus.AddTaskVal(FfFunction, **it, std::ref(Args)...);
     LoNexus.Enable();
     return LoNexus.GetAllPtrs();
 }
 
 template<typename T>
 template<typename K, typename V, typename F, typename ...A>
-RIN std::unordered_map<K, V> PtrXVector<T*>::ForEachThread(F&& function, A&& ...Args) const
+RIN std::unordered_map<K, V> PtrXVector<T*>::ForEachThread(F&& FfFunction, A&& ...Args) const
 {
     Nexus<std::pair<K, V>> LoNexus;
     LoNexus.Disable();
     for (typename xvector<E*>::iterator it = The.begin(); it != The.end(); it++)
-        LoNexus.AddTaskVal(function, **it, std::ref(Args)...);
+        LoNexus.AddTaskVal(FfFunction, **it, std::ref(Args)...);
     LoNexus.Enable();
     return LoNexus.GetMoveAllIndices();
 }
 
 template<typename T>
 template <typename N, typename F, typename ...A>
-RIN void PtrXVector<T*>::StartTasks(F&& function, A&& ...Args)
+RIN void PtrXVector<T*>::StartTasks(F&& FfFunction, A&& ...Args)
 {
     SSET(MoNexus, MKP<Nexus<T>>());
     MoNexus.Disable();
     for (typename xvector<E>::iterator it = The.begin(); it != The.end(); it++)
-        MoNexus.AddTaskVal(function, **it, std::ref(Args)...);
+        MoNexus.AddTaskVal(FfFunction, **it, std::ref(Args)...);
     MoNexus.Enable();
 }
 

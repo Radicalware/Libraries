@@ -1,4 +1,4 @@
-// Copyright via Apache v2 Licence [2023][Joel Leagues aka Scourge]
+﻿// Copyright via Apache v2 Licence [2023][Joel Leagues aka Scourge]
 #if UsingMSVC
 #include "StatsCPU.h"
 #else
@@ -42,9 +42,11 @@ void RA::StatsCPU::operator=(const StatsCPU& Other)
     The.Construct(MeHardware, Other.MnStorageSize, Other.MmOptions);
     The.SetJoinerySize(Other.MnJoinerySize);
 
-    if (Other.MoAvgPtr)   MoAvgPtr->CopyStats(*Other.MoAvgPtr);
-    if (Other.MoSTOCHPtr) MoSTOCHPtr->CopyStats(*Other.MoSTOCHPtr);
-    if (Other.MoRSIPtr)   MoRSIPtr->CopyStats(*Other.MoRSIPtr);
+    if (Other.MoAvgPtr)         MoAvgPtr->CopyStats(*Other.MoAvgPtr);
+    if (Other.MoSTOCHPtr)       MoSTOCHPtr->CopyStats(*Other.MoSTOCHPtr);
+    if (Other.MoRSIPtr)         MoRSIPtr->CopyStats(*Other.MoRSIPtr);
+    if (Other.MoStandardDeviationPtr)     MoStandardDeviationPtr->CopyStats(*Other.MoStandardDeviationPtr);
+    if (Other.MoMeanAbsoluteDeviationPtr) MoMeanAbsoluteDeviationPtr->CopyStats(*Other.MoMeanAbsoluteDeviationPtr);
 
     The.SetDeviceJoinery();
 
@@ -56,7 +58,6 @@ void RA::StatsCPU::operator=(StatsCPU&& Other) noexcept
     Other.MbDelete = false;
     MeHardware = Other.MeHardware;
     Clear();
-
     if (!!Other.MvValues && Other.MnStorageSize)
     {
         MvValues = Other.MvValues;
@@ -76,18 +77,20 @@ void RA::StatsCPU::operator=(StatsCPU&& Other) noexcept
     MnJoinerySize = Other.MnJoinerySize;
 
     MbHadFirstInsert = Other.MbHadFirstInsert;
-    MmOptions = std::move(Other.MmOptions);
+    MmOptions        = Other.MmOptions;
 
-    MoAvgPtr   = Other.MoAvgPtr;
-    MoRSIPtr   = Other.MoRSIPtr;
-    MoSTOCHPtr = Other.MoSTOCHPtr;
+    MoAvgPtr        = Other.MoAvgPtr;
+    MoRSIPtr        = Other.MoRSIPtr;
+    MoSTOCHPtr      = Other.MoSTOCHPtr;
+    MoStandardDeviationPtr     = Other.MoStandardDeviationPtr;
+    MoMeanAbsoluteDeviationPtr = Other.MoMeanAbsoluteDeviationPtr;
 
     The.SetDeviceJoinery();
 }
 
 RA::StatsCPU::StatsCPU(
     const xint FnStorageSize, 
-    const xmap<EOptions, xint>& FmOptions, 
+    const xmap<EStatOpt, xint>& FmOptions, 
     const double FnDefaultVal)
     : RA::Stats(RA::EHardware::CPU, FnStorageSize, FmOptions, FnDefaultVal)
 {
@@ -122,6 +125,25 @@ DHF RA::RSI& RA::StatsCPU::GetObjRSI()
     Rescue();
 }
 
+DHF RA::Deviation& RA::StatsCPU::GetObjStandardDeviation()
+{
+    Begin();
+    if (!MoStandardDeviationPtr)
+        ThrowIt("MoStandardDeviationPtr is Null");
+    return *MoStandardDeviationPtr;
+    Rescue();
+}
+
+
+DHF RA::Deviation& RA::StatsCPU::GetObjMeanAbsoluteDeviation()
+{
+    Begin();
+    if (!MoMeanAbsoluteDeviationPtr)
+        ThrowIt("MoMeanAbsoluteDeviationPtr is Null");
+    return *MoMeanAbsoluteDeviationPtr;
+    Rescue();
+}
+
 // --------------------------------------------------------
 
 DHF const RA::AVG& RA::StatsCPU::GetObjAVG() const
@@ -148,6 +170,25 @@ DHF const RA::RSI& RA::StatsCPU::GetObjRSI() const
     if (!MoRSIPtr)
         ThrowIt("MoRSIPtr is Null");
     return *MoRSIPtr;
+    Rescue();
+}
+
+DHF const RA::Deviation& RA::StatsCPU::GetObjStandardDeviation() const
+{
+    Begin();
+    if (!MoStandardDeviationPtr)
+        ThrowIt("MoStandardDeviationPtr is Null");
+    return *MoStandardDeviationPtr;
+    Rescue();
+}
+
+
+DHF const RA::Deviation& RA::StatsCPU::GetObjMeanAbsoluteDeviation() const
+{
+    Begin();
+    if (!MoMeanAbsoluteDeviationPtr)
+        ThrowIt("MoMeanAbsoluteDeviationPtr is Null");
+    return *MoMeanAbsoluteDeviationPtr;
     Rescue();
 }
 
@@ -180,5 +221,40 @@ DHF const RA::RSI& RA::StatsCPU::RSI() const
     Rescue();
 }
 
+DHF const RA::Deviation& RA::StatsCPU::SD() const
+{
+    Begin();
+    if (!MoStandardDeviationPtr)
+        ThrowIt("MoStandardDeviationPtr is Null");
+    return *MoStandardDeviationPtr;
+    Rescue();
+}
+
+DHF const RA::Deviation& RA::StatsCPU::MAD() const
+{
+    Begin();
+    if (!MoMeanAbsoluteDeviationPtr)
+        ThrowIt("MoMeanAbsoluteDeviationPtr is Null");
+    return *MoMeanAbsoluteDeviationPtr;
+    Rescue();
+}
+
 // --------------------------------------------------------
 
+DHF RA::Deviation& RA::StatsCPU::SD()
+{
+    Begin();
+    if (!MoStandardDeviationPtr)
+        ThrowIt("MoStandardDeviationPtr is Null");
+    return *MoStandardDeviationPtr;
+    Rescue();
+}
+
+DHF RA::Deviation& RA::StatsCPU::MAD()
+{
+    Begin();
+    if (!MoMeanAbsoluteDeviationPtr)
+        ThrowIt("MoMeanAbsoluteDeviationPtr is Null");
+    return *MoMeanAbsoluteDeviationPtr;
+    Rescue();
+}

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "JSON.h" // Include First
 #include "xstring.h"

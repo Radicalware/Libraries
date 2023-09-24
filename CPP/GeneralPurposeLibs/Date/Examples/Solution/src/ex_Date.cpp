@@ -14,15 +14,18 @@ using RA::Date;
 
 void PrintDate(Date& FoDate)
 {
+    Begin();
     cout << "FnDate                = " << FoDate << endl;
     cout << "FnDate.GetStr         = " << FoDate.GetStr() << endl;
     cout << "FnDate.GetEpochTime   = " << FoDate.GetEpochTime() << endl;
     cout << "FnDate.GetNumericTime = " << FoDate.GetNumericTimeStr() << endl;
+    Rescue();
 }
 
 
 void TestDates(Date& One, Date& Two)
 {
+    Begin();
     if (One == Two)
         xstring("success\n").ToGreen().Print(0);
     else
@@ -33,10 +36,12 @@ void TestDates(Date& One, Date& Two)
     }
 
     xstring().ResetColor();
+    Rescue();
 }
 
 void Loop()
 {
+    Begin();
     Date  Start(2020, 11, 25);
     Date Finish(2021,  2 , 3);
 
@@ -44,10 +49,12 @@ void Loop()
     {
         cout << "Loop By Day = " << Dt << endl;
     }
+    Rescue();
 }
 
 void Test()
 {
+    Begin();
     xstring("\r").ResetColor().Print();
     Date LoDate;
     Date LoLocal1(LoDate.GetEpochTime());
@@ -122,11 +129,22 @@ void Test()
         TestDates(Num, Str);
     }
     xstring("").ResetColor().Print();
+    Rescue();
 }
 
 int main()
 {
+    Begin();
     Nexus<>::Start();
+
+    auto LoDate = RA::Date();
+
+    auto LoBackMin = RA::Date(LoDate.GetEpochTime() - (60)); // back 60 sec or 1 min
+    cout << LoDate << endl;
+    cout << LoDate.Min(-1) << endl;
+    cout << LoBackMin << endl;
+    if (LoDate.Min(-1) != LoBackMin)
+        ThrowIt("Badd Offset");
 
     cout << "UTC OFFSET (" << Date::GetComputerOffset() << ")\n";
     cout << "None:      " << Date(Date::Offset::None)    << " = Default = UTC Time (otherwise the input time with no change)" << endl;
@@ -186,4 +204,5 @@ int main()
 
     Nexus<>::Stop();
     return 0;
+    Rescue();
 }

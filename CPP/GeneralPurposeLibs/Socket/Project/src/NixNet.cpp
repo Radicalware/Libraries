@@ -1,4 +1,4 @@
-
+﻿
 #include "NixNet.h"
 
 #ifdef __unix__

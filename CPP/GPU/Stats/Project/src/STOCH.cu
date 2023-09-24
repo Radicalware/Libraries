@@ -1,4 +1,4 @@
-// Copyright via Apache v2 Licence [2023][Joel Leagues aka Scourge]
+﻿// Copyright via Apache v2 Licence [2023][Joel Leagues aka Scourge]
 #if UsingMSVC
 #include "STOCH.h"
 #else

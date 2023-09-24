@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #ifndef UsingMSVC
 #include "ImportCUDA.cuh"

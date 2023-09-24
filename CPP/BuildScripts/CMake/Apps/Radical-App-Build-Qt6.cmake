@@ -102,7 +102,8 @@ macro(BuildRadicalQt6Solution InPrivateLibs InPublicLibs)
     )
 
     if(${debug})
-        target_link_libraries(${THIS} vld)
+        message("Linking: ${VLD_TARGET}")
+        target_link_libraries(${THIS} ${VLD_TARGET})
     endif()
 
     LinkAllSharedLibs(${THIS})

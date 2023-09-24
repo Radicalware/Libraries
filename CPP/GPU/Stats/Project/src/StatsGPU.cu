@@ -1,4 +1,4 @@
-// Copyright via Apache v2 Licence [2023][Joel Leagues aka Scourge]
+﻿// Copyright via Apache v2 Licence [2023][Joel Leagues aka Scourge]
 #if UsingMSVC
 #include "StatsGPU.h"
 #else
@@ -76,7 +76,7 @@ void RA::StatsGPU::operator=(StatsGPU&& Other) noexcept
 
 RA::StatsGPU::StatsGPU(
     const xint FnStorageSize,
-    const xmap<EOptions, xint>& FmOptions,
+    const xmap<EStatOpt, xint>& FmOptions,
     const double FnDefaultVal) :
     RA::Stats(RA::EHardware::GPU, FnStorageSize, FmOptions, FnDefaultVal)
 {
@@ -114,36 +114,55 @@ DDF RA::RSI& RA::StatsGPU::GetObjRSI()
     return *MoRSIPtr;
 }
 
+DDF RA::Deviation& RA::StatsGPU::GetObjStandardDeviation()
+{
+    if (!MoStandardDeviationPtr)
+        printf(RED "MoStandardDeviationPtr is Null" WHITE);
+    return *MoStandardDeviationPtr;
+}
+
+DDF RA::Deviation& RA::StatsGPU::GetObjMeanAbsoluteDeviation()
+{
+    if (!MoMeanAbsoluteDeviationPtr)
+        printf(RED "MoStandardDeviationPtr is Null" WHITE);
+    return *MoMeanAbsoluteDeviationPtr;
+}
+
 // --------------------------------------------------------
 
 DDF const RA::AVG& RA::StatsGPU::GetObjAVG() const
 {
     if (!MoAvgPtr)
-    {
         printf(RED "MoAvgPtr is Null" WHITE);
-        return *MoAvgPtr;
-    }
     return *MoAvgPtr;
 }
 
 DDF const RA::STOCH& RA::StatsGPU::GetObjSTOCH() const
 {
     if (!MoSTOCHPtr)
-    {
         printf(RED "MoSTOCHPtr is Null" WHITE);
-        return *MoSTOCHPtr;
-    }
     return *MoSTOCHPtr;
 }
 
 DDF const RA::RSI& RA::StatsGPU::GetObjRSI() const
 {
     if (!MoRSIPtr)
-    {
         printf(RED "MoRSIPtr is Null" WHITE);
-        return *MoRSIPtr;
-    }
     return *MoRSIPtr;
+}
+
+DDF const RA::Deviation& RA::StatsGPU::GetObjStandardDeviation() const
+{
+    if (!MoStandardDeviationPtr)
+        printf(RED "MoStandardDeviationPtr is Null" WHITE);
+    return *MoStandardDeviationPtr;
+}
+
+DDF const RA::Deviation& RA::StatsGPU::GetObjMeanAbsoluteDeviation() const
+{
+    if (!MoMeanAbsoluteDeviationPtr)
+        printf(RED "MoStandardDeviationPtr is Null" WHITE);
+    return *MoMeanAbsoluteDeviationPtr;
 }
 
 // --------------------------------------------------------
@@ -151,32 +170,48 @@ DDF const RA::RSI& RA::StatsGPU::GetObjRSI() const
 DDF const RA::AVG& RA::StatsGPU::AVG() const
 {
     if (!MoAvgPtr)
-    {
         printf(RED "MoAvgPtr is Null" WHITE);
-        return *MoAvgPtr;
-    }
     return *MoAvgPtr;
 }
 
 DDF const RA::STOCH& RA::StatsGPU::STOCH() const
 {
     if (!MoSTOCHPtr)
-    {
         printf(RED "MoSTOCHPtr is Null" WHITE);
-        return *MoSTOCHPtr;
-    }
     return *MoSTOCHPtr;
 }
 
 DDF const RA::RSI& RA::StatsGPU::RSI() const
 {
     if (!MoRSIPtr)
-    {
         printf(RED "MoRSIPtr is Null" WHITE);
-        return *MoRSIPtr;
-    }
     return *MoRSIPtr;
 }
+DDF const RA::Deviation& RA::StatsGPU::SD() const
+{
+    if (!MoStandardDeviationPtr)
+        printf(RED "MoStandardDeviationPtr is Null" WHITE);
+    return *MoStandardDeviationPtr;
+}
+DDF const RA::Deviation& RA::StatsGPU::MAD() const
+{
+    if (!MoMeanAbsoluteDeviationPtr)
+        printf(RED "MoMeanAbsoluteDeviationPtr is Null" WHITE);
+    return *MoMeanAbsoluteDeviationPtr;
+}
+DDF RA::Deviation& RA::StatsGPU::SD()
+{
+    if (!MoStandardDeviationPtr)
+        printf(RED "MoStandardDeviationPtr is Null" WHITE);
+    return *MoStandardDeviationPtr;
+}
+DDF RA::Deviation& RA::StatsGPU::MAD()
+{
+    if (!MoMeanAbsoluteDeviationPtr)
+        printf(RED "MoMeanAbsoluteDeviationPtr is Null" WHITE);
+    return *MoMeanAbsoluteDeviationPtr;
+}
+
 // --------------------------------------------------------
 
 __global__ void RA::Device::ConfigureStats(RA::StatsGPU* StatsPtr)

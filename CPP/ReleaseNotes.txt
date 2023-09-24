@@ -4,6 +4,15 @@
 
 ---------------------------------------------------------------------
 
+09/24/2023 >> Libs v22.0.6
+
+Updated Stats so it now works with the GPU. Joinery is in beta 
+still for the GPU though. vectors have been updated with the 
+C++20 integrated thread pool which works with zero-argument
+multi-processing.
+
+---------------------------------------------------------------------
+
 03/22/2023 >> Libs v22.0.6
 
 Updated to work on Windows 11 and Windows 11 SDK.

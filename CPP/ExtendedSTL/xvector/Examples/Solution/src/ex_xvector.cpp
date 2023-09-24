@@ -1,4 +1,43 @@
 ﻿
+
+#include <cctype>
+#include <iomanip>
+#include <iostream>
+#include <string>
+#include <vector>
+#include <algorithm>
+#include <execution>
+
+int test()
+{
+    std::string s {"hello"};
+    std::transform(s.cbegin(), s.cend(),
+        s.begin(), // write to the same location
+        [](unsigned char c) { return std::toupper(c); });
+    std::cout << "s = " << std::quoted(s) << '\n';
+
+    // achieving the same with std::for_each (see Notes above)
+    std::string g {"hello"};
+    std::for_each(g.begin(), g.end(), [](char& c) // modify in-place
+        {
+            c = std::toupper(static_cast<unsigned char>(c));
+        });
+    std::cout << "g = " << std::quoted(g) << '\n';
+
+    std::vector<char> ordinals;
+    ordinals.resize(s.size() + 1);
+    std::transform(std::execution::par, s.cbegin(), s.cend(), ordinals.begin(),
+        [](unsigned char c) { return std::toupper(static_cast<unsigned char>(c)); });
+    ordinals.push_back(0);
+
+    std::cout << "ordinals = " << ordinals.data() << '\n';
+
+
+    return 0;
+}
+
+
+
 // Copyright[2019][Joel Leagues aka Scourge] under the Apache V2 Licence
 
 #include<iostream>
@@ -59,6 +98,15 @@ int main(int argc, char** argv)
 {
     Begin();
     Nexus<>::Start();
+
+
+
+    auto ListOfInts = xvector<int>({ 1,2,3,4,5 });
+    ListOfInts
+        .ForEachThreadSeq<xstring>([](const int& El) { return RA::ToXString(El); })
+        .Join(',')(0,-1)
+        .Print();
+
 
     xvector<xp<xstring>> SharedPtrs;
     SharedPtrs.Emplace("hello");
@@ -126,6 +174,8 @@ int main(int argc, char** argv)
     cout << "\nprint ptrs: " << vec_str_ptrs.Join(' ') << '\n';
     cout << vec_str_ptrs[0] << endl;
     vec_str_ptrs.ForEachThread([](xstring& Str) { return ">>> " + Str; }).Join('\n').Print();
+    cout << "---" << endl;
+    vec_str_ptrs.ForEachThreadSeq<xstring>([](const xstring* Str) { return ">>> " + *Str; }).Join('\n').Print();
 
     xvector<xstring> vec_str_vals = vec_str_ptrs.GetVals();
     cout << "print vals: " << vec_str_vals.Join(' ') << "\n\n";

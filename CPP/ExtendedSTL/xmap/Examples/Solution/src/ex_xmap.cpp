@@ -23,32 +23,64 @@ using std::string;
 // if we need the other way around we use a map (string to int)
 // because of that, xrender default return type is string due to .join
 
+enum class ENumber : int
+{
+    Zero,
+    One,
+    Two,
+    Three
+};
+
 int main()
 {   
     Nexus<>::Start();
 
     xmap<xstring, xp<xstring>> MapPtrs;
 
-                  xmap<xstring, int>  xxmap = { { "one", 1}, { "two", 2 }, { "Three", 3 } };
-              std::map<xstring, int>  smap1 = { { "one", 1}, { "two", 2 }, { "Three", 3 } };
-    std::unordered_map<xstring, int> sumap1 = { { "one", 1}, { "two", 2 }, { "Three", 3 } };
+    {
+                      xmap<xstring, int>  xxmap = { { "one", 1}, { "two", 2 }, { "Three", 3 } };
+                  std::map<xstring, int>  smap1 = { { "one", 1}, { "two", 2 }, { "Three", 3 } };
+        std::unordered_map<xstring, int> sumap1 = { { "one", 1}, { "two", 2 }, { "Three", 3 } };
 
-    cout << "xxmap.size()  = " << xxmap.size() << '\n';
-    xmap<xstring, int> xmap1 = std::move(xxmap);
-    cout << "xxmap.size()  = " << xxmap.size() << '\n';
-    cout << "xmap1.size()  = " << xmap1.size() << "\n\n";
+        cout << "xxmap.size()  = " << xxmap.size() << '\n';
+        xmap<xstring, int> xmap1 = std::move(xxmap);
+        cout << "xxmap.size()  = " << xxmap.size() << '\n';
+        cout << "xmap1.size()  = " << xmap1.size() << "\n\n";
 
-    cout << "smap1.size()  = " << smap1.size() << '\n';
-    xmap<xstring, int> xmap2 = std::move(smap1);
-    cout << "smap1.size()  = " << smap1.size() << '\n';
-    cout << "xmap2.size()  = " << xmap2.size() << "\n\n";
+        cout << "smap1.size()  = " << smap1.size() << '\n';
+        xmap<xstring, int> xmap2 = std::move(smap1);
+        cout << "smap1.size()  = " << smap1.size() << '\n';
+        cout << "xmap2.size()  = " << xmap2.size() << "\n\n";
 
-    cout << "sumap1.size() = " << sumap1.size() << '\n';
-    xmap<xstring, int> xmap3  = std::move(sumap1);
-    cout << "sumap1.size() = " << sumap1.size() << '\n';
-    cout << "xmap3.size()  = " << xmap3.size() << "\n\n";
+        cout << "sumap1.size() = " << sumap1.size() << '\n';
+        xmap<xstring, int> xmap3  = std::move(sumap1);
+        cout << "sumap1.size() = " << sumap1.size() << '\n';
+        cout << "xmap3.size()  = " << xmap3.size() << "\n\n";
+    }
+    {
+                      xmap<ENumber, xint>  xxmap = { { ENumber::One, 1 }, { ENumber::Two, 2 }, { ENumber::Three, 3 } };
+                  std::map<ENumber, xint>  smap1 = { { ENumber::One, 1 }, { ENumber::Two, 2 }, { ENumber::Three, 3 } };
+        std::unordered_map<ENumber, xint> sumap1 = { { ENumber::One, 1 }, { ENumber::Two, 2 }, { ENumber::Three, 3 } };
 
-    xvector<xstring> single_vec{ "one","two","three","four","five","six" };
+        cout << "xxmap.size()  = " << xxmap.size() << '\n';
+        xmap<ENumber, xint> xmap1 = std::move(xxmap);
+        cout << "xxmap.size()  = " << xxmap.size() << '\n';
+        cout << "xmap1.size()  = " << xmap1.size() << "\n\n";
+
+        cout << "smap1.size()  = " << smap1.size() << '\n';
+        xmap<ENumber, xint> xmap2 = std::move(smap1);
+        cout << "smap1.size()  = " << smap1.size() << '\n';
+        cout << "xmap2.size()  = " << xmap2.size() << "\n\n";
+
+        cout << "sumap1.size() = " << sumap1.size() << '\n';
+        xmap<ENumber, xint> xmap3  = std::move(sumap1);
+        cout << "sumap1.size() = " << sumap1.size() << '\n';
+        cout << "xmap3.size()  = " << xmap3.size() << "\n\n";
+    }
+
+
+
+     xvector<xstring> single_vec{ "one","two","three","four","five","six" };
     xvector<xvector<xstring>> double_vec = single_vec.Split(3);
 
     single_vec.SubAll("(o)", "0").Join(' ').Print();
