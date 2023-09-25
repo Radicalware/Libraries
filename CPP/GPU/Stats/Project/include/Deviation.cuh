@@ -30,7 +30,7 @@ namespace RA
           AVG* MoAvgPtr       = nullptr;
          EType MeType         = EType::None;
 
-        double MnDeviation    = 1;
+        double MnDeviation    = 0;
         double MnSumDeviation = 0; // For Logic Size 0
 
         double MnSumOffset    = 0;

@@ -393,19 +393,12 @@ namespace Test
 
                 for (xint i = 0; i < 2; i++)
                 {
-                    CudaShot(&Kernel::Print::MeanAbsoluteDeviation, Stats);
                     CudaShot(&Kernel::Add::Value, Stats, 3);
-                    CudaShot(&Kernel::Print::MeanAbsoluteDeviation, Stats);
                     CudaShot(&Kernel::Add::Value, Stats, 3);
-                    CudaShot(&Kernel::Print::MeanAbsoluteDeviation, Stats);
                     CudaShot(&Kernel::Add::Value, Stats, 5);
-                    CudaShot(&Kernel::Print::MeanAbsoluteDeviation, Stats);
                     CudaShot(&Kernel::Add::Value, Stats, 8);
-                    CudaShot(&Kernel::Print::MeanAbsoluteDeviation, Stats);
                     CudaShot(&Kernel::Add::Value, Stats, 8);
-                    CudaShot(&Kernel::Print::MeanAbsoluteDeviation, Stats);
                     CudaShot(&Kernel::Add::Value, Stats, 12);
-                    CudaShot(&Kernel::Print::MeanAbsoluteDeviation, Stats);
                 }
                 CudaShot(&Kernel::Print::MeanAbsoluteDeviation, Stats);
                 CudaShot(&Kernel::Print::MeanAbsoluteDeviationOffset, Stats);

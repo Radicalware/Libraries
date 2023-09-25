@@ -17,8 +17,8 @@ namespace RA
     public:
         AVG(const double* FvValues,
             const xint    FnLogicalSize,
-            const xint   *FnStorageSizePtr,
-            const xint   *FnInsertIdxPtr);
+            const xint* FnStorageSizePtr,
+            const xint* FnInsertIdxPtr);
 
         IXF void SetMaxTraceSize(const xint FSize) { MnMaxTraceSize = FSize; }
 
@@ -32,6 +32,7 @@ namespace RA
         IXF auto BxUseStorageValues() const { return  MbUseStorageValues; }
         IXF auto GetStorageSize()     const { return *MnStorageSizePtr; }
         IXF auto GetLogicalSize()     const { return  MnLogicalSize; }
+        IXF auto GetRunningSize()     const { return  MnRunningSize; }
         IXF auto GetInsertIdx()       const { return *MnInsertIdxPtr; }
         IXF auto GetValues()          const { return  MvValues; }
 
@@ -39,16 +40,18 @@ namespace RA
         DXF xint   GetOldIDX() const;
 
         DXF void Update(const double FnValue);
+        DXF void ResetRunningSize() { MnRunningSize = 0; }
 
     private:
         const double* MvValues = nullptr;
-              xint    MnLogicalSize = 0;
-        const xint   *MnStorageSizePtr;
-        const xint   *MnInsertIdxPtr;
+        xint    MnLogicalSize = 0;
+        const xint* MnStorageSizePtr;
+        const xint* MnInsertIdxPtr;
 
-              xint    MnMaxTraceSize = 0;
+        xint    MnRunningSize = 0;
+        xint    MnMaxTraceSize = 0;
         const bool    MbUseStorageValues;
-              double  MnAvg = 0;
-              double  MnSum = 0;
+        double  MnAvg = 0;
+        double  MnSum = 0;
     };
 };

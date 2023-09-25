@@ -26,11 +26,11 @@ DXF void RA::Deviation::UpdateStandardDeviation(const double FnValue)
         else
         {
             const auto& LnStorage = *MoAvg.MnStorageSizePtr;
-            const auto  LnLogicSize = MoAvg.MnLogicalSize;
+            const auto  LnLogicSize = MoAvg.MnRunningSize;
             const auto& LnStart = *MoAvg.MnInsertIdxPtr;
             const auto  LnAvg = MoAvg.GetAVG();
 
-            // SquareRoot ( (Sigma (Val - Avg)^2) / (MnLogicalSize - 1) )
+            // SquareRoot ( (Sigma (Val - Avg)^2) / (MnRunningSize - 1) )
             xint Idx = (LnStart == 0) ? LnStorage - 1 : LnStart - 1;
             auto LnSum = 0.0;
             LnSum = std::pow((FnValue - LnAvg), 2);
@@ -45,8 +45,7 @@ DXF void RA::Deviation::UpdateStandardDeviation(const double FnValue)
     }
     else
     {
-
-        MnSumDeviation += std::pow((MnCurrentVal - MnLastVal), 2);
+        MnSumDeviation += std::pow((MnCurrentVal - MoAvg.GetAVG()), 2);
         if (MoAvg.GetLogicalSize() == 2)
             MnSumDeviation += MnSumDeviation;
 
@@ -73,17 +72,16 @@ DXF void RA::Deviation::UpdateMeanAbsoluteDeviation(const double FnCurrent)
         if (!MoAvg.GetLogicalSize() || !MoAvg.BxUseStorageValues())
             ThrowIt("No Logical Size");
 #endif
-
         if (MoAvg.GetAVG() == 0 && MoAvg.GetInsertIdx() == 0)
             SetDefaultValues();
         else
         {
             const auto& LnStorage = *MoAvg.MnStorageSizePtr;
-            const auto  LnLogicSize = MoAvg.MnLogicalSize;
+            const auto  LnLogicSize = MoAvg.MnRunningSize;
             const auto& LnStart = *MoAvg.MnInsertIdxPtr;
             const auto  LnAvg = MoAvg.GetAVG();
 
-            // Sigma(abs(Val - Avg)) / MnLogicalSize
+            // Sigma(abs(Val - Avg)) / MnRunningSize
             xint Idx = (LnStart == 0) ? LnStorage - 1 : LnStart - 1;
             auto LnSum = 0.0;
             LnSum = std::abs(FnCurrent - LnAvg);
@@ -98,7 +96,7 @@ DXF void RA::Deviation::UpdateMeanAbsoluteDeviation(const double FnCurrent)
     }
     else
     {
-        MnSumDeviation += std::abs(MnCurrentVal - MnLastVal);
+        MnSumDeviation += std::abs(MnCurrentVal - MoAvg.GetAVG());
         MnDeviation = MnSumDeviation / MoAvg.GetLogicalSize();
 
         MnLastOffDiff = GetDirectionalOffset();
@@ -141,7 +139,7 @@ DXF void RA::Deviation::CopyStats(const Deviation& Other)
 DXF void RA::Deviation::SetDefaultValues()
 {
     MnSumDeviation = 0;
-    MnDeviation = 1;
+    MnDeviation = 0;
 }
 
 // -------------------------------------------------------------------------------------------------------------------------------------------------
