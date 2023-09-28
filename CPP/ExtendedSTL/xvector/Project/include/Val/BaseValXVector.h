@@ -161,11 +161,8 @@ public:
     RIN bool MatchAll(const std::string& in_pattern) const;
     RIN bool MatchAll(char const* in_pattern) const;
 
-    RIN xvector<T> Take(const std::string& in_pattern) const;
-    RIN xvector<T> Take(char const* in_pattern) const;
-
-    RIN xvector<T> Remove(const std::string& in_pattern) const;
-    RIN xvector<T> Remove(char const* in_pattern) const;
+    RIN xvector<T> TakePattern(const std::string& in_pattern) const;
+    RIN xvector<T> RemovePattern(const std::string& in_pattern) const;
 
     RIN xvector<T> SubAll(const std::string& in_pattern, const std::string& replacement) const;
     RIN xvector<T> SubAll(char const* in_pattern, char const* replacement) const;
@@ -934,7 +931,7 @@ bool ValXVector<T>::MatchAll(char const* in_pattern) const {
 // =============================================================================================================
 
 template<typename T>
-RIN xvector<T> ValXVector<T>::Take(const std::string& in_pattern) const
+RIN xvector<T> ValXVector<T>::TakePattern(const std::string& in_pattern) const
 {
 #ifdef UsingNVCC
     xvector<T> RetVec;
@@ -951,17 +948,7 @@ RIN xvector<T> ValXVector<T>::Take(const std::string& in_pattern) const
 }
 
 template<typename T>
-RIN xvector<T> ValXVector<T>::Take(char const* in_pattern) const
-{
-#ifdef UsingNVCC
-    return The.Take(std::string(in_pattern));
-#else
-    return The.Take(re2::RE2(in_pattern));
-#endif
-}
-
-template<typename T>
-RIN xvector<T> ValXVector<T>::Remove(const std::string& in_pattern) const
+RIN xvector<T> ValXVector<T>::RemovePattern(const std::string& in_pattern) const
 {
 #ifdef UsingNVCC
     xvector<T> RetVec;
@@ -977,16 +964,6 @@ RIN xvector<T> ValXVector<T>::Remove(const std::string& in_pattern) const
 #endif
 }
 
-
-template<typename T>
-RIN xvector<T> ValXVector<T>::Remove(char const* in_pattern) const
-{
-#ifdef UsingNVCC
-    return The.Remove(std::string(in_pattern));
-#else
-    return The.Remove(re2::RE2(in_pattern));
-#endif
-}
 // =============================================================================================================
 
 template<typename T>

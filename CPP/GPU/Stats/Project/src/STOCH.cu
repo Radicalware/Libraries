@@ -8,8 +8,8 @@
 RA::STOCH::STOCH(
     const double* FvValues,
     const xint    FnLogicalSize,
-    const xint   *FnStorageSizePtr,
-    const xint   *FnInsertIdxPtr)
+    const xint* FnStorageSizePtr,
+    const xint* FnInsertIdxPtr)
     :
     MvValues(FvValues),
     MnLogicalSize(FnLogicalSize),
@@ -39,12 +39,12 @@ DXF void RA::STOCH::Update()
         return;
     }
 
-    MnBiggest  = -DBL_MAX; // min is big   until proven otherwise
+    MnBiggest = -DBL_MAX; // min is big   until proven otherwise
     MnSmallest = +DBL_MAX; // max is small until proven otherwise
 
-    const auto& LnStart     = *The.MnInsertIdxPtr;
-    const auto& LnStorage   = *The.MnStorageSizePtr;
-    const auto& LnLogic     =  The.MnLogicalSize;
+    const auto& LnStart = *The.MnInsertIdxPtr;
+    const auto& LnStorage = *The.MnStorageSizePtr;
+    const auto& LnLogic = The.MnLogicalSize;
 
     xint Idx = LnStart;
     for (xint i = LnStart; i < LnStart + LnLogic; i++)
@@ -67,6 +67,15 @@ DXF void RA::STOCH::Update()
     const auto& LnCurrent = MvValues[LnStart];
     MnSTOCH = 100 * ((LnCurrent - MnSmallest) / (MnBiggest - MnSmallest));
     //cout << "stoch val: " << MvValues[LnStart] << " : " << MnSTOCH << endl;
+}
+
+DXF void RA::STOCH::Update(const double FnValue)
+{
+    if (MnBiggest < FnValue)
+        MnBiggest = FnValue;
+    if (MnSmallest > FnValue)
+        MnSmallest = FnValue;
+    MnSTOCH = 100 * ((FnValue - MnSmallest) / (MnBiggest - MnSmallest));
 }
 
 DXF void RA::STOCH::SetLogicalSize(const xint FnLogicalSize)

@@ -39,7 +39,7 @@ void RA::StatsCPU::operator=(const StatsCPU& Other)
         MbHadFirstInsert = false;
     }
 
-    The.Construct(MeHardware, Other.MnStorageSize, Other.MmOptions);
+    The.ConstructHardware(MeHardware, Other.MnStorageSize, Other.MmOptions);
     The.SetJoinerySize(Other.MnJoinerySize);
 
     if (Other.MoAvgPtr)         MoAvgPtr->CopyStats(*Other.MoAvgPtr);

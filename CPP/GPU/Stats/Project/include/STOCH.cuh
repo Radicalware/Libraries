@@ -6,6 +6,7 @@
 #endif
 
 #include "Macros.h"
+#include <limits>
 
 namespace RA
 {
@@ -31,6 +32,7 @@ namespace RA
 
     private:
         DXF void Update();
+        DXF void Update(const double FnValue);
         DXF void SetLogicalSize(const xint FnLogicalSize);
         DXF void SetDefaultValues(const double FnDefaualt);
 
@@ -39,8 +41,8 @@ namespace RA
         const xint   *MnStorageSizePtr;
         const xint   *MnInsertIdxPtr;
 
-        double  MnBiggest = 0;
-        double  MnSmallest = 0;
+        double  MnBiggest  = -DBL_MAX;
+        double  MnSmallest =  DBL_MAX;
         double  MnSTOCH = 0;
     };
 };

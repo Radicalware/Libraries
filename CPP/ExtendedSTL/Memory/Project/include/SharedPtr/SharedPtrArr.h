@@ -9,6 +9,7 @@
 #include <functional>
 #include <algorithm>
 #include <utility>
+#include <execution>
 
 namespace RA
 {
@@ -59,6 +60,10 @@ namespace RA
 
         template<typename F, typename ...A>
         SharedPtr<T[]> RIN Proc(F&& Func, A&&... Args);
+        template<typename F, typename ...A>
+        SharedPtr<T[]> RIN ProcThreadsSeq(F&& Func);
+        template<typename F, typename ...A>
+        SharedPtr<T[]> RIN ProcThreadsUnseq(F&& Func);
 
         template<typename R = T, typename F, typename ...A>
         SharedPtr<R[]> RIN ForEach(F&& Func, A&&... Args);
@@ -69,6 +74,17 @@ namespace RA
         RIN R ForEachAdd(F&& Func, A&&... Args);
         template<typename R = T, typename F, typename ...A>
         RIN R ForEachAdd(F&& Func, A&&... Args) const;
+
+        template<typename R = T, typename F>
+        SharedPtr<R[]> RIN ForEachThreadSeq(F&& Func);
+        template<typename R = T, typename F>
+        SharedPtr<R[]> RIN ForEachThreadSeq(F&& Func) const;
+
+        template<typename R = T, typename F>
+        SharedPtr<R[]> RIN ForEachThreadUnseq(F&& Func);
+        template<typename R = T, typename F>
+        SharedPtr<R[]> RIN ForEachThreadUnseq(F&& Func) const;
+
 
         CIN void __SetSize__(const xint FnLeng); // todo: get friend functions working
         CIN void __SetInitialized__(const bool FbInit);
@@ -221,6 +237,28 @@ RIN RA::SharedPtr<T[]> RA::SharedPtr<T[]>::Proc(F&& Func, A&& ...Args)
         Func(Elem, std::forward<A>(Args)...);
     return The;
 }
+template<typename T>
+template<typename F, typename ...A>
+RIN RA::SharedPtr<T[]> RA::SharedPtr<T[]>::ProcThreadsSeq(F&& Func)
+{
+    std::for_each(
+        std::execution::par,
+        The.begin(),
+        The.end(),
+        Func);
+    return The;
+}
+template<typename T>
+template<typename F, typename ...A>
+RIN RA::SharedPtr<T[]> RA::SharedPtr<T[]>::ProcThreadsUnseq(F&& Func)
+{
+    std::for_each(
+        std::execution::unseq,
+        The.begin(),
+        The.end(),
+        Func);
+    return The;
+}
 
 template<typename T>
 template<typename R, typename F, typename ...A>
@@ -261,6 +299,65 @@ RIN R RA::SharedPtr<T[]>::ForEachAdd(F&& Func, A && ...Args)const
         Ret += Func(The[i], std::forward<A>(Args)...);
     return Ret;
 }
+
+// ------------------------------------------------------------------------
+
+
+template<typename T>
+template<typename R, typename F>
+RIN RA::SharedPtr<R[]> RA::SharedPtr<T[]>::ForEachThreadSeq(F&& Func)
+{
+    std::for_each(
+        std::execution::par,
+        The.begin(),
+        The.end(),
+        Func
+    );
+    return The;
+}
+
+template<typename T>
+template<typename R, typename F>
+RIN RA::SharedPtr<R[]> RA::SharedPtr<T[]>::ForEachThreadSeq(F&& Func) const
+{
+    auto Ret = The.GetNew(The.Size());
+    std::for_each(
+        std::execution::par,
+        Ret.begin(),
+        Ret.end(),
+        Func
+    );
+    return Ret;
+}
+
+template<typename T>
+template<typename R, typename F>
+RIN RA::SharedPtr<R[]> RA::SharedPtr<T[]>::ForEachThreadUnseq(F&& Func)
+{
+    std::for_each(
+        std::execution::unseq,
+        The.begin(),
+        The.end(),
+        Func
+    );
+    return The;
+}
+
+template<typename T>
+template<typename R, typename F>
+RIN RA::SharedPtr<R[]> RA::SharedPtr<T[]>::ForEachThreadUnseq(F&& Func) const
+{
+    auto Ret = The.GetNew(The.Size());
+    std::for_each(
+        std::execution::unseq,
+        Ret.begin(),
+        Ret.end(),
+        Func
+    );
+    return Ret;
+}
+
+// ------------------------------------------------------------------------
 
 template<typename T>
 CIN void RA::SharedPtr<T[]>::__SetSize__(const xint FnLeng)

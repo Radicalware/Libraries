@@ -227,7 +227,7 @@ void RA::Stats::Construct(
 }
 
 
-void RA::Stats::Construct(
+void RA::Stats::ConstructHardware(
     const EHardware FeHardware,
     const xint FnStorageSize,
     const xmap<EStatOpt, xint>& FmOptions,
@@ -246,7 +246,7 @@ RA::Stats::Stats(
     const double FnDefaultVal)
 {
     Begin();
-    The.Construct(FeHardware, FnStorageSize, FmOptions, FnDefaultVal);
+    The.ConstructHardware(FeHardware, FnStorageSize, FmOptions, FnDefaultVal);
     Rescue();
 }
 
@@ -398,6 +398,7 @@ DXF void RA::Stats::operator<<(const double FnValue)
         SRef(MoAvgPtr).Update(FnValue);
         SRef(MoStandardDeviationPtr).Update(FnValue);
         SRef(MoMeanAbsoluteDeviationPtr).Update(FnValue);
+        SRef(MoSTOCHPtr).Update(FnValue);
         return;
     }
 
@@ -409,20 +410,6 @@ DXF void RA::Stats::operator<<(const double FnValue)
             if (MnInsertIdx >= MnStorageSize)
                 MnInsertIdx = 0;
         }
-    }
-
-    if (!MnStorageSize)
-    {
-        if (MnJoinerySize)
-#ifdef UsingMSVC
-            ThrowIt("You can't have Joinery without real values!");
-#else // UsingMSVC
-            printf(RED "You can't have Joinery without real values!\n" WHITE);
-#endif
-
-        SRef(MoAvgPtr).Update(FnValue);
-        // storage needed for: Min/Max, RSI, STOCH
-        return;
     }
 
     //if (!MbHadFirstInsert)
@@ -463,7 +450,6 @@ DXF void RA::Stats::operator<<(const double FnValue)
     SRef(MoSTOCHPtr).Update();
 
     MbHadFirstInsert = true;
-    return;
     Rescue();
 }
 

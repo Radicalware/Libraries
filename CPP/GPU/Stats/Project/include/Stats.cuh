@@ -66,7 +66,7 @@ namespace RA
 
     public:
         ~Stats();
-        void Construct(
+        void ConstructHardware(
             const EHardware FeHardware,
             const xint FnStorageSize,
             const xmap<EStatOpt, xint>& FmOptions, // Options <> Logical Size

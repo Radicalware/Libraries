@@ -59,7 +59,7 @@ namespace RA
 
         RIN CudaBridge(std::initializer_list<T> FnInit);
 
-        RIN void ResetIterator() { This.SetIterator(MvHost.Ptr(), &MnLeng); }
+        RIN void ResetIterator() { RA::Iterator<T>::SetIterator(MvHost.Ptr(), &MnLeng); }
 
         RIN void SetSizing(xint FnSize);
         RIN void SetSizing(xint FnSize, xint FnMemSize);
@@ -149,6 +149,7 @@ namespace RA
                     const Allocate& FoAllocate, // Return config
                     const dim3& FnGrid, const dim3& FnBlock, // CUDA Kernel Config
                     F&& Function, A&&... Args); // CUDA Kernel Function & Args
+
             template<typename F, typename ...A>
             RIN static xvector<T>
                 RunMultiGPU(
@@ -301,14 +302,14 @@ TTT RA::CudaBridge<T>::CudaBridge(RA::SharedPtr<T[]> FnArray, xint FnSize) :
     MvHost(FnArray), MnLeng(FnSize), MnByteSize(sizeof(T))
 {
     Initialize();
-    SetIterator(MvHost.Ptr(), &MnLeng);
+    RA::Iterator<T>::SetIterator(MvHost.Ptr(), &MnLeng);
 }
 
 TTT RA::CudaBridge<T>::CudaBridge(RA::SharedPtr<T[]> FnArray, xint FnSize, xint FnMemSize) :
     MvHost(FnArray), MnLeng(FnSize), MnByteSize(FnMemSize)
 {
     Initialize();
-    SetIterator(MvHost.Ptr(), &MnLeng);
+    RA::Iterator<T>::SetIterator(MvHost.Ptr(), &MnLeng);
 }
 
 TTT RA::CudaBridge<T>::CudaBridge(const RA::CudaBridge<T>& Other)
@@ -392,7 +393,7 @@ TTT void RA::CudaBridge<T>::operator=(const std::vector<T>& Other)
     MoStream = Other.MoStream;
     AllocateHost(Other.size());
     CopyHostData(Other.data());
-    SetIterator(MvHost.Ptr(), &MnLeng);
+    The.SetIterator(MvHost.Ptr(), &MnLeng);
     Rescue();
 }
 
@@ -744,7 +745,7 @@ RA::CudaBridge<T> RA::CudaBridge<T>::ARRAY::RunGPU(const RA::Allocate& FoAllocat
     DeviceOutput.CopyHostToDeviceAsync();
     DeviceOutput.SyncStream();
 
-    Function<<<FnGrid, FnBlock, 0, DeviceOutput.GetStream()>>>(DeviceOutput.GetDevice(), std::forward<A>(Args)...);
+    Function << <FnGrid, FnBlock, 0, DeviceOutput.GetStream() >> > (DeviceOutput.GetDevice(), std::forward<A>(Args)...);
 
     return DeviceOutput;
     Rescue();

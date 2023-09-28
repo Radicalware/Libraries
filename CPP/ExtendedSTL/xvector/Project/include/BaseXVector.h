@@ -85,6 +85,8 @@ public:
     RIN bool operator!=(const xint value) const;
 
     xvector<xvector<T>> RIN Split(xint FnSplinters) const;
+
+    RIN void Remove(const xint Idx);
     RIN void RemoveLast() { The.pop_back(); }
 
     RIN void ResizeToIdx(const xint FSize) { The.resize(FSize + 1); }
@@ -310,6 +312,13 @@ xvector<xvector<T>> RIN BaseXVector<T>::Split(xint FnSplinters) const
     return RetVec;
 }
 
+template<typename T>
+RIN void BaseXVector<T>::Remove(const xint Idx)
+{
+    if (Idx >= The.size())
+        return;
+    The.erase(The.begin() + Idx);
+}
 
 template<typename T>
 RIN void BaseXVector<T>::ResizeToIdxAndSetAll(const xint FSize, const T& Val)
