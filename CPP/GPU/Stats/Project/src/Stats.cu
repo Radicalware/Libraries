@@ -274,18 +274,15 @@ void RA::Stats::SetStorageSizeZero(const double FnDefaultVal)
 
 DXF void RA::Stats::SetDefaultValues(const double FnDefaultVal)
 {
-    Begin();
     SRef(MoAvgPtr).SetDefaultValues(FnDefaultVal);
     SRef(MoSTOCHPtr).SetDefaultValues(FnDefaultVal);
     SRef(MoRSIPtr).SetDefaultValues();
     SRef(MoStandardDeviationPtr).SetDefaultValues();
     SRef(MoMeanAbsoluteDeviationPtr).SetDefaultValues();
-    Rescue();
 }
 
 void RA::Stats::SetJoinerySize(const xint FCount)
 {
-    Begin();
     if (FCount <= 1)
         return;
     MnJoinerySize = FCount;
@@ -342,8 +339,6 @@ void RA::Stats::SetJoinerySize(const xint FCount)
     default:
         ThrowIt("EHardware (GPU/CPU) Option Not Given");
     }
-
-    Rescue();
 }
 
 
@@ -357,7 +352,6 @@ DXF void RA::Stats::SetMaxTraceSize(const xint FSize)
 
 DXF double RA::Stats::operator[](const xint IDX) const
 {
-    Begin();
     if (IDX >= MnStorageSize)
 #ifdef UsingMSVC
         ThrowIt(RED "IDX = ", MnStorageSize, " which is too big for size of" WHITE);
@@ -368,13 +362,10 @@ DXF double RA::Stats::operator[](const xint IDX) const
         return MvValues[MnInsertIdx - IDX];
     const auto LnRelIDX = MnInsertIdx + MnStorageSize - IDX; // 0 + 5 - 1 == 5 - 1 == idx 4 (of size o5)
     return MvValues[LnRelIDX];
-
-    Rescue();
 }
 
 DXF double RA::Stats::Former(const xint IDX) const
 {
-    Begin();
     const auto LnIdx = IDX + 1;
     if (LnIdx >= MnStorageSize)
 #ifdef UsingMSVC
@@ -386,12 +377,10 @@ DXF double RA::Stats::Former(const xint IDX) const
     if (LnRelIdx >= MnStorageSize)
         return MvValues[LnRelIdx - MnStorageSize];
     return MvValues[LnRelIdx];
-    Rescue();
 }
 
 DXF void RA::Stats::operator<<(const double FnValue)
 {
-    Begin();
     if (!MnStorageSize || !MvValues)
     {
         MnLastValue = FnValue;
@@ -450,13 +439,13 @@ DXF void RA::Stats::operator<<(const double FnValue)
     SRef(MoSTOCHPtr).Update();
 
     MbHadFirstInsert = true;
-    Rescue();
 }
 
 DXF void RA::Stats::Reset()
 {
     SetAllValues(0, false);
-    SRef(MoAvgPtr).ResetRunningSize();
+    if(MoAvgPtr)
+        (*MoAvgPtr).ResetRunningSize();
 }
 
 DXF void RA::Stats::ZeroOut()

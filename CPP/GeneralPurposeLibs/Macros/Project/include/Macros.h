@@ -336,20 +336,20 @@ inline auto highLevelF(Args&&... args) -> decltype(lowLevelF(std::forward<Args>(
 
 #define WATCH(__EXPR__) Begin(); __EXPR__; Rescue();
 
-#if UsingNVCC
-
-#define NVBegin Begin
-#define NVRescue Rescue
-#define NVFinalRescue FinalRescue
-
-#undef Begin
-#undef Rescue
-#undef FinalRescue
-
-#define Begin()
-#define Rescue()
-#define FinalRescue()
-#endif
+//#if UsingNVCC
+//
+//#define NVBegin Begin
+//#define NVRescue Rescue
+//#define NVFinalRescue FinalRescue
+//
+//#undef Begin
+//#undef Rescue
+//#undef FinalRescue
+//
+//#define Begin()
+//#define Rescue()
+//#define FinalRescue()
+//#endif
 
 // -----------------------------------------------------------------------------------------------------------------------------
 namespace RA

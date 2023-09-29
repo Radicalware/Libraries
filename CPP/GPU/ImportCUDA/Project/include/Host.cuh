@@ -37,11 +37,11 @@ namespace RA
 
         static void PopulateStaticNums();
 
-        static unsigned int SnThreadsPerBlock = 0;
-        static unsigned int SnThreadsPerWarp = 0;
-        static dim3 SvBlock3D;
-        static dim3 SvBlock2D;
-        static int  SnDeviceCount = 0;
+        istatic unsigned int SnThreadsPerBlock = 0;
+        istatic unsigned int SnThreadsPerWarp = 0;
+        istatic dim3 SvBlock3D = dim3(0, 0, 0);
+        istatic dim3 SvBlock2D = dim3(0, 0, 0);
+        istatic int  SnDeviceCount = 0;
 
         istatic xint GetThreadsPerBlock() { return RA::Host::SnThreadsPerBlock; }
         istatic dim3 GetBlock3D() { return RA::Host::SvBlock3D; }
@@ -200,12 +200,15 @@ std::tuple<dim3, dim3> RA::Host::GetDimensions3D(const unsigned int FnLeng)
     if (!SnDeviceCount)
         RA::Host::PopulateStaticNums();
 
-    if (SnThreadsPerBlock > (FnLeng / 2))
-        return RA::Host::GetDimensions1D(FnLeng);
-    if (SnThreadsPerBlock > (FnLeng / 4))
+    
+    if (SnThreadsPerBlock >= (FnLeng / 1024))
+        if (SvBlock3D.x == 0)
+            SvBlock3D = GetThreadCube(SnThreadsPerBlock);
+    else if (SnThreadsPerBlock >= (FnLeng / 128))
         return RA::Host::GetDimensions2D(FnLeng);
-    if (SvBlock3D.x == 0)
-        SvBlock3D = GetThreadCube(SnThreadsPerBlock);
+    else
+        return RA::Host::GetDimensions1D(FnLeng);
+
 
     const auto LvBlock = SvBlock3D;
     const auto LnRemainder = (FnLeng % SnThreadsPerBlock) ? 1 : 0;
@@ -223,7 +226,7 @@ std::tuple<dim3, dim3> RA::Host::GetDimensions2D(const unsigned int FnLeng)
     if (!SnDeviceCount)
         RA::Host::PopulateStaticNums();
 
-    if (SnThreadsPerBlock > (FnLeng / 2))
+    if (SnThreadsPerBlock > (FnLeng / 100))
         return RA::Host::GetDimensions1D(FnLeng);
     if (SvBlock2D.x == 0)
         SvBlock2D = GetThreadSquare(SnThreadsPerBlock);

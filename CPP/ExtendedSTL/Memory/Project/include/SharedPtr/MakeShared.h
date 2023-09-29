@@ -12,7 +12,7 @@ template<typename T>
 using xp = RA::SharedPtr<T>;
 
 template<class T>
-using sxp = std::shared_ptr<T>;
+using sp = std::shared_ptr<T>;
 
 #define MKP RA::MakeShared
 #define MPVA(_PTR_, ...) _PTR_ = RA::MakeShared<decltype(_PTR_)>(__VA_ARGS__)

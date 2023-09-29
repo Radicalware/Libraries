@@ -225,11 +225,17 @@ TTT void RA::CudaBridge<T>::FreeDevice()
         return;
     if (MvDevice)
     {
-        cudaFree(MvDevice);
+        auto Error = cudaFree(MvDevice);
+        if (Error)
+            ThrowIt("Failed cudaFree: ", cudaGetErrorString(Error));
         MvDevice = nullptr;
     }
     if (MoStream)
-        cudaStreamDestroy(MoStream);
+    {
+        auto Error = cudaStreamDestroy(MoStream);
+        if (Error)
+            ThrowIt("Failed cudaStreamDestroy: ", cudaGetErrorString(Error));
+    }
 }
 
 TTT void RA::CudaBridge<T>::Initialize()
@@ -492,7 +498,11 @@ TTT void RA::CudaBridge<T>::CopyHostToDeviceAsync()
         AllocateDevice();
 
     if (MoStream == 0)
-        cudaStreamCreateWithFlags(&MoStream, cudaStreamNonBlocking);
+    {
+        auto Error = cudaStreamCreateWithFlags(&MoStream, cudaStreamNonBlocking);
+        if (Error)
+            ThrowIt("'Failed cudaStreamCreateWithFlags: ", cudaGetErrorString(Error));
+    }
     auto Error = cudaMemcpyAsync(MvDevice, MvHost.Ptr(), GetMemCopySize(), cudaMemcpyHostToDevice, MoStream);
     if (Error)
         ThrowIt("CUDA Memcpy Error Host>>Device: ", cudaGetErrorString(Error));
@@ -745,8 +755,10 @@ RA::CudaBridge<T> RA::CudaBridge<T>::ARRAY::RunGPU(const RA::Allocate& FoAllocat
     DeviceOutput.CopyHostToDeviceAsync();
     DeviceOutput.SyncStream();
 
-    Function << <FnGrid, FnBlock, 0, DeviceOutput.GetStream() >> > (DeviceOutput.GetDevice(), std::forward<A>(Args)...);
-
+    Function<<<FnGrid, FnBlock, 0, DeviceOutput.GetStream()>>>(DeviceOutput.GetDevice(), std::forward<A>(Args)...);
+    auto Error = cudaGetLastError();
+    if (Error)
+        ThrowIt("Failed Array::RunGPU: ", cudaGetErrorString(Error));
     return DeviceOutput;
     Rescue();
 }
@@ -891,10 +903,12 @@ template<typename T>
 void RA::CudaBridge<T>::SyncAll()
 {
     Begin();
-    cudaDeviceSynchronize();
+    auto Error = cudaDeviceSynchronize();
+    if (Error)
+        ThrowIt("CUDA cudaDeviceSynchronize Error: ", cudaGetErrorString(Error));
     for (xint i = 0; i < SvStreams.size(); i++)
     {
-        auto Error = cudaStreamDestroy(SvStreams[i]);
+        Error = cudaStreamDestroy(SvStreams[i]);
         if(Error)
             ThrowIt("CUDA cudaStreamDestroy Error: ", cudaGetErrorString(Error));
     }
