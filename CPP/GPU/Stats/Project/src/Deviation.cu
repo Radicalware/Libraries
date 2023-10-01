@@ -33,11 +33,13 @@ DXF void RA::Deviation::UpdateStandardDeviation(const double FnValue)
             // SquareRoot ( (Sigma (Val - Avg)^2) / (MnRunningSize - 1) )
             xint Idx = (LnStart == 0) ? LnStorage - 1 : LnStart - 1;
             auto LnSum = 0.0;
-            LnSum = std::pow((FnValue - LnAvg), 2);
+            const auto LnValMinusAvg = FnValue - LnAvg;
+            LnSum = (LnValMinusAvg * LnValMinusAvg);
             for (xint i = LnStart + 1; i < LnStart + LnLogicSize; i++)
             {
                 const auto& LnVal = MoAvg.MvValues[Idx];
-                LnSum += std::pow((LnVal - LnAvg), 2);
+                const auto LnValMinusMean = LnVal - LnAvg;
+                LnSum += (LnValMinusMean * LnValMinusMean);
                 Idx = (Idx == 0) ? LnStorage - 1 : Idx - 1;
             }
             MnDeviation = sqrt(LnSum / (LnLogicSize - 1));
@@ -45,7 +47,8 @@ DXF void RA::Deviation::UpdateStandardDeviation(const double FnValue)
     }
     else
     {
-        MnSumDeviation += std::pow((MnCurrentVal - MoAvg.GetAVG()), 2);
+        const auto LnValMinsMean = MnCurrentVal - MoAvg.GetAVG();
+        MnSumDeviation += (LnValMinsMean * LnValMinsMean);
         if (MoAvg.GetLogicalSize() == 2)
             MnSumDeviation += MnSumDeviation;
 

@@ -1,4 +1,5 @@
 ﻿#include "RawMapping.h"
+#include <cmath>
 
 
 double RA::TrimZeros(const double FnNum, const double FnAccuracy)

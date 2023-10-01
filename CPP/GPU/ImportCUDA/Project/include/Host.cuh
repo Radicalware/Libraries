@@ -14,6 +14,18 @@ namespace RA
 {
     namespace Host
     {
+        struct Config
+        {
+            istatic int  SnThreadsPerBlock = 0;
+            istatic int  SnThreadsPerWarp = 0;
+            istatic dim3 SvBlock3D = dim3(0, 0, 0);
+            istatic dim3 SvBlock2D = dim3(0, 0, 0);
+            istatic int  SnDeviceCount = 0;
+
+            istatic const int SnReq3D = 4;
+            istatic const int SnReq2D = 2;
+        };
+
         TTT static T* CopyHostToDevice(T* FvHostDataPtr, const Allocate& FoAllocate);
 
         TTT static std::enable_if_t<IsFundamental(T), T*>
@@ -37,15 +49,12 @@ namespace RA
 
         static void PopulateStaticNums();
 
-        istatic unsigned int SnThreadsPerBlock = 0;
-        istatic unsigned int SnThreadsPerWarp = 0;
-        istatic dim3 SvBlock3D = dim3(0, 0, 0);
-        istatic dim3 SvBlock2D = dim3(0, 0, 0);
-        istatic int  SnDeviceCount = 0;
+        istatic xint GetThreadsPerBlock() { return Config::SnThreadsPerBlock; }
+        istatic dim3 GetBlock3D() { return Config::SvBlock3D; }
+        istatic dim3 GetBlock2D() { return Config::SvBlock2D; }
 
-        istatic xint GetThreadsPerBlock() { return RA::Host::SnThreadsPerBlock; }
-        istatic dim3 GetBlock3D() { return RA::Host::SvBlock3D; }
-        istatic dim3 GetBlock2D() { return RA::Host::SvBlock2D; }
+        static void PrintGridBlockDims(const dim3 FvGrid, const dim3 FvBlock);
+        static xstring GetGridBlockStr(const dim3 FvGrid, const dim3 FvBlock);
     };
 };
 
@@ -197,58 +206,146 @@ dim3 RA::Host::GetThreadCube(const unsigned int FnCubeSize)
 
 std::tuple<dim3, dim3> RA::Host::GetDimensions3D(const unsigned int FnLeng)
 {
-    if (!SnDeviceCount)
+    if (!Config::SnDeviceCount)
         RA::Host::PopulateStaticNums();
 
-    
-    if (SnThreadsPerBlock >= (FnLeng / 1024))
-        if (SvBlock3D.x == 0)
-            SvBlock3D = GetThreadCube(SnThreadsPerBlock);
-    else if (SnThreadsPerBlock >= (FnLeng / 128))
-        return RA::Host::GetDimensions2D(FnLeng);
-    else
-        return RA::Host::GetDimensions1D(FnLeng);
+    constexpr auto Mult = [](const dim3& FoDim) ->xint {
+        return static_cast<xint>(FoDim.x * FoDim.y * FoDim.z);
+    };
+    constexpr auto DecreaseVals = [](dim3& FoDim) -> void
+    {
+        if (FoDim.z >= FoDim.x && FoDim.z >= FoDim.y)
+            --FoDim.z;
+        else if (FoDim.y >= FoDim.x)
+            --FoDim.y;
+        else
+            --FoDim.x;
+    };
+    constexpr auto IncreaseVals = [](dim3& FoDim) -> void
+    {
+        if (FoDim.z < FoDim.x && FoDim.z < FoDim.y)
+            ++FoDim.z;
+        else if (FoDim.y < FoDim.x)
+            ++FoDim.y;
+        else
+            ++FoDim.x;
+    };
+
+    auto Ln6Split = RA::Pow(FnLeng, 1.0 / 6.0);
+    while (RA::Pow(Ln6Split, 6.0) < FnLeng)
+        Ln6Split++;
+
+    const auto LnTargetSplit = RA::Pow(Ln6Split, 3);
+
+    auto LvBlock = dim3(32, 1, 1);
+    auto LvGrid = dim3(Ln6Split, Ln6Split, Ln6Split);
+
+    auto LnLastY = 1;
+    auto LnLastZ = 1;
+    while (Mult(LvBlock) < LnTargetSplit)
+    {
+        if (LvBlock.z < LvBlock.x && LvBlock.z < LvBlock.y)
+            ++LvBlock.z;
+        else if (LvBlock.y < LvBlock.x)
+            ++LvBlock.y;
+        else
+        {
+            LvBlock.x += 32;
+            LvBlock.y = LnLastY;
+            LvBlock.z = LnLastZ;
+
+            if (LvBlock.z < LvBlock.y)
+                LvBlock.z++; // mult by 32 as X
+            else
+                LvBlock.y++; // mult by 32 as X
+            LnLastY = LvBlock.y;
+            LnLastZ = LvBlock.z;
+        };
+    }
 
 
-    const auto LvBlock = SvBlock3D;
-    const auto LnRemainder = (FnLeng % SnThreadsPerBlock) ? 1 : 0;
-    auto LnGridThreadCount = FnLeng / SnThreadsPerBlock + LnRemainder;
-    if (LnGridThreadCount % 2 != 0)
-        LnGridThreadCount++;
-    auto LvGrid = (LnGridThreadCount >= 1024)
-        ? GetThreadCube(LnGridThreadCount)
-        : GetThreadSquare(LnGridThreadCount);
+    while ((Mult(LvGrid) * Mult(LvBlock)) > FnLeng)
+    {
+        DecreaseVals(LvGrid);
+    }
+    while ((Mult(LvGrid) * Mult(LvBlock)) < FnLeng)
+    {
+        IncreaseVals(LvGrid);
+    }
     return std::make_tuple(LvGrid, LvBlock);
 }
 
 std::tuple<dim3, dim3> RA::Host::GetDimensions2D(const unsigned int FnLeng)
 {
-    if (!SnDeviceCount)
+    if (!Config::SnDeviceCount)
         RA::Host::PopulateStaticNums();
 
-    if (SnThreadsPerBlock > (FnLeng / 100))
-        return RA::Host::GetDimensions1D(FnLeng);
-    if (SvBlock2D.x == 0)
-        SvBlock2D = GetThreadSquare(SnThreadsPerBlock);
+    constexpr auto Mult = [](const dim3& FoDim) ->xint {
+        return static_cast<xint>(FoDim.x * FoDim.y * FoDim.z);
+    };
+    constexpr auto DecreaseVals = [](dim3& FoDim) -> void
+    {
+        if (FoDim.y >= FoDim.x)
+            --FoDim.y;
+        else
+            --FoDim.x;
+    };
+    constexpr auto IncreaseVals = [](dim3& FoDim) -> void
+    {
+        if (FoDim.y < FoDim.x)
+            ++FoDim.y;
+        else
+            ++FoDim.x;
+    };
 
-    const auto LvBlock = SvBlock2D;
-    const auto LnRemainder = (FnLeng % SnThreadsPerBlock) ? 1 : 0;
-    const auto LvGrid = GetThreadSquare(FnLeng / SnThreadsPerBlock + LnRemainder);
+    auto Ln4Split = RA::Pow(FnLeng, 1.0 / 4.0);
+    while (RA::Pow(Ln4Split, 4.0) < FnLeng)
+        Ln4Split++;
+
+    const auto LnTargetSplit = RA::Pow(Ln4Split, 2);
+
+    auto LvBlock = dim3(32, 1, 1);
+    auto LvGrid = dim3(Ln4Split, Ln4Split, 1);
+
+    auto LnLastY = 1;
+    while (Mult(LvBlock) < LnTargetSplit)
+    {
+        if (LvBlock.y < LvBlock.x)
+            ++LvBlock.y;
+        else
+        {
+            LvBlock.x += 32;
+            LvBlock.y = LnLastY;
+
+            LvBlock.y++; // mult by 32 as X
+            LnLastY = LvBlock.y;
+        };
+    }
+
+
+    while ((Mult(LvGrid) * Mult(LvBlock)) > FnLeng)
+    {
+        DecreaseVals(LvGrid);
+    }
+    while ((Mult(LvGrid) * Mult(LvBlock)) < FnLeng)
+    {
+        IncreaseVals(LvGrid);
+    }
     return std::make_tuple(LvGrid, LvBlock);
 }
 
 std::tuple<dim3, dim3> RA::Host::GetDimensions1D(const unsigned int FnLeng)
 {
-    if (!SnDeviceCount)
+    if (!Config::SnDeviceCount)
         RA::Host::PopulateStaticNums();
 
-    if (FnLeng < SnThreadsPerWarp)
+    if (FnLeng < Config::SnThreadsPerWarp)
     {
         const dim3 LvBlock = FnLeng;
         const dim3 LvGrid = 1;
         return std::make_tuple(LvGrid, LvBlock);
     }
-    const dim3 LvBlock(SnThreadsPerWarp);
+    const dim3 LvBlock(Config::SnThreadsPerWarp);
     dim3 LvGrid = (FnLeng / LvBlock.x);
     if (LvGrid.x * LvBlock.x < FnLeng)
         LvGrid.x++;
@@ -259,10 +356,22 @@ void RA::Host::PopulateStaticNums()
 {
     cudaDeviceProp iProp;
     cudaGetDeviceProperties(&iProp, 0);
-    SnThreadsPerBlock = iProp.maxThreadsPerBlock;
-    SnThreadsPerWarp = iProp.warpSize;
+    Config::SnThreadsPerBlock = iProp.maxThreadsPerBlock;
+    Config::SnThreadsPerWarp = iProp.warpSize;
     int LnDeviceCount = 0;
     cudaGetDeviceCount(&LnDeviceCount);
-    SnDeviceCount = LnDeviceCount;
+    Config::SnDeviceCount = LnDeviceCount;
 }
 
+void RA::Host::PrintGridBlockDims(const dim3 FvGrid, const dim3 FvBlock)
+{
+    RA::Print("Grid/Block: ", GetGridBlockStr(FvGrid, FvBlock));
+}
+
+
+xstring RA::Host::GetGridBlockStr(const dim3 FvGrid, const dim3 FvBlock)
+{
+    return RA::BindStr(
+            "(", FvGrid.x,  ',', FvGrid.y,  ',', FvGrid.z,  ")",
+            "(", FvBlock.x, ',', FvBlock.y, ',', FvBlock.z, ")");
+}

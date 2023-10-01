@@ -130,3 +130,6 @@ namespace RA
         bool IsArgType(const xstring& FsArg) const;
     };
 };
+
+
+EXI extern RA::SYS CliArgs;

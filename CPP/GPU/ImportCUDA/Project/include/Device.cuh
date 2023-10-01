@@ -3,6 +3,7 @@
 #ifndef __CUDA_DEVICE_FUNCTIONS__
 #define __CUDA_DEVICE_FUNCTIONS__
 
+#include "RawMapping.h"
 #include "cuda_runtime.h"
 #include "cuda_runtime_api.h"
 #include "device_launch_parameters.h"
@@ -23,14 +24,16 @@ namespace RA
 {
     namespace Device
     {
-        __device__ static xint GetThreadID(const bool Print = false);
-        __device__ static void Copy(uint3& Left, const uint3& Right);
+        static __device__ xint GetThreadID(const bool Print = false);
+        static __device__ void Copy(uint3& Left, const uint3& Right);
 
-        __device__  static void Print(const uint3& LvVertex);
+        static __device__ void Print(const uint3& FvDim);
+        static __device__ void Print(const uint3& FvDim1, const uint3& FvDim2);
+        static __device__ void Print(const xint FnIDX, const uint3& FvDim1, const uint3& FvDim2);
 
 
-        template<typename ...A> __device__ static void Print(const char* FsText, A&&... Args);
-        template<>              __device__ static void Print(const char* FsText);
+        template<typename ...A> static __device__ void Print(const char* FsText, A&&... Args);
+        template<>              static __device__ void Print(const char* FsText);
     };
 };
 
@@ -81,9 +84,21 @@ __device__ xint RA::Device::GetThreadID(const bool Print)
     return GID;
 }
 
-__device__  void RA::Device::Print(const uint3& LvVertex) {
-    printf("%u.%u.%u\n", LvVertex.x, LvVertex.y, LvVertex.z);
+__device__ void RA::Device::Print(const uint3& FvDim) {
+    printf("(%u,%u,%u)\n", FvDim.x, FvDim.y, FvDim.z);
 }
+__device__ void RA::Device::Print(const uint3& FvDim1, const uint3& FvDim2) {
+    printf("(%u,%u,%u)(%u,%u,%u)\n", 
+        FvDim1.x, FvDim1.y, FvDim1.z, 
+        FvDim2.x, FvDim2.y, FvDim2.z);
+}
+__device__ void RA::Device::Print(const xint FnIdx, const uint3& FvDim1, const uint3& FvDim2) {
+    printf("%llu : (%u,%u,%u)(%u,%u,%u)\n", 
+        FnIdx, 
+        FvDim1.x, FvDim1.y, FvDim1.z, 
+        FvDim2.x, FvDim2.y, FvDim2.z);
+}
+
 template<typename ...A>
 __device__  void RA::Device::Print(const char* FsText, A&&... Args) {
     printf(FsText, Args...);

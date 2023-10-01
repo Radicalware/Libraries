@@ -32,6 +32,14 @@
 #include "SharedPtr/SharedPtrArr.h"
 #include "xvector.h"
 
+#define SetCudaSharedMem(__FUNCTION__NAME__, __SIZE__) \
+    auto ErrorMaxMem = cudaFuncSetAttribute(&__FUNCTION__NAME__, cudaFuncAttributeMaxDynamicSharedMemorySize, __SIZE__); \
+    if (ErrorMaxMem) \
+        ThrowIt("Failed cudaFuncSetAttribute: ", cudaGetErrorString(ErrorMaxMem));
+
+
+#define SetCudaMaxMem(__FUNCTION__NAME__) SetCudaSharedMem(__FUNCTION__NAME__, 98304);
+
 namespace RA
 {
     template<typename T = int>
@@ -120,13 +128,13 @@ namespace RA
         template<typename F>
         RIN T ReductionCPU(F&& Function, xint Size = 0) const;
         template<typename F1, typename F2>
-        RIN T ReductionGPU(F1&& CudaFunction, F2&& HostFunction, const dim3& FnGrid, const dim3& FnBlock, const int ReductionSize = 0) const;
+        RIN T ReductionGPU(F1&& CudaFunction, F2&& HostFunction, const dim3& FvGrid, const dim3& FvBlock, const int ReductionSize = 0) const;
         // =================================================================================================================
         // Return Nothing from the GPU
         struct NONE
         {
             template<typename F, typename ...A>
-            RIN static void RunGPU(const dim3& FnGrid, const dim3& FnBlock, F&& Function, A&&... Args);
+            RIN static void RunGPU(const dim3& FvGrid, const dim3& FvBlock, F&& Function, A&&... Args);
 
             template<typename F, typename ...A>
             RIN static void RunCPU(F&& Function, A&&... Args);
@@ -142,12 +150,12 @@ namespace RA
         struct ARRAY
         {
             template<typename F, typename ...A>
-            RIN static CudaBridge<T> RunGPU(const Allocate& FoAllocate, const dim3& FnGrid, const dim3& FnBlock, F&& Function, A&&... Args);
+            RIN static CudaBridge<T> RunGPU(const Allocate& FoAllocate, const dim3& FvGrid, const dim3& FvBlock, F&& Function, A&&... Args);
             template<typename F, typename ...A>
             RIN static xvector<xp<CudaBridge<T>>>
                 RunUnjoinedMultiGPU(
                     const Allocate& FoAllocate, // Return config
-                    const dim3& FnGrid, const dim3& FnBlock, // CUDA Kernel Config
+                    const dim3& FvGrid, const dim3& FvBlock, // CUDA Kernel Config
                     F&& Function, A&&... Args); // CUDA Kernel Function & Args
 
             template<typename F, typename ...A>
@@ -613,7 +621,7 @@ T RA::CudaBridge<T>::ReductionCPU(F&& Function, xint Size) const
 }
 
 TTT template<typename F1, typename F2>
-T RA::CudaBridge<T>::ReductionGPU(F1&& CudaFunction, F2&& HostFunction, const dim3& FnGrid, const dim3& FnBlock, const int ReductionSize) const
+T RA::CudaBridge<T>::ReductionGPU(F1&& CudaFunction, F2&& HostFunction, const dim3& FvGrid, const dim3& FvBlock, const int ReductionSize) const
 {
     Begin();
     RA::CudaBridge<T> Data = *this;
@@ -621,10 +629,14 @@ T RA::CudaBridge<T>::ReductionGPU(F1&& CudaFunction, F2&& HostFunction, const di
     Data.CopyHostToDevice();
     RA::CudaBridge<T> ReturnedArray(Size());
     ReturnedArray.AllocateDevice();
-    CudaFunction<<<FnGrid, FnBlock>>>(Data.GetDevice(), ReturnedArray.GetDevice(), static_cast<int>(Size()));
+    CudaFunction<<<FvGrid, FvBlock>>>(Data.GetDevice(), ReturnedArray.GetDevice(), static_cast<int>(Size()));
     auto Error = cudaDeviceSynchronize();
     if (Error)
-        ThrowIt("CUDA Kernel: ", cudaGetErrorString(Error));    ReturnedArray.CopyDeviceToHost();
+    {
+        ThrowIt("Failed Array::RunGPU with: ", 
+            RA::Host::GetGridBlockStr(FvGrid, FvBlock), "  ", cudaGetErrorString(Error));
+    }
+    ReturnedArray.CopyDeviceToHost();
     if (ReductionSize == 0)
         return ReturnedArray.ReductionCPU(HostFunction, Size());
     return ReturnedArray.ReductionCPU(HostFunction, ReductionSize);
@@ -638,20 +650,20 @@ TTT std::ostream& operator<<(std::ostream& out, RA::CudaBridge<T>& obj)
 }
 
 TTT template<typename F, typename ...A>
-void RA::CudaBridge<T>::NONE::RunGPU(const dim3& FnGrid, const dim3& FnBlock, F&& Function, A&&... Args)
+void RA::CudaBridge<T>::NONE::RunGPU(const dim3& FvGrid, const dim3& FvBlock, F&& Function, A&&... Args)
 {
     Begin();
-    //Function<<<FnGrid, FnBlock>>>(std::forward<A>(Args)...);
-    //auto Error = cudaDeviceSynchronize();
-    //if (Error)
-    //    ThrowIt("CUDA Kernel: ", cudaGetErrorString(Error));
-
     cudaStream_t LvStream;
     auto Error = cudaStreamCreateWithFlags(&LvStream, cudaStreamNonBlocking);
     if (Error)
         ThrowIt("CUDA Stream Create Error: ", cudaGetErrorString(Error));
 
-    Function<<<FnGrid, FnBlock, 0, LvStream>>>(std::forward<A>(Args)...);
+    Function<<<FvGrid, FvBlock, 0, LvStream>>>(std::forward<A>(Args)...);
+    Error = cudaGetLastError();
+    if (Error)
+    {
+        ThrowIt("Failed Array::RunGPU with: ", RA::Host::GetGridBlockStr(FvGrid, FvBlock), "  ", cudaGetErrorString(Error));
+    }
     SvStreams.push_back(LvStream);
 
     //cudaStreamSynchronize(LoStream);
@@ -711,15 +723,16 @@ RIN xvector<T> RA::CudaBridge<T>::NONE::RunMultiGPU(const xint FnSize, F&& Funct
         }
 
         cudaStream_t LoStream = &LvStreams[i];
-        //auto& LoStream = (i == 0) ? LoStream1 : LoStream2;
-        Function << <LvGrid, LvBlock, i, LoStream >> > (
+        Function<<<LvGrid, LvBlock, i, LoStream>>>(
             LnStandardDeviceSize * i,
             LnSize,
             std::forward<A>(Args)...);
 
         Error = cudaEventRecord((cudaEvent_t) &LvEvents[i], (cudaStream_t) &LvStreams[i]);
         if (Error)
-            ThrowIt("CUDA Event Record Error: ", cudaGetErrorString(Error));
+        {
+            ThrowIt("Failed Array::RunGPU with: ", RA::Host::GetGridBlockStr(LvGrid, LvBlock), "  ", cudaGetErrorString(Error));
+        }
     }
 
     const auto LnDCount = SnDeviceCount.load();
@@ -746,7 +759,7 @@ RIN xvector<T> RA::CudaBridge<T>::NONE::RunMultiGPU(const xint FnSize, F&& Funct
 }
 
 TTT template<typename F, typename ...A>
-RA::CudaBridge<T> RA::CudaBridge<T>::ARRAY::RunGPU(const RA::Allocate& FoAllocate, const dim3& FnGrid, const dim3& FnBlock, F&& Function, A&&... Args)
+RA::CudaBridge<T> RA::CudaBridge<T>::ARRAY::RunGPU(const RA::Allocate& FoAllocate, const dim3& FvGrid, const dim3& FvBlock, F&& Function, A&&... Args)
 {
     Begin();
     RA::CudaBridge<T> DeviceOutput(FoAllocate);
@@ -755,10 +768,12 @@ RA::CudaBridge<T> RA::CudaBridge<T>::ARRAY::RunGPU(const RA::Allocate& FoAllocat
     DeviceOutput.CopyHostToDeviceAsync();
     DeviceOutput.SyncStream();
 
-    Function<<<FnGrid, FnBlock, 0, DeviceOutput.GetStream()>>>(DeviceOutput.GetDevice(), std::forward<A>(Args)...);
+    Function<<<FvGrid, FvBlock, 0, DeviceOutput.GetStream()>>>(DeviceOutput.GetDevice(), std::forward<A>(Args)...);
     auto Error = cudaGetLastError();
     if (Error)
-        ThrowIt("Failed Array::RunGPU: ", cudaGetErrorString(Error));
+    {
+        ThrowIt("Failed Array::RunGPU with: ", RA::Host::GetGridBlockStr(FvGrid, FvBlock), "  ", cudaGetErrorString(Error));
+    }
     return DeviceOutput;
     Rescue();
 }
@@ -767,8 +782,8 @@ TTT template<typename F, typename ...A>
 xvector<xp<RA::CudaBridge<T>>>
 RA::CudaBridge<T>::ARRAY::RunUnjoinedMultiGPU(
     const RA::Allocate& FoAllocate, 
-    const dim3& FnGrid, 
-    const dim3& FnBlock, F&& Function, A&&... Args)
+    const dim3& FvGrid, 
+    const dim3& FvBlock, F&& Function, A&&... Args)
 {
     Begin();
     xvector<xp<CudaBridge<T>>> DeviceOutputs;
@@ -826,7 +841,6 @@ xvector<T> RA::CudaBridge<T>::ARRAY::RunMultiGPU(const Allocate& FoAllocate, F&&
             std::tie(LvGrid, LvBlock) = RA::Host::GetDimensions3D(LnSize);
         }
 
-        //auto& LoStream = (i == 0) ? LoStream1 : LoStream2;
         Function<<<LvGrid, LvBlock, i, LvStreams[i]>>>(
             LnStandardDeviceSize * i,
             LnSize,
@@ -835,7 +849,9 @@ xvector<T> RA::CudaBridge<T>::ARRAY::RunMultiGPU(const Allocate& FoAllocate, F&&
 
         Error = cudaEventRecord(LvEvents[i], LvStreams[i]);
         if (Error)
-            ThrowIt("CUDA Event Record Error: ", cudaGetErrorString(Error));
+        {
+            ThrowIt("Failed Array::RunGPU with: ", RA::Host::GetGridBlockStr(LvGrid, LvBlock), "  ", cudaGetErrorString(Error));
+        }
     }
 
     const auto LnDCount = SnDeviceCount.load();

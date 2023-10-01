@@ -384,10 +384,26 @@ UsingObject(R&)     Cast(const O& Obj) { return static_cast<R&>(Obj); }
 
 namespace RA
 {
+    template<typename T1, typename T2>
+        T1  Pow( const T1 FnBase, const T2 FnExp);
+    TTT T   Sqrt(const T  FnBase);
+
     double TrimZeros(const double FnNum, const double FnAccuracy);
     float  TrimZeros(const float  FnNum, const float  FnAccuracy);
     bool   Appx(const double FnFirst, const double FnSecond, const double FnAcceptibleRange = 0.0001); // e-4 (cout appx limit)
 }
+
+template<typename T1, typename T2>
+T1 RA::Pow(const T1 FnBase, const T2 FnExp)
+{
+    return static_cast<T1>(pow(static_cast<double>(FnBase), static_cast<double>(FnExp)));
+}
+
+TTT T RA::Sqrt(const T FnBase)
+{
+    return static_cast<T>(sqrt(FnBase));
+}
+
 
 // --- CUDA -----------------------------
 #ifdef UsingMSVC
