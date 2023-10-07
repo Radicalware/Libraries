@@ -50,7 +50,7 @@ namespace RA
         xint MnSize = 0;
         double* MvValues = nullptr;
 
-        DXF double InsertNum(const double FnNum);
+        DXF void InsertNum(const double FnNum);
     };
 
     class Stats
@@ -61,7 +61,7 @@ namespace RA
         void ClearJoinery();
         void ClearStorageRequriedObjs();
 
-        void CreateObjs(const xmap<EStatOpt, xint>& FmOptions);
+        void CreateObjs(const xvector<EStatOpt>& FvOptions);
         void Allocate(const xint FnStorageSize, const double FnDefaultVal = 0);
 
     public:
@@ -69,18 +69,18 @@ namespace RA
         void ConstructHardware(
             const EHardware FeHardware,
             const xint FnStorageSize,
-            const xmap<EStatOpt, xint>& FmOptions, // Options <> Logical Size
+            const xvector<EStatOpt>& FvOptions,
             const double FnDefaultVal = 0);
 
         void Construct(
             const xint FnStorageSize,
-            const xmap<EStatOpt, xint>& FmOptions, // Options <> Logical Size
+            const xvector<EStatOpt>& FvOptions,
             const double FnDefaultVal = 0);
     protected:
         Stats(
             const EHardware FeHardware,
             const xint FnStorageSize,
-            const xmap<EStatOpt, xint>& FmOptions, // Options <> Logical Size
+            const xvector<EStatOpt>& FvOptions,
             const double FnDefaultVal = 0);
 
         void SetStorageSizeZero(const double FnDefaultVal);
@@ -117,13 +117,14 @@ namespace RA
     protected:
         EHardware MeHardware = EHardware::Default;
         xint     MnStorageSize = 0;
-        xmap<EStatOpt, xint> MmOptions;
+        xvector<EStatOpt> MvOptions;
 
         double   MnLastValue = 0;
         double*  MvValues = nullptr;
         xint     MnInsertIdx = 0;
 
-        Joinery* MvJoinery = nullptr;
+        Joinery* MoJoineryPtr = nullptr;
+        xint     MnJoineryIdx = 0;
         xint     MnJoinerySize = 0; // for grouping input values as one combined value every Size times
         xint     MnMaxTraceSize = 0; // 0 = infinite; any other is the max divisor for avgs
 

@@ -44,9 +44,6 @@ namespace RA
 
         double MnMaxTraceSize = 0;
 
-        DXF void UpdateStandardDeviation(const double FnValue);
-        DXF void UpdateMeanAbsoluteDeviation(const double FnValue);
-
     public:
         Deviation(RA::AVG* FoAvgPtr, const EType FeType);
 

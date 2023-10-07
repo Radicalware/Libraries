@@ -5,109 +5,6 @@
 #include "Deviation.cuh"
 #endif
 
-DXF void RA::Deviation::UpdateStandardDeviation(const double FnValue)
-{
-    TestRealNum(FnValue);
-    auto& MoAvg = *MoAvgPtr;
-    MnLastVal = MnCurrentVal;
-    MnCurrentVal = FnValue;
-    if (MoAvg.GetLogicalSize() <= 1)
-        MnLastVal = FnValue;
-
-    if (MoAvg.MbUseStorageValues)
-    {
-#if UsingMSVC
-        if (!MoAvg.MnLogicalSize || !MoAvg.MbUseStorageValues)
-            ThrowIt("No Logical Size");
-#endif
-
-        if (MoAvg.MnAvg == 0 && *MoAvg.MnInsertIdxPtr == 0)
-            SetDefaultValues();
-        else
-        {
-            const auto& LnStorage = *MoAvg.MnStorageSizePtr;
-            const auto  LnLogicSize = MoAvg.MnRunningSize;
-            const auto& LnStart = *MoAvg.MnInsertIdxPtr;
-            const auto  LnAvg = MoAvg.GetAVG();
-
-            // SquareRoot ( (Sigma (Val - Avg)^2) / (MnRunningSize - 1) )
-            xint Idx = (LnStart == 0) ? LnStorage - 1 : LnStart - 1;
-            auto LnSum = 0.0;
-            const auto LnValMinusAvg = FnValue - LnAvg;
-            LnSum = (LnValMinusAvg * LnValMinusAvg);
-            for (xint i = LnStart + 1; i < LnStart + LnLogicSize; i++)
-            {
-                const auto& LnVal = MoAvg.MvValues[Idx];
-                const auto LnValMinusMean = LnVal - LnAvg;
-                LnSum += (LnValMinusMean * LnValMinusMean);
-                Idx = (Idx == 0) ? LnStorage - 1 : Idx - 1;
-            }
-            MnDeviation = sqrt(LnSum / (LnLogicSize - 1));
-        }
-    }
-    else
-    {
-        const auto LnValMinsMean = MnCurrentVal - MoAvg.GetAVG();
-        MnSumDeviation += (LnValMinsMean * LnValMinsMean);
-        if (MoAvg.GetLogicalSize() == 2)
-            MnSumDeviation += MnSumDeviation;
-
-        MnDeviation = std::sqrt(MnSumDeviation / MoAvg.GetLogicalSize());
-
-        MnLastOffDiff = GetDirectionalOffset();
-        MnSumOffset += std::abs(MnLastOffDiff);;
-        MnAvgOffset = MnSumOffset / MoAvg.GetLogicalSize();
-    }
-}
-
-DXF void RA::Deviation::UpdateMeanAbsoluteDeviation(const double FnCurrent)
-{
-    TestRealNum(FnCurrent);
-    auto& MoAvg = *MoAvgPtr;
-    MnLastVal = MnCurrentVal;
-    MnCurrentVal = FnCurrent;
-    if (MoAvg.GetLogicalSize() <= 1)
-        MnLastVal = FnCurrent;
-
-    if (MoAvg.BxUseStorageValues())
-    {
-#if UsingMSVC
-        if (!MoAvg.GetLogicalSize() || !MoAvg.BxUseStorageValues())
-            ThrowIt("No Logical Size");
-#endif
-        if (MoAvg.GetAVG() == 0 && MoAvg.GetInsertIdx() == 0)
-            SetDefaultValues();
-        else
-        {
-            const auto& LnStorage = *MoAvg.MnStorageSizePtr;
-            const auto  LnLogicSize = MoAvg.MnRunningSize;
-            const auto& LnStart = *MoAvg.MnInsertIdxPtr;
-            const auto  LnAvg = MoAvg.GetAVG();
-
-            // Sigma(abs(Val - Avg)) / MnRunningSize
-            xint Idx = (LnStart == 0) ? LnStorage - 1 : LnStart - 1;
-            auto LnSum = 0.0;
-            LnSum = std::abs(FnCurrent - LnAvg);
-            for (xint i = LnStart + 1; i < LnStart + LnLogicSize; i++)
-            {
-                const auto& LnVal = MoAvg.MvValues[Idx];
-                LnSum += std::abs(LnVal - LnAvg);
-                Idx = (Idx == 0) ? LnStorage - 1 : Idx - 1;
-            }
-            MnDeviation = (LnSum / LnLogicSize);
-        }
-    }
-    else
-    {
-        MnSumDeviation += std::abs(MnCurrentVal - MoAvg.GetAVG());
-        MnDeviation = MnSumDeviation / MoAvg.GetLogicalSize();
-
-        MnLastOffDiff = GetDirectionalOffset();
-        MnSumOffset += std::abs(MnLastOffDiff);
-        MnAvgOffset = MnSumOffset / MoAvg.GetLogicalSize();
-    }
-}
-
 RA::Deviation::Deviation(RA::AVG* FoAvgPtr, const EType FeType) : MoAvgPtr(FoAvgPtr), MeType(FeType)
 {
     Begin();
@@ -118,16 +15,68 @@ RA::Deviation::Deviation(RA::AVG* FoAvgPtr, const EType FeType) : MoAvgPtr(FoAvg
 
 DXF void RA::Deviation::Update(const double FnValue)
 {
-    switch (MeType)
+    TestRealNum(FnValue);
+    auto& MoAvg = *MoAvgPtr;
+    MnLastVal = MnCurrentVal;
+    MnCurrentVal = FnValue;
+
+    if (MoAvg.BxUseStorageValues())
     {
-    case RA::Deviation::EType::None:
-        printf("Error: None Type for Deviation");
-    case RA::Deviation::EType::MAD:
-        return UpdateMeanAbsoluteDeviation(FnValue);
-    case RA::Deviation::EType::SD:
-        return UpdateStandardDeviation(FnValue);
-    default:
-        return;
+        if (MoAvg.GetRunningSize() <= 1)
+            SetDefaultValues();
+        else
+        {
+            cvar& LnStorage = MoAvg.GetStorageSize();
+            cvar& LnRunSize = MoAvg.MnRunningSize;
+            cvar& LnAvg = MoAvg.GetAVG();
+
+            nvar LnInsert = MoAvg.GetInsertIdx();
+            LnInsert = (LnInsert + 1 + (LnStorage - LnRunSize));
+            if (LnInsert >= LnStorage)
+                LnInsert = (LnInsert - LnStorage); // 20 idx - 20 size = 0 idx
+
+            nvar LnSum = 0.0;
+            nvar LnLoopsLeft = LnRunSize;
+
+            do
+            {
+                cvar LnValMinusAvg =MoAvg.MvValues[LnInsert] - LnAvg;
+
+                if (MeType == EType::SD)
+                    LnSum += (LnValMinusAvg * LnValMinusAvg);
+                else
+                    LnSum += std::abs(LnValMinusAvg);  // << mod
+
+                if (++LnInsert >= LnStorage)
+                    LnInsert = 0;
+            } while (LnLoopsLeft-- > 1);
+
+            if (MeType == EType::SD)
+                MnDeviation = sqrt(LnSum / (LnStorage - 1));
+            else
+                MnDeviation = LnSum / LnStorage;
+        }
+    }
+    else
+    {
+        const auto LnValMinusMean = FnValue - MoAvg.GetAVG();
+
+        if (MeType == EType::SD)
+            MnSumDeviation += (LnValMinusMean * LnValMinusMean);
+        else
+            MnSumDeviation += std::abs(LnValMinusMean);
+
+        if (MeType == EType::SD)
+            MnDeviation = std::sqrt(MnSumDeviation / (MoAvg.GetLogicalSize() - 1));
+        else
+            MnDeviation = MnSumDeviation / MoAvg.GetLogicalSize();
+
+        MnLastOffDiff = GetDirectionalOffset();
+        MnSumOffset += std::abs(MnLastOffDiff);
+        if (MeType == EType::SD)
+            MnAvgOffset = MnSumOffset / (MoAvg.GetLogicalSize() - 1);
+        else
+            MnAvgOffset = MnSumOffset / MoAvg.GetLogicalSize();
     }
 }
 

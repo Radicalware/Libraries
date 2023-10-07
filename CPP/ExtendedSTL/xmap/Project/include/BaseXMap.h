@@ -54,7 +54,6 @@ public:
     RIN bool operator!(void) const;
 
     RIN void RemoveAll();
-    RIN xmap<V, K> GetInverted() const;
 
     template<typename O> RIN void Clone(const O& Other);
     template<typename O> RIN void Clone(      O&& Other) noexcept;
@@ -134,6 +133,12 @@ RIN bool BaseXMap<K, V, H>::operator!(void) const
     return The.size() == 0;
 }
 
+
+template<typename K, typename V, typename H>
+RIN void BaseXMap<K, V, H>::RemoveAll()
+{
+    The.clear();
+}
 
 template<typename K, typename V, typename H>
 template<typename O>

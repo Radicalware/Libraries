@@ -23,12 +23,7 @@ namespace Test
                 cout << '\n' << __CLASS__ << '\n';
 
                 const auto LnStorageSize = 20;
-                const auto LnLogicalSize = 10;
-
-                auto One = RA::StatsCPU(LnStorageSize,
-                    {
-                        {RA::EStatOpt::AVG,   LnLogicalSize},
-                    });
+                auto One = RA::StatsCPU(LnStorageSize, { RA::EStatOpt::AVG });
 
                 auto PrintVals = [](const RA::StatsCPU& Obj) ->void
                 {
@@ -41,19 +36,21 @@ namespace Test
                     One << i;
 
                 PrintVals(One);
-                if (One.GetAVG() != 15.5)
+                if (One.GetAVG() != 10.5)
                     ThrowIt("Bad AVG 1 Calc");
 
                 cout << WHITE;
                 auto Two = One;
-
-                Two.Construct(LnStorageSize, { {RA::EStatOpt::AVG,   LnStorageSize} });
-                for (xint i = 1; i <= One.GetStorageSize() * 2 ; i++)
+                for (xint i = 1; i <= Two.GetStorageSize() * 2 ; i++)
                     Two << i;
 
                 PrintVals(Two);
                 if (Two.GetAVG() != 30.5)
+                {
+                    for (xint i = 0; i < Two.GetStorageSize(); i++)
+                        cout << Two [i] << endl;
                     ThrowIt("Bad AVG 2 Calc");
+                }
 
                 Rescue();
             }
@@ -64,12 +61,7 @@ namespace Test
                 cout << '\n' << __CLASS__ << '\n';
 
                 const auto LnStorageSize = 20;
-                const auto LnLogicalSize = 10;
-
-                auto Stoch = RA::StatsCPU(LnStorageSize,
-                    {
-                        {RA::EStatOpt::STOCH, LnLogicalSize}
-                    });
+                auto Stoch = RA::StatsCPU(LnStorageSize, { RA::EStatOpt::STOCH });
 
 
                 {
@@ -86,8 +78,15 @@ namespace Test
                     cout << "STO: " << Stoch.STOCH().GetSTOCH() << endl;
                     cout << endl;
                 }
+
                 if (Stoch.GetSTOCH() != 40)
+                {
+                    for (xint i = 0; i < Stoch.GetStorageSize(); i++)
+                        cout << Stoch[i] << endl;
                     ThrowIt("Bad STOCH 1 Calc");
+                }
+
+
                 {
                     double LnPrice = 50;
                     for (xint i = 0; i <= Stoch.GetStorageSize(); i++)
@@ -111,18 +110,30 @@ namespace Test
                 Begin();
                 cout << '\n' << __CLASS__ << '\n';
 
-                const auto LnStorageSize = 20;
-                const auto LnLogicalSize = 14;
-
-                auto RSI = RA::StatsCPU(LnStorageSize,
-                    {
-                        {RA::EStatOpt::RSI, LnLogicalSize}
-                    });
-
-
                 {
-                    RSI.Reset();
-                    double LnPrice = 50;
+                    const auto LnStorageSize = 3;
+                    auto RSI = RA::StatsCPU(LnStorageSize, { RA::EStatOpt::RSI });
+
+                    RSI << 5;
+                    RSI << 6;
+                    RSI << 7;
+                    if (RSI.GetRSI() != 100)
+                        ThrowIt("Bad Call");
+                    RSI << 8;
+                    RSI << 7;
+                    if (RSI.GetRSI() != 50)
+                        ThrowIt("Bad Call");
+                    RSI << 6;
+                    if (RSI.GetRSI() != 0)
+                        ThrowIt("Bad Call");
+                }
+
+                double LnPrice = 50;
+                {
+                    const auto LnStorageSize = 20;
+                    auto RSI = RA::StatsCPU(LnStorageSize, { RA::EStatOpt::RSI });
+
+
                     for (xint i = 0; i <= RSI.GetStorageSize(); i++)
                     {
                         if (i % 2)
@@ -140,10 +151,16 @@ namespace Test
                     }
                     cout << WHITE << "RSI: " << RSI.GetRSI() << endl;
                     if (RSI.GetRSI() != 25)
+                    {
+                        for (xint i = 0; i < RSI.GetStorageSize(); i++)
+                            cout << RSI[i] << endl;
                         ThrowIt("Bad RSI 2 Calc");
+                    }
                 }
                 {
-                    //RSI.Reset();
+                    const auto LnStorageSize = 20;
+                    auto RSI = RA::StatsCPU(LnStorageSize, { RA::EStatOpt::RSI });
+
                     double LnPrice = 50;
                     for (xint i = 0; i <= RSI.GetStorageSize(); i++)
                     {
@@ -165,7 +182,9 @@ namespace Test
                 }
                 {
                     //RSI.Reset();
-                    double LnPrice = 50;
+                    const auto LnStorageSize = 20;
+                    auto RSI = RA::StatsCPU(LnStorageSize, { RA::EStatOpt::RSI });
+
                     for (xint i = 0; i <= RSI.GetStorageSize(); i++)
                     {
                         if (i % 2)
@@ -190,14 +209,10 @@ namespace Test
             void StandardDeviation()
             {
                 Begin();
-                const auto LnStorageSize = 4;
-                const auto LnLogicalSize = 4;
+                cout << '\n' << __CLASS__ << '\n';
 
-                auto One = RA::StatsCPU(LnStorageSize,
-                    {
-                        {RA::EStatOpt::AVG, LnLogicalSize},
-                        {RA::EStatOpt::SD, LnLogicalSize}
-                    });
+                const auto LnStorageSize = 4;
+                auto One = RA::StatsCPU(LnStorageSize, { RA::EStatOpt::AVG, RA::EStatOpt::SD });
 
                 for (xint i = 0; i < 2; i++)
                 {
@@ -216,14 +231,10 @@ namespace Test
             void MeanAbsoluteDeviation()
             {
                 Begin();
-                const auto LnStorageSize = 6;
-                const auto LnLogicalSize = 6;
+                cout << '\n' << __CLASS__ << '\n';
 
-                auto One = RA::StatsCPU(LnStorageSize,
-                    {
-                        {RA::EStatOpt::AVG, LnLogicalSize},
-                        {RA::EStatOpt::MAD, LnLogicalSize},
-                    });
+                const auto LnStorageSize = 6;
+                auto One = RA::StatsCPU(LnStorageSize, { RA::EStatOpt::AVG, RA::EStatOpt::MAD });
                 
 
                 for (xint i = 0; i < 2; i++)
@@ -265,14 +276,7 @@ namespace Test
                 cout << '\n' << __CLASS__ << '\n';
 
                 const auto LnStorageSize = 0;
-                const auto LnLogicalSize = 0;
-                // note: if storage size is 0, logical size must also be 0
-                // logical size increases indefinatly if storage size is 0
-
-                auto One = RA::StatsCPU(LnStorageSize,
-                    {
-                        {RA::EStatOpt::AVG, LnLogicalSize}
-                    });
+                auto One = RA::StatsCPU(LnStorageSize, { RA::EStatOpt::AVG });
 
                 auto PrintVals = [](const RA::StatsCPU& Obj) ->void
                 {
@@ -293,21 +297,12 @@ namespace Test
             void MeanAbsoluteDeviation()
             {
                 Begin();
+                cout << '\n' << __CLASS__ << '\n';
 
                 xint LnSize = 100;
                 const auto LnStorageSize = LnSize;
-                const auto LnLogicalSize = 0;
-
-                auto LoStorage = RA::StatsCPU(LnStorageSize,
-                    {
-                        {RA::EStatOpt::AVG, LnLogicalSize},
-                        {RA::EStatOpt::MAD, LnLogicalSize},
-                    });
-                auto LoLogical = RA::StatsCPU(0,
-                    {
-                        {RA::EStatOpt::AVG, 0},
-                        {RA::EStatOpt::MAD, 0},
-                    });
+                auto LoStorage = RA::StatsCPU(LnStorageSize, { RA::EStatOpt::AVG, RA::EStatOpt::MAD });
+                auto LoLogical = RA::StatsCPU(0, { RA::EStatOpt::AVG, RA::EStatOpt::MAD });
 
 
                 auto LnVal = 0.0;
@@ -340,22 +335,12 @@ namespace Test
             void StandardDeviation()
             {
                 Begin();
+                cout << '\n' << __CLASS__ << '\n';
 
                 xint LnSize = 100;
                 const auto LnStorageSize = LnSize;
-                const auto LnLogicalSize = 0;
-
-                auto LoStorage = RA::StatsCPU(LnStorageSize,
-                    {
-                        {RA::EStatOpt::AVG, LnLogicalSize},
-                        {RA::EStatOpt::SD, LnLogicalSize},
-                    });
-                auto LoLogical = RA::StatsCPU(0,
-                    {
-                        {RA::EStatOpt::AVG, 0},
-                        {RA::EStatOpt::SD, 0},
-                    });
-
+                auto LoStorage = RA::StatsCPU(LnStorageSize, { RA::EStatOpt::AVG, RA::EStatOpt::SD });
+                auto LoLogical = RA::StatsCPU(0, { RA::EStatOpt::AVG, RA::EStatOpt::SD });
 
                 auto LoDistributor = RA::Rand::GetDistributor<int>(0, 100);
                 for (xint i = 0; i < 100; i++)
@@ -388,6 +373,8 @@ namespace Test
         void Joinery()
         {
             Begin();
+            cout << __CLASS__ << endl;
+
             auto CheckVal = [](const RA::StatsCPU& Stats, const xstring& Val, 
                 bool FnPrint = true, xint Idx = 0)->void
             {
@@ -401,7 +388,7 @@ namespace Test
 
             {
                 Begin();
-                auto Stats = RA::StatsCPU(1, {});
+                auto Stats = RA::StatsCPU(0, {});
                 Stats.SetJoinerySize(0);
 
                 for (xint i = 0; i < 5 * 5; i++)
@@ -415,7 +402,7 @@ namespace Test
             }
             {
                 Begin();
-                auto Stats = RA::StatsCPU(1, {});
+                auto Stats = RA::StatsCPU(0, {});
                 Stats.SetJoinerySize(1);
 
                 for (xint i = 0; i < (5 * 5); i++)
@@ -429,7 +416,7 @@ namespace Test
             }
             {
                 Begin();
-                auto Stats = RA::StatsCPU(1, {});
+                auto Stats = RA::StatsCPU(0, {});
                 Stats.SetJoinerySize(5);
 
                 for (xint i = 0; i < (5 * 5); i++)
@@ -443,61 +430,62 @@ namespace Test
             }
             {
                 Begin();
-                auto Stats = RA::StatsCPU(1, {}); // 1 value stored
+                auto Stats = RA::StatsCPU(0, {}); // 1 value stored
                 Stats.SetJoinerySize(5); // 5 values summed per storage
 
                 int LnCount = 0;
                 cout << "Inc 1 \n ";
-                for (xint i = 1; i < (5 * 3); i++)
+                for (xint i = 1; i <= (5 * 3); i++)
                 {
                     Stats << i;
-                    cout << " (+" << i << ") " << Stats[0] << ' ';
+                    cout << " (+" << i << ") " << Stats [0] << ' ';
                     if (i % 5 == 0)
                     {
                         ++LnCount;
                         if (LnCount == 1) CheckVal(Stats, "15", false);
                         else if (LnCount == 2) CheckVal(Stats, "40", false);
-                        else if (LnCount == 3) CheckVal(Stats, "60", false);
+                        else if (LnCount == 3) CheckVal(Stats, "65", false);
                         cout << endl;
                     }
                 }
 
                 cout << endl;
-                for (xint i = 1; i <= 5; i++)
+                for (xint i = 1; i <= 3; i++)
                 {
                     Stats << 0;
-                    cout << " (+" << 0 << ") " << Stats[0] << ' ';
+                    cout << " (+" << i << ") " << Stats[0] << ' '; // storage size is 1
                 }
-                CheckVal(Stats, "0", false);
+                CheckVal(Stats, "29", false);
 
                 cout << "\n\n";
                 Rescue();
             }
             {
                 Begin();
-                auto Stats = RA::StatsCPU(2, {}); // 2 values stored
+                auto Stats = RA::StatsCPU(3, {}); // 2 values stored
                 Stats.SetJoinerySize(5); // 5 values summed per storage
 
                 for (xint i = 1; i < (5 * 3); i++) {
                     Stats << i;
-                    cout << i << '(' << Stats[0] << '-' << Stats[1] << ')';
+                    cout << ' ' << i << '(' << Stats[0] << '-' << Stats[1] << '-' << Stats[2] << ')';
                     if (i % 5 == 0)
                         cout << endl;
                 }
                 CheckVal(Stats, "60", false);
-                CheckVal(Stats, "35", false, 1);
+                CheckVal(Stats, "40", false, 1);
                 cout << endl;
                 for (xint i = 1; i <= 5*2; i++)
                 {
                     Stats << 0;
-                    cout << i << '(' << Stats[0] << '-' << Stats[1] << ')';
+                    cout << i << '(' << Stats[0] << '-' << Stats[1] << '-' << Stats[2] << ')';
                     if (i % 5 == 0)
                         cout << endl;
                 }
                 CheckVal(Stats, "0", false);
+                CheckVal(Stats, "0", false, 1);
 
                 cout << endl;
-                cout << Stats[0] << ' ' << Stats [1] << endl;
+                cout << Stats[0] << ' ' << Stats[1] << ' ' << Stats[2] << endl;
                 Rescue();
             }
             Rescue();
@@ -519,11 +507,9 @@ void RunCPU()
     Test::Miscellaneous::Joinery();
 
     cout << "-------------------------" << endl;
-
     Test::Storage::CPU::MeanAbsoluteDeviation();
     Test::Logical::CPU::MeanAbsoluteDeviation();
 
-    //cout << "-------------------------" << endl;
     Test::Storage::CPU::StandardDeviation();
     Test::Logical::CPU::StandardDeviation();
     cout << "-------------------------" << endl;

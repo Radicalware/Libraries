@@ -15,10 +15,9 @@ namespace RA
         friend class MeanAbsoluteDeviation;
         friend class StandardDeviation;
     public:
-        AVG(const double* FvValues,
-            const xint    FnLogicalSize,
-            const xint* FnStorageSizePtr,
-            const xint* FnInsertIdxPtr);
+        AVG(const double* FvValues = nullptr,
+            const xint*   FnInsertIdxPtr = nullptr,
+            const xint    FnStorageSize = 0);
 
         IXF void SetMaxTraceSize(const xint FSize) { MnMaxTraceSize = FSize; }
 
@@ -29,29 +28,31 @@ namespace RA
         IXF auto GetAVG() const { return MnAvg; }
         IXF auto GetSum() const { return MnSum; }
 
-        IXF auto BxUseStorageValues() const { return  MbUseStorageValues; }
-        IXF auto GetStorageSize()     const { return *MnStorageSizePtr; }
-        IXF auto GetLogicalSize()     const { return  MnLogicalSize; }
+        IXF auto BxUseStorageValues() const { return  MvValues != nullptr; }
+        IXF auto GetStorageSize()     const { return  MnStorageSize; }
+        IXF auto GetLogicalSize()     const { return  MnLogiclaSize; }
         IXF auto GetRunningSize()     const { return  MnRunningSize; }
         IXF auto GetInsertIdx()       const { return *MnInsertIdxPtr; }
         IXF auto GetValues()          const { return  MvValues; }
 
-        IXF double GetOldValue() const { return MvValues[GetOldIDX()]; }
-        DXF xint   GetOldIDX() const;
+        IXF double GetCurrenetValue() const { return MvValues[*MnInsertIdxPtr]; }
+        IXF double GetLastValue()     const { return MvValues[GetLastIDX()]; }
+        DXF xint   GetLastIDX()       const;
 
         DXF void Update(const double FnValue);
         DXF void ResetRunningSize() { MnRunningSize = 0; }
 
     private:
-        const double* MvValues = nullptr;
-        xint    MnLogicalSize = 0;
-        const xint* MnStorageSizePtr;
-        const xint* MnInsertIdxPtr;
+        const double* MvValues;
+        const xint*   MnInsertIdxPtr;
+        const xint    MnStorageSize;
+              xint    MnLogiclaSize = 0;
 
         xint    MnRunningSize = 0;
         xint    MnMaxTraceSize = 0;
-        const bool    MbUseStorageValues;
+
         double  MnAvg = 0;
         double  MnSum = 0;
+        double  MnNextSum = 0;
     };
 };

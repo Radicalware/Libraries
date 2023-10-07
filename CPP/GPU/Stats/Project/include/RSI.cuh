@@ -12,25 +12,23 @@ namespace RA
     {
         friend class Stats;
     public:
-        RSI(const double* FvValues,
-            const xint    FnLogicalSize,
-            const xint   *FnStorageSizePtr,
-            const xint   *FnInsertIdxPtr);
+        RSI(const double* FvValues = nullptr,
+            const   xint* FnInsertIdxPtr = nullptr,
+            const   xint  FnStorageSize = 0);
 
         DXF double GetCurvedRSI() const;
         IXF auto   GetRSI() const { return MnRSI; }
-        IXF auto   GetLogicalSize() const { return MnLogicalSize; }
         DXF void   CopyStats(const RSI& Other);
 
     private:
         DXF void Update();
         DXF void SetDefaultValues(const double FnDefaualt = 50);
 
-        const double* MvValues = nullptr;
-        xint          MnLogicalSize = 0;
-        const xint   *MnStorageSizePtr;
-        const xint   *MnInsertIdxPtr;
+        const double* MvValues;
+        const xint*   MnInsertIdxPtr;
+        const xint    MnStorageSize;
 
         double  MnRSI = 0;
+        xint    MnRunningSize = 0;
     };
 };

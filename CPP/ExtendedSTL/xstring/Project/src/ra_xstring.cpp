@@ -1302,6 +1302,19 @@ float xstring::ToFloat() const
     return static_cast<float>(std::atof(The.c_str()));
 }
 
+bool xstring::ToBool() const
+{
+    if (Size() == 0)
+        return false;
+    if (Size() == 1)
+        return (bool)std::atoi(The.c_str());
+    else if (ToLower() == "true")
+        return true;
+    else if (ToLower() == "false")
+        return false;
+    throw ("xstring::ToBool >> No Match");
+}
+
 // =================================================================================================================================
 
 xstring xstring::ToBlack() const {

@@ -39,7 +39,7 @@ void RA::StatsCPU::operator=(const StatsCPU& Other)
         MbHadFirstInsert = false;
     }
 
-    The.ConstructHardware(MeHardware, Other.MnStorageSize, Other.MmOptions);
+    The.ConstructHardware(MeHardware, Other.MnStorageSize, Other.MvOptions);
     The.SetJoinerySize(Other.MnJoinerySize);
 
     if (Other.MoAvgPtr)         MoAvgPtr->CopyStats(*Other.MoAvgPtr);
@@ -73,11 +73,11 @@ void RA::StatsCPU::operator=(StatsCPU&& Other) noexcept
     MnStorageSize = Other.MnStorageSize;
     MnInsertIdx   = 0;
 
-    MvJoinery     = Other.MvJoinery;
+    MoJoineryPtr  = Other.MoJoineryPtr;
     MnJoinerySize = Other.MnJoinerySize;
 
     MbHadFirstInsert = Other.MbHadFirstInsert;
-    MmOptions        = Other.MmOptions;
+    MvOptions        = Other.MvOptions;
 
     MoAvgPtr        = Other.MoAvgPtr;
     MoRSIPtr        = Other.MoRSIPtr;
@@ -90,9 +90,9 @@ void RA::StatsCPU::operator=(StatsCPU&& Other) noexcept
 
 RA::StatsCPU::StatsCPU(
     const xint FnStorageSize, 
-    const xmap<EStatOpt, xint>& FmOptions, 
+    const xvector<EStatOpt> FvOptions,
     const double FnDefaultVal)
-    : RA::Stats(RA::EHardware::CPU, FnStorageSize, FmOptions, FnDefaultVal)
+    : RA::Stats(RA::EHardware::CPU, FnStorageSize, FvOptions, FnDefaultVal)
 {
 }
 

@@ -87,6 +87,7 @@ public:
     xvector<xvector<T>> RIN Split(xint FnSplinters) const;
 
     RIN void Remove(const xint Idx);
+    RIN void RemoveAll() { The.erase(The.begin(), The.end()); }
     RIN void RemoveLast() { The.pop_back(); }
 
     RIN void ResizeToIdx(const xint FSize) { The.resize(FSize + 1); }

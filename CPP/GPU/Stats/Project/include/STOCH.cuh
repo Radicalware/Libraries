@@ -15,14 +15,12 @@ namespace RA
     public:
         friend class Stats;
 
-        STOCH(
-            const double* FvValues,
-            const xint    FnLogicalSize,
-            const xint   *FnStorageSizePtr,
-            const xint   *FnInsertIdxPtr);
+        STOCH(const double* FvValues = nullptr,
+              const   xint* FnInsertIdxPtr = nullptr,
+              const   xint  FnStorageSize = 0);
 
         IXF auto GetMax()       const { return MnBiggest; }
-        IXF auto GetCurrent()   const { return MvValues[(*MnInsertIdxPtr > 0) ? *MnInsertIdxPtr : *MnStorageSizePtr - 1]; }
+        IXF auto GetCurrent()   const { return (MvValues) ? MvValues[*MnInsertIdxPtr] : MnLast; }
         IXF auto GetMin()       const { return MnSmallest; }
         IXF auto GetSTOCH()     const { return MnSTOCH; }
 
@@ -33,16 +31,16 @@ namespace RA
     private:
         DXF void Update();
         DXF void Update(const double FnValue);
-        DXF void SetLogicalSize(const xint FnLogicalSize);
         DXF void SetDefaultValues(const double FnDefaualt);
 
         const double* MvValues;
-              xint    MnLogicalSize = 0;
-        const xint   *MnStorageSizePtr;
-        const xint   *MnInsertIdxPtr;
+        const xint*   MnInsertIdxPtr;
+        const xint    MnStorageSize;
 
         double  MnBiggest  = -DBL_MAX;
         double  MnSmallest =  DBL_MAX;
+        double  MnLast = 0;
         double  MnSTOCH = 0;
+        xint    MnRunningSize = 0;
     };
 };

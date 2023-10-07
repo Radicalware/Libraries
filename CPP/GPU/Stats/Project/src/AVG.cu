@@ -6,68 +6,63 @@
 
 RA::AVG::AVG(
     const double* FvValues,
-    const xint    FnLogicalSize,
-    const xint* FnStorageSizePtr,
-    const xint* FnInsertIdxPtr)
+    const xint*   FnInsertIdxPtr,
+    const xint    FnStorageSize)
     :
     MvValues(FvValues),
-    MnLogicalSize(FnLogicalSize),
-    MnStorageSizePtr(FnStorageSizePtr),
     MnInsertIdxPtr(FnInsertIdxPtr),
-    MbUseStorageValues(*FnStorageSizePtr > 0 && FnLogicalSize > 0)
+    MnStorageSize(FnStorageSize)
 {
-    Begin();
-    if (*MnStorageSizePtr == 0 && MnLogicalSize > 0)
-        ThrowIt("If storage size is 0, then logical size must also be 0 to start");
-
-    Rescue()
 }
 
 DXF void RA::AVG::CopyStats(const RA::AVG& Other)
 {
     MnAvg = Other.MnAvg;
-    MnLogicalSize = Other.MnLogicalSize;
 }
 
 DXF void RA::AVG::SetDefaultValues(const double FnDefaualt)
 {
     MnAvg = FnDefaualt;
     MnRunningSize = 1;
-    MnSum = MnAvg * MnLogicalSize;
+    MnSum = MnAvg * MnStorageSize;
 }
 
-DXF xint RA::AVG::GetOldIDX() const
+DXF xint RA::AVG::GetLastIDX() const
 {
-    const auto& LnStorage = *The.MnStorageSizePtr;
-    const auto  LnLogicSize = The.MnLogicalSize;
-    const auto& LnStart = *The.MnInsertIdxPtr;
-
-    return ((LnStart >= LnLogicSize)
-        ? LnStart - LnLogicSize
-        : (LnStorage - (LnLogicSize - LnStart)));
+    cvar& LnInsert = *MnInsertIdxPtr;
+    if (LnInsert == 0)
+        return MnStorageSize - 1;
+    return LnInsert - 1;
 }
 
 DXF void RA::AVG::Update(const double FnValue)
 {
-    if (MbUseStorageValues)
+    if (MvValues)
     {
         MnRunningSize++;
-        if (MnRunningSize > MnLogicalSize)
-            MnRunningSize = MnLogicalSize;
-#if UsingMSVC
-        if (!MnLogicalSize || !MbUseStorageValues)
-            ThrowIt("No Logical Size");
-#endif
-        MnSum += FnValue;
-        MnSum -= GetOldValue();
-        MnAvg = MnSum / MnRunningSize;
+        if (MnRunningSize >= MnStorageSize)
+            MnRunningSize = MnStorageSize;
+
+        const auto LnIdx = *MnInsertIdxPtr;
+        auto LnOldestValue = 0.0;
+        if (LnIdx >= (MnStorageSize - 1))
+            LnOldestValue = MvValues[0];
+        else
+            LnOldestValue = MvValues[LnIdx + 1];
+
+
+        MnNextSum += FnValue;
+        MnAvg = MnNextSum / MnRunningSize;
+        
+        MnSum = MnNextSum;
+        MnNextSum -= LnOldestValue;
     }
     else
     {
-        MnAvg = ((MnAvg * MnLogicalSize) + FnValue) / (MnLogicalSize + 1);
-        if (MnMaxTraceSize == 0 || MnMaxTraceSize > MnLogicalSize)
-            MnLogicalSize++;
-        MnSum = MnAvg * MnLogicalSize;
+        MnAvg = ((MnAvg * MnLogiclaSize) + FnValue) / (MnLogiclaSize + 1);
+        if (MnMaxTraceSize == 0 || MnMaxTraceSize > MnLogiclaSize)
+            MnLogiclaSize++;
+        MnSum += FnValue;
     }
 }
 

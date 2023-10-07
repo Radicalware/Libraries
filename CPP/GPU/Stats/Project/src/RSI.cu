@@ -6,20 +6,15 @@
 
 RA::RSI::RSI(
     const double* FvValues,
-    const xint    FnLogicalSize,
-    const xint   *FnStorageSizePtr,
-    const xint   *FnInsertIdxPtr)
+    const   xint* FnInsertIdxPtr,
+    const   xint  FnStorageSize)
     :
     MvValues(FvValues),
-    MnLogicalSize(FnLogicalSize),
-    MnStorageSizePtr(FnStorageSizePtr),
-    MnInsertIdxPtr(FnInsertIdxPtr)
+    MnInsertIdxPtr(FnInsertIdxPtr),
+    MnStorageSize(FnStorageSize)
 {
     Begin();
-    // commented out because you could use RA::Stats::Construct
-    //if (*MnStorageSizePtr == 0)
-    //    ThrowIt("RSI needs storage to work");
-    Rescue()
+    Rescue();
 }
 
 DXF double RA::RSI::GetCurvedRSI() const
@@ -43,14 +38,23 @@ DXF double RA::RSI::GetCurvedRSI() const
 DXF void RA::RSI::CopyStats(const RA::RSI& Other)
 {
     MnRSI = Other.MnRSI;
-    MnLogicalSize = Other.MnLogicalSize;
 }
 
 DXF void RA::RSI::Update()
 {
-    if (MnStorageSizePtr == nullptr || *MnStorageSizePtr == 0)
+    if (MvValues == nullptr || MnStorageSize == 0)
     {
         printf(RED "RSI needs storage to work\n" WHITE);
+        return;
+    }
+
+    MnRunningSize++;
+    if (MnRunningSize >= MnStorageSize)
+        MnRunningSize = MnStorageSize;
+
+    if (MnRunningSize <= 1)
+    {
+        MnRSI = 50;
         return;
     }
 
@@ -62,44 +66,37 @@ DXF void RA::RSI::Update()
 
     // https://www.investopedia.com/terms/r/rsi.asp
 
-    const auto& LnStart   = *The.MnInsertIdxPtr; 
-    const auto& LnStorage = *The.MnStorageSizePtr;
-    const auto& LnLogic   = The.MnLogicalSize;
+    nvar LnInsert = *The.MnInsertIdxPtr;
+    LnInsert = ((LnInsert + 2) + (MnStorageSize - MnRunningSize));
+    if (LnInsert >= (MnStorageSize))
+        LnInsert = (LnInsert - MnStorageSize); // 20 idx - 20 size = 0 idx
 
-    xint Idx = LnStart;
-    for (xint i = LnStart; i < LnStart + LnLogic; i++)
+    nvar LnLast = (LnInsert > 0) ? LnInsert - 1 : MnStorageSize - 1;
+
+    nvar LnLoopsLeft = (MnRunningSize - 1);
+    
+    do
     {
-        //const xint Idx = i;
+        cvar& LnCurrentVal = MvValues[LnInsert];
+        cvar& LnLastVal    = MvValues[LnLast];
+        cvar  LnDiff       = LnCurrentVal - LnLastVal;
 
-        //if (Idx > 0)
-        //{
-        //    LnVal2 = MvValues[Idx - 1];
-        //    LnVal1 = MvValues[Idx];
-        //    LnDiff = LnVal1 - LnVal2;
-        //}
-        //else
-        //{
-        //    LnVal2 = MvValues[*MnStorageSizePtr - 1];
-        //    LnVal1 = MvValues[Idx];
-        //    LnDiff = LnVal1 - LnVal2;
-        //}
-
-        const auto LnDiff = (Idx > 0)
-            ? MvValues[Idx] - MvValues[Idx - 1]
-            : MvValues[Idx] - MvValues[*MnStorageSizePtr - 1];
-
-        if (LnDiff > 0)
+        if (LnDiff < 0)
         {
-            LnUpShift += LnDiff;
-            ++LnUpTicks;
-        }
-        else if (LnDiff < 0)
-        {
-            LnDownShift += std::abs(LnDiff);
             ++LnDownTicks;
+            LnDownShift += std::abs(LnDiff);
         }
-        Idx = (Idx == 0) ? LnStorage - 1 : Idx - 1;
+        else if (LnDiff > 0)
+        {
+            ++LnUpTicks;
+            LnUpShift += LnDiff;
+        }
+
+        if (++LnInsert >= MnStorageSize) // update
+            LnInsert = 0;
+        LnLast = (LnInsert > 0) ? LnInsert - 1 : MnStorageSize - 1;
     }
+    while (LnLoopsLeft-- > 1); // for RSI because we do a compare
 
     if (!LnUpTicks && !LnDownTicks)
     {

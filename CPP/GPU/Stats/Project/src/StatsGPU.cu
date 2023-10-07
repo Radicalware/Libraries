@@ -76,9 +76,9 @@ void RA::StatsGPU::operator=(StatsGPU&& Other) noexcept
 
 RA::StatsGPU::StatsGPU(
     const xint FnStorageSize,
-    const xmap<EStatOpt, xint>& FmOptions,
+    const xvector<EStatOpt>& FvOptions,
     const double FnDefaultVal) :
-    RA::Stats(RA::EHardware::GPU, FnStorageSize, FmOptions, FnDefaultVal)
+    RA::Stats(RA::EHardware::GPU, FnStorageSize, FvOptions, FnDefaultVal)
 {
 }
 

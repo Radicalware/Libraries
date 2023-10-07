@@ -19,7 +19,7 @@ namespace RA
         void operator=(StatsGPU&& Other) noexcept;
         StatsGPU(
             const xint FnStorageSize,
-            const xmap<EStatOpt, xint>& FmOptions, // Options <> Logical Size
+            const xvector<EStatOpt>& FvOptions,
             const double FnDefaultVal = 0);
 
         DDF AVG&        GetObjAVG();
