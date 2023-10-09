@@ -20,6 +20,7 @@
 * limitations under the License.
 */
 
+#include "Memory.h"
 #include "SharedPtr.h"
 #include "XvectorTypes.h"
 #include "BaseXVector.h"
@@ -85,6 +86,13 @@ public:
 
     T& Last(xint Idx = 0);
     const T& Last(xint Idx = 0) const;
+
+
+    xp<T> FirstPtr(xint Idx = 0);
+    const xp<T> FirstPtr(xint Idx = 0) const;
+
+    xp<T> LastPtr(xint Idx = 0);
+    const xp<T> LastPtr(xint Idx = 0) const;
 
     template<typename C>
     RIN xvector<C> Convert() const;
@@ -408,7 +416,6 @@ RIN T& SPtrXVector<xp<T>>::Last(xint Idx)
     return The.operator[](The.size() - Idx - 1);
 }
 
-
 template<typename T>
 RIN const T& SPtrXVector<xp<T>>::Last(xint Idx) const
 {
@@ -417,6 +424,40 @@ RIN const T& SPtrXVector<xp<T>>::Last(xint Idx) const
     return The.operator[](The.size() - Idx - 1);
 }
 
+// -----------------------------------------------------------
+
+template<typename T>
+RIN xp<T> SPtrXVector<xp<T>>::FirstPtr(xint Idx)
+{
+    if (!The.HasIndex(Idx))
+        throw "Size is Zero";
+    return The.GetPtr(Idx);
+}
+
+template<typename T>
+RIN const xp<T> SPtrXVector<xp<T>>::FirstPtr(xint Idx) const
+{
+    if (!The.HasIndex(Idx))
+        throw "Size is Zero";
+    return The.GetPtr(Idx);
+}
+
+template<typename T>
+RIN xp<T> SPtrXVector<xp<T>>::LastPtr(xint Idx)
+{
+    if (!The.HasIndex(Idx))
+        throw "Size is Zero";
+    return The.GetPtr(The.size() - Idx - 1);
+}
+
+
+template<typename T>
+RIN const xp<T> SPtrXVector<xp<T>>::LastPtr(xint Idx) const
+{
+    if (!The.HasIndex(Idx))
+        throw "Size is Zero";
+    return The.GetPtr(The.size() - Idx - 1);
+}
 // ------------------------------------------------------------------------------------------------
 
 template<typename T>

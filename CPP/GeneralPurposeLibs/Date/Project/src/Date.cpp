@@ -107,14 +107,14 @@ void RA::Date::operator=(const xint FnTime)
 
 void RA::Date::operator=(const Date& Other)
 {
-    if (Other.MsStr)
+    if (Other.MsStrPtr)
     {
-        if (MsStr)
-            *MsStr = *Other.MsStr;
+        if (MsStrPtr)
+            *MsStrPtr = *Other.MsStrPtr;
         else
-            MsStr = new xstring(*Other.MsStr);
+            MsStrPtr = new xstring(*Other.MsStrPtr);
     }
-    else if (MsStr)
+    else if (MsStrPtr)
         Clear();
     
     MoEpochTime    = Other.MoEpochTime;
@@ -124,14 +124,14 @@ void RA::Date::operator=(const Date& Other)
 
 void RA::Date::operator=(Date&& Other) noexcept
 {
-    if (Other.MsStr)
+    if (Other.MsStrPtr)
     {
-        if (MsStr)
-            *MsStr = std::move(*Other.MsStr);
+        if (MsStrPtr)
+            *MsStrPtr = std::move(*Other.MsStrPtr);
         else
-            MsStr = new xstring(std::move(*Other.MsStr));
+            MsStrPtr = new xstring(std::move(*Other.MsStrPtr));
     }
-    else if (MsStr)
+    else if (MsStrPtr)
         Clear();
 
     MoEpochTime    = Other.MoEpochTime;
@@ -141,10 +141,10 @@ void RA::Date::operator=(Date&& Other) noexcept
 
 void RA::Date::Clear()
 {
-    if (MsStr)
+    if (MsStrPtr)
     {
-        delete MsStr;
-        MsStr = nullptr;
+        delete MsStrPtr;
+        MsStrPtr = nullptr;
     }
 
     MoTime.Year = 0;
@@ -162,15 +162,15 @@ void RA::Date::CreateStr()
     char buffer[80];
     RA::Date::Layout Layout = GetLayout();
     strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", std::gmtime(&MoEpochTime));
-    MsStr = new xstring(buffer);
+    MsStrPtr = new xstring(buffer);
 }
 
 const xstring& RA::Date::GetStr() 
 {
-    if (!MsStr)
+    if (!MsStrPtr)
         CreateStr();
 
-    return *MsStr;
+    return *MsStrPtr;
 }
 
 xstring RA::Date::GetStr() const
@@ -531,6 +531,8 @@ void RA::Date::SetYear(int FnYear)
 
 void RA::Date::SetMonth(int FnMonth)
 {
+    HostDelete(MsStrPtr);
+
     if (FnMonth < 1) FnMonth = 1;
     else if (FnMonth > 12) FnMonth = 12;
 
@@ -541,42 +543,129 @@ void RA::Date::SetMonth(int FnMonth)
 
 void RA::Date::SetDay(int FnDay)
 {
-    int Days = GetDaysInMonth();
-    if (FnDay > Days) FnDay = Days;
-    else if (FnDay < 1) FnDay = 1;
-
+    HostDelete(MsStrPtr);
+    if (FnDay < 1) FnDay = 1;
     RA::Date::Layout Layout = GetLayout();
     Layout.Day = FnDay;
-    SetDateTime(Layout);
+    SetDateTime(Layout); // will throw exception if day is out of range
 }
 
 void RA::Date::SetHour(int FnHour)
 {
-    if (FnHour > 60) FnHour = 60;
-    else if (FnHour < 1) FnHour = 1;
+    HostDelete(MsStrPtr);
 
-    MoTime.Year = 0;
-    MoEpochTime += static_cast<RA::Date::EpochTime>(FnHour) * 60 * 60;
+    if (FnHour < 1) FnHour = 1;
+    else if (FnHour > 24) FnHour = 24;
+
+    RA::Date::Layout Layout = GetLayout();
+    Layout.Month = FnHour;
+    SetDateTime(Layout);
 }
 
 void RA::Date::SetMin(int FnMin)
 {
-    if (FnMin > 60) FnMin = 60;
-    else if (FnMin < 1) FnMin = 1;
+    HostDelete(MsStrPtr);
 
-    MoTime.Year = 0;
-    MoEpochTime += static_cast<RA::Date::EpochTime>(FnMin) * 60;
+    if (FnMin < 1) FnMin = 1;
+    else if (FnMin > 60) FnMin = 60;
+
+    RA::Date::Layout Layout = GetLayout();
+    Layout.Min = FnMin;
+    SetDateTime(Layout);
 }
 
 void RA::Date::SetSecond(int FnSecond)
 {
-    if (FnSecond > 60) FnSecond = 60;
-    else if (FnSecond < 1) FnSecond = 1;
+    HostDelete(MsStrPtr);
 
-    MoTime.Year = 0;
-    MoEpochTime += FnSecond;
+    if (FnSecond < 1) FnSecond = 1;
+    else if (FnSecond > 60) FnSecond = 60;
+
+    RA::Date::Layout Layout = GetLayout();
+    Layout.Sec = FnSecond;
+    SetDateTime(Layout);
 }
 // ------------------------------------------------------
+
+void RA::Date::ModYear(int FnYear)
+{
+    RA::Date::Layout Layout = GetLayout();
+    Layout.Year += FnYear;
+    SetDateTime(Layout);
+}
+
+void RA::Date::ModMonth(int FnMonth)
+{
+    RA::Date::Layout Layout = GetLayout();
+    if (FnMonth > 0)
+    {
+
+        if (FnMonth >= 12)
+        {
+            Layout.Year  += (FnMonth / 12);
+            FnMonth = FnMonth % 12;
+        }
+        if (Layout.Month + FnMonth <= 12)
+            Layout.Month += FnMonth;
+        else
+        {
+            FnMonth -= (12 - Layout.Month);
+            Layout.Month = 0;
+            ++Layout.Year;
+            Layout.Month += FnMonth;
+        }
+    }
+    else
+    {
+        nvar LnAbsModMonth = std::abs(FnMonth);
+        if (LnAbsModMonth >= 12)
+        {
+            Layout.Year   -= (LnAbsModMonth / 12);
+            LnAbsModMonth -= (LnAbsModMonth % 12);
+        }
+        if (Layout.Month > LnAbsModMonth)
+            Layout.Month -= LnAbsModMonth;
+        else
+        {
+            LnAbsModMonth -= Layout.Month;
+            --Layout.Year;
+            Layout.Month = (12 - LnAbsModMonth);
+        }
+    }
+    SetDateTime(Layout);
+}
+
+void RA::Date::ModDay(int FnDay)
+{
+    MoTime.Year = 0;
+    HostDelete(MsStrPtr);
+
+    MoEpochTime += (SecondsTo::Days * FnDay);
+}
+
+void RA::Date::ModHour(int FnHour)
+{
+    MoTime.Year = 0;
+    HostDelete(MsStrPtr);
+
+    MoEpochTime += (SecondsTo::Hours * FnHour);
+}
+
+void RA::Date::ModMin(int FnMin)
+{
+    MoTime.Year = 0;
+    HostDelete(MsStrPtr);
+
+    MoEpochTime += (SecondsTo::Minutes * FnMin);
+}
+
+void RA::Date::ModSecond(int FnSecond)
+{
+    MoTime.Year = 0;
+    HostDelete(MsStrPtr);
+
+    MoEpochTime += FnSecond;
+}
 
 bool operator==(const RA::Date& Left, const xint Right) { return Left.GetEpochTime() == Right; }
 bool operator!=(const RA::Date& Left, const xint Right) { return Left.GetEpochTime() != Right; }

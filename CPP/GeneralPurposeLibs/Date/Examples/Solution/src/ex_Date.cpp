@@ -103,25 +103,54 @@ void Test()
     TestDates(Dejavu, LoDate);
 
     {
-        Date Mod1(2021, 1, 31);
-        Date Mod2 = Mod1.Month(-1);
-        Mod1.SetYear(2020);
-        Mod1.SetMonth(12);
-        TestDates(Mod1, Mod2);
+        {
+            Date Mod1(2021, 1, 31);
+            Date Mod2 = Mod1.Month(-1);
+            Mod1.SetYear(2020);
+            Mod1.SetMonth(12);
+            TestDates(Mod1, Mod2);
+        }
+        {
+            Date Mod1(2021, 1, 31);
+            Date Mod2 = Mod1;
+            Mod2.ModMonth(-1);
+            Mod1.SetYear(2020);
+            Mod1.SetMonth(12);
+            TestDates(Mod1, Mod2);
+        }
     }
     {
-        Date Mod1(2020, 12, 25);
-        Date Mod2 = Mod1.Month(1);
-        Mod1.SetYear(2021);
-        Mod1.SetMonth(1);
-        TestDates(Mod1, Mod2);
+        {
+            Date Mod1(2020, 12, 25);
+            Date Mod2 = Mod1.Month(1);
+            Mod1.SetYear(2021);
+            Mod1.SetMonth(1);
+            TestDates(Mod1, Mod2);
+        }
+        {
+            Date Mod1(2020, 12, 25);
+            Date Mod2 = Mod1;
+            Mod2.ModMonth(1);
+            Mod1.SetYear(2021);
+            Mod1.SetMonth(1);
+            TestDates(Mod1, Mod2);
+        }
     }
     {
-        Date Mod1(2020, 12, 25);
-        Date Mod2 = Mod1.Month(1);
-        Mod1 = Mod1.Year(1);
-        Mod1 = Mod1.Month(-11);
-        TestDates(Mod1, Mod2);
+        {
+            Date Mod1(2020, 12, 25);
+            Date Mod2 = Mod1.Month(1);
+            Mod1 = Mod1.Year(1);
+            Mod1 = Mod1.Month(-11);
+            TestDates(Mod1, Mod2);
+        }
+        {
+            Date Mod1(2020, 12, 25);
+            Date Mod2 = Mod1.Month(1);
+            Mod1.ModYear(1);
+            Mod1 = Mod1.Month(-11);
+            TestDates(Mod1, Mod2);
+        }
     }
     {
         Date Num(2020, 12, 31, 23, 59);

@@ -139,6 +139,22 @@ namespace RA
         void SetMin(int FnMin);
         void SetSecond(int FnSecond);
 
+        void ModYear(int FnYear);
+        void ModMonth(int FnMonth);
+        void ModDay(int FnDay);
+        void ModHour(int FnHour);
+        void ModMin(int FnMin);
+        void ModSecond(int FnSecond);
+
+        istatic CST double SnDaysInMonth = 365.25 / 12;
+
+        struct SecondsTo
+        {
+            istatic CST xint Minutes = 60;
+            istatic CST xint Hours = Minutes * 60;
+            istatic CST xint Days = Hours * 24;
+        };
+
     private:
         istatic int  SnOffsetUTC = 0;
         istatic bool SbOffsetCalculated = false;
@@ -150,7 +166,7 @@ namespace RA
         void SetDateTime(const Date::Layout& FnTime);
 
         Date::EpochTime MoEpochTime = 0;
-        xstring* MsStr = nullptr;
+        xstring* MsStrPtr = nullptr;
         Date::Layout    MoTime;
         bool MbDateCurrent = false;
 
