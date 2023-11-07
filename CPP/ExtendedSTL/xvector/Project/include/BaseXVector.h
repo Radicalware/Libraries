@@ -18,6 +18,8 @@
 #include "Nexus.h"
 
 
+
+
 template<typename T>
 class BaseXVector : public std::vector<T, std::allocator<T>>, public RA::MutexHandler
 {
@@ -108,7 +110,12 @@ public:
 
     template<typename F> RIN void LoopAllUnseq(F&& FfFunction);
     template<typename F> RIN void LoopAllSeq(F&& FfFunction);
+
+    std::string GetString() const;
 };
+
+template<typename T>
+std::ostream& operator<<(std::ostream& FoOut, const xvector<T>& FoObj);
 
 // -----------------------------------------------------------------------------------------------------------------
 
@@ -443,4 +450,26 @@ RIN void BaseXVector<T>::LoopAllSeq(F&& FfFunction)
         The.begin(), 
         The.end(), 
         FfFunction);
+}
+
+template<typename T>
+inline std::string BaseXVector<T>::GetString() const
+{
+    std::ostringstream LStream;
+    LStream << '[';
+    for (xint i = 0; i < Size(); i++)
+    {
+        LStream << The[i];
+        if ((i + 1) < The.Size())
+            LStream << ", ";
+    }
+    LStream << ']';
+    return LStream.str();
+}
+
+template<typename T>
+std::ostream& operator<<(std::ostream& FoOut, const xvector<T>& FoObj)
+{
+    FoOut << FoObj.GetString();
+    return FoOut;
 }

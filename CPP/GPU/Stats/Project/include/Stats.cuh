@@ -43,22 +43,13 @@
 
 namespace RA
 {
-    struct Joinery
-    {
-        double MnSum = 0;
-        xint MnIdx = 0;
-        xint MnSize = 0;
-        double* MvValues = nullptr;
-
-        DXF void InsertNum(const double FnNum);
-    };
-
     class Stats
     {        
     protected:
         Stats(); // use StatsGPU or StatsCPU
         void Clear();
         void ClearJoinery();
+        void ClearSlippage();
         void ClearStorageRequriedObjs();
 
         void CreateObjs(const xvector<EStatOpt>& FvOptions);
@@ -88,7 +79,8 @@ namespace RA
 
     public:
         void SetJoinerySize(const xint FCount); // Sums FCount values as one value
-        DXF auto GetJoinerySize() const { return MnJoinerySize; }
+        void SetSlippageSize(const xint FCount);
+        DXF auto GetJoinerySize() const { return MoJoinery.MnSize; }
         
         DXF void SetMaxTraceSize(const xint FSize);
         DXF auto GetMaxTraceSize() const { return MnMaxTraceSize; }
@@ -105,7 +97,7 @@ namespace RA
 
         DXF auto GetStorageSize()  const { return MnStorageSize; }
         DXF auto GetInsertIdx()    const { return MnInsertIdx; }
-        DXF auto GetCurrentValue() const { return (MnStorageSize) ? MvValues[MnInsertIdx] : MnLastValue; }
+        DXF auto GetCurrentValue() const { return (MnStorageSize) ? MvValues[MnInsertIdx] : MnValue; }
         DXF void SetDeviceJoinery();
 
         DXF bool BxTrackingAvg()   const { return MoAvgPtr   != nullptr; }
@@ -114,18 +106,39 @@ namespace RA
         DXF bool BxTrackingDeviation() const { return MoSTOCHPtr != nullptr; }
         DXF void SetHadFirstInsert(const bool FbTruth) { MbHadFirstInsert = FbTruth; }
 
+        DXF double GetSkippedNum(const xint FIdx) const;
+        DXF auto   GetSkipDataLeng() const { return MoSlippage.MnDataLeng; }
+
     protected:
+        struct TheJoinery
+        {
+            //Chunk* MvChunks = nullptr;
+            xint MnIdx = 0;
+            xint MnSize = 0;
+            double MnSum = 0;
+            double* MvValues = nullptr;
+            DXF void InsertNum(const double FnNum);
+        };
+
+        struct TheSlippage
+        {
+            xint MnDataLeng = 0;
+            xint MnSlipSize = 0;
+            EHardware MeHardware = EHardware::Default;
+            double* MvNums = nullptr;
+        };
+
         EHardware MeHardware = EHardware::Default;
         xint     MnStorageSize = 0;
         xvector<EStatOpt> MvOptions;
 
-        double   MnLastValue = 0;
+        double   MnValue = 0;
         double*  MvValues = nullptr;
         xint     MnInsertIdx = 0;
 
-        Joinery* MoJoineryPtr = nullptr;
-        xint     MnJoineryIdx = 0;
-        xint     MnJoinerySize = 0; // for grouping input values as one combined value every Size times
+        TheJoinery  MoJoinery;
+        TheSlippage MoSlippage;
+
         xint     MnMaxTraceSize = 0; // 0 = infinite; any other is the max divisor for avgs
 
         bool     MbDelete = true;

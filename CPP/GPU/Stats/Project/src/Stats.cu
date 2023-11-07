@@ -7,18 +7,6 @@
 
 // Copyright via Apache v2 Licence [2023][Joel Leagues aka Scourge]
 
-DXF void RA::Joinery::InsertNum(const double FnNum)
-{
-    const auto LnReplaced = MvValues[MnIdx];
-    MnSum += FnNum;
-    MnSum -= LnReplaced;
-    MvValues[MnIdx] = FnNum;
-    if (MnIdx < MnSize - 1)
-        MnIdx++;
-    else
-        MnIdx = 0;
-}
-
 RA::Stats::Stats()
 {
 }
@@ -35,6 +23,8 @@ void RA::Stats::Clear()
 
     ClearStorageRequriedObjs();
     ClearJoinery();
+    ClearSlippage();
+
     if (MeHardware == EHardware::GPU) {
         CudaDelete(MvValues);
     }
@@ -49,22 +39,31 @@ void RA::Stats::Clear()
 
 void RA::Stats::ClearJoinery()
 {
-
+    Begin();
     if (MeHardware == EHardware::GPU)
     {
-        if (MoJoineryPtr)
+        if (MoJoinery.MvValues)
             ThrowIt("Joinery not supported on the GPU atm");
     }
     else if (MeHardware == EHardware::CPU)
     {
-        if (MoJoineryPtr)
-        {
-            HostDelete((*MoJoineryPtr).MvValues);
-            HostDelete(MoJoineryPtr);
-        }
+        HostDelete(MoJoinery.MvValues);
     }
     else
         ThrowIt("EHardware (GPU/CPU) Option Not Given");
+    Rescue();
+}
+
+void RA::Stats::ClearSlippage()
+{
+    Begin();
+    if (MeHardware == EHardware::CPU) {
+        HostDelete(MoSlippage.MvNums)
+    }
+    else if (MeHardware == EHardware::GPU) {
+        CudaDelete(MoSlippage.MvNums);
+    }
+    Rescue();
 }
 
 void RA::Stats::ClearStorageRequriedObjs()
@@ -278,7 +277,7 @@ void RA::Stats::SetJoinerySize(const xint FCount)
 {
     if (FCount <= 1)
         return;
-    MnJoinerySize = FCount;
+    MoJoinery.MnSize = FCount;
     MnInsertIdx = 0;
     MbHadFirstInsert = false;
     ClearJoinery();
@@ -287,14 +286,14 @@ void RA::Stats::SetJoinerySize(const xint FCount)
     {
     case RA::EHardware::CPU:
     {
-        if (MnJoinerySize)
+        if (MoJoinery.MnSize)
         {
-            MoJoineryPtr = new Joinery;
-            GET(MoJoinery);
+            //MoJoinery.MvChunks = new Chunk[MnStorageSize+1];
+            //GET(LoJoinData, MoJoinery.MoData);
             
             MoJoinery.MnSum = 0;
             MoJoinery.MnIdx = 0;
-            MoJoinery.MnSize = MnJoinerySize;
+            MoJoinery.MnSize = MoJoinery.MnSize;
             MoJoinery.MvValues = new double[MoJoinery.MnSize + 1];
             for (auto* Ptr2 = MoJoinery.MvValues; Ptr2 <= MoJoinery.MvValues + MoJoinery.MnSize; Ptr2++)
                 *Ptr2 = 0;
@@ -306,7 +305,7 @@ void RA::Stats::SetJoinerySize(const xint FCount)
 #ifndef UsingMSVC
     case RA::EHardware::GPU:
     {
-        if (MnJoinerySize)
+        if (MoJoinery.MnSize)
         {
             ThrowIt("Not supported on the GPU atm");
         }
@@ -318,6 +317,41 @@ void RA::Stats::SetJoinerySize(const xint FCount)
     default:
         ThrowIt("EHardware (GPU/CPU) Option Not Given");
     }
+}
+
+void RA::Stats::SetSlippageSize(const xint FCount)
+{
+    Begin();
+    if (FCount <= 1)
+        return;
+
+    ClearSlippage();
+    if (!FCount)
+    {
+        if (MoSlippage.MvNums)
+        {
+            if (MeHardware == EHardware::CPU) {
+                HostDelete(MoSlippage.MvNums)
+            }
+            else if (MeHardware == EHardware::GPU) {
+                CudaDelete(MoSlippage.MvNums);
+            }
+            else
+                ThrowIt("No Hardware Set");
+        }
+        MoSlippage.MnDataLeng = 0;
+        MoSlippage.MnSlipSize = 0;
+        return;
+    }
+    if (!MvValues)
+        return;
+    MoSlippage.MeHardware = MeHardware;
+    MoSlippage.MnDataLeng = (FCount * MnStorageSize);
+    MoSlippage.MnSlipSize = FCount;
+    MoSlippage.MvNums = new double[MoSlippage.MnDataLeng+1];
+    for (auto Ptr = MoSlippage.MvNums; Ptr != (MoSlippage.MvNums + MoSlippage.MnDataLeng); Ptr++)
+        *Ptr = 0;
+    Rescue();
 }
 
 
@@ -332,7 +366,7 @@ DXF void RA::Stats::SetMaxTraceSize(const xint FSize)
 DXF double RA::Stats::operator[](const xint IDX) const
 {
     if (!MnStorageSize && !IDX)
-        return MnLastValue;
+        return MnValue;
     if (IDX >= MnStorageSize)
 #ifdef UsingMSVC
         ThrowIt(RED "IDX = ", MnStorageSize, " which is too big for size of" WHITE);
@@ -362,40 +396,78 @@ DXF double RA::Stats::Former(const xint IDX) const
 
 DXF void RA::Stats::operator<<(const double FnValue)
 {
-    if (MbHadFirstInsert && !MnJoinerySize)
+    if (MbHadFirstInsert && !MoJoinery.MnSize)
     {
+        // newer numbers are behind
+        // oldest number is +1 ahead but increasing in newness
         if (++MnInsertIdx >= MnStorageSize)
             MnInsertIdx = 0;
     }
 
-    if (MnJoinerySize)
+    MnValue = FnValue;
+
+    if (MoJoinery.MnSize)
     {
-        if (MbHadFirstInsert && MnJoineryIdx == 0 && ++MnInsertIdx >= MnStorageSize)
+        if (MbHadFirstInsert && MoJoinery.MnIdx == 0 && ++MnInsertIdx >= MnStorageSize)
             MnInsertIdx = 0;
 
-        auto& MoJoinery = *MoJoineryPtr;
         MoJoinery.InsertNum(FnValue);
 
         if (MvValues)
             MvValues[MnInsertIdx] = MoJoinery.MnSum;
-        MnLastValue = MoJoinery.MnSum;
-        if (++MnJoineryIdx >= MnJoinerySize)
-            MnJoineryIdx = 0;
+
+        MnValue = MoJoinery.MnSum;
+        if (++MoJoinery.MnIdx >= MoJoinery.MnSize)
+            MoJoinery.MnIdx = 0;
     }
-    else if (MvValues)
+
+    if (MoSlippage.MnDataLeng)
     {
-        MvValues[MnInsertIdx] = FnValue;
-        MnLastValue = FnValue;
+        auto LnSlipIdx = 0;
+        auto LnInsertIdx = 0;
+        auto LnMainIdx = MnInsertIdx;
+        cvar LnNewVal = (MoJoinery.MvValues) ? MoJoinery.MnSum : FnValue;
+
+        do
+        {
+            if (LnSlipIdx == MoSlippage.MnDataLeng)
+                MoSlippage.MvNums[0] = MoSlippage.MvNums[1];
+            else if (LnSlipIdx == (MoSlippage.MnDataLeng - 1))
+                MoSlippage.MvNums[LnSlipIdx] = MoSlippage.MvNums[0];
+            else
+                MoSlippage.MvNums[LnSlipIdx] = MoSlippage.MvNums[LnSlipIdx + 1];
+            
+            if (++LnInsertIdx == (MoSlippage.MnSlipSize))
+            {
+                LnInsertIdx = 0;
+                if (++LnMainIdx >= MnStorageSize)
+                    LnMainIdx = 0;
+                const auto& LnDbgSlipNum = MoSlippage.MvNums[LnSlipIdx];
+                MvValues[LnMainIdx] = MoSlippage.MvNums[LnSlipIdx];
+            }
+
+            ++LnSlipIdx;
+            if (LnSlipIdx == MoSlippage.MnDataLeng)
+                LnSlipIdx = 0;
+            else if (LnSlipIdx == (MoSlippage.MnDataLeng+1))
+                LnSlipIdx = 1;
+        } 
+        while (LnSlipIdx != 0);
+
+        MoSlippage.MvNums[MoSlippage.MnDataLeng - 1] = LnNewVal;
+        MvValues[MnInsertIdx] = LnNewVal;
+        MnValue = LnNewVal;
     }
-    else
-        MnLastValue = FnValue;
+    
+    if (MvValues)
+        MvValues[MnInsertIdx] = MnValue;
 
     if (!MnStorageSize || !MvValues)
     {
-        SRef(MoAvgPtr).Update(MnLastValue);
-        SRef(MoStandardDeviationPtr).Update(MnLastValue);
-        SRef(MoMeanAbsoluteDeviationPtr).Update(MnLastValue);
-        SRef(MoSTOCHPtr).Update(MnLastValue);
+        SRef(MoAvgPtr).Update(MnValue);
+        SRef(MoStandardDeviationPtr).Update(MnValue);
+        SRef(MoMeanAbsoluteDeviationPtr).Update(MnValue);
+        SRef(MoSTOCHPtr).Update(MnValue);
         return;
     }
  
@@ -403,9 +475,9 @@ DXF void RA::Stats::operator<<(const double FnValue)
     if (MnInsertIdx != GetInsertIdx())
         printf(RED __CLASS__ " >> Bad Index Alignment\n" WHITE);
 
-    SRef(MoAvgPtr).Update(MnLastValue);
-    SRef(MoStandardDeviationPtr).Update(MnLastValue);
-    SRef(MoMeanAbsoluteDeviationPtr).Update(MnLastValue);
+    SRef(MoAvgPtr).Update(MnValue);
+    SRef(MoStandardDeviationPtr).Update(MnValue);
+    SRef(MoMeanAbsoluteDeviationPtr).Update(MnValue);
     SRef(MoRSIPtr).Update();
     SRef(MoSTOCHPtr).Update();
 
@@ -432,20 +504,25 @@ DXF void RA::Stats::SetAllValues(const double FnValue, const bool FbHadFirstInde
         return;
 
     for (double* Ptr = MvValues; Ptr < MvValues + MnStorageSize; Ptr++)
-        *Ptr = FnValue * MAX(MnJoinerySize, 1);
+        *Ptr = FnValue * MAX(MoJoinery.MnSize, 1);
 
-    if (MnJoinerySize)
+    if (MoJoinery.MnSize)
     {
-        for (Joinery* Ptr = MoJoineryPtr; Ptr < MoJoineryPtr + MnStorageSize; Ptr++)
-        {
-            auto& Ref = *Ptr;
-            Ref.MnSum = FnValue * Ref.MnSize;
-            Ref.MnIdx = 1;
-            for (auto* Ptr2 = Ref.MvValues; Ptr2 < Ref.MvValues + Ref.MnSize; Ptr2++)
-                *Ptr2 = FnValue;
-            Ref.MvValues[0] = FnValue;
-            Ref.MvValues[Ref.MnSize] = 0;
-        }
+        //for (Cheunk* Ptr = MoJoinery.MvChunks; Ptr < MoJoinery.MvChunks + MnStorageSize; Ptr++)
+        //{
+        //    auto& Ref = *Ptr;
+        //    Ref.MnSum = FnValue * Ref.MnSize;
+        //    Ref.MnIdx = 1;
+        //    for (auto* Ptr2 = Ref.MvValues; Ptr2 < Ref.MvValues + Ref.MnSize; Ptr2++)
+        //        *Ptr2 = FnValue;
+        //    Ref.MvValues[0] = FnValue;
+        //    Ref.MvValues[Ref.MnSize] = 0;
+        //}
+
+        for (auto* Ptr2 = MoJoinery.MvValues; Ptr2 < MoJoinery.MvValues + MoJoinery.MnSize; Ptr2++)
+            *Ptr2 = FnValue;
+        MoJoinery.MvValues[0] = FnValue;
+        MoJoinery.MvValues[MoJoinery.MnSize] = 0;
     }
 
     SetDefaultValues(FnValue);
@@ -473,4 +550,23 @@ DXF void RA::Stats::SetDeviceJoinery()
     }
     SRef(MoStandardDeviationPtr).SetAvg(MoAvgPtr);
     SRef(MoMeanAbsoluteDeviationPtr).SetAvg(MoAvgPtr);
+}
+
+DXF double RA::Stats::GetSkippedNum(const xint FIdx) const
+{
+    if (FIdx >= MoSlippage.MnDataLeng)
+        printf(RED "Out of Range" WHITE);
+    return MoSlippage.MvNums[MoSlippage.MnDataLeng - 1 - FIdx];
+}
+
+DXF void RA::Stats::TheJoinery::InsertNum(const double FnNum)
+{
+    const auto LnReplaced = MvValues[MnIdx];
+    MnSum += FnNum;
+    MnSum -= LnReplaced;
+    MvValues[MnIdx] = FnNum;
+    if (MnIdx < MnSize - 1)
+        MnIdx++;
+    else
+        MnIdx = 0;
 }

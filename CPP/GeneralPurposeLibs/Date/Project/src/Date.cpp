@@ -506,15 +506,15 @@ RA::Date RA::Date::Month(int FnMonth) const
 }
 // ------------------------------------------------------
 RA::Date RA::Date::Day(int FnDay) const {
-    return Second(FnDay * 60 * 60 * 24);
+    return Second(FnDay * SecondsTo::Days);
 }
 
 RA::Date RA::Date::Hour(int FnHour) const {
-    return Second(FnHour * 60 * 60);
+    return Second(FnHour * SecondsTo::Hours);
 }
 
 RA::Date RA::Date::Min(int FnMin) const {
-    return Second(FnMin * 60);
+    return Second(FnMin * SecondsTo::Minutes);
 }
 
 RA::Date RA::Date::Second(int FnSecond) const {

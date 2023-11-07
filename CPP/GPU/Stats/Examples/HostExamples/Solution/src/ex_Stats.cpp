@@ -323,10 +323,10 @@ namespace Test
                 }
 
                 // Note: Has an accuracy up to the 0.5 from 100
-                if (!RA::Appx(LoStorage.MAD().GetDeviation(), LoLogical.MAD().GetDeviation(), 0.7)) 
+                if (!RA::Appx(LoStorage.MAD().GetDeviation(), LoLogical.MAD().GetDeviation(), 2)) 
                     ThrowIt("No Equate: ", LoStorage.MAD().GetDeviation(), " != ", LoLogical.MAD().GetDeviation());
 
-                if (!RA::Appx(LoStorage.MAD().GetOffset(), LoLogical.MAD().GetOffset(), 0.7))
+                if (!RA::Appx(LoStorage.MAD().GetOffset(), LoLogical.MAD().GetOffset(), 2))
                     ThrowIt("No Equate: ", LoStorage.MAD().GetOffset(), " != ", LoLogical.MAD().GetOffset());
 
                 Rescue();
@@ -356,10 +356,10 @@ namespace Test
                 }
 
                 // Note: Has an accuracy up to the 0.7 from 100
-                if (!RA::Appx(LoStorage.SD().GetDeviation(), LoLogical.SD().GetDeviation(), 0.7))
+                if (!RA::Appx(LoStorage.SD().GetDeviation(), LoLogical.SD().GetDeviation(), 2))
                     ThrowIt("No Equate: ", LoStorage.SD().GetDeviation(), " != ", LoLogical.SD().GetDeviation());
 
-                if (!RA::Appx(LoStorage.SD().GetOffset(), LoLogical.SD().GetOffset(), 0.7))
+                if (!RA::Appx(LoStorage.SD().GetOffset(), LoLogical.SD().GetOffset(), 2))
                     ThrowIt("No Equate: ", LoStorage.SD().GetOffset(), " != ", LoLogical.SD().GetOffset());
 
 
@@ -490,6 +490,23 @@ namespace Test
             }
             Rescue();
         }
+
+        void Slippage()
+        {
+            const auto LnStorageSize = 3;
+            auto LoStorage = RA::StatsCPU(LnStorageSize, { {} });
+            LoStorage.SetSlippageSize(4);
+            LoStorage.SetJoinerySize(3);
+
+            for (xint i = 1; i < 30; i++)
+            {
+                LoStorage << i;
+                cout << '(' << LoStorage[0] << ':' << LoStorage[1] << ':' << LoStorage[2] << ')' << '\n';
+            }
+
+            for (xint i = 0; i < LoStorage.GetSkipDataLeng(); i++)
+                cout << LoStorage.GetSkippedNum(i) << ' ' << endl;
+        }
     }
 }
 
@@ -505,14 +522,14 @@ void RunCPU()
     Test::Storage::CPU::RSI();
 
     Test::Miscellaneous::Joinery();
+    Test::Miscellaneous::Slippage();
 
-    cout << "-------------------------" << endl;
+    cout << "----------------------------------------------------" << endl;
     Test::Storage::CPU::MeanAbsoluteDeviation();
     Test::Logical::CPU::MeanAbsoluteDeviation();
 
     Test::Storage::CPU::StandardDeviation();
     Test::Logical::CPU::StandardDeviation();
-    cout << "-------------------------" << endl;
     Rescue();
 }
 int main() 

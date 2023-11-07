@@ -40,7 +40,10 @@ void RA::StatsCPU::operator=(const StatsCPU& Other)
     }
 
     The.ConstructHardware(MeHardware, Other.MnStorageSize, Other.MvOptions);
-    The.SetJoinerySize(Other.MnJoinerySize);
+    The.SetJoinerySize(Other.MoJoinery.MnSize);
+
+    if(MnStorageSize)
+        The.SetSlippageSize(Other.MoSlippage.MnSlipSize);
 
     if (Other.MoAvgPtr)         MoAvgPtr->CopyStats(*Other.MoAvgPtr);
     if (Other.MoSTOCHPtr)       MoSTOCHPtr->CopyStats(*Other.MoSTOCHPtr);
@@ -73,8 +76,19 @@ void RA::StatsCPU::operator=(StatsCPU&& Other) noexcept
     MnStorageSize = Other.MnStorageSize;
     MnInsertIdx   = 0;
 
-    MoJoineryPtr  = Other.MoJoineryPtr;
-    MnJoinerySize = Other.MnJoinerySize;
+    if (Other.GetJoinerySize())
+    {
+        SetJoinerySize(Other.GetJoinerySize());
+        for (xint i = 0; i < Other.GetJoinerySize(); i++)
+            MoJoinery.MvValues[i] = Other.MoJoinery.MvValues[i];
+    }
+
+    if (Other.MoSlippage.MnSlipSize)
+    {
+        SetSlippageSize(Other.MoSlippage.MnSlipSize);
+        for (xint i = 0; i < Other.MoSlippage.MnDataLeng; i++)
+            MoSlippage.MvNums[i] = Other.MoSlippage.MvNums[i];
+    }
 
     MbHadFirstInsert = Other.MbHadFirstInsert;
     MvOptions        = Other.MvOptions;
