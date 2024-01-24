@@ -370,6 +370,8 @@ namespace RA
 // -----------------------------------------------------------------------------------------------------------------------------
 // MISC
 
+#define GetType(_IN_) RemoveRef(RemovePtr(decltype(_IN_)))
+
 template<typename R, typename N>
 UsingFundamental(R) Cast(const N& Num) 
 { 

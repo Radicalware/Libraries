@@ -65,7 +65,8 @@ macro(AddExecutable ExePathPart ExeName)
 endmacro(AddExecutable)
 
 # !!!! ADD LIBS TO ALL 3 LOCATIONS !!!!
-#       (This is location 1 of 3)
+
+# (This is location 1 of 3)
 AddExecutable("FunctionalSTL" "AC")
 AddExecutable("FunctionalSTL" "RE")
 AddExecutable("FunctionalSTL" "MC")
@@ -92,7 +93,7 @@ include_directories(${THIS} PRIVATE
         ${AllFiles}
 )
 
-#       (This is location 2 of 3)
+# (This is location 2 of 3)
 
 find_package(VLD)
 find_package(re2)
@@ -123,9 +124,6 @@ find_package(Socket)
 find_package(cpprestsdk CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(OpenSSL REQUIRED)
-find_package(bson-1.0 CONFIG REQUIRED)
-# find_package(CURL CONFIG REQUIRED)
-# find_package(jsoncpp CONFIG REQUIRED)
 
 message("====================================")
 PrintLibs()
@@ -134,7 +132,7 @@ set(FirstLoop ON)
 foreach(EXE ${EXES})
     target_link_libraries(${EXE}
 
-            #       (This is location 3 of 3)
+            # (This is location 3 of 3)
             
             Radical::AC
             Radical::MC
@@ -154,7 +152,6 @@ foreach(EXE ${EXES})
             
             cpprestsdk::cpprest
             cpprestsdk::cpprestsdk_zlib_internal
-            cpprestsdk::cpprestsdk_boost_internal
             cpprestsdk::cpprestsdk_brotli_internal
 
             mongo::bsoncxx_shared
@@ -166,14 +163,10 @@ foreach(EXE ${EXES})
 
             OpenSSL::SSL
             OpenSSL::Crypto
-
-            # jsoncpp_lib
-            # jsoncpp_object
-
-            # CURL::libcurl
         )
 
         PrintEXEsAndDLLs()
+
         if(${debug})
             target_link_libraries(${THIS} ${VLD_TARGET})
         endif()

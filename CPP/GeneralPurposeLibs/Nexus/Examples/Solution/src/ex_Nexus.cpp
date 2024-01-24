@@ -44,6 +44,14 @@ double BenchMultiThread()
     return Time.GetElapsedTimeMicroseconds();
 }
 
+void SimpleTest()
+{
+    Begin();
+    auto LnSingleTime = BenchSingleThread();
+    auto LnMultiTime = BenchMultiThread();
+    cout << "Threading Speed Inc: " << (LnSingleTime / LnMultiTime) << endl;
+    Rescue();
+}
 
 int main() 
 {
@@ -54,14 +62,9 @@ int main()
     // static classes static and instnace classes instance based to not confuse anyone. 
     // -------------------------------------------------------------------------------------
 
-    //ObjectMutexHandling();
+    ObjectMutexHandling();
     //BenchmarkNexus();
-
-
-    auto LnSingleTime = BenchSingleThread();
-    auto LnMultiTime  = BenchMultiThread();
-
-    cout << "Threading Speed Inc: " << (LnSingleTime / LnMultiTime) << endl;
+    //SimpleTest();
 
     RescuePrint();
     Nexus<>::Stop();

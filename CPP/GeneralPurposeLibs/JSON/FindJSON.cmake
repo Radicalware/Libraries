@@ -9,6 +9,14 @@ find_package(bson-1.0 CONFIG REQUIRED)
 find_package(bsoncxx CONFIG REQUIRED)
 find_package(mongocxx CONFIG REQUIRED)
 
+set(BSON_INCLUDE "${VCPKG_INCLUDE}/bsoncxx/v_noabi")
+list(APPEND InstalledIncludeDirs "${BSON_INCLUDE}")
+include_directories("${BSON_INCLUDE}")
+
+set(MONGO_INCLUDE "${VCPKG_INCLUDE}/mongocxx/v_noabi")
+list(APPEND InstalledIncludeDirs "${MONGO_INCLUDE}")
+include_directories("${MONGO_INCLUDE}")
+
 link_libraries(${LIB}
 ${PreStaticLibLst}
     

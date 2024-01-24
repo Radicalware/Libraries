@@ -28,15 +28,6 @@ else()
     add_compile_definitions("DebugOn")
 endif()
 
-
-if(NOT DEFINED CUDA_VERSION)
-set(VCPKG_ROOT            "C:/Source/Git/vcpkg")
-set(VCPKG_RELEASE_LIB_DIR "${VCPKG_ROOT}/installed/x64-windows/lib")
-set(VCPKG_DEBUG_LIB_DIR   "${VCPKG_ROOT}/installed/x64-windows/lib")
-set(VCPKG_SCRIPT          "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
-set(VCPKG_INCLUDE         "${VCPKG_ROOT}/installed/x64-windows/include")
-endif()
-
 set(CMAKE_CXX_IGNORE_EXTENSIONS      "${CMAKE_CXX_IGNORE_EXTENSIONS};txt;rc")
 set(CMAKE_CXX_SOURCE_FILE_EXTENSIONS "${CMAKE_CXX_SOURCE_FILE_EXTENSIONS};cuh;cu")
 
@@ -45,6 +36,7 @@ if(WIN32) # --------------------------------------------------------------------
     set(OS_TYPE "Windows")
     set(IsWindows ON)
     
+
     # set(MSVC_TOOLSET_VERSION "142")
     # set(WINDOWS_SDK "10.0.18362.0")
     # set(CMAKE_SYSTEM_VERSION ${WINDOWS_SDK})
@@ -53,11 +45,11 @@ if(WIN32) # --------------------------------------------------------------------
     add_definitions(-DUsingMSVC)
 
     # RUN: vcpkg integrate install
-    set(CMAKE_TOOLCHAIN_FILE ${VCPKG_SCRIPT})
-    set(Qt6_DIR         "C:/Qt/6.5.2/msvc2019_64/lib/cmake/Qt6")
+    set(VCPKG_ROOT            "C:/Source/Git/vcpkg")
+    set(CMAKE_TOOLCHAIN_FILE    ${VCPKG_SCRIPT})
+    set(Qt6_DIR         "C:/Qt/6.6.1/msvc2019_64/lib/cmake/Qt6")
     set(CMAKE_PATH      "C:/Program Files/CMake/share/cmake-$ENV{CMAKE_VERSION}/Modules")
     set(RADICAL_BASE    "C:/Source/CMake/Radicalware")
-    #set(Qt6_DIR         "D:/AIE/vcpkg/installed/x64-windows/share/Qt6")
 
     SET(INSTALL_PREFIX "${RADICAL_BASE}")
     SET(INSTALL_DIR    "${RADICAL_BASE}/Libraries/Projects")
@@ -117,6 +109,15 @@ else() # -----------------------------------------------------------------------
     set(SH  "so")
     set(OBJ "cpp.o")
 endif() # ----------------------------------------------------------------------------
+
+if(NOT DEFINED CUDA_VERSION)
+    set(VCPKG_RELEASE_LIB_DIR "${VCPKG_ROOT}/installed/x64-windows/lib")
+    set(VCPKG_DEBUG_LIB_DIR   "${VCPKG_ROOT}/installed/x64-windows/lib")
+    set(VCPKG_SCRIPT          "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
+    set(VCPKG_INCLUDE         "${VCPKG_ROOT}/installed/x64-windows/include")
+endif()
+
+
 
 # ------------------------- MODIFY VALUES ABOVE --------------------------------------
 

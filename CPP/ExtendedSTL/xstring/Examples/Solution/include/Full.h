@@ -7,6 +7,7 @@
 #include "xstring.h"
 #include "xvector.h"
 #include<iostream>
+#include "Macros.h"
 
 using std::string;
 using std::cout;
@@ -30,12 +31,13 @@ struct Full
 
     void move_std_string()
     {
+        Begin();
         std::string std_string = "test std::string";
         cout << "std_string.size() = " << std_string.size() << '\n';
         xstring x_string = std::move(std_string);
         cout << "std_string.size() = " << std_string.size() << '\n';
         cout << "x_string.size()   = " << x_string.size() << "\n\n";
-
+        Rescue();
     }
 
     void move_xstring()
@@ -49,6 +51,7 @@ struct Full
 
     inline int Basics() 
     {
+        Begin();
         move_std_string();
         move_xstring();
 
@@ -102,6 +105,7 @@ struct Full
         cout << str(-6, -2, 1) << endl;
 
         return 0;
+        Rescue();
     }
 
 

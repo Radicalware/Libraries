@@ -64,6 +64,8 @@ int main()
     option.char_count();
     option.str_count();
 
+    
+
     RescuePrint();
     Nexus<>::Stop();
     return 0;

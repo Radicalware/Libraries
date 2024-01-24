@@ -115,6 +115,7 @@ namespace RA
             //Chunk* MvChunks = nullptr;
             xint MnIdx = 0;
             xint MnSize = 0;
+            bool MbFilled = false;
             double MnSum = 0;
             double* MvValues = nullptr;
             DXF void InsertNum(const double FnNum);

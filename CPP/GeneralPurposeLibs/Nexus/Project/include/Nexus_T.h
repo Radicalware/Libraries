@@ -476,7 +476,7 @@ RIN std::vector<T> Nexus<T>::GetMoveAllIndices()
     auto Lock = MoThreadMtx.CreateLock();
     std::vector<T> Captures;
     Captures.reserve(Size());
-    for (std::pair<xint, xp<Task<T>>>& Target : MmIdxTask)
+    for (auto& Target : MmIdxTask)
     {
         auto& LoTask = Target.second.Get();
         try{

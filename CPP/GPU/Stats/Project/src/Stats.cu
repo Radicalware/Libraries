@@ -375,7 +375,10 @@ DXF double RA::Stats::operator[](const xint IDX) const
 #endif
     if (MnInsertIdx >= IDX)
         return MvValues[MnInsertIdx - IDX];
-    const auto LnRelIDX = MnInsertIdx + MnStorageSize - IDX; // 0 + 5 - 1 == 5 - 1 == idx 4 (of size o5)
+    const auto LnRelIDX = (signed long long)MnInsertIdx + (signed long long)MnStorageSize - (signed long long)IDX; 
+    // ins + stor - FIdx
+    // 0 + 5 - 1 == 5 - 1 == idx 4 (of size o5)
+    // 2 + 5 - 4 == 3     == idx 3 (of size o5)
     return MvValues[LnRelIDX];
 }
 
@@ -461,6 +464,9 @@ DXF void RA::Stats::operator<<(const double FnValue)
     
     if (MvValues)
         MvValues[MnInsertIdx] = MnValue;
+
+    if (MoJoinery.MnSize && !MoJoinery.MbFilled)
+        return; // you don't want half-filled joinery to impact deviations
 
     if (!MnStorageSize || !MvValues)
     {
@@ -568,5 +574,8 @@ DXF void RA::Stats::TheJoinery::InsertNum(const double FnNum)
     if (MnIdx < MnSize - 1)
         MnIdx++;
     else
+    {
         MnIdx = 0;
+        MbFilled = true;
+    }
 }

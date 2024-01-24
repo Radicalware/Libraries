@@ -25,7 +25,7 @@ set(PublicLibs "")
 list(APPEND PublicLibs "AES")
 
 BuildRadicalSolution(PrivateLibs PublicLibs)
-target_link_libraries(${THIS} 
+target_link_libraries(${THIS}
     OpenSSL::SSL 
     OpenSSL::Crypto
 )
