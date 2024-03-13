@@ -6,7 +6,7 @@ namespace Example
 {
     void Interval()
     {
-		auto LoInterval = IntervalMap<int, char>('A');
+        auto LoInterval = IntervalMap<int, char>('A');
         LoInterval.Assign(01, 02, 'B');
         LoInterval.Assign(05, 10, 'C');
         LoInterval.Assign(20, 30, 'D');
