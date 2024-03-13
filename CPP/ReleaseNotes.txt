@@ -4,6 +4,15 @@
 
 ---------------------------------------------------------------------
 
+3/13/2024 >> Libs v24.0.0
+
+Created the Mirror Object which helps with backwards referencing
+contained objects. The examples shows how it can also be used
+with an Interval Map. Version jump was a correction to the missed
+QtImage module that makes this 24 libs.
+
+---------------------------------------------------------------------
+
 09/24/2023 >> Libs v22.0.6
 
 Updated Stats so it now works with the GPU. Joinery is in beta 

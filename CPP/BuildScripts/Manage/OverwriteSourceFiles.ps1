@@ -15,7 +15,7 @@ $GPU                 = 'GPU'
 Write-Host "Copying Project Folders: "
 Write-Host "1. GeneralPurposeLibs :  Macros, Nexus, Socket"
 Write-Host "                         AES, Iterator, Timer, Date"
-Write-Host "                         OS, SYS, Stash, JSON"
+Write-Host "                         OS, SYS, Stash, JSON, Mirror"
 Write-Host "2. ExtendedSTL         : Memory, xvector, xstring, xmap"
 Write-Host "3. FunctionalSTL       : re, ac, mc"
 Write-Host "4. ModdedObjects       : cc"
@@ -88,6 +88,7 @@ $handler.CopyLib("Date")
 $handler.CopyLib("JSON")
 $handler.CopyLib("Stash")
 $handler.CopyLib("AES")
+$handler.CopyLib("Mirror")
 
 $handler.dir = $ExtendedSTL
 $handler.CopyLib("Memory")

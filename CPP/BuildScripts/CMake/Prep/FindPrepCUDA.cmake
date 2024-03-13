@@ -58,6 +58,7 @@ function(ConfigCUDA BINARY)
         target_compile_options(${BINARY} PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:
                                -std=c++20
                                -D"UsingNVCC=\"1\""
+                               -DPARALLEL
                                -rdc=true
                                -dlink
                                -g
@@ -80,6 +81,7 @@ function(ConfigCUDA BINARY)
         target_compile_options(${BINARY} PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:
                                -std=c++20
                                -D"UsingNVCC=\"1\""
+                               -DPARALLEL
                                -rdc=true
                                -dlink
                                -diag-suppress=1394

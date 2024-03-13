@@ -65,9 +65,10 @@ if(WIN32) # --------------------------------------------------------------------
     set(C_ARGS   "${CPP_ARGS} ${C_ARGS}")
     set(C_ARGS "  ${C_ARGS}   /std:c17")
     set(CMAKE_CXX_STANDARD 20)
-    set(CPP_ARGS "${CPP_ARGS} /std:c++20 /EHsc /MP") # once CUDA got C++20 support, I stopped supporting C++17
+    set(CPP_ARGS "${CPP_ARGS} /std:c++20 /EHsc /MP /DPARALLEL")
     # MP = Multp Processing = build using mutiple threads
     # TP = Treat all files as cPP files
+    # /DPARALLEL supports C++20 threading
     # add_link_options("/ignore:4099") # Ignore PDB Warnings
     # add_link_options("/ignore:4204") # Ignore PDB Warnings
     # add_link_options("/INCREMENTAL:NO")

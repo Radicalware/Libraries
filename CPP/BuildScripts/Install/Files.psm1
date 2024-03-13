@@ -26,6 +26,7 @@ class Files
         "../../GeneralPurposeLibs/JSON/install.ps1",
         "../../GeneralPurposeLibs/Stash/install.ps1",
         "../../GeneralPurposeLibs/AES/install.ps1",
+        "../../GeneralPurposeLibs/Mirror/install.ps1",
         
         "../../GPU/CudaImport/install.ps1"
         "../../GPU/CudaBridge/install.ps1"
@@ -55,6 +56,7 @@ class Files
         "../../GeneralPurposeLibs/Date/Examples/run.ps1",
         "../../GeneralPurposeLibs/Stash/Examples/run.ps1",
         "../../GeneralPurposeLibs/AES/Examples/run.ps1",
+        "../../GeneralPurposeLibs/Mirror/Examples/run.ps1",
 
         "../../GPU/CudaBridge/Examples/run.ps1"
         "../../GPU/Cipher/Examples/CudaExamples/run.ps1"

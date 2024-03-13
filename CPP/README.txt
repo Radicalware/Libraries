@@ -41,12 +41,13 @@ GeneralPurposeLibs
     18. JSON        - Moves data between API JSON and DB BSON
     19. Stash       - Easy tool to manage your Mongo DB
     20. AES         - Manage AES Cipher Text for Password Managment
+    21. Mirror      - Forwards & Backwards Indexing container
 ModdedObjects
-    21. cc          - A modified version of termcolor by Ihor Kalnytskyi
-    22. re2         - Modded version deleted in favor of vcpkg's version
+    22. cc          - A modified version of termcolor by Ihor Kalnytskyi
+    23. re2         - Modded version deleted in favor of vcpkg's version
 Modules
     Qt
-        21. QtImage - Formats the image to fill and perserve aspect ratio
+        24. QtImage - Formats the image to fill and perserve aspect ratio
 
 --------------------------------------------------------------------------------------------
 On Nix, add the following to your bash env (bashrc/bash_profile/etc)

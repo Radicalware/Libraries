@@ -118,7 +118,8 @@ public:
     template<typename K, typename V, typename F, typename ...A>     RIN std::unordered_map<K, V> ForEach(F&& FfFunction, A&& ...Args) const;
     // multi-threaded const & non-const
 
-    template<typename N = E, typename F, typename... A>             RIN xvector<N> ForEachThread(F&& FfFunction, A&& ...Args);
+    template<typename N = E, typename F>                            RIN xvector<N> ForEachThread(F&& FfFunction);
+    template<typename N = E, typename F, typename A, typename ...B> RIN xvector<N> ForEachThread(F&& FfFunction, A&& FoFirst, B&& ...FoRest);
     //template<typename K, typename V, typename F, typename ...A>     RIN std::unordered_map<K, V> ForEachThread(F&& FfFunction, A&& ...Args) const;
 
     template<typename N = E, typename F, typename... A>             RIN void StartTasks(F&& FfFunction, A&& ...Args);
@@ -579,21 +580,29 @@ RIN std::unordered_map<K, V> ValXVector<T>::ForEach(F&& FfFunction, A&& ...Args)
 }
 
 template<typename T>
-template<typename N, typename F, typename ...A>
-RIN xvector<N> ValXVector<T>::ForEachThread(F&& FfFunction, A&& ...Args)
+template<typename N, typename F>
+RIN xvector<N> ValXVector<T>::ForEachThread(F&& FfFunction)
 {
 #ifdef UsingMSVC
-    if constexpr (sizeof...(Args) == 0)
+    //if constexpr (sizeof...(Args) == 0)
         return The.ForEachThreadUnseq<N>(FfFunction);
-#endif // UsingMSVC
+#else
+    auto Err = std::string("Can't use: " __CLASS__);
+    cout << Err << endl;
+    throw Err;
+#endif
+}
 
-
+template<typename T>
+template<typename N, typename F, typename A, typename ...B>
+RIN xvector<N> ValXVector<T>::ForEachThread(F&& FfFunction, A&& FoFirst, B&& ...FoRest)
+{
     if constexpr (IsSame(N, T))
     {
         SSET(MoNexus, MKP<Nexus<T>>());
         MoNexus.Disable();
         for (typename xvector<E>::iterator it = The.begin(); it != The.end(); it++)
-            MoNexus.AddTaskVal(FfFunction, *it, std::ref(Args)...);
+            MoNexus.AddTaskVal(FfFunction, *it, std::ref(FoFirst), std::ref(FoRest)...);
         MoNexus.Enable();
         return MoNexus.GetAllPtrs();
     }
@@ -602,12 +611,11 @@ RIN xvector<N> ValXVector<T>::ForEachThread(F&& FfFunction, A&& ...Args)
         Nexus<N> LoNexus;
         LoNexus.Disable();
         for (typename xvector<E>::iterator it = The.begin(); it != The.end(); it++)
-            LoNexus.AddTaskVal(FfFunction, *it, std::ref(Args)...);
+            LoNexus.AddTaskVal(FfFunction, *it, std::ref(FoFirst), std::ref(FoRest)...);
         LoNexus.Enable();
         return LoNexus.GetAllPtrs();
     }
 }
-
 
 //template<typename T>
 //template<typename K, typename V, typename F, typename ...A>

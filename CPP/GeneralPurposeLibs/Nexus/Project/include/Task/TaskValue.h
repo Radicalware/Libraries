@@ -145,7 +145,7 @@ RIN bool TaskValueAPI::operator==(const Task<T>& Other) const
 
 // Below are NOT Member Functions
 template<typename T>
-std::ostream& operator<<(std::ostream& out, Task<T>& FoTask)
+std::ostream& operator<<(std::ostream& out, const Task<T>& FoTask)
 {
     out << FoTask.GetValue();
     return out;
