@@ -36,7 +36,6 @@ public:
 
     template<typename T>
     const auto& GetValue(const T& FnValue) const {
-        const auto& LoVal = The.MmKeyToValue.find(FnValue);
         return *The.MmKeyToValue.find(FnValue);
     }
 
