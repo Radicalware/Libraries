@@ -147,22 +147,22 @@ namespace std
     template<typename T>
     struct hash<Key<T>> : public BaseHashCircle<T>
     {
-        xint operator()(const Key<T>& FoCircle) const noexcept {
-            return FoCircle.GetHash();
+        xint operator()(const Key<T>& FoKey) const noexcept {
+            return FoKey.GetHash();
         }
     };
     template<typename T>
     struct hash<Key<T>*> : public BaseHashCircle<T>
     {
-        xint operator()(const Key<T>* FoCircle) const noexcept {
-            return FoCircle->GetHash();
+        xint operator()(const Key<T>* FoKey) const noexcept {
+            return FoKey->GetHash();
         };
     };
     template<typename T>
     struct hash<const Key<T>*> : public BaseHashCircle<T>
     {
-        xint operator()(const Key<T>* FoCircle) const noexcept {
-            return FoCircle->GetHash();
+        xint operator()(const Key<T>* FoKey) const noexcept {
+            return FoKey->GetHash();
         };
     };
 };
