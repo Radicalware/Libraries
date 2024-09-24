@@ -32,6 +32,12 @@ macro(BuildRadicalSolution InPrivateLibs InPublicLibs)
         endforeach()
     endif()
 
+    message("TargetLibraries ${TargetLibraries}")
+    foreach(Lib IN LISTS ${TargetLibraries})
+        message(" >> Linking Static ${Lib}")
+        target_link_libraries(${THIS} "${Lib}")
+    endforeach()
+
     if(${debug})
         message("(Debug Build)")
         # target_link_libraries(${THIS} vld.lib) # unreliable

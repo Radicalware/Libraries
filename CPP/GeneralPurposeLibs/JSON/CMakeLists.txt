@@ -21,6 +21,9 @@ list(APPEND PrivateLibs "xmap")
 
 BuildRadicalProject("STATIC" PrivateLibs "")
 
+message("using >> ${cpprestsdk_DIR}")
+
+find_package(ZLIB REQUIRED)
 find_package(cpprestsdk CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 
@@ -28,19 +31,12 @@ find_package(bson-1.0 CONFIG REQUIRED)
 find_package(bsoncxx CONFIG REQUIRED)
 find_package(mongocxx CONFIG REQUIRED)
 
-set(BSON_INCLUDE "${VCPKG_INCLUDE}/bsoncxx/v_noabi")
-list(APPEND InstalledIncludeDirs "${BSON_INCLUDE}")
-include_directories("${BSON_INCLUDE}")
-
-set(MONGO_INCLUDE "${VCPKG_INCLUDE}/mongocxx/v_noabi")
-list(APPEND InstalledIncludeDirs "${MONGO_INCLUDE}")
-include_directories("${MONGO_INCLUDE}")
-
 link_libraries(
     
     cpprestsdk::cpprest 
     cpprestsdk::cpprestsdk_zlib_internal 
     cpprestsdk::cpprestsdk_brotli_internal
+    cpprestsdk::cpprestsdk_boost_internal
 
     nlohmann_json
     nlohmann_json::nlohmann_json
@@ -48,4 +44,5 @@ link_libraries(
     mongo::bsoncxx_shared
     mongo::bson_shared
     mongo::mongocxx_shared
+
 )

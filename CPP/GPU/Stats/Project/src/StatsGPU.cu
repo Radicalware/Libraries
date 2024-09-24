@@ -46,8 +46,6 @@ void RA::StatsGPU::operator=(const StatsGPU& Other)
         MbHadFirstInsert = false;
     }
 
-    MnSlippage = Other.MnSlippage;
-
     if (Other.MoAvgPtr)
         cudaMemcpy(MoAvgPtr, Other.MoAvgPtr, sizeof(RA::AVG), cudaMemcpyDeviceToDevice);
 
@@ -71,7 +69,6 @@ void RA::StatsGPU::operator=(StatsGPU&& Other) noexcept
         MnInsertIdx = 0;
         MbHadFirstInsert = false;
     }
-    MnSlippage = Other.MnSlippage;
 
     MnStorageSize = Other.MnStorageSize;
     MbHadFirstInsert = Other.MbHadFirstInsert;

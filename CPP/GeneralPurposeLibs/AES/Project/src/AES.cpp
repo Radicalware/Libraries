@@ -2,9 +2,7 @@
 #include "AES.h"
 #include "xstring.h"
 
-#include <chrono>
 #include <openssl/evp.h>
-#include <openssl/aes.h>
 #include <openssl/err.h>
 
 RA::AES::AES(const xint FnEncryptionSize)
@@ -67,11 +65,18 @@ RA::AES& RA::AES::Encrypt()
     if (MsPlaintext.Size() > MnEncryptionSize)
         MnEncryptionSize = MsPlaintext.Size();
 
-    if (32 > MnEncryptionSize)
-        MnEncryptionSize = 32;
-
-    if (MnEncryptionSize % 2 != 0)
-        MnEncryptionSize++;
+    constexpr auto LnMinSize = 42;
+    constexpr auto LnMaxSize = 42;
+    while (MnEncryptionSize < LnMinSize || MnEncryptionSize % 2 != 0)
+    {
+        MsPlaintext += '\0';
+        ++MnEncryptionSize;
+    }
+    if (MnEncryptionSize > LnMaxSize)
+    {
+        MsPlaintext = MsPlaintext(0, LnMaxSize);
+        MsPlaintext = LnMaxSize;
+    }
 
     if (!MsPlaintext.Size())
         ThrowIt("You have no text to encrypt!");

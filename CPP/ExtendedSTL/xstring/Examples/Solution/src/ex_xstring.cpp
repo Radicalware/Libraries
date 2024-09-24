@@ -50,6 +50,8 @@ int main()
     Nexus<>::Start();
     // NOTE: All test functions are inline to make example reading easier.
 
+    cout << xstring("Class::Function_Implementation").Sub(R"((.*::)|(_Implementation))", "") << endl;
+
     Full full;
     full.Basics();
     full.add_n_join();
@@ -63,8 +65,6 @@ int main()
     option.Sub();
     option.char_count();
     option.str_count();
-
-    
 
     RescuePrint();
     Nexus<>::Stop();

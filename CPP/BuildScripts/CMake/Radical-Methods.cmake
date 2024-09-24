@@ -28,7 +28,7 @@ macro(RunSilentPowershell COMMAND)
     if(${IsWindows})
         message("powershell.exe /c ${COMMAND}")
         execute_process (
-            COMMAND powershell.exe /c ${COMMAND}
+            COMMAND powershell.exe /c "${COMMAND}"
             OUTPUT_VARIABLE Output
         )
     else()
@@ -38,23 +38,22 @@ endmacro()
 
 macro(RunPowershell COMMAND)
     RunSilentPowershell(${COMMAND})
-    message("result: ${Output}")
+    message("Output: ${Output}")
 endmacro()
 
 
 macro(RunSystemCommand COMMAND)
     if(${IsWindows})
-        message("cmd /c ${COMMAND}")
+        message("cmd /c \"${COMMAND}\"")
         execute_process (
-            COMMAND cmd /c ${COMMAND}
+            COMMAND "cmd /c \"${COMMAND}\""
             OUTPUT_VARIABLE Output
         )
     else()
         message("No Nix Support")
     endif()
-    message("result: ${Output}")
+    message("Output: ${Output}")
 endmacro()
-
 
 macro(MakeHardLink From To)
     if(${IsWindows})
@@ -70,11 +69,10 @@ endmacro()
 
 macro(MakeBinaryFileCopy From To)
     if(${IsWindows})
-        string(REPLACE "/" "\\\\" To2 ${To})
-        string(REPLACE "/" "\\\\" From2 ${From})
-        message("Making Copy")
-        set(COMMAND "copy /B ${From2} ${To2}")
-        RunSystemCommand(${COMMAND})
+        string(REPLACE "/" "\\\\" To ${To})
+        string(REPLACE "/" "\\\\" From ${From})
+        set(COMMAND "Copy-Item \"${From}\" \"${To}\" -Force")
+        RunPowershell(${COMMAND})
     else()
         message("No Nix Support")
     endif()
@@ -84,8 +82,10 @@ macro(MakeDir NewDir)
     message("Making Dir")
     if(${IsWindows})
         string(REPLACE "/" "\\\\" NewDir2 ${NewDir})
-        set(COMMAND "mkdir ${NewDir2}")
-        RunSystemCommand(${COMMAND})
+        #set(COMMAND "mkdir -p ${NewDir2}")
+        #RunSystemCommand(${COMMAND})
+        set(COMMAND "New-Item -Path ${NewDir} -ItemType Directory -Force")
+        RunPowershell(${COMMAND})
     else()
         message("No Nix Support")
     endif()
@@ -209,3 +209,20 @@ function(SetVisualStudioFilters BreakPoint Files)
     endforeach()
     set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${TargetProject})
 endfunction()
+
+
+macro(TargetLinkVulkan)
+    target_link_libraries(${THIS} 
+        vulkan-1.lib
+        kernel32.lib
+        user32.lib
+        gdi32.lib
+        winspool.lib
+        shell32.lib
+        ole32.lib
+        oleaut32.lib
+        uuid.lib
+        comdlg32.lib
+        advapi32.lib
+    )
+endmacro()

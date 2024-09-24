@@ -117,14 +117,14 @@ typedef size_t             xint;
 
 #define _my_BUGFX(x) x
 
-#define _my_NARG2(...) _my_BUGFX(_my_NARG1(__VA_ARGS__,_my_RSEQN()))
-#define _my_NARG1(...) _my_BUGFX(_my_ARGSN(__VA_ARGS__))
-#define _my_ARGSN(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,N,...) N
 #define _my_RSEQN() 9,8,7,6,5,4,3,2,1,0
+#define _my_ARGSN(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,N,...) N
+#define _my_NARG1(...) _my_BUGFX(_my_ARGSN(__VA_ARGS__))
+#define _my_NARG2(...) _my_BUGFX(_my_NARG1(__VA_ARGS__,_my_RSEQN()))
 
 #define _my_FUNC2(name,n) name ## n
 #define _my_FUNC1(name,n)   _my_FUNC2(name,n)
-#define GET_MACRO(func,...) _my_FUNC1(func,_my_BUGFX(_my_NARG2(__VA_ARGS__))) (__VA_ARGS__)
+#define GET_MACRO(__CLASS__,...) _my_FUNC1(__CLASS__,_my_BUGFX(_my_NARG2(__VA_ARGS__))) (__VA_ARGS__)
 
 #endif // !__MULTI_ARG_HANDLING
 
@@ -143,6 +143,7 @@ typedef size_t             xint;
 #define IsType(_Var_, _Type_)               IsSame(RemoveConst(RemoveRef(RemoveAllExts(decltype(_Var_)))), _Type_)
 #define IsMutexPtr(_TempObj_)               std::is_same<_TempObj_, RA::SharedPtr<RA::Mutex>>::value
 #define IsSharedPtr(_TempObj_)              RA::IsTypeSharedPtr<_TempObj_>()
+#define NotSharedPtr(_TempObj_)             RA::NotTypeSharedPtr<_TempObj_>()
 
 // Get Configs
 #define GetRankCount(_TempObj_)             std::rank<_TempObj_>::value

@@ -27,7 +27,7 @@ template<typename T> class SPtrXVector;
 class xstring;
 
 // Values (Object/Primitive)
-#define ValObjXVectorAPI  xvector<T, typename std::enable_if_t<!IsFundamental(T) && !IsPointer(T) && !IsSharedPtr(T)>>
+#define ValObjXVectorAPI  xvector<T, typename std::enable_if_t<!IsFundamental(T) && !IsPointer(T) && NotSharedPtr(T)>>
 #define ValPrimXVectorAPI xvector<T, typename std::enable_if_t< IsFundamental(T) && !IsPointer(T)>>
 template<typename T> class ValObjXVectorAPI;
 template<typename T> class ValPrimXVectorAPI;

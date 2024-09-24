@@ -62,12 +62,61 @@ void StlException()
     RescueThrow();
 }
 
+
+
+//class StaticClass
+//{
+//public:
+//    inline static void PrintLocation()
+//    {
+//        cout << "__func__     = " << __func__ << endl;
+//        cout << "__FUNCTION__ = " << __FUNCTION__ << endl;
+//        cout << "__CLASS__    = " << __CLASS__ << endl;
+//    }
+//};
+
+template<typename ... Args>
+void Printer(Args ... args) {
+    ((std::cout << args << ' '), ...);
+    std::cout << '\n';
+}
+
+template<typename ... Args>
+void Printer2(const std::string& Str, Args ... args)
+{
+    Printer(Str, ": ", std::forward<Args>(args)...);
+}
+
+void PrintDefault(const std::string& Str1, const std::string& Str2 = "") {
+    Printer2(Str1, Str2);
+}
+
+#define LogPrint(...) PrintDefault("default text", __VA_ARGS__)
+
+class StaticClass
+{
+public:
+    inline static void PrintLocation()
+    {
+        std::cout << "test print" << std::endl;
+    }
+};
+
+void PrintTest() {
+    Printer2("first text", "second text");
+    LogPrint();
+    LogPrint("log text");
+}
+
 int main() 
 {
     Nexus<>::Start(); 
 
+    StaticClass::PrintLocation();
+
+
     Begin();
-    BadFuncitonWithSSS();
+     BadFuncitonWithSSS();
     RescuePrint();
 
     Begin();
@@ -79,10 +128,14 @@ int main()
     Instance.FastCreateAndDestroy();
     RescuePrint();
 
-
     Begin();
     StlException();
     RescuePrint();
 
+    Printer2(__CLASS__, "this is text");
+    LogPrint();
+    LogPrint("log text");
+
+    cout << GREEN << "easy close" << WHITE << endl;
     return Nexus<>::Stop();
 }

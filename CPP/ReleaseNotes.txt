@@ -4,6 +4,14 @@
 
 ---------------------------------------------------------------------
 
+9/23/2024 >> Libs v24.1.0
+
+Updated the .vscode dir so it can be easily coppied to use in any
+project with Radicalware libs ready to go!! Several other update to
+the builds were patched and updated.
+
+---------------------------------------------------------------------
+
 3/13/2024 >> Libs v24.0.0
 
 Created the Mirror Object which helps with backwards referencing

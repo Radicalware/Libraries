@@ -27,6 +27,12 @@ namespace RA
 
 namespace RA
 {
+    template <class T> struct NotTypeSharedPtr : std::true_type {};
+    template <class T> struct NotTypeSharedPtr<RA::SharedPtr<T>> : std::false_type {};
+}
+
+namespace RA
+{
     template<typename T> class SharedPtr;
 
     template <typename T, typename ...A>

@@ -9,9 +9,9 @@
 
 include("${RADICAL_PATH}/Radical-Static-Libs-Methods.cmake")
 
-if(${debug})
-    add_definitions(-D_ITERATOR_DEBUG_LEVEL=2)
-endif()
+# if(${debug})
+#     add_definitions(-D_ITERATOR_DEBUG_LEVEL=0)
+# endif()
 
 if(WIN32) 
     set(RE2_LIB "re2")
@@ -28,18 +28,7 @@ if(WIN32)
     add_library(re2::re2 ALIAS ${RE2_LIB})
     set_target_properties(re2 PROPERTIES LINKER_LANGUAGE CXX)
 
-    if(WIN32)
-        if(${IsApp})
-            set(OUTPUT_DIR "${CMAKE_SOURCE_DIR}/Build/${OS_TYPE}/${BUILD_TYPE}/${BUILD_TYPE}/lib")
-        else()
-            set(OUTPUT_DIR "${CMAKE_SOURCE_DIR}/Build/${OS_TYPE}/${BUILD_TYPE}/${BUILD_TYPE}")
-        endif()
-    else()
-        set(OUTPUT_DIR "${CMAKE_SOURCE_DIR}/Build/${OS_TYPE}/${BUILD_TYPE}/lib")    
-    endif()
-
     if(${BuildAll})
-        MakeDir(${OUTPUT_DIR})
         MakeBinaryFileCopy(${RE2_LIB_PATH} "${OUTPUT_DIR}/${PF}${RE2_LIB}.${ST}")
     else()
         MakeBinaryFileCopy(${RE2_LIB_PATH} "${EXT_BIN_PATH}/lib/${PF}${RE2_LIB}.${ST}")

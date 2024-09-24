@@ -34,4 +34,12 @@ Set-Location "C:\Source\Radicalware\Libraries\GPU\Stats"
 
 Copy-Item -Force .\FindHostStats.cmake C:\Source\CMake\Modules
 
+$FromApplications = "C:\Source\CMake\Radicalware\Applications\Build\Debug\lib\HostStats.lib"
+$ToLibs           = "C:\Source\CMake\Radicalware\Libraries\Build\Debug\lib\HostStats.lib"
+New-Item -Path $ToLibs -ItemType HardLink -Target $FromApplications -Force
+
+
+$FromApplications = "C:\Source\CMake\Radicalware\Applications\Build\Release\lib\HostStats.lib"
+$ToLibs           = "C:\Source\CMake\Radicalware\Libraries\Build\Release\lib\HostStats.lib"
+New-Item -Path $ToLibs -ItemType HardLink -Target $FromApplications -Force
 

@@ -167,11 +167,9 @@ foreach(EXE ${EXES})
 
         PrintEXEsAndDLLs()
 
-        if(${debug})
-            target_link_libraries(${THIS} ${VLD_TARGET})
-        endif()
         set_target_properties(${EXE} PROPERTIES COMPILE_DEFINITIONS DLL_EXPORT=1)
         LinkStatic(${EXE} re2)
+        LinkStatic(${EXE} vld)
 endforeach()
 message("====================================")
 

@@ -4,6 +4,12 @@
 
 #include "RawMapping.h"
 
+// Concept to check if a type is a smart pointer
+template <typename T>
+concept ConXPointer = requires(T t) {
+    { *t } -> std::same_as<typename T::element_type&>;
+};
+
 namespace RA
 {
     template<typename T> class SharedPtr;

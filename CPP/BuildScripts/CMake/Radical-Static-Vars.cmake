@@ -54,7 +54,11 @@ if(WIN32) # --------------------------------------------------------------------
     SET(INSTALL_PREFIX "${RADICAL_BASE}")
     SET(INSTALL_DIR    "${RADICAL_BASE}/Libraries/Projects")
 
-    set(Vulkan_INCLUDE_DIR "${VCPKG_INCLUDE}/vulkan")
+    
+    link_directories("$ENV{VULKAN_SDK}/lib")
+    set(VULKAN_CMAKE_DIR   "C:/a/Vulkan-Hpp")
+    set(VULKAN_INCLUDE_DIR "${VULKAN_CMAKE_DIR}/Vulkan-Headers/include")
+    set(VULKAN_HPP_PATH    "${VULKAN_INCLUDE_DIR}")
     find_path(VULKAN_HEADERS_INCLUDE_DIRS "${Vulkan_INCLUDE_DIR}/vulkan.hpp")
 
     # BUILD_DIR   = ready to install cpp files
@@ -118,7 +122,11 @@ if(NOT DEFINED CUDA_VERSION)
     set(VCPKG_INCLUDE         "${VCPKG_ROOT}/installed/x64-windows/include")
 endif()
 
-
+if(${debug})
+    add_definitions(-D_ITERATOR_DEBUG_LEVEL=2)
+else()
+    add_definitions(-D_ITERATOR_DEBUG_LEVEL=0)
+endif()
 
 # ------------------------- MODIFY VALUES ABOVE --------------------------------------
 
@@ -138,9 +146,14 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release")
         set(${CPP_ARGS} " ${CPP_ARGS} -O2")
         set(C_ARGS      " ${C_ARGS}   -O2")
     endif()
-elseif(NOT WIN32) # and debug
-    #set(${CPP_ARGS} " ${CPP_ARGS} -g3 -ggdb")
-    #set(${C_ARGS}   " ${C_ARGS}   -g3 -ggdb")
+elseif(else) # debug
+    if(WIN32)
+        set(${CPP_ARGS} " ${CPP_ARGS} /Od /Zi /MDd")
+        set(C_ARGS      " ${C_ARGS}   /Od /Zi /MDd")
+    else()
+        set(${CPP_ARGS} " ${CPP_ARGS} -g3 -ggdb")
+        set(C_ARGS      " ${C_ARGS}   -g3 -ggdb")
+    endif()
 endif()
 
 if(BuildAll STREQUAL "ON" OR CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -161,6 +174,23 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(installed_libs) # Used to link targets and set dependencies
 
 include_directories("${VCPKG_INCLUDE}")
+include_directories("${VULKAN_INCLUDE_DIR}")
+
+if(WIN32)
+    if(${IsApp})
+        set(OUTPUT_DIR "${CMAKE_SOURCE_DIR}/Build/${OS_TYPE}/${BUILD_TYPE}/${BUILD_TYPE}/lib")
+    else()
+        set(OUTPUT_DIR "${CMAKE_SOURCE_DIR}/Build/${OS_TYPE}/${BUILD_TYPE}/${BUILD_TYPE}")
+    endif()
+else()
+    set(OUTPUT_DIR "${CMAKE_SOURCE_DIR}/Build/${OS_TYPE}/${BUILD_TYPE}/lib")    
+endif()
+
+if(${BuildAll})
+    MakeDir("${OUTPUT_DIR}")
+else()
+    MakeDir("${EXT_BIN_PATH}/lib")
+endif()
 
 # --------------- DON'T MODIFY (CALCULATED) ------------------------------------------
 

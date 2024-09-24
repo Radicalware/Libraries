@@ -32,13 +32,14 @@ namespace BSON
 {
     using Document = bsoncxx::builder::stream::document;
     using Start    = bsoncxx::builder::stream::document;
-    constexpr bsoncxx::builder::stream::finalize_type Finish;
 
-    constexpr bsoncxx::builder::stream::open_document_type  OpenDoc;
-    constexpr bsoncxx::builder::stream::close_document_type CloseDoc;
+    constexpr decltype(bsoncxx::builder::stream::finalize) Finish;
 
-    constexpr bsoncxx::builder::stream::open_array_type  OpenArray;
-    constexpr bsoncxx::builder::stream::close_array_type CloseArray;
+    constexpr decltype(bsoncxx::builder::stream::open_document)  OpenDoc;
+    constexpr decltype(bsoncxx::builder::stream::close_document) CloseDoc;
+
+    constexpr decltype(bsoncxx::builder::stream::open_array)  OpenArray;
+    constexpr decltype(bsoncxx::builder::stream::close_array) CloseArray;
 
     using Value = bsoncxx::document::value;
     using View = bsoncxx::document::view;
