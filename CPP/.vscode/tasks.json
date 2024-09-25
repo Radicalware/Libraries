@@ -1,11 +1,12 @@
 {
+	// Make sure you run vcvars64.bat BEFORE running "code <path to program>"
 	"version": "2.0.0",
 	"tasks": [
 		{
 			"detail": "RA-Debug MSVC C++20",
 			"label":  "RA-Debug MSVC C++20",
 			"type": "shell",
-			"command": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.40.33807\\bin\\HostX64\\x64\\cl.exe",
+			"command": "cl.exe",
 			"args": [
 				"/nologo",
 				"/EHsc",
@@ -84,7 +85,7 @@
 			"detail": "RA-Release MSVC C++20",
 			"label":  "RA-Release MSVC C++20",
 			"type": "shell",
-			"command": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.40.33807\\bin\\HostX64\\x64\\cl.exe",
+			"command": "cl.exe",
 			"args": [
 				"/nologo",
 				"/EHsc",
@@ -161,7 +162,7 @@
 			"detail": "STD-Release MSVC C++20",
 			"label":  "STD-Release MSVC C++20",
 			"type": "shell",
-			"command": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.40.33807\\bin\\HostX64\\x64\\cl.exe",
+			"command": "cl.exe",
 			"args": [
 				"/nologo",
 				"/EHsc",
@@ -189,7 +190,7 @@
 			"detail": "STD-Debug MSVC C++20",
 			"label":  "STD-Debug MSVC C++20",
 			"type": "shell",
-			"command": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.40.33807\\bin\\HostX64\\x64\\cl.exe",
+			"command": "cl.exe",
 			"args": [
 				"/nologo",
 				"/EHsc",

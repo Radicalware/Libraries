@@ -5,6 +5,7 @@
 #include "Option.h"
 #include "Macros.h"
 
+#include <iostream>
 #include <vld.h>
 /// note: google's RE2 has very bad memory leaks, I will need to probably
 /// need to switch to pearl regex later and see if that fixes it.
