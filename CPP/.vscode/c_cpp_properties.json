@@ -1,48 +1,49 @@
 {
-    "configurations": [
-        {
-            "name": "Win32",
-            "includePath": [
-                "${workspaceFolder}/**",
-                "C:/Source/CMake/Radicalware/Libraries/Projects/AC/include",
-                "C:/Source/CMake/Radicalware/Libraries/Projects/AES/include",
-                "C:/Source/CMake/Radicalware/Libraries/Projects/CC/include",
-                "C:/Source/CMake/Radicalware/Libraries/Projects/Cipher/include",
-                "C:/Source/CMake/Radicalware/Libraries/Projects/CudaBridge/include",
-                "C:/Source/CMake/Radicalware/Libraries/Projects/Date/include",
-                "C:/Source/CMake/Radicalware/Libraries/Projects/HostCipher/include",
-                "C:/Source/CMake/Radicalware/Libraries/Projects/HostStats/include",
-                "C:/Source/CMake/Radicalware/Libraries/Projects/ImportCUDA/include",
-                "C:/Source/CMake/Radicalware/Libraries/Projects/Iterator/include",
-                "C:/Source/CMake/Radicalware/Libraries/Projects/JSON/include",
-                "C:/Source/CMake/Radicalware/Libraries/Projects/Macros/include",
-                "C:/Source/CMake/Radicalware/Libraries/Projects/MC/include",
-                "C:/Source/CMake/Radicalware/Libraries/Projects/Memory/include",
-                "C:/Source/CMake/Radicalware/Libraries/Projects/Mirror/include",
-                "C:/Source/CMake/Radicalware/Libraries/Projects/Nexus/include",
-                "C:/Source/CMake/Radicalware/Libraries/Projects/OS/include",
-                "C:/Source/CMake/Radicalware/Libraries/Projects/RE/include",
-                "C:/Source/CMake/Radicalware/Libraries/Projects/re2/include",
-                "C:/Source/CMake/Radicalware/Libraries/Projects/Socket/include",
-                "C:/Source/CMake/Radicalware/Libraries/Projects/Stash/include",
-                "C:/Source/CMake/Radicalware/Libraries/Projects/Stats/include",
-                "C:/Source/CMake/Radicalware/Libraries/Projects/SYS/include",
-                "C:/Source/CMake/Radicalware/Libraries/Projects/Timer/include",
-                "C:/Source/CMake/Radicalware/Libraries/Projects/xmap/include",
-                "C:/Source/CMake/Radicalware/Libraries/Projects/xstring/include",
-                "C:/Source/CMake/Radicalware/Libraries/Projects/xvector/include"
-            ],
-            "defines": [
-                "_DEBUG",
-                "UNICODE",
-                "_UNICODE"
-            ],
-            "windowsSdkVersion": "10.0.22621.0",
-            "compilerPath": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.40.33807\\bin\\HostX64\\x64\\cl.exe",
-            "cStandard": "c23",
-            "cppStandard": "c++20",
-            "intelliSenseMode": "windows-msvc-x64"
-        }
-    ],
-    "version": 4
+  // Make sure you run vcvars64.bat BEFORE running "code <path to workspace>"
+  "configurations": [
+    {
+      "name": "windows-msvc-x64",
+      "includePath": [
+        "${workspaceFolder}/**",
+        "C:/Source/CMake/Radicalware/Libraries/Projects/AC/include",
+        "C:/Source/CMake/Radicalware/Libraries/Projects/AES/include",
+        "C:/Source/CMake/Radicalware/Libraries/Projects/CC/include",
+        "C:/Source/CMake/Radicalware/Libraries/Projects/Cipher/include",
+        "C:/Source/CMake/Radicalware/Libraries/Projects/CudaBridge/include",
+        "C:/Source/CMake/Radicalware/Libraries/Projects/Date/include",
+        "C:/Source/CMake/Radicalware/Libraries/Projects/HostCipher/include",
+        "C:/Source/CMake/Radicalware/Libraries/Projects/HostStats/include",
+        "C:/Source/CMake/Radicalware/Libraries/Projects/ImportCUDA/include",
+        "C:/Source/CMake/Radicalware/Libraries/Projects/Iterator/include",
+        "C:/Source/CMake/Radicalware/Libraries/Projects/JSON/include",
+        "C:/Source/CMake/Radicalware/Libraries/Projects/Macros/include",
+        "C:/Source/CMake/Radicalware/Libraries/Projects/MC/include",
+        "C:/Source/CMake/Radicalware/Libraries/Projects/Memory/include",
+        "C:/Source/CMake/Radicalware/Libraries/Projects/Mirror/include",
+        "C:/Source/CMake/Radicalware/Libraries/Projects/Nexus/include",
+        "C:/Source/CMake/Radicalware/Libraries/Projects/OS/include",
+        "C:/Source/CMake/Radicalware/Libraries/Projects/RE/include",
+        "C:/Source/CMake/Radicalware/Libraries/Projects/re2/include",
+        "C:/Source/CMake/Radicalware/Libraries/Projects/Socket/include",
+        "C:/Source/CMake/Radicalware/Libraries/Projects/Stash/include",
+        "C:/Source/CMake/Radicalware/Libraries/Projects/Stats/include",
+        "C:/Source/CMake/Radicalware/Libraries/Projects/SYS/include",
+        "C:/Source/CMake/Radicalware/Libraries/Projects/Timer/include",
+        "C:/Source/CMake/Radicalware/Libraries/Projects/xmap/include",
+        "C:/Source/CMake/Radicalware/Libraries/Projects/xstring/include",
+        "C:/Source/CMake/Radicalware/Libraries/Projects/xvector/include"
+      ],
+      "defines": [
+        "_DEBUG",
+        "UNICODE",
+        "_UNICODE"
+      ],
+      "windowsSdkVersion": "10.0.22621.0",
+      "compilerPath": "cl.exe",
+      "cStandard": "c11",
+      "cppStandard": "${default}",
+      "intelliSenseMode": "windows-msvc-x64"
+    }
+  ],
+  "version": 4
 }
