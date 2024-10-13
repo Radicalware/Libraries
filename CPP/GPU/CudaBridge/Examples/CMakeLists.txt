@@ -7,9 +7,6 @@ else()
 endif()
 include("${RADICAL_PATH}/Radical-App-Build.cmake")
 
-
-set(CUDA_VERSION "12.0")
-set(CUDA_GPU 61)
 find_package(PrepCUDA REQUIRED)
 
 set(THIS ${ArgProjectName})

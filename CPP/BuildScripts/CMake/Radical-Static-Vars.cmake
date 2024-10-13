@@ -31,6 +31,9 @@ endif()
 set(CMAKE_CXX_IGNORE_EXTENSIONS      "${CMAKE_CXX_IGNORE_EXTENSIONS};txt;rc")
 set(CMAKE_CXX_SOURCE_FILE_EXTENSIONS "${CMAKE_CXX_SOURCE_FILE_EXTENSIONS};cuh;cu")
 
+set(CUDA_VERSION "12.6")
+set(CUDA_GPU 61)
+
 if(WIN32) # ----------------------------------------------------------------------------
 
     set(OS_TYPE "Windows")

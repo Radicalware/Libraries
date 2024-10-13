@@ -39,7 +39,6 @@ include("${RADICAL_PATH}/Radical-App-Config.cmake")
 
 project(${THIS})
 #project(${THIS} LANGUAGES CXX CUDA) # TODO: RE-ADD
-set(CUDA_VERSION "11.3")
 #find_package(PrepareCuda) # TODO: RE-ADD
 
 SetLocalInstallDirs()

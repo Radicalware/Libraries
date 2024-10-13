@@ -16,8 +16,6 @@ set(THIS ${ArgProjectName})
 # ------------------------------------
 #project(${THIS})
 # ------------------------------------
-set(CUDA_VERSION "12.0")
-set(CUDA_GPU 61)
 find_package(PrepCUDA)
 project(${THIS} LANGUAGES CXX CUDA)
 # ------------------------------------

@@ -11,8 +11,6 @@ include("${RADICAL_PATH}/Radical-App-Build.cmake")
 set(THIS ${ArgProjectName})
 project(${THIS})
 # ------------------------------------
-#set(CUDA_VERSION "12.0")
-#set(CUDA_GPU 61)
 #find_package(PrepCUDA REQUIRED)
 
 #set(THIS ${ArgProjectName})
