@@ -33,6 +33,8 @@ void RA::StatsGPU::operator=(const StatsGPU& Other)
 {
     Begin();
     MeHardware = EHardware::GPU;
+    MnMin = Other.MnMin;
+    MnMax = Other.MnMax;
     if (Other.MvValues && Other.MnStorageSize)
     {
         Allocate(Other.MnStorageSize, 1);

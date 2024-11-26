@@ -461,7 +461,7 @@ RIN auto Nexus<T>::GetAllPtrs()
     The.WaitAll();
     auto Lock = MoThreadMtx.CreateLock();
 
-    if constexpr (IsSharedPtr(T)){
+    if constexpr (BxSharedPtr(T)){
         return ContGetAllPtrs<T, T>();
     }
     else{
@@ -485,7 +485,7 @@ RIN std::vector<T> Nexus<T>::GetMoveAllIndices()
         catch (...){
             throw "Nexus Task Exception Thrown\n";
         }
-        if constexpr (IsFundamental(T))
+        if constexpr (BxFundamental(T))
             Captures.push_back(LoTask.GetValue());
         else
             Captures.push_back(std::move(LoTask.GetValue()));

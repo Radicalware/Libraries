@@ -36,26 +36,26 @@ namespace RA
     template<typename T> class SharedPtr;
 
     template <typename T, typename ...A>
-    _NODISCARD std::enable_if_t<!IsArray(T) && !IsPointer(T) && !IsFundamental(T), SharedPtr<T>>
+    _NODISCARD std::enable_if_t<!BxArray(T) && !BxPointer(T) && !BxFundamental(T), SharedPtr<T>>
         CIN MakeShared(A&&... Args);
 
 #if _HAS_CXX20 // ------------------------------------------------------------------------------------------
     template<typename T> class SharedPtr<T[]>;
     template <typename T>
-    _NODISCARD std::enable_if_t<IsArray(T) && !IsPointer(T) &&  IsFundamental(RemoveAllExts(T)), SharedPtr<RemoveExt(T)[]>>
+    _NODISCARD std::enable_if_t<BxArray(T) && !BxPointer(T) &&  BxFundamental(RemoveAllExts(T)), SharedPtr<RemoveExt(T)[]>>
         CIN MakeShared(const xint FnLeng);
 
     template <typename T, typename ...A>
-    _NODISCARD std::enable_if_t<IsArray(T) && !IsPointer(T) && !IsFundamental(RemoveAllExts(T)), SharedPtr<RemoveExt(T)[]>>
+    _NODISCARD std::enable_if_t<BxArray(T) && !BxPointer(T) && !BxFundamental(RemoveAllExts(T)), SharedPtr<RemoveExt(T)[]>>
         CIN MakeShared(const xint FnLeng, A&&... Args);
 #else // ---------------------------------------------------------------------------------------------------
     template<typename T> class SharedPtr<T*>;
     template <typename PA>
-    _NODISCARD std::enable_if_t<IsPointer(PA) && IsFundamental(RemovePtr(PA)), SharedPtr<RemovePtr(PA)*>>
+    _NODISCARD std::enable_if_t<BxPointer(PA) && BxFundamental(RemovePtr(PA)), SharedPtr<RemovePtr(PA)*>>
         CIN MakeShared(const xint FnLeng);
 
     template <typename PA, typename ...A>
-    _NODISCARD std::enable_if_t<IsPointer(PA) && !IsFundamental(RemovePtr(PA)), SharedPtr<RemovePtr(PA)*>>
+    _NODISCARD std::enable_if_t<BxPointer(PA) && !BxFundamental(RemovePtr(PA)), SharedPtr<RemovePtr(PA)*>>
         CIN MakeShared(const xint FnLeng, A&&... Args);
 #endif
 }
@@ -63,7 +63,7 @@ namespace RA
 // =========================================================================================================
 
 template <typename T, typename ...A>
-_NODISCARD std::enable_if_t<!IsArray(T) && !IsPointer(T) && !IsFundamental(T), RA::SharedPtr<T>>
+_NODISCARD std::enable_if_t<!BxArray(T) && !BxPointer(T) && !BxFundamental(T), RA::SharedPtr<T>>
 CIN RA::MakeShared(A&&... Args)
 {
     return std::make_shared<T>(std::forward<A>(Args)...);
@@ -71,7 +71,7 @@ CIN RA::MakeShared(A&&... Args)
 
 #if _HAS_CXX20 
 template <typename T>
-_NODISCARD std::enable_if_t<IsArray(T) && !IsPointer(T) && IsFundamental(RemoveAllExts(T)), RA::SharedPtr<RemoveExt(T)[]>>
+_NODISCARD std::enable_if_t<BxArray(T) && !BxPointer(T) && BxFundamental(RemoveAllExts(T)), RA::SharedPtr<RemoveExt(T)[]>>
 CIN RA::MakeShared(const xint FnLeng)
 {
     RA::SharedPtr<RemoveExt(T)[]> Ptr = std::_Make_shared_unbounded_array<T>(FnLeng + 1);
@@ -82,7 +82,7 @@ CIN RA::MakeShared(const xint FnLeng)
 }
 
 template <typename T, typename ...A>
-_NODISCARD std::enable_if_t<IsArray(T) && !IsPointer(T) && !IsFundamental(RemoveAllExts(T)), RA::SharedPtr<RemoveExt(T)[]>>
+_NODISCARD std::enable_if_t<BxArray(T) && !BxPointer(T) && !BxFundamental(RemoveAllExts(T)), RA::SharedPtr<RemoveExt(T)[]>>
 CIN RA::MakeShared(const xint FnLeng, A&&... Args)
 {
     RA::SharedPtr<RemoveExt(T)[]> Ptr = std::_Make_shared_unbounded_array<T>(FnLeng);
@@ -97,14 +97,14 @@ CIN RA::MakeShared(const xint FnLeng, A&&... Args)
 }
 #else // ---------------------------------------------------------------------------------------------------
 template <typename PA>
-_NODISCARD std::enable_if_t<IsPointer(PA) && IsFundamental(RemovePtr(PA)), RA::SharedPtr<RemovePtr(PA)*>>
+_NODISCARD std::enable_if_t<BxPointer(PA) && BxFundamental(RemovePtr(PA)), RA::SharedPtr<RemovePtr(PA)*>>
 CIN RA::MakeShared(const xint FnLeng)
 {
     return RA::SharedPtr<RemovePtr(PA)*>(FnLeng + 1);
 }
 
 template <typename PA, typename ...A>
-_NODISCARD std::enable_if_t<IsPointer(PA) && !IsFundamental(RemovePtr(PA)), RA::SharedPtr<RemovePtr(PA)*>>
+_NODISCARD std::enable_if_t<BxPointer(PA) && !BxFundamental(RemovePtr(PA)), RA::SharedPtr<RemovePtr(PA)*>>
 CIN RA::MakeShared(const xint FnLeng, A&&... Args)
 {
     return RA::SharedPtr<RemovePtr(PA)*>(FnLeng, std::forward<A>(Args)...);

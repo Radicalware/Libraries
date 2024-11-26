@@ -67,10 +67,38 @@ void TestSharedPtr()
     Rescue();
 }
 
+constexpr bool TAppx(const double& FnFirst, const double& FnSecond, const double FnAcceptibleRange)
+{
+    if (FnFirst > 1 && FnSecond > 1)
+    {
+        const auto LnMax    = RA::Max(FnFirst, FnSecond);
+        const auto LnFirst  = RA::Abs(FnFirst) / LnMax;
+        const auto LnSecond = RA::Abs(FnSecond) / LnMax;
+        const auto LnDiff = LnFirst - LnSecond;
+        return FnAcceptibleRange > LnDiff;
+    }
+    else
+    {
+        const auto LnDiff = RA::Abs(FnFirst - FnSecond);
+        return FnAcceptibleRange > LnDiff;
+    }
+}
+
 int main()
 {
     Nexus<>::Start();
     Begin();
+
+    //cout << TAppx(-0.49949794522830704,
+    //                 -0.49949794522823088,
+    //                1e-10) << endl;
+
+
+
+    cout << TAppx(49949794.522830704,
+                  49949794.522823088,
+                1e-10) << endl;
+
 
     TestSharedPtr();
     //TestClone();

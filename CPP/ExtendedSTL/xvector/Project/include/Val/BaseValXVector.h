@@ -597,7 +597,7 @@ template<typename T>
 template<typename N, typename F, typename A, typename ...B>
 RIN xvector<N> ValXVector<T>::ForEachThread(F&& FfFunction, A&& FoFirst, B&& ...FoRest)
 {
-    if constexpr (IsSame(N, T))
+    if constexpr (BxSameType(N, T))
     {
         SSET(MoNexus, MKP<Nexus<T>>());
         MoNexus.Disable();

@@ -35,15 +35,15 @@
 #include <memory>
 #include <sstream>
 #include <string>
-#include <exception>
 #include <cctype>
 #include <random>
+#include <exception>
+#include <assert.h>
 
 using std::set;
 using std::cout;
 using std::endl;
 using std::wcout;
-
 
 // -----------------------------------------------------------------------------------------------------------------------------
 // Microsoft CPP Rest API
@@ -378,6 +378,31 @@ namespace RA
     throw RA::BindStr("\n  >>> ......... ", __CLASS__, " (", __LINE__, ")  " \
                        ,"\n  >>> ......... ", __VA_ARGS__)
 
+
+#define AssertEqualDbl(...) GET_MACRO(AssertEqualDbl, void(),__VA_ARGS__)
+#define AssertEqualDbl2(VD,_VAL1_, _VAL2_) \
+    if (!RA::Appx(_VAL1_, _VAL2_)){ \
+        ThrowIt("(", #_VAL1_, " != ", #_VAL2_, ")(", _VAL1_, " != ", _VAL2_, ")"); \
+    }
+#define AssertEqualDbl3(VD,_VAL1_, _VAL2_,_Clearance_) \
+    if (!RA::Appx(_VAL1_, _VAL2_,_Clearance_)){ \
+        ThrowIt("(", #_VAL1_, " != ", #_VAL2_, ")(", _VAL1_, " != ", _VAL2_, ")"); \
+    }
+#define AssertEqualDbl4(VD,_VAL1_, _VAL2_,_Bound1_,_Bound2_) \
+    if (!RA::Appx(_VAL1_, _VAL2_,_Bound1_,_Bound2_)){ \
+        ThrowIt("(", #_VAL1_, " != ", #_VAL2_, ")(", _VAL1_, " != ", _VAL2_, ")"); \
+    }
+
+#define AssertEqual(_VAL1_, _VAL2_) \
+    if (_VAL1_ != _VAL2_){\
+        ThrowIt("(", #_VAL1_, " != ", #_VAL2_, ")(", _VAL1_, " != ", _VAL2_, ")"); \
+    }
+
+#define AssertDblRange(_Upper_, _Val_, _Lower_) \
+    if (_Val_ > _Upper_ || _Lower_ > _Val_){ \
+        ThrowIt("!(", _Upper_, " >= ", _Val_, " >= ", _Lower_, ")"); \
+    }
+
 #define ThrowFailingCompare(_Left_, _Op_, _Right_) \
     if(!(_Left_ _Op _Right_)) { \
         ThrowIt("<(", _Left_, ' ', #_Op_, ' ', _Right_, ")>|<("#_Left_,' ', #_Op_, ' ', #_Right_,")>"); \
@@ -394,33 +419,32 @@ namespace RA
         istatic const uint_least32_t SoSeed = SfSeed();
         istatic std::mt19937 SoGenerator = std::mt19937(SoSeed);
 
-        TTT istatic auto GetDistributor(const xint FnFloor, const xint FnCeiling) { 
-            return std::uniform_int_distribution<T>(FnFloor, FnCeiling); }
+        TTT istatic auto GetDistributor(const T FnFloor, const T FnCeiling) {
+            return std::uniform_int_distribution<xint>(static_cast<xint>(FnFloor), static_cast<xint>(FnCeiling)); }
 
         TTT istatic T GetValue(std::uniform_int_distribution<T>& FoDistributor)
         {
             return FoDistributor(SoGenerator);
         }
 
-        TTT istatic T GetValue(const xint FnFloor = 0, const xint FnCeiling = 100)
+        TTT istatic T GetValue(const T FnFloor = 0, const T FnCeiling = 100)
         {
             auto LoDistributor = GetDistributor<T>(FnFloor, FnCeiling);
             return LoDistributor(SoGenerator);
         }
 
-        TTT istatic xvector<T> GetRandomSequence(const xint Length, const xint FnFloor, const xint FnCeiling)
+        TTT istatic xvector<T> GetRandomSequence(const xint Length, const T FnFloor, const T FnCeiling)
         {
-            auto LoDistributor = GetDistributor<T>(FnFloor, FnCeiling);
+            auto LoDistributor = GetDistributor<xint>(FnFloor, FnCeiling);
             xvector<T> Sequence;
             for (xint repetition = 0; repetition < Length; repetition++)
-                Sequence << LoDistributor(SoGenerator);
+                Sequence << static_cast<T>(LoDistributor(SoGenerator));
 
             return Sequence;
         }
 
-        template<>
-        static xvector<char> GetRandomSequence<char>(const xint Length, const xint Floor, const xint Ceiling);
-        static xstring                  GetRandomStr(const xint Length, const xint Floor, const xint Ceiling);
+        static xvector<char> GetRandomCharSequence(const xint Length, const xint Floor, const xint Ceiling);
+        static xstring       GetRandomStr(const xint Length, const xint Floor, const xint Ceiling);
     };
 
 

@@ -15,16 +15,17 @@ namespace RA
     public:
         friend class Stats;
 
-        STOCH(const double* FvValues = nullptr,
-              const   xint* FnInsertIdxPtr = nullptr,
+        STOCH(const double* FvValues,
+              const   xint* FnInsertIdxPtr,
+              const   xdbl* FnMinPtr,
+              const   xdbl* FnMaxPtr,
               const   xint  FnStorageSize = 0);
 
-        IXF auto GetMax()       const { return MnBiggest; }
-        IXF auto GetCurrent()   const { return (MvValues) ? MvValues[*MnInsertIdxPtr] : MnLast; }
-        IXF auto GetMin()       const { return MnSmallest; }
-        IXF auto GetSTOCH()     const { return MnSTOCH; }
-
-        IXF auto BxNoEntry() const { return MnSmallest == DBL_MAX; }
+        IXF auto GetMin()         const { return *MnMinPtr; }
+        IXF auto GetMax()         const { return *MnMaxPtr; }
+        IXF auto GetCurrent()     const { return (MvValues) ? MvValues[*MnInsertIdxPtr] : MnLast; }
+        IXF auto GetSTOCH()       const { return MnSTOCH; }
+        IXF auto GetScaledSTOCH() const { return (2.0 * (MnSTOCH / 100.0)) - 1.0; } // scalled between 1 to -1
 
         DXF void CopyStats(const STOCH& Other);
 
@@ -37,8 +38,9 @@ namespace RA
         const xint*   MnInsertIdxPtr;
         const xint    MnStorageSize;
 
-        double  MnBiggest  = -DBL_MAX;
-        double  MnSmallest =  DBL_MAX;
+        const xdbl* MnMinPtr = nullptr;
+        const xdbl* MnMaxPtr = nullptr;
+
         double  MnLast = 0;
         double  MnSTOCH = 0;
         xint    MnRunningSize = 0;

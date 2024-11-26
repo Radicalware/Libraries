@@ -26,6 +26,7 @@ public:
 
     using std::unordered_map<K, V, H>::unordered_map;
     using std::unordered_map<K, V, H>::operator=;
+    using std::unordered_map<K, V, H>::operator[];
 
     // --------------------------------------------------------------------------
     // -------------------------------------------------------------------------

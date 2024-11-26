@@ -31,10 +31,10 @@ namespace RA
 
         ~SharedPtr();
 
-        template<class TT = T, typename std::enable_if<IsFundamental(TT), bool>::type = 0>
+        template<class TT = T, typename std::enable_if<BxFundamental(TT), bool>::type = 0>
         CIN SharedPtr(const xint FnLeng);
 
-        template<typename ...A, class TT = T, typename std::enable_if<!IsFundamental(TT), bool>::type = 0>
+        template<typename ...A, class TT = T, typename std::enable_if<!BxFundamental(TT), bool>::type = 0>
         CIN SharedPtr(const xint FnLeng, A&&... Args);
 
         CIN SharedPtr(SharedPtr<T*>&& Other);
@@ -90,7 +90,7 @@ CIN RA::SharedPtr<T*>::~SharedPtr()
         return;
     if (The.use_count() <= 1)
     {
-        if constexpr (!IsFundamental(RemovePtr(T)))
+        if constexpr (!BxFundamental(RemovePtr(T)))
         {
             for (auto& Obj : The)
                 Obj.~T();
@@ -100,7 +100,7 @@ CIN RA::SharedPtr<T*>::~SharedPtr()
 }
 
 template<typename T>
-template<class TT, typename std::enable_if<IsFundamental(TT), bool>::type>
+template<class TT, typename std::enable_if<BxFundamental(TT), bool>::type>
 CIN RA::SharedPtr<T*>::SharedPtr(const xint FnLeng) :
     MPtr(new T[FnLeng + 1]), RA::BaseSharedPtr<T*>(std::make_shared<T*>(MPtr))
 {
@@ -111,7 +111,7 @@ CIN RA::SharedPtr<T*>::SharedPtr(const xint FnLeng) :
 }
 
 template<typename T>
-template<typename ...A, class TT, typename std::enable_if<!IsFundamental(TT), bool>::type>
+template<typename ...A, class TT, typename std::enable_if<!BxFundamental(TT), bool>::type>
 CIN RA::SharedPtr<T*>::SharedPtr(const xint FnLeng, A&&... Args) :
     MPtr(new T[FnLeng]), RA::BaseSharedPtr<T*>(std::make_shared<T*>(MPtr))
 {
@@ -189,7 +189,7 @@ CIN void RA::SharedPtr<T*>::Clone(const RA::SharedPtr<T*>& Other)
     DeleteArr(MPtr);
     if (Other.Size())
     {
-        if constexpr (IsFundamental(T))
+        if constexpr (BxFundamental(T))
         {
             MPtr = new T[Other.MnLeng + 1];
             memcpy(MPtr, Other.MPtr, Other.MnLeng * sizeof(T));

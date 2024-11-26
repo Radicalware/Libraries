@@ -1,18 +1,6 @@
 {
-  // Make sure you run vcvars64.bat BEFORE running "code <path to workspace>"
   "version": "0.2.0",
   "configurations": [
-    {
-      "name": "C/C++ Runner: Release Session",
-      "preLaunchTask": "STD-Release MSVC C++20",
-      "type": "cppvsdbg",
-      "request": "launch",
-      "args": [],
-      "stopAtEntry": false,
-      "console": "externalTerminal",
-      "cwd": "${fileDirname}",
-      "program": "${fileDirname}/Test.exe"
-    },
     {
       "name": "C/C++ Runner: Debug Session",
       "preLaunchTask": "STD-Debug MSVC C++20",
@@ -20,9 +8,22 @@
       "request": "launch",
       "args": [],
       "stopAtEntry": false,
-      "console": "externalTerminal",
+      "externalConsole": false,
+      "console": "integratedTerminal",
       "cwd": "${fileDirname}",
-      "program": "${fileDirname}/Test.exe"
+      "program": "${fileDirname}/Test.exe",
+    },
+    {
+      "name": "C/C++ Runner: Release Session",
+      "preLaunchTask": "STD-Release MSVC C++20",
+      "type": "cppvsdbg",
+      "request": "launch",
+      "args": [],
+      "stopAtEntry": false,
+      "externalConsole": false,
+      "console": "integratedTerminal",
+      "cwd": "${fileDirname}",
+      "program": "${fileDirname}/Test.exe",
     },
     {
       "name": "RA-Debug MSVC C++20",
@@ -31,9 +32,10 @@
       "request": "launch",
       "args": [],
       "stopAtEntry": false,
-      "console": "externalTerminal",
+      "externalConsole": false,
+      "console": "integratedTerminal",
       "cwd": "${fileDirname}",
-      "program": "${fileDirname}/Test.exe"
+      "program": "${fileDirname}/Test.exe",
     },
     {
       "name": "RA-Release MSVC C++20",
@@ -42,9 +44,10 @@
       "request": "launch",
       "args": [],
       "stopAtEntry": false,
-      "console": "externalTerminal",
+      "externalConsole": false,
+      "console": "integratedTerminal",
       "cwd": "${fileDirname}",
-      "program": "${fileDirname}/Test.exe"
+      "program": "${fileDirname}/Test.exe",
     }
   ]
 }

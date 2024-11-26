@@ -34,6 +34,7 @@
 #include<ctype.h>
 #include<type_traits>
 #include<sstream>
+#include <codecvt>
 
 #include "re2/re2.h"
 
@@ -46,6 +47,7 @@
 class xstring : public std::string
 {
     using ull = unsigned long long;
+    istatic std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> SoConverter;
 public:
     using type = xstring;
     using std::string::basic_string;
@@ -73,6 +75,9 @@ public:
     xstring(const wchar_t* chrs);
     xstring(const std::wstring& wstr);
 
+    operator std::string() const;
+    operator std::wstring() const;
+
     void operator=(const char chr);
     void operator=(const char* chrs);
     void operator=(const unsigned char* chrs);
@@ -86,24 +91,28 @@ public:
     void operator+=(const unsigned char* chr);
     void operator+=(const std::string& FsTarget);
     void operator+=(std::string&& FsTarget);
+    void operator+=(const std::wstring& FsTarget);
+    void operator+=(std::wstring&& FsTarget);
 
     xstring operator+(const char chr);
     xstring operator+(const char* chr);
     xstring operator+(const unsigned char* chr);
     xstring operator+(const std::string& FsTarget);
     xstring operator+(std::string&& FsTarget);
+    xstring operator+(const std::wstring& FsTarget);
+    xstring operator+(std::wstring&& FsTarget);
 
-    TTT RIN RetIfTrue(xstring&,  IsSame(T, xstring)) operator<<(const   xp<T>& Other) { The += *Other; return The; }
-    TTT RIN RetIfTrue(xstring&,  IsSame(T, xstring)) operator<<(const      T&  Other) { The +=  Other; return The; }
+    TTT RIN RetIfTrue(xstring&,  BxSameType(T, xstring)) operator<<(const   xp<T>& Other) { The += *Other; return The; }
+    TTT RIN RetIfTrue(xstring&,  BxSameType(T, xstring)) operator<<(const      T&  Other) { The +=  Other; return The; }
 
-    TTT RIN RetIfTrue(xstring,   IsSame(T, xstring)) operator<<(const   xp<T>& Other) const { auto Str = The; Str += *Other; return Str; }
-    TTT RIN RetIfTrue(xstring,   IsSame(T, xstring)) operator<<(const      T&  Other) const { auto Str = The; Str +=  Other; return Str; }
+    TTT RIN RetIfTrue(xstring,   BxSameType(T, xstring)) operator<<(const   xp<T>& Other) const { auto Str = The; Str += *Other; return Str; }
+    TTT RIN RetIfTrue(xstring,   BxSameType(T, xstring)) operator<<(const      T&  Other) const { auto Str = The; Str +=  Other; return Str; }
 
-    TTT RIN RetIfTrue(xstring&, !IsSame(T, xstring)) operator<<(const xp<T>& Other);
-    TTT RIN RetIfTrue(xstring&, !IsSame(T, xstring)) operator<<(const    T& Other);
+    TTT RIN RetIfTrue(xstring&, !BxSameType(T, xstring)) operator<<(const xp<T>& Other);
+    TTT RIN RetIfTrue(xstring&, !BxSameType(T, xstring)) operator<<(const    T& Other);
 
-    TTT RIN RetIfTrue(xstring,  !IsSame(T, xstring)) operator<<(const xp<T>& Other) const;
-    TTT RIN RetIfTrue(xstring,  !IsSame(T, xstring)) operator<<(const    T& Other)  const;
+    TTT RIN RetIfTrue(xstring,  !BxSameType(T, xstring)) operator<<(const xp<T>& Other) const;
+    TTT RIN RetIfTrue(xstring,  !BxSameType(T, xstring)) operator<<(const    T& Other)  const;
 
     char  At(xint Idx) const;
     char& At(xint Idx);
@@ -349,11 +358,19 @@ public:
     // =================================================================================================================================
 };
 
+// when Char* and Wide Char* is used, normalize them to xstring
 xstring operator+(const char First, const xstring& Second);
 xstring operator+(const char First, xstring&& Second);
 
 xstring operator+(const char* const First, const xstring& Second);
 xstring operator+(const char* const First, xstring&& Second);
+
+xstring operator+(const char First, const std::wstring& Second);
+xstring operator+(const char First, std::wstring&& Second);
+
+xstring operator+(const char* const First, const std::wstring& Second);
+xstring operator+(const char* const First, std::wstring&& Second);
+
 
 namespace RA
 {
@@ -522,10 +539,11 @@ namespace RA
 
     // wide string to xstring
     xstring WTXS(const wchar_t* wstr);
+    xstring WTXS(const std::wstring& wstr);
 }
 
 template<typename T>
-RIN RetIfTrue(xstring&, !IsSame(T, xstring)) xstring::operator<<(const T& Other)
+RIN RetIfTrue(xstring&, !BxSameType(T, xstring)) xstring::operator<<(const T& Other)
 {
     try
     {
@@ -545,7 +563,7 @@ RIN RetIfTrue(xstring&, !IsSame(T, xstring)) xstring::operator<<(const T& Other)
 }
 
 template<typename T>
-RIN RetIfTrue(xstring&, !IsSame(T, xstring)) xstring::operator<<(const xp<T>& Other)
+RIN RetIfTrue(xstring&, !BxSameType(T, xstring)) xstring::operator<<(const xp<T>& Other)
 {
     try
     {
@@ -565,7 +583,7 @@ RIN RetIfTrue(xstring&, !IsSame(T, xstring)) xstring::operator<<(const xp<T>& Ot
 }
 
 template<typename T>
-RIN RetIfTrue(xstring, !IsSame(T, xstring)) xstring::operator<<(const T& Other) const
+RIN RetIfTrue(xstring, !BxSameType(T, xstring)) xstring::operator<<(const T& Other) const
 {
     try
     {
@@ -580,7 +598,7 @@ RIN RetIfTrue(xstring, !IsSame(T, xstring)) xstring::operator<<(const T& Other) 
 }
 
 template<typename T>
-RIN RetIfTrue(xstring, !IsSame(T, xstring)) xstring::operator<<(const xp<T>& Other) const
+RIN RetIfTrue(xstring, !BxSameType(T, xstring)) xstring::operator<<(const xp<T>& Other) const
 {
     try
     {

@@ -31,7 +31,7 @@ endif()
 set(CMAKE_CXX_IGNORE_EXTENSIONS      "${CMAKE_CXX_IGNORE_EXTENSIONS};txt;rc")
 set(CMAKE_CXX_SOURCE_FILE_EXTENSIONS "${CMAKE_CXX_SOURCE_FILE_EXTENSIONS};cuh;cu")
 
-set(CUDA_VERSION "12.6")
+set(CUDA_VERSION "12.4")
 set(CUDA_GPU 61)
 
 if(WIN32) # ----------------------------------------------------------------------------
@@ -39,7 +39,8 @@ if(WIN32) # --------------------------------------------------------------------
     set(OS_TYPE "Windows")
     set(IsWindows ON)
     
-
+    set(ATL_INCLUDE "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.41.34120/atlmfc/include")
+    include_directories(${ATL_INCLUDE})
     # set(MSVC_TOOLSET_VERSION "142")
     # set(WINDOWS_SDK "10.0.18362.0")
     # set(CMAKE_SYSTEM_VERSION ${WINDOWS_SDK})
@@ -48,15 +49,13 @@ if(WIN32) # --------------------------------------------------------------------
     add_definitions(-DUsingMSVC)
 
     # RUN: vcpkg integrate install
-    set(VCPKG_ROOT            "C:/Source/Git/vcpkg")
-    set(CMAKE_TOOLCHAIN_FILE    ${VCPKG_SCRIPT})
+    set(VCPKG_ROOT      "C:/Source/Git/vcpkg")
     set(Qt6_DIR         "C:/Qt/6.6.1/msvc2019_64/lib/cmake/Qt6")
     set(CMAKE_PATH      "C:/Program Files/CMake/share/cmake-$ENV{CMAKE_VERSION}/Modules")
     set(RADICAL_BASE    "C:/Source/CMake/Radicalware")
 
     SET(INSTALL_PREFIX "${RADICAL_BASE}")
     SET(INSTALL_DIR    "${RADICAL_BASE}/Libraries/Projects")
-
     
     link_directories("$ENV{VULKAN_SDK}/lib")
     set(VULKAN_CMAKE_DIR   "C:/a/Vulkan-Hpp")
@@ -69,13 +68,15 @@ if(WIN32) # --------------------------------------------------------------------
     FindProgramFiles(RADICAL_PROGRAM_FILES "${INSTALL_DIR}")
     set(RE2_DIR "C:/Source/Git/re2")
 
+    set(CMAKE_CXX_STANDARD 20) 
+    set(CMAKE_CXX_STANDARD_REQUIRED True)
+
     set(C_ARGS   "${CPP_ARGS} ${C_ARGS}")
     set(C_ARGS "  ${C_ARGS}   /std:c17")
-    set(CMAKE_CXX_STANDARD 20)
-    set(CPP_ARGS "${CPP_ARGS} /std:c++20 /EHsc /MP /DPARALLEL")
+    set(CPP_ARGS "${CPP_ARGS} /std:c++latest /EHsc /bigobj /MP /DPARALLEL")
     # MP = Multp Processing = build using mutiple threads
     # TP = Treat all files as cPP files
-    # /DPARALLEL supports C++20 threading
+    # /DPARALLEL supports C++latest threading
     # add_link_options("/ignore:4099") # Ignore PDB Warnings
     # add_link_options("/ignore:4204") # Ignore PDB Warnings
     # add_link_options("/INCREMENTAL:NO")
@@ -105,7 +106,7 @@ else() # -----------------------------------------------------------------------
     set(CPP_ARGS "${CPP_ARGS} -Wno-unused-result")
     set(C_ARGS   "${CPP_ARGS} ${C_ARGS}")
     set(C_ARGS   "${C_ARGS}   -std:c17")
-    set(CPP_ARGS "${CPP_ARGS} -std=c++20")
+    set(CPP_ARGS "${CPP_ARGS} -std=c++latest")
 
     set(CMAKE_PATH                "/usr/share/cmake-$ENV{CMAKE_VERSION}/Modules")
     list(APPEND CMAKE_MODULE_PATH "/usr/share/cmake-$ENV{CMAKE_VERSION}/Utilities/cmlibarchive/build/cmake")
@@ -122,13 +123,22 @@ if(NOT DEFINED CUDA_VERSION)
     set(VCPKG_RELEASE_LIB_DIR "${VCPKG_ROOT}/installed/x64-windows/lib")
     set(VCPKG_DEBUG_LIB_DIR   "${VCPKG_ROOT}/installed/x64-windows/lib")
     set(VCPKG_SCRIPT          "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
-    set(VCPKG_INCLUDE         "${VCPKG_ROOT}/installed/x64-windows/include")
+    set(CMAKE_TOOLCHAIN_FILE  "${VCPKG_SCRIPT}")
 endif()
+set(VCPKG_INCLUDE         "${VCPKG_ROOT}/installed/x64-windows/include")
 
-if(${debug})
+if(debug)
+    message("Link Debug Iterator 2 (aka ON)")
     add_definitions(-D_ITERATOR_DEBUG_LEVEL=2)
+    add_compile_definitions(_ITERATOR_DEBUG_LEVEL=2)
+    add_compile_definitions(-D_ITERATOR_DEBUG_LEVEL=2)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D_ITERATOR_DEBUG_LEVEL=2")
 else()
+    message("Link Debug Iterator 0 (aka OFF)")
     add_definitions(-D_ITERATOR_DEBUG_LEVEL=0)
+    add_compile_definitions(_ITERATOR_DEBUG_LEVEL=0)
+    add_compile_definitions(-D_ITERATOR_DEBUG_LEVEL=0)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D_ITERATOR_DEBUG_LEVEL=0")
 endif()
 
 # ------------------------- MODIFY VALUES ABOVE --------------------------------------

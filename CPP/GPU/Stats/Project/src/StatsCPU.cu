@@ -48,6 +48,7 @@ void RA::StatsCPU::operator=(const StatsCPU& Other)
     if (Other.MoAvgPtr)         MoAvgPtr->CopyStats(*Other.MoAvgPtr);
     if (Other.MoSTOCHPtr)       MoSTOCHPtr->CopyStats(*Other.MoSTOCHPtr);
     if (Other.MoRSIPtr)         MoRSIPtr->CopyStats(*Other.MoRSIPtr);
+    if (Other.MoNormalsPtr)     MoNormalsPtr->CopyStats(*Other.MoNormalsPtr);
     if (Other.MoStandardDeviationPtr)     MoStandardDeviationPtr->CopyStats(*Other.MoStandardDeviationPtr);
     if (Other.MoMeanAbsoluteDeviationPtr) MoMeanAbsoluteDeviationPtr->CopyStats(*Other.MoMeanAbsoluteDeviationPtr);
 
@@ -75,6 +76,8 @@ void RA::StatsCPU::operator=(StatsCPU&& Other) noexcept
     MeHardware    = Other.MeHardware;
     MnStorageSize = Other.MnStorageSize;
     MnInsertIdx   = 0;
+    MnMin         = Other.MnMin;
+    MnMax         = Other.MnMax;
 
     if (Other.GetJoinerySize())
     {
@@ -95,6 +98,7 @@ void RA::StatsCPU::operator=(StatsCPU&& Other) noexcept
 
     MoAvgPtr        = Other.MoAvgPtr;
     MoRSIPtr        = Other.MoRSIPtr;
+    MoNormalsPtr    = Other.MoNormalsPtr;
     MoSTOCHPtr      = Other.MoSTOCHPtr;
     MoStandardDeviationPtr     = Other.MoStandardDeviationPtr;
     MoMeanAbsoluteDeviationPtr = Other.MoMeanAbsoluteDeviationPtr;
@@ -136,6 +140,15 @@ DHF RA::RSI& RA::StatsCPU::GetObjRSI()
     if (!MoRSIPtr)
         ThrowIt("MoRSIPtr is Null");
     return *MoRSIPtr;
+    Rescue();
+}
+
+DHF RA::Normals& RA::StatsCPU::GetObjNormals()
+{
+    Begin();
+    if (!MoNormalsPtr)
+        ThrowIt("MoNormalsPtr is Null");
+    return *MoNormalsPtr;
     Rescue();
 }
 
@@ -187,6 +200,15 @@ DHF const RA::RSI& RA::StatsCPU::GetObjRSI() const
     Rescue();
 }
 
+DHF const RA::Normals& RA::StatsCPU::GetObjNormals() const
+{
+    Begin();
+    if (!MoNormalsPtr)
+        ThrowIt("MoNormalsPtr is Null");
+    return *MoNormalsPtr;
+    Rescue();
+}
+
 DHF const RA::Deviation& RA::StatsCPU::GetObjStandardDeviation() const
 {
     Begin();
@@ -235,6 +257,15 @@ DHF const RA::RSI& RA::StatsCPU::RSI() const
     Rescue();
 }
 
+DHF const RA::Normals& RA::StatsCPU::Normals() const
+{
+    Begin();
+    if (!MoNormalsPtr)
+        ThrowIt("MoNormalsPtr is Null");
+    return *MoNormalsPtr;
+    Rescue();
+}
+
 DHF const RA::Deviation& RA::StatsCPU::SD() const
 {
     Begin();
@@ -255,6 +286,44 @@ DHF const RA::Deviation& RA::StatsCPU::MAD() const
 
 // --------------------------------------------------------
 
+
+DHF RA::AVG& RA::StatsCPU::AVG()
+{
+    Begin();
+    if (!MoAvgPtr)
+        ThrowIt("MoAvgPtr is Null");
+    return *MoAvgPtr;
+    Rescue();
+}
+
+DHF RA::STOCH& RA::StatsCPU::STOCH()
+{
+    Begin();
+    if (!MoSTOCHPtr)
+        ThrowIt("MoSTOCHPtr is Null");
+    return *MoSTOCHPtr;
+    Rescue();
+}
+
+DHF RA::RSI& RA::StatsCPU::RSI()
+{
+    Begin();
+    if (!MoRSIPtr)
+        ThrowIt("MoRSIPtr is Null");
+    return *MoRSIPtr;
+    Rescue();
+}
+
+DHF RA::Normals& RA::StatsCPU::Normals()
+{
+    Begin();
+    if (!MoNormalsPtr)
+        ThrowIt("MoNormalsPtr is Null");
+    return *MoNormalsPtr;
+    Rescue();
+}
+
+
 DHF RA::Deviation& RA::StatsCPU::SD()
 {
     Begin();
@@ -270,5 +339,22 @@ DHF RA::Deviation& RA::StatsCPU::MAD()
     if (!MoMeanAbsoluteDeviationPtr)
         ThrowIt("MoMeanAbsoluteDeviationPtr is Null");
     return *MoMeanAbsoluteDeviationPtr;
+    Rescue();
+}
+
+DHF double RA::StatsCPU::Get(const RA::EStatOpt FeOption) const
+{
+    Begin();
+    switch (FeOption)
+    {
+    case RA::EStatOpt::Literal: return ValueFromEnd();
+    case RA::EStatOpt::AVG: return GetAVG();
+    case RA::EStatOpt::RSI: return RSI().GetScaledRSI();
+    case RA::EStatOpt::STOCH: return STOCH().GetScaledSTOCH();
+    case RA::EStatOpt::MAD: return The.MAD().GetOffset();
+    case RA::EStatOpt::SD: return The.SD().GetOffset();
+    default:
+            ThrowIt("No Option: ", (xint)FeOption);
+    }
     Rescue();
 }

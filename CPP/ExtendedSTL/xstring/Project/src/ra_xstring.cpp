@@ -61,6 +61,15 @@ xstring::xstring(const std::wstring& wstr)
     The = RA::WTXS(wstr.c_str());
 }
 
+xstring::operator std::string() const {
+    return static_cast<std::string>(The);
+}
+
+
+xstring::operator std::wstring() const {
+    return SoConverter.from_bytes(The);
+}
+
 void xstring::operator=(const char chr)
 {
     The.insert(The.begin(), chr);
@@ -123,6 +132,16 @@ void xstring::operator+=(std::string&& str) {
     The.insert(The.end(), std::make_move_iterator(str.begin()), std::make_move_iterator(str.end()));
 }
 
+void xstring::operator+=(const std::wstring& FsTarget)
+{
+    The += RA::WTXS(FsTarget);
+}
+
+void xstring::operator+=(std::wstring&& FsTarget)
+{
+    The += RA::WTXS(std::move(FsTarget));
+}
+
 xstring xstring::operator+(const char chr)
 {
     xstring rstr = The;
@@ -164,6 +183,16 @@ xstring xstring::operator+(std::string&& str)
     rstr += The;
     rstr += std::move(str);
     return rstr;
+}
+
+xstring xstring::operator+(const std::wstring& FsTarget)
+{
+    return The + RA::WTXS(FsTarget);
+}
+
+xstring xstring::operator+(std::wstring&& FsTarget)
+{
+    return The + RA::WTXS(std::move(FsTarget));
 }
 
 char xstring::At(xint Idx) const
@@ -244,11 +273,7 @@ std::string xstring::ToStdString() const {
 
 std::wstring xstring::ToStdWString() const
 {
-    std::wstring LsWideStr(size(), L' ');
-    for (xint i = 0; i < size(); i++)
-        LsWideStr[i] = static_cast<wchar_t>((The)[i]);
-
-    return LsWideStr;
+    return SoConverter.from_bytes(The);
 }
 
 #if _HAS_CXX20
@@ -1395,12 +1420,22 @@ xstring RA::WTXS(const wchar_t* wstr) {
     const xint Max = wcslen(wstr);
     str.resize(Max);
     xint loc = 0;
-    for (const wchar_t* ptr = wstr; Max > loc; ptr++) {
-        str[loc] = static_cast<char>(*ptr);
-        loc++;
-    }
+    for (const wchar_t* ptr = wstr; Max > loc; ptr++)
+        str[loc++] = static_cast<char>(*ptr);
     return str;
 }
+
+xstring RA::WTXS(const std::wstring& wstr) {
+    if (!wstr.size())
+        return xstring::StaticClass;
+    xstring str;
+    str.resize(wcslen(wstr.c_str()));
+    xint loc = 0;
+    for(auto Char : wstr)
+        str[loc++] = static_cast<char>(Char); // can't use std::move between 2 different types
+    return str;
+}
+
 
 // =================================================================================================================================
 
@@ -1423,3 +1458,25 @@ xstring operator+(const char* const First, xstring&& Second)
 {
     return xstring(First) + std::move(Second);
 }
+// ---------------------------------------------------------------
+xstring operator+(const char First, const std::wstring& Second)
+{
+    return xstring(First) + RA::WTXS(Second);
+}
+
+xstring operator+(const char First, std::wstring&& Second)
+{
+    return xstring(First) + RA::WTXS(std::move(Second));
+}
+
+xstring operator+(const char* const First, const std::wstring& Second)
+{
+    return xstring(First) + RA::WTXS(Second);
+}
+
+xstring operator+(const char* const First, std::wstring&& Second)
+{
+    return xstring(First) + RA::WTXS(std::move(Second));
+}
+
+// ---------------------------------------------------------------

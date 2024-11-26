@@ -12,23 +12,23 @@ namespace RA
     template<typename T, typename enabler_t = void>
     class Atomic;
 
-    template<typename T> class Atomic<T, typename std::enable_if_t< IsFundamental(T) || IsSimple(T)>>;
-    template<typename T> class Atomic<T, typename std::enable_if_t<!IsFundamental(T) && !IsSimple(T)>>;
+    template<typename T> class Atomic<T, typename std::enable_if_t< BxFundamental(T) || BxSimple(T)>>;
+    template<typename T> class Atomic<T, typename std::enable_if_t<!BxFundamental(T) && !BxSimple(T)>>;
 #endif
 };
 
 namespace RA
 {
     template<typename T>
-    class Atomic<T, typename std::enable_if_t<IsFundamental(T) || IsSimple(T)>> : public std::atomic<T>, public MutexHandler
+    class Atomic<T, typename std::enable_if_t<BxFundamental(T) || BxSimple(T)>> : public std::atomic<T>, public MutexHandler
     {
     public:
         using std::atomic<T>::atomic;
 
-        template <typename O> CIN typename std::enable_if<!IsSame(T, O), void>::type
+        template <typename O> CIN typename std::enable_if<!BxSameType(T, O), void>::type
         /*void*/ operator=(const O& Other) { The.store(static_cast<T>(Other)); }
 
-        template <typename O> CIN typename std::enable_if< IsSame(T, O), void>::type
+        template <typename O> CIN typename std::enable_if< BxSameType(T, O), void>::type
         /*void*/ operator=(const O& Other) { The.store(Other); }
 
                             CIN void operator=(const Atomic<T>& Other)  { The.store(Other.GetCopy()); }

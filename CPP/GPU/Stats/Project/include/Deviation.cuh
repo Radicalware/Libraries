@@ -27,20 +27,20 @@ namespace RA
             SD
         };
     private:
-          AVG* MoAvgPtr       = nullptr;
-         EType MeType         = EType::None;
+        AVG* MoAvgPtr = nullptr;
+        EType MeType = EType::None;
 
-        double MnDeviation    = 0;
+        double MnDeviation = 0;
         double MnSumDeviation = 0; // For Logic Size 0
 
-        double MnSumOffset    = 0;
-        double MnLastOffDiff  = 0;
-        double MnAvgOffset    = 0;
+        double MnSumOffset = 0;
+        double MnLastOffDiff = 0;
+        double MnAvgOffset = 0;
 
-        double MnLastAvg      = 0;
+        double MnLastAvg = 0;
 
-        double MnCurrentVal   = 0;
-        double MnLastVal      = 0;
+        double MnCurrentVal = 0;
+        double MnLastVal = 0;
 
         double MnMaxTraceSize = 0;
 

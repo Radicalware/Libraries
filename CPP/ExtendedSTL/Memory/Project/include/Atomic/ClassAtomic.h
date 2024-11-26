@@ -12,15 +12,15 @@ namespace RA
     template<typename T, typename enabler_t = void>
     class Atomic;
 
-    template<typename T> class Atomic<T, typename std::enable_if_t< IsFundamental(T) || IsSimple(T)>>;
-    template<typename T> class Atomic<T, typename std::enable_if_t<!IsFundamental(T) && !IsSimple(T)>>;
+    template<typename T> class Atomic<T, typename std::enable_if_t< BxFundamental(T) || BxSimple(T)>>;
+    template<typename T> class Atomic<T, typename std::enable_if_t<!BxFundamental(T) && !BxSimple(T)>>;
 #endif
 };
 
 namespace RA
 {
     template<typename T>
-    class Atomic<T, typename std::enable_if_t<!IsFundamental(T) && !IsSimple(T)>> : 
+    class Atomic<T, typename std::enable_if_t<!BxFundamental(T) && !BxSimple(T)>> : 
         public std::atomic<std::shared_ptr<T>>, public MutexHandler
     {
     public:
@@ -48,14 +48,14 @@ namespace RA
         CIN void operator=(      RA::Atomic<T>&& Other) { The.store(std::move(Other.Ptr())); }
 
         // Copy Data ----------------------------------------------------------------------------------------------
-        template<class O> CIN typename std::enable_if< IsSame(Atomic<T>, Atomic<O>), void>::type
+        template<class O> CIN typename std::enable_if< BxSameType(Atomic<T>, Atomic<O>), void>::type
         /*void*/ operator=(const O& Other) { The.store(Other); }
-        template<class O> CIN typename std::enable_if<!IsSame(Atomic<T>, Atomic<O>), void>::type
+        template<class O> CIN typename std::enable_if<!BxSameType(Atomic<T>, Atomic<O>), void>::type
         /*void*/ operator=(const O& Other) { The.store(static_cast<T>(Other)); }
         // Move Data ----------------------------------------------------------------------------------------------
-        template<class O> CIN typename std::enable_if< IsSame(Atomic<T>, Atomic<O>), void>::type
+        template<class O> CIN typename std::enable_if< BxSameType(Atomic<T>, Atomic<O>), void>::type
         /*void*/ operator=(O&& Other) { The.store(std::make_shared<T>(std::move(Other))); }
-        template<class O> CIN typename std::enable_if<!IsSame(Atomic<T>, Atomic<O>), void>::type
+        template<class O> CIN typename std::enable_if<!BxSameType(Atomic<T>, Atomic<O>), void>::type
         /*void*/ operator=(O&& Other) { The.store(std::make_shared<T>(std::move(static_cast<T>(Other)))); }
 
 

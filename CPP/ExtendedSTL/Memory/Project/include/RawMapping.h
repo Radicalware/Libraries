@@ -38,6 +38,7 @@ typedef unsigned short int uint8;
 typedef unsigned long      uint32;
 typedef unsigned long long uint64;
 typedef size_t             xint;
+typedef long double        xdbl;
 #endif
 
 
@@ -94,6 +95,9 @@ typedef size_t             xint;
 
 #define III(__MEM_FUNC__, __RET__) __RET__ __MEM_FUNC__
 #define TTT template<typename T>
+#define TT1 template<typename T1>
+#define TT2 template<typename T1, typename T2>
+#define TT3 template<typename T1, typename T2, typename T3>
 
 #define DefaultConstruct(_ClassName_) \
     _ClassName_() = default; \
@@ -139,10 +143,10 @@ typedef size_t             xint;
 #define RemoveConst(_TempObj_)              typename std::remove_const<_TempObj_>::type
 
 // Misc
-#define IsSame(_TempObj_, _Comparison_)     std::is_same<_TempObj_, _Comparison_>::value
-#define IsType(_Var_, _Type_)               IsSame(RemoveConst(RemoveRef(RemoveAllExts(decltype(_Var_)))), _Type_)
-#define IsMutexPtr(_TempObj_)               std::is_same<_TempObj_, RA::SharedPtr<RA::Mutex>>::value
-#define IsSharedPtr(_TempObj_)              RA::IsTypeSharedPtr<_TempObj_>()
+#define BxSameType(_TempObj_, _Comparison_)     std::is_same<_TempObj_, _Comparison_>::value
+#define BxType(_Var_, _Type_)               BxSameType(RemoveConst(RemoveRef(RemoveAllExts(std::decay_t<decltype(Input)>))), _Type_)
+#define BxMutexPtr(_TempObj_)               std::is_same<_TempObj_, RA::SharedPtr<RA::Mutex>>::value
+#define BxSharedPtr(_TempObj_)              RA::IsTypeSharedPtr<_TempObj_>()
 #define NotSharedPtr(_TempObj_)             RA::NotTypeSharedPtr<_TempObj_>()
 
 // Get Configs
@@ -151,32 +155,32 @@ typedef size_t             xint;
 
 
 // Standard Types
-#define IsClass(_TempObj_)                  (std::is_class<RemoveRef(_TempObj_)>::value)
-#define IsObjectSTD(_TempObj_)              (std::is_object<RemoveRef(_TempObj_)>::value && !std::is_invocable<RemoveRef(_TempObj_)>::value)
-#define IsPointer(_TempObj_)                std::is_pointer<_TempObj_>::value
-#define IsReference(_TempObj_)              std::is_reference<_TempObj_>::value
-#define IsFundamental(_TempObj_)            std::is_fundamental<_TempObj_>::value
-#define IsArithmetic(_TempObj_)             std::is_arithmetic<_TempObj_>::value
-#define IsSigned(_TempObj_)                 std::is_signed<_TempObj_>::value
-#define IsUnsigned(_TempObj_)               std::is_unsigned<_TempObj_>::value
-#define IsInvocableVA(_Function_, _Args_)   std::is_invocable<RemoveRef(_Function_), _Args_...>::value
-#define IsInvocable(_Function_)             std::is_invocable<RemoveRef(_Function_)>::value
+#define BxClass(_TempObj_)                  (std::is_class<RemoveRef(_TempObj_)>::value)
+#define BxObjectSTD(_TempObj_)              (std::is_object<RemoveRef(_TempObj_)>::value && !std::is_invocable<RemoveRef(_TempObj_)>::value)
+#define BxPointer(_TempObj_)                std::is_pointer<_TempObj_>::value
+#define BxReference(_TempObj_)              std::is_reference<_TempObj_>::value
+#define BxFundamental(_TempObj_)            std::is_fundamental<_TempObj_>::value
+#define BxArithmetic(_TempObj_)             std::is_arithmetic<_TempObj_>::value
+#define BxSigned(_TempObj_)                 std::is_signed<_TempObj_>::value
+#define BxUnsigned(_TempObj_)               std::is_unsigned<_TempObj_>::value
+#define BxInvocableVA(_Function_, _Args_)   std::is_invocable<RemoveRef(_Function_), _Args_...>::value
+#define BxInvocable(_Function_)             std::is_invocable<RemoveRef(_Function_)>::value
 
-#define IsConstructible(_TempObj_)          std::is_constructible<_TempObj_>::value
-#define IsDefaultConstructable(_TempObj_)   std::is_default_constructible<_TempObj_>::value
-#define IsCopyAssignable(_TempObj_)         std::is_copy_assignable<RemoveRef(_TempObj_)>::value
-#define IsTrivial(_TempObj_)                std::is_trivial<RemoveRef(_TempObj_)>::value
-#define IsCompound(_TempObj_)               std::is_compound<_TempObj_>::value
-#define IsArray(_TempObj_)                  std::is_array<_TempObj_>::value
-#define IsUnboundedArray(_TempObj_)         std::is_unbounded_array<_TempObj_>::value
-#define IsVolatile(_TempObj_)               std::is_volatile<_TempObj_>::value
-#define IsStandardLayout(_TempObj_)         std::is_standard_layout<_TempObj_>::value
-#define IsDestructable(_TempObj_)           std::is_destructible<_TempObj_>::value
-#define IsScalar(_TempObj_)                 std::is_scalar<_TempObj_>::value
-#define IsAggregate(_TempObj_)              std::is_aggregate<RemoveRef(_TempObj_)>::value
+#define BxConstructible(_TempObj_)          std::is_constructible<_TempObj_>::value
+#define BxDefaultConstructable(_TempObj_)   std::is_default_constructible<_TempObj_>::value
+#define BxCopyAssignable(_TempObj_)         std::is_copy_assignable<RemoveRef(_TempObj_)>::value
+#define BxTrivial(_TempObj_)                std::is_trivial<RemoveRef(_TempObj_)>::value
+#define BxCompound(_TempObj_)               std::is_compound<_TempObj_>::value
+#define BxArray(_TempObj_)                  std::is_array<_TempObj_>::value
+#define BxUnboundedArray(_TempObj_)         std::is_unbounded_array<_TempObj_>::value
+#define BxVolatile(_TempObj_)               std::is_volatile<_TempObj_>::value
+#define BxStandardLayout(_TempObj_)         std::is_standard_layout<_TempObj_>::value
+#define BxDestructable(_TempObj_)           std::is_destructible<_TempObj_>::value
+#define BxScalar(_TempObj_)                 std::is_scalar<_TempObj_>::value
+#define BxAggregate(_TempObj_)              std::is_aggregate<RemoveRef(_TempObj_)>::value
 
 
-#define IsSimple(__TempObj__) \
+#define BxSimple(__TempObj__) \
        std::is_trivially_copyable_v<__TempObj__> \
     && std::is_copy_constructible_v<__TempObj__> \
     && std::is_move_constructible_v<__TempObj__> \
@@ -184,22 +188,22 @@ typedef size_t             xint;
     && std::is_move_assignable_v<__TempObj__>
 
 // Function
-#define _InvocableReq_(_Function_) ((IsTrivial(_Function_) &&  IsCopyAssignable(_Function_) &&  IsConstructible(_Function_)) || \
-                                   (!IsTrivial(_Function_) && !IsCopyAssignable(_Function_) && !IsConstructible(_Function_)) || \
-                                   ( IsTrivial(_Function_) &&  IsCopyAssignable(_Function_) && !IsConstructible(_Function_)))
+#define _InvocableReq_(_Function_) ((BxTrivial(_Function_) &&  BxCopyAssignable(_Function_) &&  BxConstructible(_Function_)) || \
+                                   (!BxTrivial(_Function_) && !BxCopyAssignable(_Function_) && !BxConstructible(_Function_)) || \
+                                   ( BxTrivial(_Function_) &&  BxCopyAssignable(_Function_) && !BxConstructible(_Function_)))
 
-#define IsFunctionVA(_Function_, _Args_)    std::is_invocable<_Function_, _Args_...>::value
-#define IsFunction(_Function_) \
-    ((IsInvocable(_Function_) && _InvocableReq_(_Function_)) && !IsAggregate(_Function_) || _InvocableReq_(_Function_) && !IsAggregate(_Function_))
+#define BxFunctionVA(_Function_, _Args_)    std::is_invocable<_Function_, _Args_...>::value
+#define BxFunction(_Function_) \
+    ((BxInvocable(_Function_) && _InvocableReq_(_Function_)) && !BxAggregate(_Function_) || _InvocableReq_(_Function_) && !BxAggregate(_Function_))
 
-#define IsObject(_Object_) !IsFunction(_Object_)
+#define BxObject(_Object_) !BxFunction(_Object_)
 
-#define IsBasicFunction(_TempObj_) std::is_function<_TempObj_>::value
+#define BxBasicFunction(_TempObj_) std::is_function<_TempObj_>::value
 
 // Types
-#define TypeIfFunction(_RET_, _Function_)  typename std::enable_if<IsFunction(_Function_), _RET_>::type
-#define TypeIfObject(_RET_, _Object_)      typename std::enable_if<IsObject(_Object_), _RET_>::type
-#define TypeIfFundamental(_RET_, _Object_) typename std::enable_if<IsFundamental(_Object_), _RET_>::type
+#define TypeIfFunction(_RET_, _Function_)  typename std::enable_if<BxFunction(_Function_), _RET_>::type
+#define TypeIfObject(_RET_, _Object_)      typename std::enable_if<BxObject(_Object_), _RET_>::type
+#define TypeIfFundamental(_RET_, _Object_) typename std::enable_if<BxFundamental(_Object_), _RET_>::type
 #define RetIfTrue(_RET_, _Condition_)      typename std::enable_if<_Condition_, _RET_>::type
 
 #define UsingFunction(_RET_)    TypeIfFunction(_RET_, F)
@@ -211,12 +215,12 @@ namespace RA
     template<typename O>
     void PrintAttributes(O&& Obj)
     {
-        std::cout << "Is Function       : " << IsFunction(O) << std::endl;
-        std::cout << "Is Invocable      : " << IsInvocable(O) << std::endl;
-        std::cout << "Is Aggregate      : " << IsAggregate(O) << std::endl;
-        std::cout << "Is Trivial        : " << IsTrivial(O) << std::endl;
-        std::cout << "Is CopyAssignable : " << IsCopyAssignable(O) << std::endl;
-        std::cout << "Is Constructible  : " << IsConstructible(O) << std::endl;
+        std::cout << "Is Function       : " << BxFunction(O) << std::endl;
+        std::cout << "Is Invocable      : " << BxInvocable(O) << std::endl;
+        std::cout << "Is Aggregate      : " << BxAggregate(O) << std::endl;
+        std::cout << "Is Trivial        : " << BxTrivial(O) << std::endl;
+        std::cout << "Is CopyAssignable : " << BxCopyAssignable(O) << std::endl;
+        std::cout << "Is Constructible  : " << BxConstructible(O) << std::endl;
         std::cout << '\n';
     }
 }
@@ -226,58 +230,58 @@ namespace RA
     namespace TestAttribute
     {
         template<typename F, typename ...A>
-        typename std::enable_if<IsFunction(F), void>::type      Function1(F&& Function, A&& ...Args) {}
+        typename std::enable_if<BxFunction(F), void>::type      Function1(F&& Function, A&& ...Args) {}
         template<typename F, typename ...A>
-        typename std::enable_if<!IsFunction(F), void>::type     Function1(F&& Function, A&& ...Args) {}
+        typename std::enable_if<!BxFunction(F), void>::type     Function1(F&& Function, A&& ...Args) {}
         template<typename O, typename ...A>
-        typename std::enable_if<IsObject(O), void>::type        Object1(O& FnObj, A&& ...Args) {}
+        typename std::enable_if<BxObject(O), void>::type        Object1(O& FnObj, A&& ...Args) {}
         template<typename O, typename ...A>
-        typename std::enable_if<!IsObject(O), void>::type       Object1(O& FnObj, A&& ...Args) {}
+        typename std::enable_if<!BxObject(O), void>::type       Object1(O& FnObj, A&& ...Args) {}
         template<typename F, typename ...A>
-        typename std::enable_if<IsInvocable(F), void>::type     Invocable1(F&& Function, A&& ...Args) {}
+        typename std::enable_if<BxInvocable(F), void>::type     Invocable1(F&& Function, A&& ...Args) {}
         template<typename F, typename ...A>
-        typename std::enable_if<!IsInvocable(F), void>::type    Invocable1(F&& Function, A&& ...Args) {}
+        typename std::enable_if<!BxInvocable(F), void>::type    Invocable1(F&& Function, A&& ...Args) {}
         template<typename F, typename ...A>
         typename std::enable_if<_InvocableReq_(F), void>::type  InvocReq1(F&& Function, A&& ...Args) {}
         template<typename F, typename ...A>
         typename std::enable_if<!_InvocableReq_(F), void>::type InvocReq1(F&& Function, A&& ...Args) {}
         template<typename F, typename ...A>
-        typename std::enable_if<IsAggregate(F), void>::type     Aggrigate1(F&& Function, A&& ...Args) {}
+        typename std::enable_if<BxAggregate(F), void>::type     Aggrigate1(F&& Function, A&& ...Args) {}
         template<typename F, typename ...A>
-        typename std::enable_if<!IsAggregate(F), void>::type    Aggrigate1(F&& Function, A&& ...Args) {}
+        typename std::enable_if<!BxAggregate(F), void>::type    Aggrigate1(F&& Function, A&& ...Args) {}
         template<typename F, typename ...A>
-        typename std::enable_if<IsTrivial(F), void>::type       Trivial1(F&& Function, A&& ...Args) {}
+        typename std::enable_if<BxTrivial(F), void>::type       Trivial1(F&& Function, A&& ...Args) {}
         template<typename F, typename ...A>
-        typename std::enable_if<!IsTrivial(F), void>::type      Trivial1(F&& Function, A&& ...Args) {}
+        typename std::enable_if<!BxTrivial(F), void>::type      Trivial1(F&& Function, A&& ...Args) {}
         template<typename F, typename ...A>
-        typename std::enable_if<IsCopyAssignable(F), void>::type    CopyAssignable1(F&& Function, A&& ...Args) {}
+        typename std::enable_if<BxCopyAssignable(F), void>::type    CopyAssignable1(F&& Function, A&& ...Args) {}
         template<typename F, typename ...A>
-        typename std::enable_if<!IsCopyAssignable(F), void>::type   CopyAssignable1(F&& Function, A&& ...Args) {}
+        typename std::enable_if<!BxCopyAssignable(F), void>::type   CopyAssignable1(F&& Function, A&& ...Args) {}
         template<typename F, typename ...A>
-        typename std::enable_if<IsConstructible(F), void>::type     Constructible1(F&& Function, A&& ...Args) {}
+        typename std::enable_if<BxConstructible(F), void>::type     Constructible1(F&& Function, A&& ...Args) {}
         template<typename F, typename ...A>
-        typename std::enable_if<!IsConstructible(F), void>::type    Constructible1(F&& Function, A&& ...Args) {}
+        typename std::enable_if<!BxConstructible(F), void>::type    Constructible1(F&& Function, A&& ...Args) {}
 
         template<typename O, typename F, typename ...A>
-        typename std::enable_if<IsFunction(F), void>::type      Function2(O& FnObj, F&& Function, A&& ...Args) {}
+        typename std::enable_if<BxFunction(F), void>::type      Function2(O& FnObj, F&& Function, A&& ...Args) {}
         template<typename O, typename F, typename ...A>
-        typename std::enable_if<!IsFunction(F), void>::type     Function2(O& FnObj, F&& Function, A&& ...Args) {}
+        typename std::enable_if<!BxFunction(F), void>::type     Function2(O& FnObj, F&& Function, A&& ...Args) {}
         template<typename O, typename F, typename ...A>
-        typename std::enable_if<IsObject(O), void>::type        Object2(O& FnObj, F&& Function, A&& ...Args) {}
+        typename std::enable_if<BxObject(O), void>::type        Object2(O& FnObj, F&& Function, A&& ...Args) {}
         template<typename O, typename F, typename ...A>
-        typename std::enable_if<!IsObject(O), void>::type       Object2(O& FnObj, F&& Function, A&& ...Args) {}
+        typename std::enable_if<!BxObject(O), void>::type       Object2(O& FnObj, F&& Function, A&& ...Args) {}
         template<typename O, typename F, typename ...A>
-        typename std::enable_if<IsInvocable(F), void>::type     Invocable2(O& FnObj, F&& Function, A&& ...Args) {}
+        typename std::enable_if<BxInvocable(F), void>::type     Invocable2(O& FnObj, F&& Function, A&& ...Args) {}
         template<typename O, typename F, typename ...A>
-        typename std::enable_if<!IsInvocable(F), void>::type    Invocable2(O& FnObj, F&& Function, A&& ...Args) {}
+        typename std::enable_if<!BxInvocable(F), void>::type    Invocable2(O& FnObj, F&& Function, A&& ...Args) {}
         template<typename O, typename F, typename ...A>
         typename std::enable_if<_InvocableReq_(F), void>::type  InvocReq2(O& FnObj, F&& Function, A&& ...Args) {}
         template<typename O, typename F, typename ...A>
         typename std::enable_if<!_InvocableReq_(F), void>::type InvocReq2(O& FnObj, F&& Function, A&& ...Args) {}
         template<typename O, typename F, typename ...A>
-        typename std::enable_if<IsAggregate(F), void>::type     Aggrigate2(O& FnObj, F&& Function, A&& ...Args) {}
+        typename std::enable_if<BxAggregate(F), void>::type     Aggrigate2(O& FnObj, F&& Function, A&& ...Args) {}
         template<typename O, typename F, typename ...A>
-        typename std::enable_if<!IsAggregate(F), void>::type    Aggrigate2(O& FnObj, F&& Function, A&& ...Args) {}
+        typename std::enable_if<!BxAggregate(F), void>::type    Aggrigate2(O& FnObj, F&& Function, A&& ...Args) {}
     }
 }
 
@@ -323,9 +327,9 @@ namespace RA
     __DVARNAME__ = nullptr;}
 #define HostDelete(__DVARNAME__) \
     { \
-        if constexpr ((IsArray(decltype(__DVARNAME__)) || IsUnboundedArray(decltype(__DVARNAME__)))) \
+        if constexpr ((BxArray(decltype(__DVARNAME__)) || BxUnboundedArray(decltype(__DVARNAME__)))) \
             DeleteArr(__DVARNAME__); \
-        if constexpr (!(IsArray(decltype(__DVARNAME__)) || IsUnboundedArray(decltype(__DVARNAME__)))) \
+        if constexpr (!(BxArray(decltype(__DVARNAME__)) || BxUnboundedArray(decltype(__DVARNAME__)))) \
             DeleteObj(__DVARNAME__); \
     }
 
@@ -374,43 +378,67 @@ namespace RA
 #define GetType(_IN_) RemoveRef(RemovePtr(decltype(_IN_)))
 
 template<typename R, typename N>
-UsingFundamental(R) Cast(const N& Num) 
+UsingFundamental(R) RCast(const N& Num) 
 { 
-    if constexpr (IsUnsigned(R))
+    if constexpr (BxUnsigned(R))
         return static_cast<R>(round(Num));
     else
         return static_cast<R>(Num);
 }
 
 template<typename R, typename O>
-UsingObject(R&)     Cast(const O& Obj) { return static_cast<R&>(Obj); }
+UsingObject(R&)     RCast(const O& Obj) { return static_cast<R&>(Obj); }
 
 namespace RA
 {
-    template<typename T1, typename T2>
-        T1  Pow( const T1 FnBase, const T2 FnExp);
-    TTT T   Sqrt(const T  FnBase);
+    TT2 CIN T1  Pow(const T1 FnBase, const T2 FnExp);
+    TTT CIN T   Exp(const T FnBase);
+    TTT CIN T   Sqrt(const T  FnBase);
+    TTT CIN T   Log(const T  FnBase);
 
-    double TrimZeros(const double FnNum, const double FnAccuracy);
-    float  TrimZeros(const float  FnNum, const float  FnAccuracy);
-    bool   Appx(const double FnFirst, const double FnSecond, const double FnAcceptibleRange = 0.0001); // e-4 (cout appx limit)
+    TT2 CIN T1   TrimZeros(const T1 FnNum, const T2 FnAccuracy);
+    TT2 CIN bool Appx(const T1& FnFirst, const T2& FnSecond, const xdbl FnAcceptibleRange = 1e-12);
+    TT3 CIN bool Appx(const T1& FnFirst, const T2& FnSecond, const T3& FnEndpoint1, const T3& FnEndpoint2);
+    TT2 CIN bool Same(const T1& FnFirst, const T2& FnSecond);
+    TT1 CIN T1   Abs(const T1& FnVal) { return FnVal < 0.0L ? -FnVal : FnVal; }
+    TT2 CIN T1   Max(const T1& FnLeft, const T2& FnRight) { return (FnLeft > FnRight) ? FnLeft : FnRight; }
+    TT2 CIN T1   Min(const T1& FnLeft, const T2& FnRight) { return (FnLeft < FnRight) ? FnLeft : FnRight; }
+    TT1 CIN T1   MSE(const T1& FnInput);
+
+    TTT CIN T RoundToNearestPowerOf10(const T& FNum);
+    TTT CIN T RoundToNearestNegativePowerOf10(const T& FNum);
+    TTT CIN T GetInverseFraction(const T& FNum);
+    TTT CIN T GetScalingFactor(const T& FNum);
 }
 
-template<typename T1, typename T2>
-T1 RA::Pow(const T1 FnBase, const T2 FnExp)
+TT2 constexpr T1 RA::Pow(const T1 FnBase, const T2 FnExp)
 {
-    return static_cast<T1>(pow(static_cast<double>(FnBase), static_cast<double>(FnExp)));
+    return std::pow(FnBase, FnExp);
 }
 
-TTT T RA::Sqrt(const T FnBase)
+TTT constexpr T RA::Exp(const T FVal)
 {
-    return static_cast<T>(sqrt(FnBase));
+    return std::exp(FVal);
+}
+
+TTT constexpr T RA::Sqrt(const T FnBase)
+{
+    return std::sqrt(FnBase);
+}
+
+TTT constexpr T RA::Log(const T FnBase)
+{
+    return std::log(FnBase);
 }
 
 
 // --- CUDA -----------------------------
 #ifdef UsingMSVC
 // Inline ___ Functions
+// H = Host
+// D = Device
+// X = Cross Plat
+// G = Global
 #define IHF inline
 #define IDF inline
 #define IXF inline
@@ -430,6 +458,99 @@ namespace RA
         CPU,
         GPU
     };
+}
+
+
+TT2 constexpr T1 RA::TrimZeros(const T1 FnNum, const T2 FnAccuracy)
+{
+    // xint to strip zeros, then back to double type
+    const T1 Places = 1.0L / FnAccuracy;
+    const T1 Result = static_cast<double>(static_cast<unsigned long long>(FnNum * Places));
+    return Result / (T1)Places;
+}
+
+TT2 constexpr bool RA::Appx(const T1& FnFirst, const T2& FnSecond, const xdbl FnAcceptibleRange)
+{
+    const auto LnDiff = RA::Abs(FnFirst - FnSecond);
+    return !!(FnAcceptibleRange > LnDiff);
+}
+
+TT3 constexpr bool RA::Appx(const T1& FnFirst, const T2& FnSecond, const T3& FnEndpoint1, const T3& FnEndpoint2)
+{
+    cvar LnSpread = RA::Max(FnEndpoint1, FnEndpoint2) - RA::Min(FnEndpoint1, FnEndpoint2);
+    auto LnAcceptibleRange = GetInverseFraction(LnSpread) * 100.0L;
+    return RA::Appx(FnFirst, FnSecond, LnAcceptibleRange);
+}
+
+
+TT2 constexpr bool RA::Same(const T1& FnFirst, const T2& FnSecond)
+{
+    if (FnFirst > FnSecond || FnFirst < FnSecond)
+        return false;
+    return true;
+}
+
+TT1 CIN T1 RA::MSE(const T1& FnInput)
+{
+    const auto LnAbs = RA::Abs(FnInput);
+    const auto LnSquared = LnAbs * LnAbs;
+    return (LnAbs < 1)
+        ? LnSquared * RA::GetScalingFactor(FnInput)
+        : LnSquared;
+}
+
+TTT constexpr T RA::RoundToNearestPowerOf10(const T& FNum)
+{
+    if (FNum <= 0) {
+        return static_cast<T>(0); // Handle edge cases where FNum is zero or negative
+    }
+
+    // Ensure that the calculation is done with floating-point precision if T is a floating-point type
+    if constexpr (std::is_floating_point_v<T>) {
+        long double exponent = std::log10(static_cast<long double>(FNum));
+        return static_cast<T>(std::pow(10.0L, std::floor(exponent)));
+    }
+    else {
+        // For integer types, use the original calculation
+        xint exponent = static_cast<xint>(std::log10(static_cast<xint>(FNum)));
+        return static_cast<T>(std::pow(10, static_cast<int>(exponent)));
+    }
+}
+
+TTT constexpr T RA::RoundToNearestNegativePowerOf10(const T& FNum)
+{
+    if (FNum <= 0) {
+        return static_cast<T>(0); // Handle edge cases where FNum is zero or negative
+    }
+
+    // Ensure that the calculation is done with floating-point precision if T is a floating-point type
+    if constexpr (std::is_floating_point_v<T>) {
+        long double exponent = std::log10(static_cast<long double>(FNum));
+        return static_cast<T>(std::pow(10.0L, -std::floor(exponent)));
+    }
+    else {
+        // For integer types, use the original calculation
+        xint exponent = static_cast<xint>(std::log10(static_cast<xint>(FNum)));
+        return static_cast<T>(std::pow(10, -static_cast<int>(exponent)));
+    }
+}
+
+TTT constexpr T RA::GetInverseFraction(const T& FNum) {
+    // Handle edge cases where FNum is zero or negative
+    if (FNum <= 0) {
+        return std::numeric_limits<double>::infinity();
+    }
+    return std::fabs(FNum) / 1e16;
+}
+
+TTT CIN T RA::GetScalingFactor(const T& FNum)
+{
+    if (RA::Appx(FNum, 0))
+        return 1;
+    double LnMagnitude = std::log10(std::abs(FNum));
+    double scalingFactor = (10.0 / std::pow(10.0, std::floor(LnMagnitude))) / 10.0;
+    return scalingFactor;
+    // example (FNum * FNum) GetScalingFactor(FNum) to get true MSE
 }
 
 // --- CUDA -----------------------------
@@ -453,7 +574,7 @@ using FunctionReturnType = typename decltype(std::function{ std::declval<Callabl
 
 // -----------------------------------------------------------------------------------------------------------------------------
 //// Example
-//if  constexpr (IsArray(int[]))
+//if  constexpr (BxArray(int[]))
 //    cout << "yes" << endl; // this will trigger
 
 #ifndef __MACROS_H__

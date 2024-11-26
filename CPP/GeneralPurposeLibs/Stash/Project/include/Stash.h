@@ -2,6 +2,9 @@
 
 #include "JSON.h" // Include First
 #include "xstring.h"
+#include "xmap.h"
+#include "Date.h"
+#include "re2/re2.h"
 
 
 #define MongoOpenDoc(__DOC__) BSON::Start{} << __DOC__ << BSON::OpenDoc
@@ -21,6 +24,7 @@ namespace RA
 {
     class Stash
     {
+        istatic re2::RE2 SoDateTimeRex = R"(^.*(_id|Epoch|Date|DateTime|Time).*$)";
     public:
         Stash(const xstring& URL = "mongodb://localhost:27017");
 
@@ -32,6 +36,7 @@ namespace RA
 
         Stash& SetDatabase(const xstring& FsDatabase);
         Stash& SetCollection(const xstring& FsCollection);
+        void   SetUniqueIndex(const xstring& Key = "_id", const bool FbAscending = true);
 
         Mongo::Database&   GetDatabase();
         Mongo::Collection& GetCollection();
@@ -42,7 +47,7 @@ namespace RA
         BSON::Result::InsertOne  operator<<(const xstring& FoJsonStr);
        
         static RA::JSON CursorToJSON(BSON::Cursor& FoCursor, RA::JSON::Init FeInit);
-        RA::JSON GetAll(RA::JSON::Init FeInit = RA::JSON::Init::Both);
+        RA::JSON GetAll(const int FnOrder = 1, RA::JSON::Init FeInit = RA::JSON::Init::Both);
 
         template<typename K, typename V>
         xint Count(const K& FxKey, const V& FxValue);
@@ -52,6 +57,9 @@ namespace RA
         RA::JSON FindOne(const BSON::Data& FnData, RA::JSON::Init FeInit = RA::JSON::Init::Both);
         RA::JSON FindMany(const BSON::Data& FnData, RA::JSON::Init FeInit = RA::JSON::Init::Both);
 
+        static BSON::Document AppendDocument(const BSON::Document& FoSource);
+        static std::map<RA::Date, xmap<xstring, double>> TimeSeriesObjToMap(const RA::JSON& FoJson);
+        static std::map<RA::Date, xmap<xstring, double>> TimeSeriesArrToMap(const RA::JSON& FoJson);
 
         BSON::Result::InsertOne  InsertOne(const BSON::Value& FvBSON) { return The << FvBSON; }
         BSON::Result::InsertOne  InsertOne(const xstring& FoJsonStr)  { return The << FoJsonStr; }
@@ -59,6 +67,10 @@ namespace RA
 
         BSON::Result::Update UpdateOne (const BSON::Value& FoFind, const BSON::Value& FoReplace);
         BSON::Result::Update UpdateMany(const BSON::Value& FoFind, const BSON::Value& FoReplace);
+
+        BSON::Result::Update UpsertOne(const BSON::Document& FoUpdate, const BSON::Value& FoFilter);
+        xmap<RA::Date::EpochTime, BSON::Result::Update>
+            UpsertTimeSeries(const xmap<RA::Date, xmap<xstring, double>>& FoDataMap, const xstring& FsAppend = "");
 
         BSON::Result::Delete DeleteOne(const BSON::Data& FnDocument);
         BSON::Result::Delete DeleteMany(const BSON::Data& FnDocument);

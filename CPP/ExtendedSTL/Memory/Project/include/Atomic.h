@@ -11,8 +11,8 @@ namespace RA
     template<typename T, typename enabler_t = void>
                          class Atomic;
                          
-    template<typename T> class Atomic<T, typename std::enable_if_t< IsFundamental(T) ||  IsSimple(T)>>;
-    template<typename T> class Atomic<T, typename std::enable_if_t<!IsFundamental(T) && !IsSimple(T)>>;
+    template<typename T> class Atomic<T, typename std::enable_if_t< BxFundamental(T) ||  BxSimple(T)>>;
+    template<typename T> class Atomic<T, typename std::enable_if_t<!BxFundamental(T) && !BxSimple(T)>>;
 #endif
 };
 

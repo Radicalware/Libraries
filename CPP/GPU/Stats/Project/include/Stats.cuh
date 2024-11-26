@@ -32,12 +32,14 @@
 #include "AVG.h"
 #include "STOCH.h"
 #include "RSI.h"
+#include "Normals.h"
 #include "Deviation.h"
 #else
 #include "Support.cuh"
 #include "AVG.cuh"
 #include "STOCH.cuh"
 #include "RSI.cuh"
+#include "Normals.cuh"
 #include "Deviation.cuh"
 #endif
 
@@ -85,15 +87,17 @@ namespace RA
         DXF void SetMaxTraceSize(const xint FSize);
         DXF auto GetMaxTraceSize() const { return MnMaxTraceSize; }
 
-        DXF double  operator[](const xint IDX) const;
-        DXF double  Recent(const xint IDX = 0) const { return The[IDX]; }
-        DXF double  Former(const xint IDX = 0) const;
+        DXF double  ValueFromEnd(const xint IDX = 0) const;
+        DXF double  ValueFromStart(const xint IDX = 0) const;
+
+        IXF double  ValueFromOld(const xint IDX = 0) const { return ValueFromStart(IDX); }
+        IXF double  ValueFromNew(const xint IDX = 0) const { return ValueFromEnd(IDX); }
 
         DXF void operator<<(const double FnValue);
 
         DXF void Reset();
         DXF void ZeroOut();
-        DXF void SetAllValues(const double FnValue, const bool FbHadFirstIndent);
+        DXF void SetAllValues(const double FnValue);
 
         DXF auto GetStorageSize()  const { return MnStorageSize; }
         DXF auto GetInsertIdx()    const { return MnInsertIdx; }
@@ -109,7 +113,10 @@ namespace RA
         DXF double GetSkippedNum(const xint FIdx) const;
         DXF auto   GetSkipDataLeng() const { return MoSlippage.MnDataLeng; }
 
+        IXF auto   GetMin() const { return MnMin; }
+        IXF auto   GetMax() const { return MnMax; }
     protected:
+        DXF void SetValue(const xint FIdx, const double FnValue);
         struct TheJoinery
         {
             //Chunk* MvChunks = nullptr;
@@ -130,12 +137,13 @@ namespace RA
         };
 
         EHardware MeHardware = EHardware::Default;
-        xint     MnStorageSize = 0;
+        xint      MnStorageSize = 0;
         xvector<EStatOpt> MvOptions;
 
         double   MnValue = 0;
         double*  MvValues = nullptr;
         xint     MnInsertIdx = 0;
+        bool     MbStorageSizeFull = false;
 
         TheJoinery  MoJoinery;
         TheSlippage MoSlippage;
@@ -148,9 +156,12 @@ namespace RA
 
         AVG         *MoAvgPtr   = nullptr;
         STOCH       *MoSTOCHPtr = nullptr;
+        Normals     *MoNormalsPtr = nullptr;
         RSI         *MoRSIPtr   = nullptr;
         Deviation   *MoMeanAbsoluteDeviationPtr = nullptr;
         Deviation   *MoStandardDeviationPtr     = nullptr;
 
+        xdbl MnMin =  DBL_MAX;
+        xdbl MnMax = -DBL_MAX;
     };
 }

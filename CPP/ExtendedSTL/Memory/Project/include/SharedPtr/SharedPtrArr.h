@@ -29,10 +29,10 @@ namespace RA
         template<typename F, typename ...A>
         CIN SharedPtr<T[]> Initialize(F&& FfInitialize, A&&... Args);
 
-        template<class TT = T, typename std::enable_if<!IsClass(TT), bool>::type = 0>
+        template<class TT = T, typename std::enable_if<!BxClass(TT), bool>::type = 0>
         CIN SharedPtr(const xint FnLeng);
 
-        template<typename ...A, class TT = T, typename std::enable_if< IsClass(TT), bool>::type = 0>
+        template<typename ...A, class TT = T, typename std::enable_if< BxClass(TT), bool>::type = 0>
         CIN SharedPtr(const xint FnLeng, A&&... Args);
 
         CIN SharedPtr(SharedPtr<T[]>&& Other);
@@ -99,7 +99,7 @@ RIN RA::SharedPtr<T[]>::~SharedPtr()
     The.MbDestructorSet = false;
     if (The.get() != nullptr && MnLeng > 0 && The.use_count() < 1)
     {
-        if constexpr (!IsFundamental(RemoveAllExts(T)))
+        if constexpr (!BxFundamental(RemoveAllExts(T)))
         {
             for (auto& Obj : The)
                 Obj.~T();
@@ -121,7 +121,7 @@ CIN RA::SharedPtr<T[]> RA::SharedPtr<T[]>::Initialize(F&& FfInitialize, A&&... A
 }
 
 template<typename T>
-template<class TT, typename std::enable_if<!IsClass(TT), bool>::type>
+template<class TT, typename std::enable_if<!BxClass(TT), bool>::type>
 CIN RA::SharedPtr<T[]>::SharedPtr(const xint FnLeng) :
     RA::BaseSharedPtr<T[]>(new T[FnLeng+1])
 {
@@ -132,7 +132,7 @@ CIN RA::SharedPtr<T[]>::SharedPtr(const xint FnLeng) :
 }
 
 template<typename T>
-template<typename ...A, class TT, typename std::enable_if< IsClass(TT), bool>::type>
+template<typename ...A, class TT, typename std::enable_if< BxClass(TT), bool>::type>
 CIN RA::SharedPtr<T[]>::SharedPtr(const xint FnLeng, A&&... Args) :
     RA::BaseSharedPtr<T[]>(new T[FnLeng])
 {

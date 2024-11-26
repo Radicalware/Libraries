@@ -64,6 +64,11 @@ macro(BuildRadicalQt6Solution InPrivateLibs InPublicLibs)
         ${CMAKE_CURRENT_SOURCE_DIR}/Solution/resource/exe/pic.rc
     )
 
+    if (MSVC) 
+        target_compile_options(${THIS} PRIVATE /std:c++latest) 
+        #target_link_options(${THIS} PRIVATE /NODEFAULTLIB:MSVCRT)
+    endif()
+
     foreach(Lib IN LISTS ${InPrivateLibs})
         find_package("${Lib}")
     endforeach()

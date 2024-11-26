@@ -36,9 +36,9 @@ public:
     RIN Task(const Task<T>& Other) = delete; // Use Shared Pointer
     RIN void operator=(const Task<T>& Other) = delete; // Use Shared Pointer
 
-    template<class TT = T, typename std::enable_if<!IsSharedPtr(TT), bool>::type = 0>
+    template<class TT = T, typename std::enable_if<!BxSharedPtr(TT), bool>::type = 0>
     RIN Task(const xint FIDX,                                  std::function<T()>&& FfMethod);
-    template<class TT = T, typename std::enable_if<!IsSharedPtr(TT), bool>::type = 0>
+    template<class TT = T, typename std::enable_if<!BxSharedPtr(TT), bool>::type = 0>
     RIN Task(const xint FIDX, const xp<std::string>& FsKeyPtr, std::function<T()>&& FfMethod);
 
     RIN Task(const xint FIDX,                                  std::function<xp<T>()>&& FfMethod);
@@ -69,14 +69,14 @@ public:
 };
 
 template<typename T>
-template<class TT, typename std::enable_if< !IsSharedPtr(TT), bool>::type>
+template<class TT, typename std::enable_if< !BxSharedPtr(TT), bool>::type>
 RIN TaskValueAPI::Task(const xint FIDX, std::function<T()>&& FfMethod) :
     IDX(FIDX), MfMethodValue(FfMethod)
 {
 }
 
 template<typename T>
-template<class TT, typename std::enable_if< !IsSharedPtr(TT), bool>::type>
+template<class TT, typename std::enable_if< !BxSharedPtr(TT), bool>::type>
 RIN TaskValueAPI::Task(const xint FIDX, const xp<std::string>& FsKeyPtr, std::function<T()>&& FfMethod) :
     IDX(FIDX), MsNamePtr(FsKeyPtr), MfMethodValue(FfMethod)
 {

@@ -16,7 +16,7 @@ namespace RA
         friend class StandardDeviation;
     public:
         AVG(const double* FvValues = nullptr,
-            const xint*   FnInsertIdxPtr = nullptr,
+            const xint* FnInsertIdxPtr = nullptr,
             const xint    FnStorageSize = 0);
 
         IXF void SetMaxTraceSize(const xint FSize) { MnMaxTraceSize = FSize; }
@@ -44,9 +44,9 @@ namespace RA
 
     private:
         const double* MvValues;
-        const xint*   MnInsertIdxPtr;
+        const xint* MnInsertIdxPtr;
         const xint    MnStorageSize;
-              xint    MnLogiclaSize = 0;
+        xint    MnLogiclaSize = 0;
 
         xint    MnRunningSize = 0;
         xint    MnMaxTraceSize = 0;

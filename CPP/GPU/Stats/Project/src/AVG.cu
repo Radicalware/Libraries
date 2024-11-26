@@ -25,6 +25,7 @@ DXF void RA::AVG::SetDefaultValues(const double FnDefaualt)
     MnAvg = FnDefaualt;
     MnRunningSize = 1;
     MnSum = MnAvg * MnStorageSize;
+    MnLogiclaSize = 0;
 }
 
 DXF xint RA::AVG::GetLastIDX() const

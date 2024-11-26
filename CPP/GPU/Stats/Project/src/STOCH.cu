@@ -8,20 +8,20 @@
 RA::STOCH::STOCH(
     const double* FvValues,
     const   xint* FnInsertIdxPtr,
+    const   xdbl* FnMinPtr,
+    const   xdbl* FnMaxPtr,
     const   xint  FnStorageSize)
     :
     MvValues(FvValues),
     MnInsertIdxPtr(FnInsertIdxPtr),
+    MnMinPtr(FnMinPtr),
+    MnMaxPtr(FnMaxPtr),
     MnStorageSize(FnStorageSize)
 {
-    Begin();
-    Rescue();
 }
 
 DXF void RA::STOCH::CopyStats(const RA::STOCH& Other)
 {
-    MnSmallest = Other.MnSmallest;
-    MnBiggest = Other.MnBiggest;
     MnSTOCH = Other.MnSTOCH;
 }
 
@@ -37,49 +37,44 @@ DXF void RA::STOCH::Update()
     if (MnRunningSize >= MnStorageSize)
         MnRunningSize = MnStorageSize;
 
-    MnBiggest  = -DBL_MAX; // min is big   until proven otherwise
-    MnSmallest = +DBL_MAX; // max is small until proven otherwise
+    cvar& LnMin = *MnMinPtr;
+    cvar& LnMax = *MnMaxPtr;
 
-    auto LnInsert = *The.MnInsertIdxPtr + 1;
-    if (LnInsert >= MnStorageSize) LnInsert = 0;
-    auto LnLoopsLeft = MnRunningSize - 1;
-
-    do
+    cvar& LnNewVal = MvValues[*MnInsertIdxPtr];
+    const auto LnDivisor = LnMax - LnMin;
+    MnSTOCH = 100.0 * ((LnNewVal - LnMin) / (LnMax - LnMin));
+    if (!BxIsRealNum(MnSTOCH))
     {
-        const auto LnValue = MvValues[LnInsert];
-        if (MnBiggest < LnValue)
-            MnBiggest = LnValue;
-        if (MnSmallest > LnValue)
-            MnSmallest = LnValue;
-
-        if (++LnInsert >= MnStorageSize)
-            LnInsert = 0;
-    } 
-    while (LnLoopsLeft-- > 1); // you don't count yourself
-
-    if (BxNoEntry())
-    {
-        MnSTOCH = 50;
-        return;
+        if (RA::Appx(LnDivisor, 0, 0.000001))
+            MnSTOCH = 50.0;
+        else
+        {
+            printf("1:) Bad MnSTOCH: %fl - %fl = %fl  from %fl\n", LnMax, LnMin, LnDivisor, LnNewVal);
+            for (xint i = 0; i < MnStorageSize; i++)
+                printf("Storage Val: %fl\n", MvValues[i]);
+            printf("\n");
+        }
     }
-
-    cvar& LnVal = MvValues[*MnInsertIdxPtr];
-    MnSTOCH = 100 * ((LnVal - MnSmallest) / (MnBiggest - MnSmallest));
 }
 
 DXF void RA::STOCH::Update(const double FnValue)
 {
-    if (MnBiggest < FnValue)
-        MnBiggest = FnValue;
-    if (MnSmallest > FnValue)
-        MnSmallest = FnValue;
-    MnSTOCH = 100 * ((FnValue - MnSmallest) / (MnBiggest - MnSmallest));
+    cvar& LnMin = *MnMinPtr;
+    cvar& LnMax = *MnMaxPtr;
+
+    const auto LnDivisor = LnMax - LnMin;
+    MnSTOCH = 100 * ((FnValue - LnMin) / (LnMax - LnMin));
+    if (!BxIsRealNum(MnSTOCH))
+    {
+        if (RA::Appx(LnDivisor, 0, 0.000001))
+            MnSTOCH = 50.0;
+        else
+            printf("2:) Bad MnSTOCH: %fl - %fl = %fl\n", LnMax, LnMin, LnDivisor);
+    }
 }
 
 DXF void RA::STOCH::SetDefaultValues(const double FnDefaualt)
 {
-    MnBiggest = FnDefaualt;
-    MnSmallest = FnDefaualt;
-    MnSTOCH = 50;
+    Update(FnDefaualt);
 }
 

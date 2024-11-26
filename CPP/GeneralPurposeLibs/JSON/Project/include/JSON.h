@@ -30,8 +30,9 @@
 
 namespace BSON
 {
-    using Document = bsoncxx::builder::stream::document;
+    using Document = bsoncxx::builder::basic::document;
     using Start    = bsoncxx::builder::stream::document;
+    using Options  = mongocxx::options::update;
 
     constexpr decltype(bsoncxx::builder::stream::finalize) Finish;
 
@@ -41,6 +42,7 @@ namespace BSON
     constexpr decltype(bsoncxx::builder::stream::open_array)  OpenArray;
     constexpr decltype(bsoncxx::builder::stream::close_array) CloseArray;
 
+    using OID = bsoncxx::oid;
     using Value = bsoncxx::document::value;
     using View = bsoncxx::document::view;
     using Data = bsoncxx::document::view_or_value;

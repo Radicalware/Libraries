@@ -61,7 +61,9 @@ RA::Date::Date(const xstring& FsDateTime, Offset FeOffset)
     if (LnHoursOffset)
         LnHoursOffset /= 60;
 
-    xvector<int> FvnDigits = FsDateTime.Search(R"(^(\d\d\d\d)-(\d\d)-(\d\d) (\d\d):(\d\d):(\d\d)$)").ForEach<int>([](const xstring& Item) { return Item.ToInt(); });
+    xvector<int> FvnDigits = (FsDateTime.Match(SnMatchDateTimeCaptureFull))
+        ? FsDateTime.Search(SnDateTimeCaptureFull).ForEach<int>([](const xstring& Item) { return Item.ToInt(); })
+        : FsDateTime.Search(SnDateTimeCaptureHalf).ForEach<int>([](const xstring& Item) { return Item.ToInt(); }) + xvector<int>{0, 0, 0};
     MoTime.Year = 0;
     SetDateTime(FvnDigits[0], FvnDigits[1], FvnDigits[2], FvnDigits[3] + LnHoursOffset, FvnDigits[4], FvnDigits[5]);
 }

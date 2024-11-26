@@ -5,10 +5,10 @@
 
 template<typename T, typename enabler_t = void> class Task;
 
-#define TaskVoidAPI        Task<T, typename std::enable_if_t< IsSame(T, void)>>
-#define TaskValueAPI       Task<T, typename std::enable_if_t<!IsSame(T, void) && !IsSharedPtr(T) && !IsFundamental(T)>>
-#define TaskFundamentalAPI Task<T, typename std::enable_if_t<!IsSame(T, void) && !IsSharedPtr(T) &&  IsFundamental(T)>>
-#define TaskVirtualAPI     Task<T, typename std::enable_if_t<!IsSame(T, void) &&  IsSharedPtr(T) && !IsFundamental(T)>>
+#define TaskVoidAPI        Task<T, typename std::enable_if_t< BxSameType(T, void)>>
+#define TaskValueAPI       Task<T, typename std::enable_if_t<!BxSameType(T, void) && !BxSharedPtr(T) && !BxFundamental(T)>>
+#define TaskFundamentalAPI Task<T, typename std::enable_if_t<!BxSameType(T, void) && !BxSharedPtr(T) &&  BxFundamental(T)>>
+#define TaskVirtualAPI     Task<T, typename std::enable_if_t<!BxSameType(T, void) &&  BxSharedPtr(T) && !BxFundamental(T)>>
 
 template<typename T> class TaskVoidAPI;
 template<typename T> class TaskValueAPI;

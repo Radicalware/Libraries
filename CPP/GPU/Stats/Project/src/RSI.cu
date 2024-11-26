@@ -114,10 +114,10 @@ DXF void RA::RSI::Update()
         return;
     }
 
-    const auto LnAvgGain = LnUpShift / LnUpTicks;
-    const auto LnAvgLoss = LnDownShift / LnDownTicks;
+    const auto LnAvgGain = LnUpShift / (double)LnUpTicks;
+    const auto LnAvgLoss = LnDownShift / (double)LnDownTicks;
 
-    MnRSI = 100 - (100 / (1 + (LnAvgGain / LnAvgLoss)));
+    MnRSI = 100.0 - (100.0 / (1.0 + (LnAvgGain / LnAvgLoss)));
 
     //if(LnStart >= 2)
     //    cout << MvValues[LnStart] << " : " << MvValues[LnStart - 1] << " : " << MvValues[LnStart - 2] << endl;

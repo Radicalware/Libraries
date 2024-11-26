@@ -4,6 +4,7 @@
 #include<math.h>
 #include<string>
 #include<memory>
+#include "re2/re2.h"
 
 #include "xstring.h"
 #include "xvector.h"
@@ -158,7 +159,6 @@ namespace RA
     private:
         istatic int  SnOffsetUTC = 0;
         istatic bool SbOffsetCalculated = false;
-
         static int  GetSecondsOffset(Offset FeOffset);
 
         void SetEpochTime(const Date::EpochTime FnEpochTime);
@@ -177,6 +177,15 @@ namespace RA
         bool operator<=(const Date& Other) const;
         bool operator> (const Date& Other) const;
         bool operator< (const Date& Other) const;
+
+    private:
+        istatic re2::RE2 SnMatchDateTimeCaptureFull =
+            re2::RE2(R"(^(\d\d\d\d)[^\d]+(\d\d)[^\d]+(\d\d)[^\d]+(\d\d)[^\d]+(\d\d)[^\d]+(\d\d).*$)");
+        istatic std::regex SnDateTimeCaptureFull =
+            std::regex(R"(^(\d\d\d\d)[^\d]+(\d\d)[^\d]+(\d\d)[^\d]+(\d\d)[^\d]+(\d\d)[^\d]+(\d\d).*$)");
+        istatic std::regex SnDateTimeCaptureHalf =
+            std::regex(R"(^(\d\d\d\d)[^\d]+(\d\d)[^\d]+(\d\d).*$)");
+
     };
 };
 
@@ -195,3 +204,13 @@ EXI bool operator> (const xint& Left, const RA::Date& Right);
 EXI bool operator< (const xint& Left, const RA::Date& Right);
 
 EXI std::ostream& operator<<(std::ostream& out, const RA::Date& obj);
+
+
+namespace std {
+    template <>
+    struct hash<RA::Date> {
+        inline std::size_t operator()(const RA::Date& FoDate) const {
+            return std::hash<xint>{}(FoDate.GetEpochTimeEvenMilliseconds());
+        }
+    };
+};

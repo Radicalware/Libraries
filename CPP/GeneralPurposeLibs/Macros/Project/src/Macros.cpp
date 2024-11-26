@@ -4,8 +4,7 @@
 
 namespace RA
 {
-    template<>
-    xvector<char> Rand::GetRandomSequence<char>(const xint Length, const xint Floor, const xint Ceiling)
+    xvector<char> Rand::GetRandomCharSequence(const xint Length, const xint Floor, const xint Ceiling)
     {
         std::random_device os_seed;
         const uint_least32_t seed = os_seed();

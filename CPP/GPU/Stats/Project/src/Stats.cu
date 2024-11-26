@@ -101,16 +101,20 @@ void RA::Stats::CreateObjs(const xvector<EStatOpt>& FvOptions)
     Begin();
     MvOptions = FvOptions;
     ClearStorageRequriedObjs();
+
     switch (MeHardware)
     {
     case RA::EHardware::CPU:
     {
+        if (FvOptions.Has(RA::EStatOpt::AVG))
+            MoAvgPtr = new AVG(MvValues, &MnInsertIdx, MnStorageSize);
+
         for (const EStatOpt& LeOpt : MvOptions)
         {
-            if (LeOpt == EStatOpt::AVG)
-                MoAvgPtr = new AVG(MvValues, &MnInsertIdx, MnStorageSize);
-            else if (LeOpt == EStatOpt::STOCH)
-                MoSTOCHPtr = new STOCH(MvValues, &MnInsertIdx, MnStorageSize);
+            if      (LeOpt == EStatOpt::STOCH)
+                MoSTOCHPtr = new STOCH(MvValues, &MnInsertIdx, &MnMin, &MnMax, MnStorageSize);
+            else if (LeOpt == EStatOpt::Normals)
+                MoNormalsPtr = new Normals(MeHardware, MvValues, &MnInsertIdx, &MnMin, &MnMax, MnStorageSize);
             else if (LeOpt == EStatOpt::RSI)
                 MoRSIPtr = new RSI(MvValues, &MnInsertIdx, MnStorageSize);
             else if (LeOpt == EStatOpt::SD)
@@ -125,9 +129,10 @@ void RA::Stats::CreateObjs(const xvector<EStatOpt>& FvOptions)
     {
         for (const EStatOpt& LeOpt : MvOptions)
         {
-            if (LeOpt == EStatOpt::AVG)
+            if (FvOptions.Has(RA::EStatOpt::AVG))
                 MoAvgPtr = RA::Host::AllocateObjOnDevice<AVG>(MvValues, &MnInsertIdx, MnStorageSize);
-            else if (LeOpt == EStatOpt::STOCH)
+
+            if (LeOpt == EStatOpt::STOCH)
                 MoSTOCHPtr = RA::Host::AllocateObjOnDevice<STOCH>(MvValues, &MnInsertIdx, MnStorageSize);
             else if (LeOpt == EStatOpt::RSI)
                 MoRSIPtr = RA::Host::AllocateObjOnDevice<RSI>(MvValues, &MnInsertIdx, MnStorageSize);
@@ -363,7 +368,7 @@ DXF void RA::Stats::SetMaxTraceSize(const xint FSize)
     SRef(MoMeanAbsoluteDeviationPtr).SetMaxTraceSize(FSize);
 }
 
-DXF double RA::Stats::operator[](const xint IDX) const
+DXF double RA::Stats::ValueFromEnd(const xint IDX) const
 {
     if (!MnStorageSize && !IDX)
         return MnValue;
@@ -382,9 +387,9 @@ DXF double RA::Stats::operator[](const xint IDX) const
     return MvValues[LnRelIDX];
 }
 
-DXF double RA::Stats::Former(const xint IDX) const
+DXF double RA::Stats::ValueFromStart(const xint IDX) const
 {
-    const auto LnIdx = IDX + 1;
+    const auto LnIdx = IDX;
     if (LnIdx >= MnStorageSize)
 #ifdef UsingMSVC
         ThrowIt(RED "IDX = ", MnStorageSize, " which is too big for size of" WHITE);
@@ -404,7 +409,11 @@ DXF void RA::Stats::operator<<(const double FnValue)
         // newer numbers are behind
         // oldest number is +1 ahead but increasing in newness
         if (++MnInsertIdx >= MnStorageSize)
+        {
             MnInsertIdx = 0;
+            MbStorageSizeFull = true;
+        }
+
     }
 
     MnValue = FnValue;
@@ -412,12 +421,15 @@ DXF void RA::Stats::operator<<(const double FnValue)
     if (MoJoinery.MnSize)
     {
         if (MbHadFirstInsert && MoJoinery.MnIdx == 0 && ++MnInsertIdx >= MnStorageSize)
+        {
             MnInsertIdx = 0;
+            MbStorageSizeFull = true;
+        }
 
         MoJoinery.InsertNum(FnValue);
 
         if (MvValues)
-            MvValues[MnInsertIdx] = MoJoinery.MnSum;
+            SetValue(MnInsertIdx, MoJoinery.MnSum);
 
         MnValue = MoJoinery.MnSum;
         if (++MoJoinery.MnIdx >= MoJoinery.MnSize)
@@ -446,7 +458,7 @@ DXF void RA::Stats::operator<<(const double FnValue)
                 if (++LnMainIdx >= MnStorageSize)
                     LnMainIdx = 0;
                 const auto& LnDbgSlipNum = MoSlippage.MvNums[LnSlipIdx];
-                MvValues[LnMainIdx] = MoSlippage.MvNums[LnSlipIdx];
+                SetValue(LnMainIdx, MoSlippage.MvNums[LnSlipIdx]);
             }
 
             ++LnSlipIdx;
@@ -463,7 +475,32 @@ DXF void RA::Stats::operator<<(const double FnValue)
     }
     
     if (MvValues)
-        MvValues[MnInsertIdx] = MnValue;
+        SetValue(MnInsertIdx, MnValue);
+
+    if (MoSTOCHPtr || MoNormalsPtr)
+    {
+        if (MnStorageSize)
+        {
+            cvar LnLoopCount = (MbStorageSizeFull) ? MnStorageSize : MnInsertIdx + 1;
+            MnMin = DBL_MAX;
+            MnMax = -DBL_MAX;
+            for (xint i = 0; i < LnLoopCount; i++)
+            {
+                cvar& LnValue = MvValues[i];
+                if (LnValue > MnMax)
+                    MnMax = LnValue;
+                if (LnValue < MnMin)
+                    MnMin = LnValue;
+            }
+        }
+        else
+        {
+            if (MnValue > MnMax)
+                MnMax = MnValue;
+            if (MnValue < MnMin)
+                MnMin = MnValue;
+        }
+    }
 
     if (MoJoinery.MnSize && !MoJoinery.MbFilled)
         return; // you don't want half-filled joinery to impact deviations
@@ -473,6 +510,7 @@ DXF void RA::Stats::operator<<(const double FnValue)
         SRef(MoAvgPtr).Update(MnValue);
         SRef(MoStandardDeviationPtr).Update(MnValue);
         SRef(MoMeanAbsoluteDeviationPtr).Update(MnValue);
+        SRef(MoNormalsPtr).Update(MnValue);
         SRef(MoSTOCHPtr).Update(MnValue);
         return;
     }
@@ -484,6 +522,7 @@ DXF void RA::Stats::operator<<(const double FnValue)
     SRef(MoAvgPtr).Update(MnValue);
     SRef(MoStandardDeviationPtr).Update(MnValue);
     SRef(MoMeanAbsoluteDeviationPtr).Update(MnValue);
+    SRef(MoNormalsPtr).Update();
     SRef(MoRSIPtr).Update();
     SRef(MoSTOCHPtr).Update();
 
@@ -492,19 +531,24 @@ DXF void RA::Stats::operator<<(const double FnValue)
 
 DXF void RA::Stats::Reset()
 {
-    SetAllValues(0, false);
-    if(MoAvgPtr)
-        (*MoAvgPtr).ResetRunningSize();
+    SetAllValues(0);
+    MbStorageSizeFull = false;
+    MnMin =  DBL_MAX;
+    MnMax = -DBL_MAX;
+    SRef(MoAvgPtr).ResetRunningSize();
 }
 
 DXF void RA::Stats::ZeroOut()
 {
-    SetAllValues(0, false);
+    SetAllValues(0);
 }
 
-DXF void RA::Stats::SetAllValues(const double FnValue, const bool FbHadFirstIndent)
+DXF void RA::Stats::SetAllValues(const double FnValue)
 {
-    MbHadFirstInsert = FbHadFirstIndent;
+    MbHadFirstInsert = false;
+    MbStorageSizeFull = true;
+    MnMin = FnValue;
+    MnMax = FnValue;
     MnInsertIdx = 1;
     if (!MvValues)
         return;
@@ -530,7 +574,7 @@ DXF void RA::Stats::SetAllValues(const double FnValue, const bool FbHadFirstInde
         MoJoinery.MvValues[0] = FnValue;
         MoJoinery.MvValues[MoJoinery.MnSize] = 0;
     }
-
+    
     SetDefaultValues(FnValue);
 }
 
@@ -553,6 +597,16 @@ DXF void RA::Stats::SetDeviceJoinery()
         auto& MoObj = *MoSTOCHPtr;
         MoObj.MvValues = MvValues;
         MoObj.MnInsertIdxPtr = &MnInsertIdx;
+        MoObj.MnMinPtr = &MnMin;
+        MoObj.MnMaxPtr = &MnMax;
+    }
+    if (MoNormalsPtr)
+    {
+        auto& MoObj = *MoNormalsPtr;
+        MoObj.MvValues = MvValues;
+        MoObj.MnInsertIdxPtr = &MnInsertIdx;
+        MoObj.MnMinPtr = &MnMin;
+        MoObj.MnMaxPtr = &MnMax;
     }
     SRef(MoStandardDeviationPtr).SetAvg(MoAvgPtr);
     SRef(MoMeanAbsoluteDeviationPtr).SetAvg(MoAvgPtr);
@@ -563,6 +617,13 @@ DXF double RA::Stats::GetSkippedNum(const xint FIdx) const
     if (FIdx >= MoSlippage.MnDataLeng)
         printf(RED "Out of Range" WHITE);
     return MoSlippage.MvNums[MoSlippage.MnDataLeng - 1 - FIdx];
+}
+
+DXF void RA::Stats::SetValue(const xint FIdx, const double FnValue)
+{
+    MvValues[FIdx] = FnValue;
+    if (MoNormalsPtr && MoNormalsPtr->BxLiteral())
+        MvValues[FIdx] = (FnValue / static_cast<double>(MoNormalsPtr->GetCompression()));
 }
 
 DXF void RA::Stats::TheJoinery::InsertNum(const double FnNum)
