@@ -10,6 +10,9 @@ include("${RADICAL_PATH}/Radical-Lib-Build.cmake")
 set(THIS ${ArgProjectName})
 project(${THIS})
 
+# because VCPKG uses an older function
+add_definitions(-D_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING)
+
 set(PrivateLibs "")
 list(APPEND PrivateLibs "Iterator")
 list(APPEND PrivateLibs "Memory")

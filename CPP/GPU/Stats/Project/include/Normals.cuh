@@ -32,6 +32,7 @@ namespace RA
             const xdbl MnMin = DBL_MAX;
         };
 
+        DXF void CopyStats(const Normals& Other);
         Normals(
             const EHardware FeHardware,
             const double* FvValues,
@@ -54,7 +55,6 @@ namespace RA
         IXF auto BxFullSize()     const { return MnStorageSize == MnRunningSize; }
         IXF auto GetRunningSize() const { return MnRunningSize; }
 
-        DXF void CopyStats(const Normals& Other);
 
         IXF static constexpr xdbl ToNormalLinear(const double& FnRaw, const Config& FoConfig);
         IXF static constexpr xdbl ToRawLinear(const double& FnCompressedNormal, const Config& FoConfig);
@@ -69,12 +69,11 @@ namespace RA
         DXF xdbl ToRawLog(const double& FnNormal);
 
         IXF void SetLiteral(const bool Truth) { MbLiteral = Truth; }
-        IXF void SetLog(const bool Truth) { MbLog = Truth; }
 
 #ifdef UsingMSVC
         DXF const xvector<double>& GetNormals() const { return MvNormals; }
-        DXF double GetNormalOld(const xint Idx) const;
-        DXF double GetNormalNew(const xint Idx) const;
+        DXF double GetNormalFront(const xint Idx) const;
+        DXF double GetNormalBack(const xint Idx) const;
 #else // UsingMSVC
         DXF const double* GetNormals() const { return MvNormals; }
         DXF double GetNormal(const xint Idx) const { return MvNormals[Idx]; }
@@ -90,13 +89,12 @@ namespace RA
         const xdbl* MnMinPtr = nullptr;
         const xdbl* MnMaxPtr = nullptr;
         const xint* MnInsertIdxPtr;
-        xint    MnStorageSize;
-        bool    MbLiteral = false;
-        bool    MbLog = false;
-        xdbl    MnCompression = 1.0;
+        xint        MnStorageSize;
+        bool        MbLiteral = false;
+        xdbl        MnCompression = 1.0;
 
-        double  MnLastNormal = 0;
-        xint    MnRunningSize = 0;
+        double      MnLastNormal = 0;
+        xint        MnRunningSize = 0;
 
 #ifdef UsingMSVC
         xvector<double> MvNormals;
@@ -111,37 +109,17 @@ namespace RA
 IXF constexpr xdbl RA::Normals::ToNormalLinear(const double& FnRaw, const Config& FoConfig)
 {
     if (RA::Appx(FoConfig.MnMin, FoConfig.MnMax))
-        return 0;
+        return 0; // 0 is the centerpoint so min/max even means you are at zero
 
     const auto LnNormal = 2.0L * ((FnRaw - FoConfig.MnMin) / (FoConfig.MnMax - FoConfig.MnMin)) - 1.0L;
     const auto LnCompressedNormal = LnNormal / FoConfig.MnCompression;
     return LnCompressedNormal;
-    // Loss: 0.026895523071
-    //auto LnMinAdj = (FoConfig.MnMin < 0) 
-    //    ? -FoConfig.MnMin  // neg becomes pos so everyting gets bumpped up
-    //    : -FoConfig.MnMin; // everything gets decreased to zero
-    //auto LnMin = 0.0L;
-    //auto LnRaw = FnRaw + LnMinAdj;
-    //auto LnMax = FoConfig.MnMax + LnMinAdj;
-    //auto LnPre = 2.0L * ((LnRaw - LnMin) / (LnMax - LnMin));
-    //// return LnPre -= 1.0L;
-
-    //if (LnPre > 1.0L) // too large to cross 0
-    //    LnPre -= 1.0L;
-    //else if (LnPre <= 0.0L) // already below 0
-    //    LnPre -= 1.0L;
-    //else
-    //{
-    //    LnPre = 1.0L - LnPre;
-    //    LnPre = -LnPre;
-    //}
-    //return LnPre;
 }
 
 IXF constexpr xdbl RA::Normals::ToRawLinear(const double& FnNormal, const Config& FoConfig)
 {
     if (RA::Appx(FoConfig.MnMin, FoConfig.MnMax))
-        return FoConfig.MnMax / FoConfig.MnCompression; // doesn't matter which one, both are the same
+        return FoConfig.MnMax;
 
     const auto LoUncompressedNormal = FnNormal * FoConfig.MnCompression;
     return ((LoUncompressedNormal + 1.0L) / 2.0L) * (FoConfig.MnMax - FoConfig.MnMin) + FoConfig.MnMin;
@@ -178,6 +156,9 @@ IXF constexpr xdbl RA::Normals::ToNormalLog(const double& FnRaw, const Config& F
 
 IXF constexpr xdbl RA::Normals::ToRawLog(const double& FnCompressedNormal, const Config& FoConfig)
 {
+    if (RA::Appx(FoConfig.MnMin, FoConfig.MnMax))
+        return FoConfig.MnMax;
+
     //cvar FnUncompressed = FnCompressedNormal * FoConfig.MnCompression;
     xdbl LoLogUncompressed = 0.0L;
     if (FnCompressedNormal > 0)

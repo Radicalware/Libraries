@@ -37,8 +37,9 @@ typedef          short int int8;
 typedef unsigned short int uint8;
 typedef unsigned long      uint32;
 typedef unsigned long long uint64;
-typedef size_t             xint;
-typedef long double        xdbl;
+typedef size_t             xint; // extended int
+typedef long long          sint; // signed int
+typedef long double        xdbl; // extended double
 #endif
 
 
@@ -391,8 +392,11 @@ UsingObject(R&)     RCast(const O& Obj) { return static_cast<R&>(Obj); }
 
 namespace RA
 {
-    TT2 CIN T1  Pow(const T1 FnBase, const T2 FnExp);
-    TTT CIN T   Exp(const T FnBase);
+    TT2 CIN T1  Pow(const T1 FnBase, const T2 FnExp = 2.0);
+    TTT CIN T   Exp(const T FnBase); // Euler's Number
+    TTT CIN T   Square(const T  FnBase);
+    TTT CIN T   Sqr(const T  FnBase);
+    TTT CIN T   Cube(const T  FnBase);
     TTT CIN T   Sqrt(const T  FnBase);
     TTT CIN T   Log(const T  FnBase);
 
@@ -419,6 +423,21 @@ TT2 constexpr T1 RA::Pow(const T1 FnBase, const T2 FnExp)
 TTT constexpr T RA::Exp(const T FVal)
 {
     return std::exp(FVal);
+}
+
+TTT constexpr T RA::Square(const T FnBase)
+{
+    return std::pow(FnBase, 2.0);
+}
+
+TTT constexpr T RA::Sqr(const T FnBase)
+{
+    return std::pow(FnBase, 2.0);
+}
+
+TTT constexpr T RA::Cube(const T FnBase)
+{
+    return std::pow(FnBase, 3.0);
 }
 
 TTT constexpr T RA::Sqrt(const T FnBase)

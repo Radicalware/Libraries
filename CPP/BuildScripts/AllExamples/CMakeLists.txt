@@ -129,7 +129,7 @@ PrintLibs()
 message("------------------------------------")
 set(FirstLoop ON)
 foreach(EXE ${EXES})
-    target_link_libraries(${EXE}
+    target_link_libraries(${EXE} PRIVATE
 
             # (This is location 3 of 3)
             
@@ -167,8 +167,15 @@ foreach(EXE ${EXES})
         PrintEXEsAndDLLs()
 
         set_target_properties(${EXE} PROPERTIES COMPILE_DEFINITIONS DLL_EXPORT=1)
+        if(${debug})
+            LinkStatic(${EXE} vld)
+        endif()
         LinkStatic(${EXE} re2)
-        LinkStatic(${EXE} vld)
+
+        LinkAllSharedLibs(${EXE})
+        SetAllDependenciesOn(${EXE})
+        LinkAllStaticLibs(${EXE})
+        target_link_libraries(${EXE} PRIVATE "${UsedVcpkgLibs}")
 endforeach()
 message("====================================")
 

@@ -24,44 +24,36 @@ namespace RA
             const xint FnStorageSize,
             const xvector<EStatOpt> FvOptions,
             const double FnDefaultVal = 0);
-
-        DHF AVG&        GetObjAVG();
-        DHF STOCH&      GetObjSTOCH();
-        DHF RSI&        GetObjRSI();
-        DHF Normals&    GetObjNormals();
-        DHF Deviation&  GetObjStandardDeviation();
-        DHF Deviation&  GetObjMeanAbsoluteDeviation();
-
-        DHF const AVG&       GetObjAVG()   const;
-        DHF const STOCH&     GetObjSTOCH() const;
-        DHF const RSI&       GetObjRSI()   const;
-        DHF const Normals&   GetObjNormals()   const;
-        DHF const Deviation& GetObjStandardDeviation() const;
-        DHF const Deviation& GetObjMeanAbsoluteDeviation() const;
         
-        DHF const AVG&       AVG()     const;
-        DHF const STOCH&     STOCH()   const;
-        DHF const RSI&       RSI()     const;
-        DHF const Normals&   Normals() const;
-        DHF const Deviation& SD()      const;
-        DHF const Deviation& MAD()     const;
+        DHF const AVG&       AVG()     const { return const_cast<StatsCPU*>(this)->AVG(); }
+        DHF const ZEA&       ZEA()     const { return const_cast<StatsCPU*>(this)->ZEA(); }
+        DHF const Omaha&     Omaha()   const { return const_cast<StatsCPU*>(this)->Omaha(); }
+        DHF const STOCH&     STOCH()   const { return const_cast<StatsCPU*>(this)->STOCH(); }
+        DHF const RSI&       RSI()     const { return const_cast<StatsCPU*>(this)->RSI(); }
+        DHF const Normals&   Normals() const { return const_cast<StatsCPU*>(this)->Normals(); }
+        DHF const Deviation& SD()      const { return const_cast<StatsCPU*>(this)->SD(); }
+        DHF const Deviation& MAD()     const { return const_cast<StatsCPU*>(this)->MAD(); }
         
         DHF RA::AVG&         AVG();
+        DHF RA::ZEA&         ZEA();
+        DHF RA::Omaha&       Omaha();
         DHF RA::STOCH&       STOCH();
         DHF RA::RSI&         RSI();
         DHF RA::Normals&     Normals();
         DHF RA::Deviation&   SD();
         DHF RA::Deviation&   MAD();
-        
-        IXF double GetAVG()   const { return GetObjAVG().GetAVG(); }
-        IXF double GetSTOCH() const { return GetObjSTOCH().GetSTOCH(); }
-        IXF double GetRSI()   const { return GetObjRSI().GetRSI(); }
-        IXF auto GetNormals() const { return GetObjNormals().GetNormals(); }
-        IXF auto GetNormalNew(const xint Idx = 0) const { return GetObjNormals().GetNormalNew(Idx); }
-        IXF auto GetNormalOld(const xint Idx = 0) const { return GetObjNormals().GetNormalOld(Idx); }
 
-        IXF double GetScaledSTOCH() const { return GetObjSTOCH().GetScaledSTOCH(); }
-        IXF double GetScaledRSI()   const { return GetObjRSI().GetScaledRSI(); }
+        IXF double GetAVG()   const { return The.AVG().GetAVG(); }
+        IXF double GetSUM()   const { return The.AVG().GetSum(); }
+        IXF double GetZEA()   const { return The.ZEA().GetZEA(); }
+        IXF double GetSTOCH() const { return The.STOCH().GetSTOCH(); }
+        IXF double GetRSI()   const { return The.RSI().GetRSI(); }
+        IXF auto GetNormals() const { return The.Normals().GetNormals(); }
+        IXF auto GetNormalFront(const xint Idx = 0) const { return The.Normals().GetNormalFront(Idx); }
+        IXF auto GetNormalBack(const xint Idx = 0) const { return The.Normals().GetNormalBack(Idx); }
+
+        IXF double GetScaledSTOCH() const { return The.STOCH().GetScaledSTOCH(); }
+        IXF double GetScaledRSI()   const { return The.RSI().GetScaledRSI(); }
 
         DHF double Get(const RA::EStatOpt) const;
     };

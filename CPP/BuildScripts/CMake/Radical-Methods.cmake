@@ -212,7 +212,7 @@ endfunction()
 
 
 macro(TargetLinkVulkan)
-    target_link_libraries(${THIS} 
+    target_link_libraries(${THIS} PRIVATE
         vulkan-1.lib
         kernel32.lib
         user32.lib

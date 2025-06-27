@@ -193,7 +193,7 @@ RA::JSON RA::Stash::FindMany(const BSON::Data& FnData, RA::JSON::Init FeInit)
 BSON::Document RA::Stash::AppendDocument(const BSON::Document& FoSource) {
     auto LoTarget = BSON::Document();
     for (const auto& element : FoSource.view())
-        LoTarget.append(BSON::KVP(element.key().to_string(), element.get_value()));
+        LoTarget.append(BSON::KVP(std::string(element.key().data(), element.key().length()), element.get_value()));
     return LoTarget;
 }
 

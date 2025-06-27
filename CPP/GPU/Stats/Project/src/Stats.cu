@@ -113,6 +113,10 @@ void RA::Stats::CreateObjs(const xvector<EStatOpt>& FvOptions)
         {
             if      (LeOpt == EStatOpt::STOCH)
                 MoSTOCHPtr = new STOCH(MvValues, &MnInsertIdx, &MnMin, &MnMax, MnStorageSize);
+            else if(LeOpt == EStatOpt::ZEA)
+                MoZeaPtr = new ZEA(MvValues, &MnInsertIdx, MnStorageSize);
+            else if(LeOpt == EStatOpt::Omaha)
+                MoOmahaPtr = new Omaha(MeHardware, MvValues, &MnInsertIdx, &MnMin, &MnMax, MnStorageSize);
             else if (LeOpt == EStatOpt::Normals)
                 MoNormalsPtr = new Normals(MeHardware, MvValues, &MnInsertIdx, &MnMin, &MnMax, MnStorageSize);
             else if (LeOpt == EStatOpt::RSI)
@@ -134,6 +138,8 @@ void RA::Stats::CreateObjs(const xvector<EStatOpt>& FvOptions)
 
             if (LeOpt == EStatOpt::STOCH)
                 MoSTOCHPtr = RA::Host::AllocateObjOnDevice<STOCH>(MvValues, &MnInsertIdx, MnStorageSize);
+            if (LeOpt == EStatOpt::ZEA)
+                MoZeaPtr = RA::Host::AllocateObjOnDevice<ZEA>(MvValues, &MnInsertIdx, MnStorageSize);
             else if (LeOpt == EStatOpt::RSI)
                 MoRSIPtr = RA::Host::AllocateObjOnDevice<RSI>(MvValues, &MnInsertIdx, MnStorageSize);
             else if (LeOpt == EStatOpt::SD)
@@ -150,7 +156,7 @@ void RA::Stats::CreateObjs(const xvector<EStatOpt>& FvOptions)
     Rescue();
 }
 
-void RA::Stats::Allocate(const xint FnStorageSize, const double FnDefaultVal)
+void RA::Stats::Allocate(const xint FnStorageSize, const double* FvValues)
 {
     Begin();
     Clear();
@@ -165,8 +171,18 @@ void RA::Stats::Allocate(const xint FnStorageSize, const double FnDefaultVal)
         {
             DeleteArr(MvValues);
             MvValues = new double[FnStorageSize + 1];
-            for (auto* Ptr = MvValues; Ptr < MvValues + FnStorageSize; Ptr++)
-                *Ptr = FnDefaultVal;
+            MvValues[FnStorageSize] = 0;
+            xint LnCount = 0;
+            if (FvValues != nullptr)
+            {
+                for (auto* Ptr = MvValues; Ptr < MvValues + FnStorageSize; Ptr++){
+                    cvar LnVal = FvValues[LnCount++]; // for dbg
+                    *Ptr = LnVal;
+                }
+            }else{
+                for (auto* Ptr = MvValues; Ptr < MvValues + FnStorageSize; Ptr++)
+                    *Ptr = 0;
+            }
         }
         break;
     }
@@ -210,7 +226,7 @@ void RA::Stats::Construct(
 
     MnStorageSize = FnStorageSize;
 
-    Allocate(MnStorageSize, FnDefaultVal);
+    Allocate(MnStorageSize, nullptr);
     CreateObjs(MvOptions);
 
     if (MeHardware == EHardware::CPU && FnDefaultVal)
@@ -222,6 +238,12 @@ void RA::Stats::Construct(
     Rescue();
 }
 
+void RA::Stats::SetValue(const double FnValue)
+{
+    MvValues[MnInsertIdx] = FnValue;
+    if (MoNormalsPtr && MoNormalsPtr->BxLiteral())
+        MvValues[MnInsertIdx] = (FnValue / MoNormalsPtr->GetCompression());
+}
 
 void RA::Stats::ConstructHardware(
     const EHardware FeHardware,
@@ -261,6 +283,7 @@ void RA::Stats::SetStorageSizeZero(const double FnDefaultVal)
     }
     MnStorageSize = 0;
     SRef(MoAvgPtr).SetDefaultValues(FnDefaultVal);
+    SRef(MoZeaPtr).SetDefaultValues(FnDefaultVal);
 
     ClearStorageRequriedObjs();
 
@@ -272,6 +295,8 @@ void RA::Stats::SetStorageSizeZero(const double FnDefaultVal)
 DXF void RA::Stats::SetDefaultValues(const double FnDefaultVal)
 {
     SRef(MoAvgPtr).SetDefaultValues(FnDefaultVal);
+    SRef(MoZeaPtr).SetDefaultValues(FnDefaultVal);
+    SRef(MoOmahaPtr).SetDefaultValues(FnDefaultVal);
     SRef(MoSTOCHPtr).SetDefaultValues(FnDefaultVal);
     SRef(MoRSIPtr).SetDefaultValues();
     SRef(MoStandardDeviationPtr).SetDefaultValues();
@@ -360,15 +385,32 @@ void RA::Stats::SetSlippageSize(const xint FCount)
 }
 
 
-DXF void RA::Stats::SetMaxTraceSize(const xint FSize)
+DXF void RA::Stats::SetPeriodSize(const xint FSize)
 {
-    MnMaxTraceSize = FSize;
-    SRef(MoAvgPtr).SetMaxTraceSize(FSize);
-    SRef(MoStandardDeviationPtr).SetMaxTraceSize(FSize);
-    SRef(MoMeanAbsoluteDeviationPtr).SetMaxTraceSize(FSize);
+    if(!FSize){
+        SRef(MoZeaPtr).SetPeriodSize(MnStorageSize);
+    }
+
+    cvar LnPeriodSizse = (MnStorageSize > FSize) ? FSize : MnStorageSize;
+    SRef(MoZeaPtr).SetPeriodSize(LnPeriodSizse);
 }
 
-DXF double RA::Stats::ValueFromEnd(const xint IDX) const
+DXF double RA::Stats::GetFront(const xint IDX) const
+{
+    const auto LnIdx = IDX;
+    if (LnIdx >= MnStorageSize)
+#ifdef UsingMSVC
+        ThrowIt(RED "IDX = ", MnStorageSize, " which is too big for size of" WHITE);
+#else // UsingMSVC
+        printf(RED "IDX = %llu which is too big for size of\n" WHITE, MnStorageSize);
+#endif
+    const auto LnRelIdx = MnInsertIdx + 1 + LnIdx; // where 0 is the start
+    if (LnRelIdx >= MnStorageSize)
+        return MvValues[LnRelIdx - MnStorageSize];
+    return MvValues[LnRelIdx];
+}
+
+DXF double RA::Stats::GetBack(const xint IDX) const
 {
     if (!MnStorageSize && !IDX)
         return MnValue;
@@ -385,21 +427,6 @@ DXF double RA::Stats::ValueFromEnd(const xint IDX) const
     // 0 + 5 - 1 == 5 - 1 == idx 4 (of size o5)
     // 2 + 5 - 4 == 3     == idx 3 (of size o5)
     return MvValues[LnRelIDX];
-}
-
-DXF double RA::Stats::ValueFromStart(const xint IDX) const
-{
-    const auto LnIdx = IDX;
-    if (LnIdx >= MnStorageSize)
-#ifdef UsingMSVC
-        ThrowIt(RED "IDX = ", MnStorageSize, " which is too big for size of" WHITE);
-#else // UsingMSVC
-        printf(RED "IDX = %llu which is too big for size of\n" WHITE, MnStorageSize);
-#endif
-    const auto LnRelIdx = MnInsertIdx + 1 + LnIdx; // where 0 is the start
-    if (LnRelIdx >= MnStorageSize)
-        return MvValues[LnRelIdx - MnStorageSize];
-    return MvValues[LnRelIdx];
 }
 
 DXF void RA::Stats::operator<<(const double FnValue)
@@ -477,7 +504,7 @@ DXF void RA::Stats::operator<<(const double FnValue)
     if (MvValues)
         SetValue(MnInsertIdx, MnValue);
 
-    if (MoSTOCHPtr || MoNormalsPtr)
+    if (MoSTOCHPtr || MoNormalsPtr || MoOmahaPtr)
     {
         if (MnStorageSize)
         {
@@ -511,6 +538,7 @@ DXF void RA::Stats::operator<<(const double FnValue)
         SRef(MoStandardDeviationPtr).Update(MnValue);
         SRef(MoMeanAbsoluteDeviationPtr).Update(MnValue);
         SRef(MoNormalsPtr).Update(MnValue);
+        SRef(MoOmahaPtr).Update(MnValue);
         SRef(MoSTOCHPtr).Update(MnValue);
         return;
     }
@@ -519,10 +547,17 @@ DXF void RA::Stats::operator<<(const double FnValue)
     if (MnInsertIdx != GetInsertIdx())
         printf(RED __CLASS__ " >> Bad Index Alignment\n" WHITE);
 
+    if (MoZeaPtr)
+    {
+        auto& MoZea = *MoZeaPtr;
+        auto LnBack = GetBack(MoZea.GetPeriodSize()-1);
+        SRef(MoZeaPtr).Update(MnValue, LnBack);
+    }
     SRef(MoAvgPtr).Update(MnValue);
     SRef(MoStandardDeviationPtr).Update(MnValue);
     SRef(MoMeanAbsoluteDeviationPtr).Update(MnValue);
     SRef(MoNormalsPtr).Update();
+    SRef(MoOmahaPtr).Update();
     SRef(MoRSIPtr).Update();
     SRef(MoSTOCHPtr).Update();
 
@@ -586,6 +621,12 @@ DXF void RA::Stats::SetDeviceJoinery()
         MoObj.MvValues = MvValues;
         MoObj.MnInsertIdxPtr = &MnInsertIdx;
     }
+    if (MoZeaPtr)
+    {
+        auto& MoObj = *MoZeaPtr;
+        MoObj.MvValues = MvValues;
+        MoObj.MnInsertIdxPtr = &MnInsertIdx;
+    }
     if (MoRSIPtr)
     {
         auto& MoObj = *MoRSIPtr;
@@ -603,6 +644,14 @@ DXF void RA::Stats::SetDeviceJoinery()
     if (MoNormalsPtr)
     {
         auto& MoObj = *MoNormalsPtr;
+        MoObj.MvValues = MvValues;
+        MoObj.MnInsertIdxPtr = &MnInsertIdx;
+        MoObj.MnMinPtr = &MnMin;
+        MoObj.MnMaxPtr = &MnMax;
+    }
+    if (MoOmahaPtr)
+    {
+        auto& MoObj = *MoOmahaPtr;
         MoObj.MvValues = MvValues;
         MoObj.MnInsertIdxPtr = &MnInsertIdx;
         MoObj.MnMinPtr = &MnMin;

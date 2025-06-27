@@ -107,6 +107,11 @@ void RA::Date::operator=(const xint FnTime)
     The = RA::Date(FnTime);
 }
 
+void RA::Date::operator=(const RA::Date::EpochTime FnTime)
+{
+    The = RA::Date(FnTime);
+}
+
 void RA::Date::operator=(const Date& Other)
 {
     if (Other.MsStrPtr)
@@ -423,20 +428,17 @@ void RA::Date::SetDateTime(int FnYear, int FnMonth, int FnDay, int FnHour, int F
 
     int LoMaxDays = RA::Date::GetDaysInMonth(FnYear, FnMonth);
 
-    auto SetArgTime = [&]()->void {
-        MoTime.Year = FnYear - 1900;
-        MoTime.Month = FnMonth - 1; // -1 due to indexing
-        MoTime.Day = FnDay;
-        MoTime.Hour = FnHour;
-        MoTime.Min = FnMin;
-        MoTime.Sec = FnSecond;
-        MoTime.DaylightSavingsTimeFlag = 1; // daylight saving (on/off)
+    MoTime.Year = FnYear - 1900;
+    MoTime.Month = FnMonth - 1; // -1 due to indexing
+    MoTime.Day = FnDay;
+    MoTime.Hour = FnHour;
+    MoTime.Min = FnMin;
+    MoTime.Sec = FnSecond;
+    MoTime.DaylightSavingsTimeFlag = 1; // daylight saving (on/off)
 
-        if (MoTime.Day > LoMaxDays)
-            MoTime.Day = LoMaxDays;
-    };
+    if (MoTime.Day > LoMaxDays)
+        MoTime.Day = LoMaxDays;
 
-    SetArgTime();
     MoEpochTime = _mkgmtime(reinterpret_cast<std::tm*>(&MoTime));
 
     MoTime.Year += 1900;
@@ -451,6 +453,15 @@ void RA::Date::SetDateTime(const RA::Date::Layout& FnTime)
 bool RA::Date::operator==(const Date& Other) const {
     return MoEpochTime == Other.MoEpochTime;
 }
+bool RA::Date::operator==(const xint FnTime) const
+{
+    return The.GetEpochTime() == FnTime;
+}
+bool RA::Date::operator==(const Date::EpochTime FnTime) const
+{
+    return The.GetEpochTime() == FnTime;
+}
+
 bool RA::Date::operator!=(const Date& Other) const {
     return MoEpochTime != Other.MoEpochTime;
 }
@@ -684,8 +695,15 @@ bool operator<=(const xint& Left, const RA::Date& Right) { return Left <= Right.
 bool operator> (const xint& Left, const RA::Date& Right) { return Left >  Right.GetEpochTime(); }
 bool operator< (const xint& Left, const RA::Date& Right) { return Left <  Right.GetEpochTime(); }
 
-std::ostream& operator<<(std::ostream& out, const RA::Date& obj)
+
+std::ostream& RA::operator<<(std::ostream& out, const RA::Date& obj)
 {
     out << obj.GetStr();
+    return out;
+}
+
+std::ostream& RA::operator<<(std::ostream& out, const xp<RA::Date> ptr)
+{
+    out << ptr->GetStr();
     return out;
 }

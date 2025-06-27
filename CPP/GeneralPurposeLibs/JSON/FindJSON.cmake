@@ -1,5 +1,8 @@
 ﻿cmake_minimum_required(VERSION 3.25)
 
+# because VCPKG uses an older function
+add_definitions(-D_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING)
+
 FindStaticLib("JSON")
 
 find_package(cpprestsdk CONFIG REQUIRED)
@@ -17,17 +20,24 @@ set(MONGO_INCLUDE "${VCPKG_INCLUDE}/mongocxx/v_noabi")
 list(APPEND InstalledIncludeDirs "${MONGO_INCLUDE}")
 include_directories("${MONGO_INCLUDE}")
 
-link_libraries(${LIB}
-${PreStaticLibLst}
-    
-    cpprestsdk::cpprest 
-    cpprestsdk::cpprestsdk_zlib_internal 
+set(UsedVcpkgLibs
+    cpprestsdk::cpprest
+    cpprestsdk::cpprestsdk_zlib_internal
+    cpprestsdk::cpprestsdk_boost_internal
     cpprestsdk::cpprestsdk_brotli_internal
 
     nlohmann_json
     nlohmann_json::nlohmann_json
 
     mongo::bsoncxx_shared
-    mongo::bson_shared
     mongo::mongocxx_shared
+    mongo::bson_shared
 )
+
+list(REMOVE_DUPLICATES UsedVcpkgLibs)
+set(COMBINED_LIST ${PreStaticLibLst} ${UsedVcpkgLibs})
+list(REMOVE_DUPLICATES COMBINED_LIST)
+link_libraries(${LIB}
+    ${COMBINED_LIST}
+)
+list(APPEND UsedVcpkgLibs ${UsedVcpkgLibs})

@@ -8,15 +8,13 @@ FILE(REMOVE "${RADICAL_PATH}/Find${THIS}.cmake")
 
 if(WIN32)
     set(OBJ_FILE_PATH "${CMAKE_SOURCE_DIR}/Build/${OS_TYPE}/${BUILD_TYPE}/${THIS}.dir/${BUILD_TYPE}/${THIS}.${OBJ}")
-    set(OUTPUT_DIR    "${CMAKE_SOURCE_DIR}/Build/${OS_TYPE}/${BUILD_TYPE}/${BUILD_TYPE}")
 else()
     set(OBJ_FILE_PATH "${CMAKE_SOURCE_DIR}/Build/${OS_TYPE}/${BUILD_TYPE}/CMakeFiles/${THIS}.dir/Project/src/${THIS}.${OBJ}")
-    set(OUTPUT_DIR "   ${CMAKE_SOURCE_DIR}/Build/${OS_TYPE}/${BUILD_TYPE}")    
 endif()
 
 # Install shared files
 install(
-    FILES "${OUTPUT_DIR}/${PF}${THIS}.${SH}"
+    FILES "${OUTPUT_DIR}/bin/${PF}${THIS}.${SH}"
     CONFIGURATIONS ${BUILD_TYPE}
     DESTINATION "${INSTALL_PREFIX}/Build/${BUILD_TYPE}/bin"
     OPTIONAL
@@ -24,7 +22,7 @@ install(
 
 # Install static files
 install(
-    FILES "${OUTPUT_DIR}/${PF}${THIS}.${ST}"
+    FILES "${OUTPUT_DIR}/lib/${PF}${THIS}.${ST}"
     CONFIGURATIONS ${BUILD_TYPE}
     DESTINATION "${INSTALL_PREFIX}/Build/${BUILD_TYPE}/lib"
     OPTIONAL
@@ -33,14 +31,14 @@ install(
 if(${BuildAll})
     foreach(SharedLib ${SharedLibs})
         install(
-            FILES "${OUTPUT_DIR}/${PF}${SharedLib}.${SH}"
+            FILES "${OUTPUT_DIR}/bin/${PF}${SharedLib}.${SH}"
             CONFIGURATIONS ${BUILD_TYPE}
             DESTINATION "${INSTALL_PREFIX}/Build/${BUILD_TYPE}/bin"
             OPTIONAL
         )
         if(${IsWindows})
             install(
-                FILES "${OUTPUT_DIR}/${PF}${SharedLib}.${ST}"
+                FILES "${OUTPUT_DIR}/bin/${PF}${SharedLib}.${ST}"
                 CONFIGURATIONS ${BUILD_TYPE}
                 DESTINATION "${INSTALL_PREFIX}/Build/${BUILD_TYPE}/lib"
                 OPTIONAL
@@ -50,7 +48,7 @@ if(${BuildAll})
 
     foreach(StaticLib ${StaticLibs})
         install(
-            FILES "${OUTPUT_DIR}/${PF}${StaticLib}.${ST}"
+            FILES "${OUTPUT_DIR}/lib/${PF}${StaticLib}.${ST}"
             CONFIGURATIONS ${BUILD_TYPE}
             DESTINATION "${INSTALL_PREFIX}/Build/${BUILD_TYPE}/lib"
             OPTIONAL

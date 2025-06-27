@@ -20,11 +20,15 @@ endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
     set(release ON)
+    set(Release ON)
     set(debug OFF)
+    set(Debug OFF)
     add_compile_definitions("ReleaseOn")
 else()
     set(release OFF)
+    set(Release OFF)
     set(debug ON)
+    set(Debug ON)
     add_compile_definitions("DebugOn")
 endif()
 
@@ -49,10 +53,23 @@ if(WIN32) # --------------------------------------------------------------------
     add_definitions(-DUsingMSVC)
 
     # RUN: vcpkg integrate install
-    set(VCPKG_ROOT      "C:/Source/Git/vcpkg")
-    set(Qt6_DIR         "C:/Qt/6.6.1/msvc2019_64/lib/cmake/Qt6")
+
+    # Get the VCPKG_ROOT environment variable
+    if(DEFINED ENV{VCPKG_ROOT})
+        set(VCPKG_ROOT $ENV{VCPKG_ROOT})
+        string(REPLACE "\\" "/" VCPKG_ROOT ${VCPKG_ROOT})
+        message(STATUS "VCPKG_ROOT is set to ${VCPKG_ROOT}")
+    else()
+        message(FATAL_ERROR "VCPKG_ROOT environment variable is not set")
+    endif()
+    
+    set(Qt6_Base_DIR    "C:/Qt/6.8.2/msvc2022_64/lib/cmake/Qt6")
+    set(Qt6_DIR         "${Qt6_Base_DIR}/Qt6")
     set(CMAKE_PATH      "C:/Program Files/CMake/share/cmake-$ENV{CMAKE_VERSION}/Modules")
     set(RADICAL_BASE    "C:/Source/CMake/Radicalware")
+
+    list(APPEND "D:/libs/Felgo/Felgo/mingw_64/lib/cmake/Felgo")
+    list(APPEND "D:/libs/Felgo/Felgo/mingw_64/lib/cmake/FelgoHotReload")
 
     SET(INSTALL_PREFIX "${RADICAL_BASE}")
     SET(INSTALL_DIR    "${RADICAL_BASE}/Libraries/Projects")
@@ -84,14 +101,19 @@ if(WIN32) # --------------------------------------------------------------------
     list(APPEND CMAKE_MODULE_PATH "${CMAKE_PATH}")
     list(APPEND CMAKE_MODULE_PATH "${Qt6_DIR}")
     list(APPEND CMAKE_MODULE_PATH "${RADICAL_PATH}")
+    list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}")
 
     PrintList(CMAKE_MODULE_PATH)
+    
+    list(APPEND CMAKE_PREFIX_PATH "${Qt6_Base_DIR}")
+    list(APPEND CMAKE_PREFIX_PATH "${Qt6_DIR}")
 
     set(PF  "")    # Prefix
     set(ST  "lib") # STatic
     set(SH  "dll") # SHared
     set(OBJ "obj") # OBJect 
 
+    set(VCPKG_TARGET_TRIPLET  "x64-windows")
 
 else() # -----------------------------------------------------------------------------
     SET(OS_TYPE "Nix")
@@ -119,25 +141,29 @@ else() # -----------------------------------------------------------------------
     set(OBJ "cpp.o")
 endif() # ----------------------------------------------------------------------------
 
-if(NOT DEFINED CUDA_VERSION)
+# if(NOT DEFINED CUDA_VERSION)
     set(VCPKG_RELEASE_LIB_DIR "${VCPKG_ROOT}/installed/x64-windows/lib")
     set(VCPKG_DEBUG_LIB_DIR   "${VCPKG_ROOT}/installed/x64-windows/lib")
     set(VCPKG_SCRIPT          "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
     set(CMAKE_TOOLCHAIN_FILE  "${VCPKG_SCRIPT}")
+# endif()
+if(WIN32)
+    set(VCPKG_INCLUDE         "${VCPKG_ROOT}/installed/x64-windows/include")
+else()
+    set(VCPKG_INCLUDE         "${VCPKG_ROOT}/installed/x64-linux/include")
 endif()
-set(VCPKG_INCLUDE         "${VCPKG_ROOT}/installed/x64-windows/include")
 
 if(debug)
     message("Link Debug Iterator 2 (aka ON)")
-    add_definitions(-D_ITERATOR_DEBUG_LEVEL=2)
+    #add_definitions(-D_ITERATOR_DEBUG_LEVEL=2)
     add_compile_definitions(_ITERATOR_DEBUG_LEVEL=2)
-    add_compile_definitions(-D_ITERATOR_DEBUG_LEVEL=2)
+    #add_compile_definitions(-D_ITERATOR_DEBUG_LEVEL=2)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D_ITERATOR_DEBUG_LEVEL=2")
 else()
     message("Link Debug Iterator 0 (aka OFF)")
-    add_definitions(-D_ITERATOR_DEBUG_LEVEL=0)
+    #add_definitions(-D_ITERATOR_DEBUG_LEVEL=0)
     add_compile_definitions(_ITERATOR_DEBUG_LEVEL=0)
-    add_compile_definitions(-D_ITERATOR_DEBUG_LEVEL=0)
+    #add_compile_definitions(-D_ITERATOR_DEBUG_LEVEL=0)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D_ITERATOR_DEBUG_LEVEL=0")
 endif()
 
@@ -191,19 +217,26 @@ include_directories("${VULKAN_INCLUDE_DIR}")
 
 if(WIN32)
     if(${IsApp})
-        set(OUTPUT_DIR "${CMAKE_SOURCE_DIR}/Build/${OS_TYPE}/${BUILD_TYPE}/${BUILD_TYPE}/lib")
+        set(OUTPUT_DIR "${CMAKE_SOURCE_DIR}/Build/${OS_TYPE}/${BUILD_TYPE}/${BUILD_TYPE}")
     else()
         set(OUTPUT_DIR "${CMAKE_SOURCE_DIR}/Build/${OS_TYPE}/${BUILD_TYPE}/${BUILD_TYPE}")
     endif()
 else()
-    set(OUTPUT_DIR "${CMAKE_SOURCE_DIR}/Build/${OS_TYPE}/${BUILD_TYPE}/lib")    
+    set(OUTPUT_DIR "${CMAKE_SOURCE_DIR}/Build/${OS_TYPE}/${BUILD_TYPE}")    
 endif()
+
+MakeDir("${OUTPUT_DIR}")
+MakeDir("${OUTPUT_DIR}/lib")
+MakeDir("${OUTPUT_DIR}/bin")
 
 if(${BuildAll})
     MakeDir("${OUTPUT_DIR}")
 else()
     MakeDir("${EXT_BIN_PATH}/lib")
 endif()
+
+message(" running toolchain >> ${CMAKE_TOOLCHAIN_FILE}")
+include("${CMAKE_TOOLCHAIN_FILE}")
 
 # --------------- DON'T MODIFY (CALCULATED) ------------------------------------------
 

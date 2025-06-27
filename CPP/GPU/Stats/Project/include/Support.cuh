@@ -7,6 +7,8 @@ namespace RA
     {
         NONE,
         AVG,     // Average
+        ZEA,     // Zero-Lag Exp. Avg
+        Omaha,   // Omaha High-Low Poker
         RSI,     // Relative Strength Index
         STOCH,   // Stochastic
         Normals, // Normals

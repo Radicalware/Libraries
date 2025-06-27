@@ -29,7 +29,7 @@ public:
     // ======== INITALIZATION ========================================================================
     using BaseXMap<K, V, H>::BaseXMap;
     using BaseXMap<K, V, H>::operator=;
-
+    using BaseXMap<K, V, H>::operator[];
 
     inline void AddPair(const K& one, const V&  two) ValueMustCopy;
     inline void AddPair(const K& one,       V&& two) ValueMustCopy;

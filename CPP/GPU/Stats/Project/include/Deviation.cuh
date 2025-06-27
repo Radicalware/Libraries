@@ -42,8 +42,6 @@ namespace RA
         double MnCurrentVal = 0;
         double MnLastVal = 0;
 
-        double MnMaxTraceSize = 0;
-
     public:
         Deviation(RA::AVG* FoAvgPtr, const EType FeType);
 
@@ -52,7 +50,6 @@ namespace RA
         DXF void   CopyStats(const Deviation& Other);
         DXF void   SetDefaultValues();
         IXF void   SetAvg(AVG* FoAvgPtr) { MoAvgPtr = FoAvgPtr; }
-        IXF void   SetMaxTraceSize(const xint FSize) { MnMaxTraceSize = FSize; }
 
         IXF auto   GetDeviation()   const { return MnDeviation; }
         IXF auto   GetAvgOffset()   const { return MnAvgOffset; }

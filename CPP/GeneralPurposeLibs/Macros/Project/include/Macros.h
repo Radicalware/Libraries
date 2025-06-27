@@ -39,6 +39,7 @@
 #include <random>
 #include <exception>
 #include <assert.h>
+#include <ranges>
 
 using std::set;
 using std::cout;
@@ -397,6 +398,22 @@ namespace RA
     if (_VAL1_ != _VAL2_){\
         ThrowIt("(", #_VAL1_, " != ", #_VAL2_, ")(", _VAL1_, " != ", _VAL2_, ")"); \
     }
+#define AssertGTE(_VAL1_, _VAL2_) \
+    if (!(_VAL1_ >= _VAL2_)){\
+        ThrowIt("(", #_VAL1_, " < ", #_VAL2_, ")(", _VAL1_, " < ", _VAL2_, ")"); \
+    }
+#define AssertLTE(_VAL1_, _VAL2_) \
+    if (!(_VAL1_ <= _VAL2_)){\
+        ThrowIt("(", #_VAL1_, " > ", #_VAL2_, ")(", _VAL1_, " > ", _VAL2_, ")"); \
+    }
+#define AssertGT(_VAL1_, _VAL2_) \
+    if (!(_VAL1_ > _VAL2_)){\
+        ThrowIt("(", #_VAL1_, " <= ", #_VAL2_, ")(", _VAL1_, " <= ", _VAL2_, ")"); \
+    }
+#define AssertLT(_VAL1_, _VAL2_) \
+    if (!(_VAL1_ < _VAL2_)){\
+        ThrowIt("(", #_VAL1_, " >= ", #_VAL2_, ")(", _VAL1_, " >= ", _VAL2_, ")"); \
+    }
 
 #define AssertDblRange(_Upper_, _Val_, _Lower_) \
     if (_Val_ > _Upper_ || _Lower_ > _Val_){ \
@@ -496,6 +513,30 @@ namespace RA
     if (!BxIsRealNum(_Num_)) printf("Not a Number: %llf\n", _Num_);
 #endif
 
+}
+
+template <typename E>
+constexpr auto EnumRange(E FnFirst, E FnLast)
+{
+    using U = std::underlying_type_t<E>;
+    return std::views::iota(static_cast<U>(FnFirst), static_cast<U>(FnLast) + 1)
+        | std::views::transform([](U val) { return static_cast<E>(val); });
+}
+
+// Last exclusive version
+template <typename E>
+constexpr auto EnumRangeLEX(E FnFirst, E LnLastExclusive) {
+    using U = std::underlying_type_t<E>;
+    return std::views::iota(static_cast<U>(FnFirst), static_cast<U>(LnLastExclusive))
+        | std::views::transform([](U val) { return static_cast<E>(val); });
+}
+
+// Ends Exclusive version
+template <typename E>
+constexpr auto EnumRangeEX(E FnFirst, E LnLastExclusive) {
+    using U = std::underlying_type_t<E>;
+    return std::views::iota(static_cast<U>(FnFirst) + 1, static_cast<U>(LnLastExclusive))
+        | std::views::transform([](U val) { return static_cast<E>(val); });
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------

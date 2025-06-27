@@ -351,18 +351,20 @@ RIN const T& ValXVector<T>::First(xint Idx) const
 template<typename T>
 RIN T& ValXVector<T>::Last(xint Idx)
 {
-    if (!The.HasIndex(Idx))
+    cvar LnIdx = The.size() - Idx - 1;
+    if (!The.HasIndex(LnIdx))
         throw "Index Out Of Bounds";
-    return The.operator[](The.size() - Idx - 1);
+    return The.operator[](LnIdx);
 }
 
 
 template<typename T>
 RIN const T& ValXVector<T>::Last(xint Idx) const
 {
+    cvar LnIdx = The.size() - Idx - 1;
     if (!The.HasIndex(Idx))
         throw "Index Out Of Bounds";
-    return The.operator[](The.size() - Idx - 1);
+    return The.operator[](LnIdx);
 }
 
 // ------------------------------------------------------------------------------------------------

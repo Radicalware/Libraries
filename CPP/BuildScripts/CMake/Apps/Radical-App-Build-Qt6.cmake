@@ -11,23 +11,28 @@ macro(BuildRadicalQt6Solution InPrivateLibs InPublicLibs)
 
     set(CMAKE_INCLUDE_CURRENT_DIR ON)
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+    set(QT_QML_GENERATE_QMLLS_INI ON)
+    # set(QT_DEBUG_FIND_PACKAGE ON)
+
+    if(debug)
+        find_package(VLD)
+    endif()
 
     find_package(re2)
-    find_package(VLD)
     find_package(Threads)
 
-    find_package(
-        Qt6  REQUIRED COMPONENTS 
-            Core
-            GUI
-            Widgets
-            Qml 
-            Quick 
-            QuickControls2
-            QuickTemplates2
+    find_package(Qt6  REQUIRED COMPONENTS 
+        Core
+        GUI
+        Widgets
+        Qml 
+        Quick 
+        QuickControls2
+        QuickTemplates2
+        Graphs
+        Charts
+        DataVisualization
     )
-
-    #find_package(PThreads4W REQUIRED)
 
     add_definitions(
         ${Qt6Widgets_DEFINITIONS} 
@@ -35,10 +40,6 @@ macro(BuildRadicalQt6Solution InPrivateLibs InPublicLibs)
         ${Qt6Quick_DEFINITIONS}
         ${Qt6Network_DEFINITIONS}
     )
-
-    #find_path(VULKAN_HEADERS_INCLUDE_DIRS1 "${VCPKG_INCLUDE}/vk_video")
-    #ind_path(VULKAN_HEADERS_INCLUDE_DIRS2  "${VCPKG_INCLUDE}/vulkan")
-    #set(VULKAN_HEADERS_INCLUDE_DIRS "${VULKAN_HEADERS_INCLUDE_DIRS1};${VULKAN_HEADERS_INCLUDE_DIRS2}")
 
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt6Widgets_EXECUTABLE_COMPILE_FLAGS}")
 
@@ -62,12 +63,34 @@ macro(BuildRadicalQt6Solution InPrivateLibs InPublicLibs)
         ${SolutionFiles}
         ${QT_RESOURCES}
         ${CMAKE_CURRENT_SOURCE_DIR}/Solution/resource/exe/pic.rc
+        ${QmlFiles}
+        ${AssetsFiles}
+    )
+
+    # Deploy resources to build folder/package directly
+    # comment for publishing
+    # deploy_resources("${QmlFiles};${AssetsFiles}")
+
+    # Add QML files and resources to QML module to included them via QRC automatically:
+    qt_add_qml_module(${THIS}
+        URI BasicApp
+        VERSION 1.0
+        QML_FILES ${QmlFiles}
+        RESOURCES ${AssetsFiles}
+        NO_RESOURCE_TARGET_PATH
     )
 
     if (MSVC) 
         target_compile_options(${THIS} PRIVATE /std:c++latest) 
         #target_link_options(${THIS} PRIVATE /NODEFAULTLIB:MSVCRT)
     endif()
+
+    target_include_directories(${THIS} PRIVATE
+        ${InstalledIncludeDirs}
+        "${CMAKE_CURRENT_SOURCE_DIR}/Solution/include"
+        "${CMAKE_CURRENT_SOURCE_DIR}/Solution/controller/include"
+        "${Vulkan_INCLUDE_DIR}"
+    )
 
     foreach(Lib IN LISTS ${InPrivateLibs})
         find_package("${Lib}")
@@ -77,22 +100,14 @@ macro(BuildRadicalQt6Solution InPrivateLibs InPublicLibs)
         find_package("${Lib}")
     endforeach()
 
-    target_include_directories(${THIS} PRIVATE
-        ${InstalledIncludeDirs}
-        "${CMAKE_CURRENT_SOURCE_DIR}/Solution/include"
-        "${CMAKE_CURRENT_SOURCE_DIR}/Solution/controller/include"
-        "${Vulkan_INCLUDE_DIR}"
-    )
+    if(${debug})
+        message("Linking: ${VLD_TARGET}")
+        target_link_libraries(${THIS} PRIVATE ${VLD_TARGET})
 
-    if(${debug} OR ${BuildAll})        
-        foreach(Lib IN LISTS ${InPrivateLibs})
-            message(" >> Linking Static Radical::${Lib}")
-            target_link_libraries(${THIS} "Radical::${Lib}")
-        endforeach()
     endif()
 
     PrintList(TargetLibs)
-    target_link_libraries(${THIS}
+    target_link_libraries(${THIS} PRIVATE
 
         ${TargetLibs}
 
@@ -102,18 +117,16 @@ macro(BuildRadicalQt6Solution InPrivateLibs InPublicLibs)
         Qt6::Quick
         Qt6::QuickControls2
         Qt6::QuickTemplates2
-        
-        #PThreads4W::PThreads4W
+        Qt6::Graphs
+        Qt6::Charts
+        Qt6::DataVisualization
     )
-
-    if(${debug})
-        message("Linking: ${VLD_TARGET}")
-        target_link_libraries(${THIS} ${VLD_TARGET})
-    endif()
 
     LinkAllSharedLibs(${THIS})
     SetAllDependenciesOn(${THIS})
     LinkStatic(${THIS} re2)
+    LinkAllStaticLibs(${THIS})
+
 
     set(TargetProject ${THIS})
     SetVisualStudioFilters("Solution" "${SolutionFiles}")

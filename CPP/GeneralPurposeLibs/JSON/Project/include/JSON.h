@@ -11,7 +11,6 @@
 
 #include "mongocxx/instance.hpp"
 #include "mongocxx/uri.hpp"
-#include "mongocxx/stdx.hpp"
 #include "mongocxx/client.hpp"
 #include "bsoncxx/types.hpp"
 // --------------------------------------------------

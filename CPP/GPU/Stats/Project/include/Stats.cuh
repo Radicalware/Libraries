@@ -30,6 +30,8 @@
 #if UsingMSVC
 #include "Support.h"
 #include "AVG.h"
+#include "ZEA.h"
+#include "Omaha.h"
 #include "STOCH.h"
 #include "RSI.h"
 #include "Normals.h"
@@ -37,10 +39,13 @@
 #else
 #include "Support.cuh"
 #include "AVG.cuh"
+#include "ZEA.cuh"
+#include "Omaha.h"
 #include "STOCH.cuh"
 #include "RSI.cuh"
 #include "Normals.cuh"
 #include "Deviation.cuh"
+
 #endif
 
 namespace RA
@@ -55,7 +60,7 @@ namespace RA
         void ClearStorageRequriedObjs();
 
         void CreateObjs(const xvector<EStatOpt>& FvOptions);
-        void Allocate(const xint FnStorageSize, const double FnDefaultVal = 0);
+        void Allocate(const xint FnStorageSize, const double* FvValues);
 
     public:
         ~Stats();
@@ -69,6 +74,8 @@ namespace RA
             const xint FnStorageSize,
             const xvector<EStatOpt>& FvOptions,
             const double FnDefaultVal = 0);
+    private:
+        void SetValue(const double FnValue);
     protected:
         Stats(
             const EHardware FeHardware,
@@ -84,14 +91,13 @@ namespace RA
         void SetSlippageSize(const xint FCount);
         DXF auto GetJoinerySize() const { return MoJoinery.MnSize; }
         
-        DXF void SetMaxTraceSize(const xint FSize);
-        DXF auto GetMaxTraceSize() const { return MnMaxTraceSize; }
+        DXF void SetPeriodSize(const xint FSize);
+        
+        DXF double  GetFront(const xint IDX = 0) const;
+        DXF double  GetBack(const xint IDX = 0) const;
 
-        DXF double  ValueFromEnd(const xint IDX = 0) const;
-        DXF double  ValueFromStart(const xint IDX = 0) const;
-
-        IXF double  ValueFromOld(const xint IDX = 0) const { return ValueFromStart(IDX); }
-        IXF double  ValueFromNew(const xint IDX = 0) const { return ValueFromEnd(IDX); }
+        IXF double  GetValueInc(const xint IDX = 0) const { return GetFront(IDX); }
+        IXF double  GetValueDec(const xint IDX = 0) const { return GetBack(IDX); }
 
         DXF void operator<<(const double FnValue);
 
@@ -148,14 +154,14 @@ namespace RA
         TheJoinery  MoJoinery;
         TheSlippage MoSlippage;
 
-        xint     MnMaxTraceSize = 0; // 0 = infinite; any other is the max divisor for avgs
-
         bool     MbDelete = true;
         bool     MbHadFirstInsert = false;
 
-
+        
         AVG         *MoAvgPtr   = nullptr;
+        ZEA         *MoZeaPtr   = nullptr;
         STOCH       *MoSTOCHPtr = nullptr;
+        Omaha       *MoOmahaPtr = nullptr;
         Normals     *MoNormalsPtr = nullptr;
         RSI         *MoRSIPtr   = nullptr;
         Deviation   *MoMeanAbsoluteDeviationPtr = nullptr;

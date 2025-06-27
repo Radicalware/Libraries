@@ -28,9 +28,9 @@ macro(BuildRadicalProject InLibType InPrivateLibs InPublicLibs)
         ${InstalledIncludeDirs}
     )
 
-    if(${debug} OR ${BuildAll})        
+    if(${debug} OR ${BuildAll})
         foreach(Lib IN LISTS ${InPrivateLibs})
-            target_link_libraries(${THIS} "Radical::${Lib}")
+            target_link_libraries(${THIS} PRIVATE "Radical::${Lib}")
         endforeach()
     endif()
 

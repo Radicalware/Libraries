@@ -17,53 +17,63 @@ RA::AVG::AVG(
 
 DXF void RA::AVG::CopyStats(const RA::AVG& Other)
 {
+    MnLogiclaSize = Other.MnLogiclaSize;
+    MnRunningSize = Other.MnRunningSize;
+    MnLastValue   = Other.GetLastValue();
+
     MnAvg = Other.MnAvg;
+    MnSum = Other.MnSum;
+    SetDebugErrorLevel(MnAvg);
 }
 
 DXF void RA::AVG::SetDefaultValues(const double FnDefaualt)
 {
+    MnRunningSize = MnStorageSize;
     MnAvg = FnDefaualt;
-    MnRunningSize = 1;
-    MnSum = MnAvg * MnStorageSize;
+    MnSum = MnAvg * MnRunningSize;
     MnLogiclaSize = 0;
+}
+
+DXF xint RA::AVG::GetThisIDX() const
+{
+    return *MnInsertIdxPtr;
 }
 
 DXF xint RA::AVG::GetLastIDX() const
 {
-    cvar& LnInsert = *MnInsertIdxPtr;
-    if (LnInsert == 0)
-        return MnStorageSize - 1;
-    return LnInsert - 1;
+    cvar LnInsert = *MnInsertIdxPtr + 1;
+    if (LnInsert >= MnStorageSize)
+        return 0;
+    return LnInsert;
 }
 
 DXF void RA::AVG::Update(const double FnValue)
 {
     if (MvValues)
     {
+        MnCurrentValue = FnValue;
         MnRunningSize++;
         if (MnRunningSize >= MnStorageSize)
             MnRunningSize = MnStorageSize;
 
         const auto LnIdx = *MnInsertIdxPtr;
-        auto LnOldestValue = 0.0;
-        if (LnIdx >= (MnStorageSize - 1))
-            LnOldestValue = MvValues[0];
-        else
-            LnOldestValue = MvValues[LnIdx + 1];
+        const auto LnNextIdx = LnIdx + 1;
 
+        MnSum -= MnLastValue;
+        MnSum += MvValues[LnIdx];
+        MnAvg  = MnSum / MnRunningSize;
 
-        MnNextSum += FnValue;
-        MnAvg = MnNextSum / MnRunningSize;
-        
-        MnSum = MnNextSum;
-        MnNextSum -= LnOldestValue;
+        MnLastValue = (MnRunningSize < MnStorageSize) // last value not in MvValues
+            ? 0
+            : MvValues[(LnNextIdx >= MnStorageSize) ? 0 : LnNextIdx];
     }
     else
     {
+        MnLastValue = MnCurrentValue;
+        MnCurrentValue = FnValue;
         MnAvg = ((MnAvg * MnLogiclaSize) + FnValue) / (MnLogiclaSize + 1);
-        if (MnMaxTraceSize == 0 || MnMaxTraceSize > MnLogiclaSize)
-            MnLogiclaSize++;
         MnSum += FnValue;
+        MnLogiclaSize++;
     }
 }
 

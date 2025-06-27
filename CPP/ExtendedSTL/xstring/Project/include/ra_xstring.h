@@ -466,10 +466,14 @@ namespace RA
     }
 
     template<class N>
-    UsingFundamental(xstring) FormatNum(N FnValue, const xint FnPercision = 0)
+    UsingFundamental(xstring) FormatNum(const N& FnValue, const xint FnPercision = 0)
     {
         std::ostringstream SS;
-        SS.precision(17);
+        if (!FnPercision)
+            SS.precision(17);
+        else
+            SS.precision(FnPercision);
+
         SS.imbue(std::locale(""));
         SS << std::fixed << FnValue;
         xstring Out = SS;
@@ -514,9 +518,10 @@ namespace RA
         Out = Out.Sub(TrailingZeroPattern, "").Sub(TrailingNinePattern, "");
         if (Out.Last() == '.')
         {
-            FnValue += 1;
+            auto LnValue = FnValue;
+            LnValue += 1;
             SS.str(xstring::StaticClass);
-            SS << static_cast<xint>(FnValue);
+            SS << static_cast<xint>(LnValue);
             return SS;
         }
         return Out;

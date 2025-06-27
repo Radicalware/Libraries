@@ -90,6 +90,7 @@ namespace RA
         Date(Date&& Other) noexcept;
 
         void operator=(const xint FnTime);
+        void operator=(const Date::EpochTime FnTime);
         void operator=(const Date& Other);
         void operator=(Date&& Other) noexcept;
 
@@ -172,6 +173,9 @@ namespace RA
 
     public:
         bool operator==(const Date& Other) const;
+        bool operator==(const xint  FnTime) const;
+        bool operator==(const Date::EpochTime FnTime) const;
+
         bool operator!=(const Date& Other) const;
         bool operator>=(const Date& Other) const;
         bool operator<=(const Date& Other) const;
@@ -186,6 +190,8 @@ namespace RA
         istatic std::regex SnDateTimeCaptureHalf =
             std::regex(R"(^(\d\d\d\d)[^\d]+(\d\d)[^\d]+(\d\d).*$)");
 
+        EXI friend std::ostream& operator<<(std::ostream& out, const RA::Date& obj);
+        EXI friend std::ostream& operator<<(std::ostream& out, const xp<RA::Date> ptr);
     };
 };
 
@@ -202,9 +208,6 @@ EXI bool operator>=(const xint& Left, const RA::Date& Right);
 EXI bool operator<=(const xint& Left, const RA::Date& Right);
 EXI bool operator> (const xint& Left, const RA::Date& Right);
 EXI bool operator< (const xint& Left, const RA::Date& Right);
-
-EXI std::ostream& operator<<(std::ostream& out, const RA::Date& obj);
-
 
 namespace std {
     template <>

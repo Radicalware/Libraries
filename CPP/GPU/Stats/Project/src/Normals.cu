@@ -8,6 +8,22 @@
 #include "xstring.h"
 #include "Macros.h"
 
+DXF void RA::Normals::CopyStats(const RA::Normals& Other)
+{
+    MeHardware = Other.MeHardware;
+    MeType = Other.MeType;
+    MvValues = Other.MvValues;
+    MnMinPtr = Other.MnMinPtr;
+    MnMaxPtr = Other.MnMaxPtr;
+    MnInsertIdxPtr = Other.MnInsertIdxPtr;
+    MnStorageSize = Other.MnStorageSize;
+    MbLiteral = Other.MbLiteral;
+    MnCompression = Other.MnCompression;
+
+    MnLastNormal = Other.MnLastNormal;
+    MnRunningSize = Other.MnRunningSize;
+}
+
 RA::Normals::Normals(
     const EHardware FeHardware,
     const double* FvValues,
@@ -34,49 +50,6 @@ RA::Normals::Normals(
 RA::Normals::~Normals()
 {
 }
-
-DXF void RA::Normals::CopyStats(const RA::Normals& Other)
-{
-    MnLastNormal = Other.MnLastNormal;
-}
-
-//DXF double RA::Normals::ToNormal(const double FnRaw, const double FnMin, const double FnMax)
-//{
-//    if (MbLiteral)
-//        return FnRaw;
-//    const auto& MnMax = (*MnMaxPtr);
-//    const auto& MnMin = (*MnMinPtr);
-//    return 2 * ((FnRaw - MnMin) / (MnMax - MnMin)) - 1;
-//}
-//
-//DXF double RA::Normals::ToRaw(const double FnNormal, const double FnMin, const double FnMax)
-//{
-//    if (MbLiteral)
-//        return FnNormal;
-//    const auto& MnMax = (*MnMaxPtr);
-//    const auto& MnMin = (*MnMinPtr);
-//    return ((FnNormal + 1) / 2) * (MnMax - MnMin) + MnMin;
-//}
-//
-//DXF double RA::Normals::ToNormal(const double FnRaw)
-//{
-//    if (MbLiteral)
-//        return FnRaw;
-//    const auto& MnMin = (*MnMinPtr);
-//    const auto& MnMax = (*MnMaxPtr);
-//    return 2 * ((FnRaw - MnMin) / (MnMax - MnMin)) - 1;
-//    return Normals::ToNormal(FnRaw, MnMin, MnMax);
-//}
-//
-//DXF double RA::Normals::ToRaw(const double FnNormal)
-//{
-//    if (MbLiteral)
-//        return FnNormal;
-//    const auto& MnMin = (*MnMinPtr);
-//    const auto& MnMax = (*MnMaxPtr);
-//    return Normals::ToRaw(FnNormal, MnMin, MnMax);
-//}
-
 
 DXF void RA::Normals::Update()
 {
@@ -167,7 +140,7 @@ DXF xdbl RA::Normals::ToRawLinear(const double& FnNormal)
 {
     if (MbLiteral)
         return FnNormal;
-    return ToNormalLinear(FnNormal, Config(MnCompression, MnMinPtr, MnMaxPtr));
+    return ToRawLinear(FnNormal, Config(MnCompression, MnMinPtr, MnMaxPtr));
 }
 
 DXF xdbl RA::Normals::ToNormalLog(const double& FnRaw)
@@ -184,13 +157,13 @@ DXF xdbl RA::Normals::ToRawLog(const double& FnNormal)
     return ToRawLog(FnNormal, Config(MnCompression, MnMinPtr, MnMaxPtr));
 }
 
-DXF double RA::Normals::GetNormalOld(const xint Idx) const
+DXF double RA::Normals::GetNormalFront(const xint Idx) const
 {
     AssertDblRange(MvNormals.Size() - 1, Idx, 0);
     return MvNormals.First(Idx);
 }
 
-DXF double RA::Normals::GetNormalNew(const xint Idx) const
+DXF double RA::Normals::GetNormalBack(const xint Idx) const
 {
     AssertDblRange(MvNormals.Size() - 1, Idx, 0);
     return MvNormals.Last(Idx);

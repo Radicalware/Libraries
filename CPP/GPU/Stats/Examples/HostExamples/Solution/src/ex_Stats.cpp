@@ -39,8 +39,8 @@ namespace Test
                         LvVec.erase(LvVec.begin());
                     for (xint j = 0; j < LnStorage; j++)
                     {
-                        cvar LnStatStart = LoStat.ValueFromStart(j);
-                        cvar LnStatEnd = LoStat.ValueFromEnd(j);
+                        cvar LnStatStart = LoStat.GetFront(j);
+                        cvar LnStatEnd = LoStat.GetBack(j);
 
                         cvar LnVecFront = LvVec.First(j);
                         cvar LnVecEnd = LvVec.Last(j);
@@ -64,31 +64,88 @@ namespace Test
                 auto One = RA::StatsCPU(LnStorageSize, { RA::EStatOpt::AVG });
 
                 auto PrintVals = [](const RA::StatsCPU& Obj) ->void
-                {
-                    cout << "AVG: " << Obj.AVG().GetAVG() << endl;
-                    cout << "SUM: " << Obj.AVG().GetSum() << endl;
-                    cout << endl;
-                };
+                    {
+                        cout << "AVG: " << Obj.AVG().GetAVG() << endl;
+                        cout << "SUM: " << Obj.AVG().GetSum() << endl;
+                        cout << endl;
+                    };
 
                 for (xint i = 1; i <= One.GetStorageSize(); i++)
                     One << i;
 
                 PrintVals(One);
-                if (One.GetAVG() != 10.5)
-                    ThrowIt("Bad AVG 1 Calc");
+                AssertEqualDbl(One.GetAVG(), 10.5);
 
                 cout << WHITE;
                 auto Two = One;
-                for (xint i = 1; i <= Two.GetStorageSize() * 2 ; i++)
-                    Two << i;
+
+                for (xint i = 1; i <= Two.GetStorageSize() * 2; i++)
+                {
+                    One << i;
+                    Two << i; // new one (like current)
+                    AssertEqualDbl(One.GetAVG(), Two.GetAVG());
+                }
 
                 PrintVals(Two);
-                if (Two.GetAVG() != 30.5)
+                if (!RA::Appx(Two.GetAVG(), 30.5))
                 {
                     for (xint i = 0; i < Two.GetStorageSize(); i++)
-                        cout << Two.ValueFromEnd(i) << endl;
-                    ThrowIt("Bad AVG 2 Calc");
+                        cout << Two.GetBack(i) << endl;
+                    AssertEqual(Two.GetAVG(), 30.5)
                 }
+
+                Rescue();
+            }
+
+            void ZEA()
+            {
+                Begin();
+                cout << '\n' << __CLASS__ << '\n';
+
+                const auto LnStorageSize = 50;
+                auto One = RA::StatsCPU(LnStorageSize, { RA::EStatOpt::ZEA });
+                One.SetPeriodSize(20);
+
+                auto PrintVals = [](const RA::StatsCPU& Obj) ->void
+                    {
+                        cout << "ZEA: " << Obj.ZEA().GetZEA() << endl;
+                        cout << "AVG: " << Obj.ZEA().GetAVG() << endl;
+                        cout << "SUM: " << Obj.ZEA().GetSum() << endl;
+                        cout << endl;
+                    };
+
+                //for (xint i = 1; i <= One.GetStorageSize() * 2; i++)
+                //    One << i;
+
+                double LnCount = 1;
+                for (xint i = 1; i <= One.GetStorageSize() * 2 + 1; i++)
+                {
+                    if (i % 2 == 0){
+                        LnCount *= 3;
+                    }else{
+                        LnCount /= 2;
+                    }
+                    One << LnCount;
+                    cout << LnCount << ' ' << One.ZEA().GetZEA() << endl;
+                }
+                cout << "\n\n";
+
+                PrintVals(One);
+                //AssertEqualDbl(One.GetAVG(), 10.5);
+
+                cout << WHITE;
+                auto Two = One;
+
+                for (xint i = 1; i <= Two.GetStorageSize() * 2; i++)
+                    Two << i;
+
+                //PrintVals(Two);
+                //if (!RA::Appx(Two.GetAVG(), 30.5))
+                //{
+                //    for (xint i = 0; i < Two.GetStorageSize(); i++)
+                //        cout << Two.GetBack(i) << endl;
+                //    AssertEqual(Two.GetAVG(), 30.5)
+                //}
 
                 Rescue();
             }
@@ -120,7 +177,7 @@ namespace Test
                 if (Stoch.GetSTOCH() != 10)
                 {
                     for (xint i = 0; i < Stoch.GetStorageSize(); i++)
-                        cout << Stoch.ValueFromEnd(i) << endl;
+                        cout << Stoch.GetBack(i) << endl;
                     ThrowIt("Bad STOCH 1 Calc");
                 }
 
@@ -481,7 +538,7 @@ namespace Test
                     if (RSI.GetRSI() != 25)
                     {
                         for (xint i = 0; i < RSI.GetStorageSize(); i++)
-                            cout << RSI.ValueFromEnd(i) << endl;
+                            cout << RSI.GetBack(i) << endl;
                         ThrowIt("Bad RSI 2 Calc");
                     }
                 }
@@ -732,7 +789,7 @@ namespace Test
                 bool FnPrint = true, xint Idx = 0)->void
             {
                 std::ostringstream SS;
-                SS << Stats.ValueFromEnd(Idx);
+                SS << Stats.GetBack(Idx);
                 if(FnPrint)
                     cout << SS.str() << endl;
                 if (SS.str() != Val)
@@ -791,7 +848,7 @@ namespace Test
                 for (xint i = 1; i <= (5 * 3); i++)
                 {
                     Stats << i;
-                    cout << " (+" << i << ") " << Stats.ValueFromEnd(0) << ' ';
+                    cout << " (+" << i << ") " << Stats.GetBack(0) << ' ';
                     if (i % 5 == 0)
                     {
                         ++LnCount;
@@ -806,7 +863,7 @@ namespace Test
                 for (xint i = 1; i <= 3; i++)
                 {
                     Stats << 0;
-                    cout << " (+" << i << ") " << Stats.ValueFromEnd(0) << ' '; // storage size is 1
+                    cout << " (+" << i << ") " << Stats.GetBack(0) << ' '; // storage size is 1
                 }
                 CheckVal(Stats, "29", false);
 
@@ -821,9 +878,9 @@ namespace Test
                 for (xint i = 1; i < (5 * 3); i++) {
                     Stats << i;
                     cout << ' ' << i << '(' 
-                        << Stats.ValueFromEnd(0) << '-' 
-                        << Stats.ValueFromEnd(1) << '-' 
-                        << Stats.ValueFromEnd(2) << ')';
+                        << Stats.GetBack(0) << '-' 
+                        << Stats.GetBack(1) << '-' 
+                        << Stats.GetBack(2) << ')';
                     if (i % 5 == 0)
                         cout << endl;
                 }
@@ -834,9 +891,9 @@ namespace Test
                 {
                     Stats << 0;
                     cout << i << '('
-                        << Stats.ValueFromEnd(0) << '-'
-                        << Stats.ValueFromEnd(1) << '-'
-                        << Stats.ValueFromEnd(2) << ')';
+                        << Stats.GetBack(0) << '-'
+                        << Stats.GetBack(1) << '-'
+                        << Stats.GetBack(2) << ')';
                     if (i % 5 == 0)
                         cout << endl;
                 }
@@ -844,7 +901,7 @@ namespace Test
                 CheckVal(Stats, "0", false, 1);
 
                 cout << endl;
-                cout << Stats.ValueFromEnd(0) << ' ' << Stats.ValueFromEnd(1) << ' ' << Stats.ValueFromEnd(0) << endl;
+                cout << Stats.GetBack(0) << ' ' << Stats.GetBack(1) << ' ' << Stats.GetBack(0) << endl;
                 Rescue();
             }
             Rescue();
@@ -861,9 +918,9 @@ namespace Test
             {
                 LoStorage << i;
                 cout << '('
-                    << LoStorage.ValueFromEnd(0) << '-'
-                    << LoStorage.ValueFromEnd(1) << '-'
-                    << LoStorage.ValueFromEnd(2) << ')'
+                    << LoStorage.GetBack(0) << '-'
+                    << LoStorage.GetBack(1) << '-'
+                    << LoStorage.GetBack(2) << ')'
                     << '\n';
             }
 
@@ -880,6 +937,8 @@ void RunCPU()
     Begin();
     Test::Storage::CPU::AVG();
     Test::Logical::CPU::AVG();
+
+    Test::Storage::CPU::ZEA();
 
     Test::Storage::CPU::STOCH();
     Test::Storage::CPU::RSI();
