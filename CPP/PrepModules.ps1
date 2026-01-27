@@ -49,7 +49,6 @@ Copy-Item $PSScriptRoot\BuildScripts\Manage\*  $PowershellModulePath -Force
 
 &"$PSScriptRoot\BuildScripts\Manage\CopyCMakeFiles.ps1"
 
-
 if($LinkDirs -eq $false){
     Write-Host "WARNING: Directory Linking Skipped!!" -ForegroundColor Yellow
     Write-Host "You can run with the -LinkDirs option to link them`n"

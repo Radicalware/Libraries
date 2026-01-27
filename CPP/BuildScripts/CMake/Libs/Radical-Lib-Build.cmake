@@ -4,6 +4,7 @@ macro(BuildRadicalProject InLibType InPrivateLibs InPublicLibs)
     # -------------------------- CONFIG -----------------------------------------------------
     # InLibType = {MODLULE : DLL},{STATIC : LIB}    
     add_compile_definitions("BuildingLib")
+    SetLocalInstallDirs()
 
     find_package(re2)
 

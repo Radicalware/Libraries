@@ -43,7 +43,16 @@ if(WIN32) # --------------------------------------------------------------------
     set(OS_TYPE "Windows")
     set(IsWindows ON)
     
-    set(ATL_INCLUDE "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.41.34120/atlmfc/include")
+    # Dynamically find the most recent MSVC version
+    file(GLOB MSVC_VERSIONS "C:/Program Files/Microsoft Visual Studio/18/Community/VC/Tools/MSVC/*/")
+    if(MSVC_VERSIONS)
+        list(SORT MSVC_VERSIONS)
+        list(POP_BACK MSVC_VERSIONS MSVC_LATEST)
+        set(ATL_INCLUDE "${MSVC_LATEST}/atlmfc/include")
+        message(STATUS "Found MSVC ATL path: ${ATL_INCLUDE}")
+    else()
+        message(FATAL_ERROR "MSVC installation not found at expected location")
+    endif()
     include_directories(${ATL_INCLUDE})
     # set(MSVC_TOOLSET_VERSION "142")
     # set(WINDOWS_SDK "10.0.18362.0")
@@ -229,9 +238,7 @@ MakeDir("${OUTPUT_DIR}")
 MakeDir("${OUTPUT_DIR}/lib")
 MakeDir("${OUTPUT_DIR}/bin")
 
-if(${BuildAll})
-    MakeDir("${OUTPUT_DIR}")
-else()
+if(NOT ${BuildAll})
     MakeDir("${EXT_BIN_PATH}/lib")
 endif()
 

@@ -169,7 +169,6 @@ function(post_build_copy target_name file_name from_dir to_dir)
 endfunction()
 
 
-
 # DEBUG MESSAGES
 # MESSAGE("==================================================================")
 # MESSAGE("FULL_PATH        = ${FULL_PATH}")
@@ -226,3 +225,66 @@ macro(TargetLinkVulkan)
         advapi32.lib
     )
 endmacro()
+
+
+# Move all *.lib files from OUTPUT_DIR to OUTPUT_DIR/lib
+function(MoveLibFiles)
+    if(NOT DEFINED OUTPUT_DIR)
+        message(FATAL_ERROR "OUTPUT_DIR is not defined")
+    endif()
+    
+    file(GLOB LibFiles "${OUTPUT_DIR}/*.lib")
+    if(LibFiles)
+        foreach(LibFile ${LibFiles})
+            get_filename_component(FileName "${LibFile}" NAME)
+            if(EXISTS "${LibFile}")
+                file(RENAME "${LibFile}" "${OUTPUT_DIR}/lib/${FileName}")
+                message(STATUS "Moved: ${FileName} -> lib/")
+            else()
+                message(WARNING "File does not exist: ${LibFile}")
+            endif()
+        endforeach()
+    else()
+        message(WARNING "No library files found in ${OUTPUT_DIR}")
+    endif()
+endfunction()
+
+
+# Move all *.dll and *.exe files from OUTPUT_DIR to OUTPUT_DIR/bin
+function(MoveBinFiles)
+    if(NOT DEFINED OUTPUT_DIR)
+        message(FATAL_ERROR "OUTPUT_DIR is not defined")
+    endif()
+    
+    file(GLOB DllFiles "${OUTPUT_DIR}/*.dll")
+    file(GLOB ExeFiles "${OUTPUT_DIR}/*.exe")
+    
+    foreach(DllFile ${DllFiles})
+        get_filename_component(FileName "${DllFile}" NAME)
+        if(EXISTS "${DllFile}")
+            file(RENAME "${DllFile}" "${OUTPUT_DIR}/bin/${FileName}")
+            message(STATUS "Moved: ${FileName} -> bin/")
+        endif()
+    endforeach()
+    
+    foreach(ExeFile ${ExeFiles})
+        get_filename_component(FileName "${ExeFile}" NAME)
+        if(EXISTS "${ExeFile}")
+            file(RENAME "${ExeFile}" "${OUTPUT_DIR}/bin/${FileName}")
+            message(STATUS "Moved: ${FileName} -> bin/")
+        endif()
+    endforeach()
+endfunction()
+
+function(AddPostBuildFunction TARGET_NAME FUNCTION_NAME)
+    message("AddPostBuildFunction {TARGET_NAME} -> {FUNCTION_NAME}")
+    add_custom_command(
+        TARGET ${TARGET_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} 
+            -DFUNCTION_NAME=${FUNCTION_NAME}
+            -DOUTPUT_DIR=${OUTPUT_DIR}
+            -P ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/Radical-Methods.cmake
+        COMMENT "Executing ${FUNCTION_NAME} after build"
+    )
+endfunction()
+

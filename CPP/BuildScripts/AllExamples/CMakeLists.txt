@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-SET(THIS ${ArgProjectName})
 set(BuildAll ON)
-
 # -------------------------- PRE-CONFIG -------------------------------------------------
 
 if(WIN32)
@@ -37,6 +35,11 @@ include("${RADICAL_PATH}/Radical-App-Config.cmake")
 
 # -------------------------- BUILD ------------------------------------------------------
 
+if(NOT DEFINED ArgProjectName OR ArgProjectName STREQUAL "")
+    get_filename_component(ArgProjectName "${CMAKE_SOURCE_DIR}" NAME)
+endif()
+
+set(THIS ${ArgProjectName})
 project(${THIS})
 #project(${THIS} LANGUAGES CXX CUDA) # TODO: RE-ADD
 #find_package(PrepareCuda) # TODO: RE-ADD

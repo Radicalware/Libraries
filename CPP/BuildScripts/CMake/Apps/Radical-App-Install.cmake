@@ -45,4 +45,3 @@ if(${debug} OR ${BuildAll})
         DESTINATION "${INSTALL_PREFIX}/Solutions/${THIS}"
     )
 endif()
-

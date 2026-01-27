@@ -28,6 +28,7 @@ if(WIN32)
     add_library(re2::re2 ALIAS ${RE2_LIB})
     set_target_properties(re2 PROPERTIES LINKER_LANGUAGE CXX)
 
+    message("Copying RE2 --> ${OUTPUT_DIR}")
     if(${BuildAll})
         MakeBinaryFileCopy(${RE2_LIB_PATH} "${OUTPUT_DIR}/lib/${PF}${RE2_LIB}.${ST}")
     else()

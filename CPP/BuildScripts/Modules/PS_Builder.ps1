@@ -150,11 +150,11 @@ Class PS_Builder
             # MSBuild.exe $($this.ArgStruct.name + '.sln') -t:Rebuild "-p:Configuration=$($this.ArgStruct.build_type)" -Verbosity:minimal | Write-Host
 
             # Method 2
-            Write-Host "devenv $($this.ArgStruct.name + '.sln') /Build $($this.ArgStruct.build_type)"
-            devenv $($this.ArgStruct.name + '.sln') /Build $this.ArgStruct.build_type | Write-Host
+            Write-Host "devenv $($this.ArgStruct.name + '.slnx') /Build $($this.ArgStruct.build_type)"
+            devenv $($this.ArgStruct.name + '.slnx') /Build $this.ArgStruct.build_type | Write-Host
             
             # Method 3 (best if you have incredibuild)
-            #BuildConsole.exe $($this.ArgStruct.name + '.sln') /cfg="$($this.ArgStruct.build_type)|x64" /NoLogo  | `
+            #BuildConsole.exe $($this.ArgStruct.name + '.slnx') /cfg="$($this.ArgStruct.build_type)|x64" /NoLogo  | `
             #    Select-String -pattern "^\s|IncrediBuildAlwaysCreate|Temporary license|^\d+\>(Target|(\s+ (Deleting|Touching|Creating|All outputs are up-to-date|Building Custom Rule)))|^\d build system warnings|IncrediBuild|--------------------" -NotMatch | Write-Host
         }
         Set-Location $this.ArgStruct.base_dir
