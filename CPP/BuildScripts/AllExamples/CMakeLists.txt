@@ -68,6 +68,7 @@ endmacro(AddExecutable)
 
 # !!!! ADD LIBS TO ALL 3 LOCATIONS !!!!
 
+find_package(re2)
 # (This is location 1 of 3)
 AddExecutable("FunctionalSTL" "AC")
 AddExecutable("FunctionalSTL" "RE")
@@ -98,7 +99,6 @@ include_directories(${THIS} PRIVATE
 # (This is location 2 of 3)
 
 find_package(VLD)
-find_package(re2)
 
 find_package(RE)
 find_package(AC)
@@ -173,10 +173,10 @@ foreach(EXE ${EXES})
         if(${debug})
             LinkStatic(${EXE} vld)
         endif()
-        LinkStatic(${EXE} re2)
 
         LinkAllSharedLibs(${EXE})
         SetAllDependenciesOn(${EXE})
+        LinkStatic(${EXE} re2)
         LinkAllStaticLibs(${EXE})
         target_link_libraries(${EXE} PRIVATE "${UsedVcpkgLibs}")
 endforeach()

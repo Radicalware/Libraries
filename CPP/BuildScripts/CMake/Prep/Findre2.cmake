@@ -5,7 +5,7 @@
 
 ####### Expanded from @PACKAGE_INIT@ by configure_package_config_file() #######
 ####### Any changes to this file will be overwritten by the next CMake run ####
-####### The input file was re2Config.cmake.in                            ########
+####### The input file was re2Config.cmake.in                           #######
 
 include("${RADICAL_PATH}/Radical-Static-Libs-Methods.cmake")
 
@@ -15,17 +15,21 @@ include("${RADICAL_PATH}/Radical-Static-Libs-Methods.cmake")
 
 if(WIN32) 
     set(RE2_LIB "re2")
+
+    list(APPEND InstalledIncludeDirs "${RE2_DIR}")
     if(${debug})
-        set(RE2_LIB_PATH ${RE2_DIR}/buildit/Debug/${PF}${RE2_LIB}.${ST})
+        set(RE2_LIB_PATH "${RE2_DIR}/buildit/Debug/${PF}${RE2_LIB}.${ST}")
         link_directories("${RE2_DIR}/buildit/Debug")
     else()
-        set(RE2_LIB_PATH ${RE2_DIR}/buildit/Release/${PF}${RE2_LIB}.${ST})
+        set(RE2_LIB_PATH "${RE2_DIR}/buildit/Release/${PF}${RE2_LIB}.${ST}")
         link_directories("${RE2_DIR}/buildit/Release")
     endif()
-    include_directories(${RE2_DIR})
-    add_library(re2 STATIC ${RE2_LIB_PATH})
-    message("re2::re2 >> ${RE2_LIB_DIR}")
-    add_library(re2::re2 ALIAS ${RE2_LIB})
+    message("re2::re2 >> ${RE2_LIB_PATH}")
+
+    add_library(re2 STATIC IMPORTED)
+    set_target_properties(re2 PROPERTIES IMPORTED_LOCATION "${RE2_LIB_PATH}")
+    add_library(re2::re2 ALIAS re2)
+
     set_target_properties(re2 PROPERTIES LINKER_LANGUAGE CXX)
 
     message("Copying RE2 --> ${OUTPUT_DIR}")

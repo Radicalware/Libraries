@@ -38,6 +38,8 @@ set(CMAKE_CXX_SOURCE_FILE_EXTENSIONS "${CMAKE_CXX_SOURCE_FILE_EXTENSIONS};cuh;cu
 set(CUDA_VERSION "12.4")
 set(CUDA_GPU 61)
 
+cmake_policy(SET CMP0167 NEW)
+
 if(WIN32) # ----------------------------------------------------------------------------
 
     set(OS_TYPE "Windows")

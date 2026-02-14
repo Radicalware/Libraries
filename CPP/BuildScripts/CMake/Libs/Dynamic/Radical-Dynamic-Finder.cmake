@@ -17,7 +17,8 @@ macro(FindDynamicLib LIB)
     add_library(Radical::${LIB} ALIAS ${LIB})
     include_directories(${LIB} PUBLIC ${InstalledIncludeDirs})
     target_link_libraries(${LIB} PRIVATE ${StaticLibs})
-    LinkDynamic(${LIB} re2)
+    target_link_libraries(${LIB} PRIVATE re2::re2)
+
     SetStaticDependenciesOn(${LIB})
     set_target_properties(${LIB} PROPERTIES COMPILE_DEFINITIONS DLL_EXPORT=1)
 
