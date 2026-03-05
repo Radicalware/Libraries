@@ -10,15 +10,18 @@ $PowershellModulePath = ""
 if($($global:PSVersionTable.Platform -eq "Unix")){
     $PowershellModulePath = "~/.local/share/powershell/Modules"
     $CMakeModulePath = "/opt/Radicalware/CMake_Modules"
-}else{
+}
+else
+{
     $PowershellModulePath = "$HOME\Documents\WindowsPowerShell\Modules"
     $CMakeModulePath = "C:\Source\CMake\Modules"
 
-    if($(Test-Path $CMakeModulePath) -eq $false)
-    {
-        mkdir C:\Source
-        mkdir C:\Source\CMake
-        mkdir C:\Source\CMake\Modules
+    if($(Test-Path $PowershellModulePath) -eq $false){
+        New-Item -ItemType Directory -Path $PowershellModulePath -Force | Out-Null
+    }
+
+    if($(Test-Path $CMakeModulePath) -eq $false){
+        New-Item -ItemType Directory -Path $CMakeModulePath -Force | Out-Null
     }
 }
 

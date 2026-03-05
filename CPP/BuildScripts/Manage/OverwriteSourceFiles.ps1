@@ -45,7 +45,7 @@ class Lib_Handler
 
         try{        
             if($(Test-Path $From) -eq $false){
-                Write-Host "Folder Not Found: ${From}"
+                Write-Host "Lib Not Previously Installed: ${From}"
             }else{
                 Copy-Item -Recurse -Force $From $To
             }
