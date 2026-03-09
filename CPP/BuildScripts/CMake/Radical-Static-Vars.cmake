@@ -157,6 +157,7 @@ endif() # ----------------------------------------------------------------------
     set(VCPKG_DEBUG_LIB_DIR   "${VCPKG_ROOT}/installed/x64-windows/lib")
     set(VCPKG_SCRIPT          "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
     set(CMAKE_TOOLCHAIN_FILE  "${VCPKG_SCRIPT}")
+    set(VCPKG_SHARED_INSTALLS "C:/a/vcpkg/installed/x64-windows/include")
 # endif()
 if(WIN32)
     set(VCPKG_INCLUDE         "${VCPKG_ROOT}/installed/x64-windows/include")

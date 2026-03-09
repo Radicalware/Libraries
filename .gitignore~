@@ -6,7 +6,6 @@
 .idea/
 
 **/Build/**
-Libraries/Build/**
 Notes/**
 
 # Visual Studio 2015 database file

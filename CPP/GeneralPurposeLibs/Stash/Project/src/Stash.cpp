@@ -120,26 +120,7 @@ RA::JSON RA::Stash::CursorToJSON(BSON::Cursor& FoCursor, RA::JSON::Init FeInit)
 
     Json << '[';
     for (const BSON::View& Document : FoCursor)
-    {
-        if (Count > 0)
-            Json << ',';
-        Count++;
-        const unsigned char* Chr = (const unsigned char*)Document.data();
-        auto Len = Document.length();
-        auto Num = *Document.data();
-
-        bson_t bson;
-        bson_init_static(&bson, Document.data(), Document.length());
-
-        size_t size;
-        auto LsCharJSON = bson_as_json(&bson, &size);
-        if (!LsCharJSON)
-            ThrowIt("Error converting to json");
-
-        Json << LsCharJSON;
-
-        bson_free(LsCharJSON);
-    }
+        Json << bsoncxx::to_json(Document);
     Json << ']';
 
     if(Count == 0)

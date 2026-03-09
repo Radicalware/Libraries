@@ -1,0 +1,26 @@
+Keep all variables Pascal Case (not camel case unless Qt required instance)
+
+1st Char is the Scope and Upper Case:
+    L = Local
+    F = Function Parameter
+    M = Module (of a class)
+    S = Static
+    G = Global (do not use)
+
+
+2nd Char is the Variable Type and Lower Case:
+    o = object
+    s = string
+    n = numeric
+    b = bool
+    m = map
+    v = vector/deque/list/array/etc
+    f = function/lambda/bind/etc
+    x = template object
+
+Examples:
+    LvDates = Locally scoped list of dates
+    MsDates = Class module that is a string of dates (probably CSV string)
+    FbDate  = A function parameter that is a boolean to use a date
+    SmDates = A Static object of mapped dates
+    LoDate  = A locally referenced date object
