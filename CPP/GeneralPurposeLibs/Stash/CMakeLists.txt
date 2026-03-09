@@ -22,10 +22,13 @@ list(APPEND PrivateLibs "JSON")
 
 BuildRadicalProject("STATIC" PrivateLibs "")
 
+include_directories("${CMAKE_SHARED_INSTALLS}/bsoncxx/v_noabi")
+include_directories("${CMAKE_SHARED_INSTALLS}/mongocxx/v_noabi")
+
 find_package(cpprestsdk CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 
-find_package(bson-1.0 CONFIG REQUIRED)
+find_package(bson CONFIG REQUIRED)
 find_package(bsoncxx CONFIG REQUIRED)
 find_package(mongocxx CONFIG REQUIRED)
 

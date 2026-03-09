@@ -157,7 +157,6 @@ foreach(EXE ${EXES})
             cpprestsdk::cpprestsdk_brotli_internal
 
             mongo::bsoncxx_shared
-            mongo::bson_shared
             mongo::mongocxx_shared
 
             nlohmann_json

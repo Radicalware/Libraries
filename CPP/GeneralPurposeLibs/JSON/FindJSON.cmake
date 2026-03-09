@@ -5,10 +5,13 @@ add_definitions(-D_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING)
 
 FindStaticLib("JSON")
 
+include_directories("${CMAKE_SHARED_INSTALLS}/bsoncxx/v_noabi")
+include_directories("${CMAKE_SHARED_INSTALLS}/mongocxx/v_noabi")
+
 find_package(cpprestsdk CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 
-find_package(bson-1.0 CONFIG REQUIRED)
+find_package(bson CONFIG REQUIRED)
 find_package(bsoncxx CONFIG REQUIRED)
 find_package(mongocxx CONFIG REQUIRED)
 
@@ -31,7 +34,6 @@ set(UsedVcpkgLibs
 
     mongo::bsoncxx_shared
     mongo::mongocxx_shared
-    mongo::bson_shared
 )
 
 list(REMOVE_DUPLICATES UsedVcpkgLibs)
