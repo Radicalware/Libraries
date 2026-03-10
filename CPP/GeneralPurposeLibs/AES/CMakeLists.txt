@@ -22,7 +22,7 @@ list(APPEND PrivateLibs "Macros")
 list(APPEND PrivateLibs "xmap")
 
 BuildRadicalProject("MODULE" PrivateLibs "")
-link_libraries(${THIS}
-    OpenSSL::SSL 
-    OpenSSL::Crypto
+target_link_libraries(${THIS} PRIVATE
+        OpenSSL::SSL
+        OpenSSL::Crypto
 )

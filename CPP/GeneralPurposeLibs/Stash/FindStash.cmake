@@ -16,9 +16,8 @@ find_package(mongocxx CONFIG REQUIRED)
 list(APPEND LIST_ONE ${LIST_TWO})
 
 set(LibList
-    cpprestsdk::cpprest
-    cpprestsdk::cpprestsdk_zlib_internal
-    cpprestsdk::cpprestsdk_boost_internal
+    cpprestsdk::cpprest 
+    cpprestsdk::cpprestsdk_zlib_internal 
     cpprestsdk::cpprestsdk_brotli_internal
 
     nlohmann_json

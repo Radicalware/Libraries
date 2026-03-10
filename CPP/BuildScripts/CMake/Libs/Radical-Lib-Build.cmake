@@ -39,8 +39,8 @@ macro(BuildRadicalProject InLibType InPrivateLibs InPublicLibs)
     SetAllDependenciesOn(${THIS})
 
     # message("Linking re2: ${RE2_LIB_PATH}")
-    target_link_libraries(${THIS} PRIVATE re2::re2)
-    # LinkStatic(${THIS} re2)
+    # target_link_libraries(${THIS} PRIVATE re2::re2)
+    LinkStatic(${THIS} re2)
 
     # -------------------------- INSTALL ----------------------------------------------------
 

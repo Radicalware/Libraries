@@ -33,10 +33,8 @@ find_package(bsoncxx CONFIG REQUIRED)
 find_package(mongocxx CONFIG REQUIRED)
 
 link_libraries(
-
     cpprestsdk::cpprest 
     cpprestsdk::cpprestsdk_zlib_internal 
-    cpprestsdk::cpprestsdk_boost_internal 
     cpprestsdk::cpprestsdk_brotli_internal
 
     nlohmann_json

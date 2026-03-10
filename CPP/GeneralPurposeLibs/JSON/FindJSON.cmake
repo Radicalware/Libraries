@@ -24,9 +24,8 @@ list(APPEND InstalledIncludeDirs "${MONGO_INCLUDE}")
 include_directories("${MONGO_INCLUDE}")
 
 set(UsedVcpkgLibs
-    cpprestsdk::cpprest
-    cpprestsdk::cpprestsdk_zlib_internal
-    cpprestsdk::cpprestsdk_boost_internal
+    cpprestsdk::cpprest 
+    cpprestsdk::cpprestsdk_zlib_internal 
     cpprestsdk::cpprestsdk_brotli_internal
 
     nlohmann_json

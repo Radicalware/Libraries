@@ -1,6 +1,7 @@
 ﻿include("${RADICAL_PATH}/Radical-Static-Libs-Methods.cmake")
 
-macro(FindDynamicLib LIB)
+macro(FindDynamicLib FsLIB)
+    SET(LIB ${FsLIB})
     # -------------------------- PRE-CONFIG ---------------------------------------
     list(APPEND InstalledIncludeDirs   "${PROJECT_DIR}/${LIB}/include")
     list(APPEND SharedLibs "${LIB}")

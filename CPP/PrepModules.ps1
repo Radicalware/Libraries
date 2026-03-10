@@ -25,6 +25,12 @@ else
     }
 }
 
+$LsLink   = 'C:\Source\Radicalware\Libraries'
+if (-not (Test-Path $LsLink)) {
+    New-Item -ItemType Directory -Path (Split-Path $LsLink) -Force | Out-Null
+    New-Item -ItemType SymbolicLink -Path $LsLink -Target $PSScriptRoot | Out-Null
+}
+
 if($LinkDirs) # To samve runtime and clutter, I decided not to check every path but instead use a cmd line switch
 {
     mkdir C:\Source\CMake\Radicalware\Libraries\Build\Release\lib

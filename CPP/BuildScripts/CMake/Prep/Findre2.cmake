@@ -34,7 +34,7 @@ if(WIN32)
     set_target_properties(re2 PROPERTIES LINKER_LANGUAGE CXX)
     link_libraries(absl::any absl::log absl::base absl::bits)
 
-    message("Copying RE2 --> ${OUTPUT_DIR}")
+    message("Copying RE2 ${RE2_LIB_PATH} --> ${OUTPUT_DIR}")
     if(${BuildAll})
         MakeBinaryFileCopy(${RE2_LIB_PATH} "${OUTPUT_DIR}/lib/${PF}${RE2_LIB}.${ST}")
     else()

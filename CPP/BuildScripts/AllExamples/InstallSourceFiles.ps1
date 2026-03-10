@@ -13,8 +13,7 @@ Write-Host "                         OS, SYS, Stash, JSON"
 Write-Host "2. ExtendedSTL         : Memory, xvector, xstring, xmap"
 Write-Host "3. FunctionalSTL       : re, ac, mc"
 Write-Host "4. ModdedObjects       : cc"
-Write-Host "4. GPU/Device/CUDA     : ImportCUDA, CudaBridge"
-Write-Host "                         Cipher, Stats"
+Write-Host "4. GPU/Device/CUDA     : ImportCUDA, CudaBridge, Stats"
 
 class TheHandler
 {
@@ -74,5 +73,4 @@ $Handler.CopyProject("CC")
 $Handler.ProjectFolder = $GPU
 $Handler.CopyProject("ImportCUDA")
 $Handler.CopyProject("CudaBridge")
-$Handler.CopyProject("Cipher")
 $Handler.CopyProject("Stats")
