@@ -25,7 +25,6 @@ macro(FindStaticLib FsLIB)
     #target_link_libraries(${LIB} ${PreStaticLibLst})
     SetStaticDependenciesOn(${LIB})
     list(APPEND PreStaticLibLst "${LIB}")
-
     # -------------------------- POST-CONFIG --------------------------------------
     SetVisualStudioFilters("Projects.${LIB}" "${ProjectFiles}")
     set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

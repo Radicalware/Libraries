@@ -74,7 +74,7 @@ if(WIN32) # --------------------------------------------------------------------
         message(FATAL_ERROR "VCPKG_ROOT environment variable is not set")
     endif()
     
-    set(Qt6_Base_DIR    "C:/Qt/6.8.2/msvc2022_64/lib/cmake/Qt6")
+    set(Qt6_Base_DIR    "C:/Qt/6.10.2/msvc2022_64/lib/cmake/Qt6")
     set(Qt6_DIR         "${Qt6_Base_DIR}/Qt6")
     set(CMAKE_PATH      "C:/Program Files/CMake/share/cmake-$ENV{CMAKE_VERSION}/Modules")
     set(RADICAL_BASE    "C:/Source/CMake/Radicalware")
@@ -111,6 +111,7 @@ if(WIN32) # --------------------------------------------------------------------
 
     list(APPEND CMAKE_MODULE_PATH "${CMAKE_PATH}")
     list(APPEND CMAKE_MODULE_PATH "${Qt6_DIR}")
+    list(APPEND CMAKE_MODULE_PATH "${Qt6_Base_DIR}")
     list(APPEND CMAKE_MODULE_PATH "${RADICAL_PATH}")
     list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}")
 
