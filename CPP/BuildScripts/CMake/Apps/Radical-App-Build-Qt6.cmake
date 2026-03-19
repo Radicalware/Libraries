@@ -37,7 +37,7 @@ macro(BuildRadicalQt6Solution InPrivateLibs InPublicLibs)
     add_definitions(
         "${Qt6Widgets_DEFINITIONS}"
         "${QtQml_DEFINITIONS}" 
-        "${Qt6Quick_DEFINITIONS}"
+        "${${Qt6Quick_DEFINITIONS}}"
         "${Qt6Network_DEFINITIONS}"
     )
 
