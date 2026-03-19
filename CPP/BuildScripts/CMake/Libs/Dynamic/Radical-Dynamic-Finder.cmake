@@ -22,7 +22,6 @@ macro(FindDynamicLib FsLIB)
 
     SetStaticDependenciesOn(${LIB})
     set_target_properties(${LIB} PROPERTIES COMPILE_DEFINITIONS DLL_EXPORT=1)
-
     # -------------------------- POST-CONFIG --------------------------------------
     SetVisualStudioFilters("Projects.${LIB}" "${ProjectFiles}")
     set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

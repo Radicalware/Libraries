@@ -35,10 +35,10 @@ macro(BuildRadicalQt6Solution InPrivateLibs InPublicLibs)
     )
 
     add_definitions(
-        ${Qt6Widgets_DEFINITIONS} 
-        ${QtQml_DEFINITIONS} 
-        ${Qt6Quick_DEFINITIONS}
-        ${Qt6Network_DEFINITIONS}
+        "${Qt6Widgets_DEFINITIONS}"
+        "${QtQml_DEFINITIONS}" 
+        "${Qt6Quick_DEFINITIONS}"
+        "${Qt6Network_DEFINITIONS}"
     )
 
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt6Widgets_EXECUTABLE_COMPILE_FLAGS}")
@@ -59,7 +59,7 @@ macro(BuildRadicalQt6Solution InPrivateLibs InPublicLibs)
     SetLocalInstallDirs()
     FindProgramFiles(SolutionFiles "${CMAKE_CURRENT_SOURCE_DIR}/Solution")
 
-    add_executable(${THIS}
+    qt_add_executable(${THIS}
         ${SolutionFiles}
         ${QT_RESOURCES}
         ${CMAKE_CURRENT_SOURCE_DIR}/Solution/resource/exe/pic.rc
@@ -82,7 +82,6 @@ macro(BuildRadicalQt6Solution InPrivateLibs InPublicLibs)
 
     if (MSVC) 
         target_compile_options(${THIS} PRIVATE /std:c++latest) 
-        #target_link_options(${THIS} PRIVATE /NODEFAULTLIB:MSVCRT)
     endif()
 
     target_include_directories(${THIS} PRIVATE
@@ -126,7 +125,6 @@ macro(BuildRadicalQt6Solution InPrivateLibs InPublicLibs)
     SetAllDependenciesOn(${THIS})
     LinkStatic(${THIS} re2)
     LinkAllStaticLibs(${THIS})
-
 
     set(TargetProject ${THIS})
     SetVisualStudioFilters("Solution" "${SolutionFiles}")
