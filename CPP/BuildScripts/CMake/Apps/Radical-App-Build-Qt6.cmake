@@ -37,7 +37,7 @@ macro(BuildRadicalQt6Solution InPrivateLibs InPublicLibs)
     add_definitions(
         "${Qt6Widgets_DEFINITIONS}"
         "${QtQml_DEFINITIONS}" 
-        "${Qt6Quick_DEFINITIONS}"
+        "${${Qt6Quick_DEFINITIONS}}"
         "${Qt6Network_DEFINITIONS}"
     )
 
@@ -73,7 +73,7 @@ macro(BuildRadicalQt6Solution InPrivateLibs InPublicLibs)
 
     # Add QML files and resources to QML module to included them via QRC automatically:
     qt_add_qml_module(${THIS}
-        URI BasicApp
+        URI com.github.Radicalware.${THIS}
         VERSION 1.0
         QML_FILES ${QmlFiles}
         RESOURCES ${AssetsFiles}
