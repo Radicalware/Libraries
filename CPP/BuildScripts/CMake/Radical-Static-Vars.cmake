@@ -96,7 +96,7 @@ if(WIN32) # --------------------------------------------------------------------
     FindProgramFiles(RADICAL_PROGRAM_FILES "${INSTALL_DIR}")
     set(RE2_DIR "C:/Source/Git/re2")
 
-    set(CMAKE_CXX_STANDARD 20) 
+    set(CMAKE_CXX_STANDARD 23)
     set(CMAKE_CXX_STANDARD_REQUIRED True)
 
     set(C_ARGS   "${CPP_ARGS} ${C_ARGS}")
