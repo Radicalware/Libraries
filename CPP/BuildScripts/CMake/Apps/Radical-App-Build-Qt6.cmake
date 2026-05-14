@@ -121,10 +121,21 @@ macro(BuildRadicalQt6Solution InPrivateLibs InPublicLibs)
         Qt6::DataVisualization
     )
 
-    LinkAllSharedLibs(${THIS})
+    # See https://github.com/Radicalware/Libraries/pull/2
+    # I was requested to put these here, as opposed to updating the LinkStatic & LinkDynamic functions
+
+    # LinkAllSharedLibs(${THIS})
+    # LinkStatic(${THIS} re2)
+    # LinkAllStaticLibs(${THIS})
+    foreach(DLL ${SharedLibs})
+        message("DLL >> ${DLL}")
+        target_link_libraries(${THIS} PRIVATE ${DLL})
+    endforeach()
     SetAllDependenciesOn(${THIS})
-    LinkStatic(${THIS} re2)
-    LinkAllStaticLibs(${THIS})
+    foreach(LIB ${StaticLibs} re2)
+        message("LIB >> ${LIB}")
+        target_link_libraries(${THIS} PRIVATE ${LIB})
+    endforeach()
 
     set(TargetProject ${THIS})
     SetVisualStudioFilters("Solution" "${SolutionFiles}")
