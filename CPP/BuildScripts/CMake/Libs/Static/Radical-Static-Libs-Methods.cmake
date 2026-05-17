@@ -7,9 +7,9 @@
 endmacro()
 
 function(LinkAllStaticLibs Target)
-    foreach(LIB ${StaticLibs})
+    foreach(LoLIB ${StaticLibs})
         message("LIB >> ${LIB}")
-        LinkStatic(${Target} ${LIB})
+        LinkStatic(${Target} ${LoLIB})
     endforeach()
 endfunction()
 

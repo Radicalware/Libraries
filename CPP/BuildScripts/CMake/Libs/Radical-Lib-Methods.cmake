@@ -1,6 +1,6 @@
 ﻿function(SetStaticDependenciesOn Target)
     if(${BuildAll})
-        foreach(Lib ${StaticLibs})
+        foreach(LoLIB ${StaticLibs})
             add_dependencies(${Target} ${Lib})
         endforeach()
     endif()

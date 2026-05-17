@@ -1,24 +1,24 @@
 ﻿
 # Install the Executable
 if(${debug} OR ${BuildAll})
-    foreach(EXE ${EXES})
+    foreach(LoEXE ${EXES})
         if(${release})
-            install(TARGETS ${EXE} DESTINATION ${INSTALL_PREFIX}/Build/${BUILD_TYPE})
+            install(TARGETS ${LoEXE} DESTINATION ${INSTALL_PREFIX}/Build/${BUILD_TYPE})
         else()
-            install(TARGETS ${EXE} DESTINATION ${INSTALL_PREFIX}/Build/${BUILD_TYPE}/bin)
+            install(TARGETS ${LoEXE} DESTINATION ${INSTALL_PREFIX}/Build/${BUILD_TYPE}/bin)
         endif()
     endforeach()
 
-    foreach(SharedLib ${SharedLibs})
+    foreach(LoSharedLib ${SharedLibs})
         install(
-            FILES "${OUTPUT_DIR}/bin/${PF}${SharedLib}.${SH}"
+            FILES "${OUTPUT_DIR}/bin/${PF}${LoSharedLib}.${SH}"
             CONFIGURATIONS ${BUILD_TYPE}
             DESTINATION "${INSTALL_PREFIX}/Build/${BUILD_TYPE}/bin"
             OPTIONAL
         )
         if(${IsWindows})
             install(
-                FILES "${OUTPUT_DIR}/lib/${PF}${SharedLib}.${ST}"
+                FILES "${OUTPUT_DIR}/lib/${PF}${LoSharedLib}.${ST}"
                 CONFIGURATIONS ${BUILD_TYPE}
                 DESTINATION "${INSTALL_PREFIX}/Build/${BUILD_TYPE}/lib"
                 OPTIONAL
@@ -26,9 +26,9 @@ if(${debug} OR ${BuildAll})
         endif()
     endforeach()
 
-    foreach(StaticLib ${StaticLibs})
+    foreach(LoStaticLib ${StaticLibs})
         install(
-            FILES "${OUTPUT_DIR}/lib/${PF}${StaticLib}.${ST}"
+            FILES "${OUTPUT_DIR}/lib/${PF}${LoStaticLib}.${ST}"
             CONFIGURATIONS ${BUILD_TYPE}
             DESTINATION "${INSTALL_PREFIX}/Build/${BUILD_TYPE}/lib"
             OPTIONAL
