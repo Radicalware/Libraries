@@ -1,9 +1,9 @@
 ﻿macro(PrintEXEsAndDLLs)
-    foreach(SharedLib ${SharedLibs})
+    foreach(LoSharedLib ${SharedLibs})
         if(${FirstLibLoop})
-            message("DLL >> ${SharedLib}")
+            message("DLL >> ${LoSharedLib}")
         endif()
-        LinkDynamic(${EXE} ${SharedLib})
+        LinkDynamic(${EXE} ${LoSharedLib})
     endforeach()
 
     if(${FirstLibLoop})
@@ -15,9 +15,9 @@ endmacro()
 
 
 function(LinkAllSharedLibs Target)
-    foreach(DLL ${SharedLibs})
+    foreach(LoDLL ${SharedLibs})
         message("DLL >> ${DLL}")
-        LinkDynamic(${Target} ${DLL})
+        LinkDynamic(${Target} ${LoDLL})
     endforeach()
 endfunction()
 

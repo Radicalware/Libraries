@@ -1,10 +1,9 @@
 ﻿function(SetStaticDependenciesOn Target)
     if(${BuildAll})
-        foreach(Lib ${StaticLibs})
-            if(NOT "${Target}" STREQUAL "${Lib}")
-                add_dependencies(${Target} ${Lib})
+        foreach(LoLib ${StaticLibs})
+            if(NOT "${Target}" STREQUAL "${LoLib}")
+                add_dependencies(${Target} ${LoLib})
             endif()
         endforeach()
     endif()
 endfunction()
-

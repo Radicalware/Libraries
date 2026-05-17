@@ -91,12 +91,12 @@ macro(BuildRadicalQt6Solution InPrivateLibs InPublicLibs)
         "${Vulkan_INCLUDE_DIR}"
     )
 
-    foreach(Lib IN LISTS ${InPrivateLibs})
-        find_package("${Lib}")
+    foreach(LoLib IN LISTS ${InPrivateLibs})
+        find_package("${LoLib}")
     endforeach()
 
-    foreach(Lib IN LISTS ${InPublicLibs})
-        find_package("${Lib}")
+    foreach(LoLib IN LISTS ${InPublicLibs})
+        find_package("${LoLib}")
     endforeach()
 
     if(${debug})
