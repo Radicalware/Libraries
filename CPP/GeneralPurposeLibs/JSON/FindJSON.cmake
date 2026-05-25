@@ -5,8 +5,16 @@ add_definitions(-D_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING)
 
 FindStaticLib("JSON")
 
-include_directories("${CMAKE_SHARED_INSTALLS}/bsoncxx/v_noabi")
-include_directories("${CMAKE_SHARED_INSTALLS}/mongocxx/v_noabi")
+set(BSON_INCLUDE  "${VCPKG_INCLUDE}/bsoncxx/v_noabi")
+set(MONGO_INCLUDE "${VCPKG_INCLUDE}/mongocxx/v_noabi")
+#set(MONGO_PACKAGE "${VCPKG_PACKAGES}/mongo-cxx-driver_x64-windows/include/bsoncxx/v_noabi")
+
+list(APPEND InstalledIncludeDirs "${BSON_INCLUDE}")
+include_directories("${BSON_INCLUDE}")
+
+list(APPEND InstalledIncludeDirs "${MONGO_INCLUDE}")
+include_directories("${MONGO_INCLUDE}")
+#include_directories("${MONGO_PACKAGE}")
 
 find_package(cpprestsdk CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
@@ -14,14 +22,6 @@ find_package(nlohmann_json CONFIG REQUIRED)
 find_package(bson CONFIG REQUIRED)
 find_package(bsoncxx CONFIG REQUIRED)
 find_package(mongocxx CONFIG REQUIRED)
-
-set(BSON_INCLUDE "${VCPKG_INCLUDE}/bsoncxx/v_noabi")
-list(APPEND InstalledIncludeDirs "${BSON_INCLUDE}")
-include_directories("${BSON_INCLUDE}")
-
-set(MONGO_INCLUDE "${VCPKG_INCLUDE}/mongocxx/v_noabi")
-list(APPEND InstalledIncludeDirs "${MONGO_INCLUDE}")
-include_directories("${MONGO_INCLUDE}")
 
 set(UsedVcpkgLibs
     cpprestsdk::cpprest 

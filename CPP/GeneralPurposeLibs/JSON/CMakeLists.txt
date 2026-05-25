@@ -24,8 +24,16 @@ list(APPEND PrivateLibs "xmap")
 
 BuildRadicalProject("STATIC" PrivateLibs "")
 
-include_directories("${CMAKE_SHARED_INSTALLS}/bsoncxx/v_noabi")
-include_directories("${CMAKE_SHARED_INSTALLS}/mongocxx/v_noabi")
+set(BSON_INCLUDE  "${VCPKG_INCLUDE}/bsoncxx/v_noabi")
+set(MONGO_INCLUDE "${VCPKG_INCLUDE}/mongocxx/v_noabi")
+#set(MONGO_PACKAGE "${VCPKG_PACKAGES}/mongo-cxx-driver_x64-windows/include/bsoncxx/v_noabi")
+
+list(APPEND InstalledIncludeDirs "${BSON_INCLUDE}")
+include_directories("${BSON_INCLUDE}")
+
+list(APPEND InstalledIncludeDirs "${MONGO_INCLUDE}")
+include_directories("${MONGO_INCLUDE}")
+#include_directories("${MONGO_PACKAGE}")
 
 find_package(ZLIB REQUIRED)
 find_package(cpprestsdk CONFIG REQUIRED)

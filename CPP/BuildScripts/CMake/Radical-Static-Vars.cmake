@@ -162,6 +162,7 @@ endif() # ----------------------------------------------------------------------
 # endif()
 if(WIN32)
     set(VCPKG_INCLUDE         "${VCPKG_ROOT}/installed/x64-windows/include")
+    set(VCPKG_PACKAGES        "${VCPKG_ROOT}/packages")
 else()
     set(VCPKG_INCLUDE         "${VCPKG_ROOT}/installed/x64-linux/include")
 endif()

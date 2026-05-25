@@ -24,3 +24,8 @@ Examples:
     FbDate  = A function parameter that is a boolean to use a date
     SmDates = A Static object of mapped dates
     LoDate  = A locally referenced date object
+
+Pointers have the suffix "Ptr" so an example would be "LoDatePtr" so macros work
+This applies to both raw and smart Pointers
+Also, raw pointers have the 2nd char notation to its template Type: xp<Date> LoDatePtr;
+
