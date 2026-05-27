@@ -5,7 +5,7 @@ macro(BuildRadicalQt6Solution InPrivateLibs InPublicLibs)
     RunSilentPowershell("rm ${CMAKE_CURRENT_SOURCE_DIR}/.clang-format_11")
     RunSilentPowershell("New-Item ${CMAKE_CURRENT_SOURCE_DIR}/.clang-format_11 | Out-Null")
 
-    add_definitions(-DQtAPP)
+    add_definitions("-DQtAPP")
 
     set(SOLUTION "${CMAKE_SOURCE_DIR}/Solution")
 
@@ -35,10 +35,10 @@ macro(BuildRadicalQt6Solution InPrivateLibs InPublicLibs)
     )
 
     add_definitions(
-        "${Qt6Widgets_DEFINITIONS}"
-        "${QtQml_DEFINITIONS}" 
-        "${${Qt6Quick_DEFINITIONS}}"
-        "${Qt6Network_DEFINITIONS}"
+        "-D${Qt6Widgets_DEFINITIONS}"
+        "-D${QtQml_DEFINITIONS}" 
+        "-D${${Qt6Quick_DEFINITIONS}}"
+        "-D${Qt6Network_DEFINITIONS}"
     )
 
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt6Widgets_EXECUTABLE_COMPILE_FLAGS}")
@@ -79,6 +79,15 @@ macro(BuildRadicalQt6Solution InPrivateLibs InPublicLibs)
         RESOURCES ${AssetsFiles}
         NO_RESOURCE_TARGET_PATH
     )
+
+    if(BxDebug)
+        target_compile_definitions(${THIS} PRIVATE
+            QT_QML_DEBUG
+            QtAPP
+            ABSL_CONSUME_DLL
+            CMAKE_INTDIR="Debug"
+        )
+    endif()
 
     if (MSVC) 
         target_compile_options(${THIS} PRIVATE /std:c++latest) 
