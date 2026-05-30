@@ -65,7 +65,6 @@ typedef long double        xdbl; // extended double
 #define BxDebug 0
 #endif
 
-
 #define MAX(_LEFT_, _RIGHT_) ((_LEFT_ > _RIGHT_) ? _LEFT_ :  _RIGHT_)
 #define MIN(_LEFT_, _RIGHT_) ((_LEFT_ < _RIGHT_) ? _LEFT_ :  _RIGHT_)
 #define BxBothPosOrNeg(_LEFT_, _RIGHT_)    ((_LEFT_ < 0 && _RIGHT_ < 0) || (!(_LEFT_ < 0)) && (!(_RIGHT_ < 0)))

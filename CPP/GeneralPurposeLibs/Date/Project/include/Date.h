@@ -34,6 +34,8 @@ namespace RA
     public:
         using SteadyClock = std::chrono::steady_clock;
         using EpochTime = std::time_t;
+        using ChronoMilliseconds = std::chrono::time_point<std::chrono::system_clock, std::chrono::milliseconds>;
+        using ChronoSeconds = std::chrono::time_point<std::chrono::system_clock, std::chrono::seconds>;
 
         enum class Offset
         {
@@ -80,6 +82,8 @@ namespace RA
         Date(Offset FeOffset);
         Date(const Date& Other, Offset FeOffset);
         Date(xint FnEpochTime = 0, Offset FeOffset = Offset::None);
+        Date(ChronoMilliseconds FnChronoTime, Offset FeOffset = Offset::None);
+        Date(ChronoSeconds FnChronoTime, Offset FeOffset = Offset::None);
 
         // Format: "2021-06-23 20:00:00"
         Date(const xstring& FsDateTime, Offset FeOffset = Offset::None);
@@ -106,7 +110,9 @@ namespace RA
         bool            IsEvenHour();
         bool            IsEvenHour(const int FnRound);
 
-        Date::EpochTime GetEpochTime() const;
+        Date::EpochTime    GetEpochTime() const;
+        ChronoMilliseconds GetChronoMilliseconds() const;
+        ChronoSeconds      GetChronoSeconds() const;
 
         xint            GetEpochTimeInt() const;
         int             GetEpochTimeInt32() const;
@@ -168,7 +174,7 @@ namespace RA
 
         Date::EpochTime MoEpochTime = 0;
         xstring* MsStrPtr = nullptr;
-        Date::Layout    MoTime;
+        Date::Layout MoTime;
         bool MbDateCurrent = false;
 
     public:
@@ -183,11 +189,11 @@ namespace RA
         bool operator< (const Date& Other) const;
 
     private:
-        istatic re2::RE2 SnMatchDateTimeCaptureFull =
+        istatic const re2::RE2 SnMatchDateTimeCaptureFull =
             re2::RE2(R"(^(\d\d\d\d)[^\d]+(\d\d)[^\d]+(\d\d)[^\d]+(\d\d)[^\d]+(\d\d)[^\d]+(\d\d).*$)");
-        istatic std::regex SnDateTimeCaptureFull =
+        istatic const std::regex SnDateTimeCaptureFull =
             std::regex(R"(^(\d\d\d\d)[^\d]+(\d\d)[^\d]+(\d\d)[^\d]+(\d\d)[^\d]+(\d\d)[^\d]+(\d\d).*$)");
-        istatic std::regex SnDateTimeCaptureHalf =
+        istatic const std::regex SnDateTimeCaptureHalf =
             std::regex(R"(^(\d\d\d\d)[^\d]+(\d\d)[^\d]+(\d\d).*$)");
 
         EXI friend std::ostream& operator<<(std::ostream& out, const RA::Date& obj);

@@ -223,6 +223,17 @@ int main()
     Date LoShortTimeLocal(LoShortTimeUTC, Date::Offset::ToLocal);
     PrintDate(LoShortTimeLocal);
     cout << "=======================================================\n";
+    cout << "                     Chrono Time \n";
+    cout << "=======================================================\n";
+    Date LoStandard(2025, 5, 4, Date::Offset::None);
+    auto LoMS = RA::Date(LoStandard.GetChronoMilliseconds());
+    auto LoSec = RA::Date(LoStandard.GetChronoSeconds());
+    assert(LoMS == LoSec);
+    cout << '\n';
+    auto LoMs2 = RA::Date(LoSec.GetEpochTimeEvenMilliseconds());
+    assert(LoSec == LoMs2);
+    PrintDate(LoMs2);
+    cout << "=======================================================\n";
     Date CurrentDate;
     cout << "Date Seconds:      " << CurrentDate.GetEpochTimeStr() << endl;
     cout << "Date Milliseconds: " << CurrentDate.GetEpochTimeMillisecondsStr() << endl;

@@ -53,6 +53,40 @@ RA::Date::Date(xint FnEpochTime, Offset FeOffset)
     MoTime.Year = 0;
 }
 
+RA::Date::Date(ChronoMilliseconds FnChronoTime, Offset FeOffset)
+{
+    if (!SbOffsetCalculated)
+        RA::Date::GetComputerOffset();
+
+    // Offset is in seconds → convert to milliseconds
+    const long long LnMsOffset = GetSecondsOffset(FeOffset) * 1000LL;
+
+    // Convert chrono::milliseconds → integer milliseconds since epoch
+    auto tp = std::chrono::system_clock::time_point(FnChronoTime);
+    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(tp.time_since_epoch()).count();
+
+    MoEpochTime = ms + LnMsOffset;
+
+    MoTime.Year = 0;
+}
+
+RA::Date::Date(ChronoSeconds FnChronoTime, Offset FeOffset)
+{
+    if (!SbOffsetCalculated)
+        RA::Date::GetComputerOffset();
+
+    const long long LnMsOffset = GetSecondsOffset(FeOffset) * 1000LL;
+
+    // Convert chrono::seconds → integer milliseconds since epoch
+    auto tp = std::chrono::system_clock::time_point(FnChronoTime);
+    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(tp.time_since_epoch()).count();
+
+    MoEpochTime = ms + LnMsOffset;
+
+    MoTime.Year = 0;
+}
+
+
 // Format: "2021-06-23 20:00:00"
 RA::Date::Date(const xstring& FsDateTime, Offset FeOffset)
 {
@@ -275,9 +309,24 @@ bool RA::Date::IsEvenHour(const int FnRound)
     return false;
 }
     
-RA::Date::EpochTime RA::Date::GetEpochTime() const {
+RA::Date::EpochTime RA::Date::GetEpochTime() const {    
     return MoEpochTime;
 }
+
+RA::Date::ChronoMilliseconds RA::Date::GetChronoMilliseconds() const
+{
+    return RA::Date::ChronoMilliseconds{
+        std::chrono::milliseconds{ MoEpochTime }
+    };
+}
+
+RA::Date::ChronoSeconds RA::Date::GetChronoSeconds() const
+{
+    return RA::Date::ChronoSeconds{
+        std::chrono::seconds{ MoEpochTime }
+    };
+}
+
 
 xint RA::Date::GetEpochTimeInt() const
 {
