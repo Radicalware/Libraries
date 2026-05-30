@@ -59,7 +59,7 @@ RA::Date::Date(ChronoMilliseconds FnChronoTime, Offset FeOffset)
         RA::Date::GetComputerOffset();
 
     // Offset is in seconds → convert to milliseconds
-    const long long LnMsOffset = GetSecondsOffset(FeOffset) * 1000LL;
+    const long long LnMsOffset = GetSecondsOffset(FeOffset);
 
     // Convert chrono::milliseconds → integer milliseconds since epoch
     auto tp = std::chrono::system_clock::time_point(FnChronoTime);
@@ -75,11 +75,11 @@ RA::Date::Date(ChronoSeconds FnChronoTime, Offset FeOffset)
     if (!SbOffsetCalculated)
         RA::Date::GetComputerOffset();
 
-    const long long LnMsOffset = GetSecondsOffset(FeOffset) * 1000LL;
+    const long long LnMsOffset = GetSecondsOffset(FeOffset);
 
     // Convert chrono::seconds → integer milliseconds since epoch
     auto tp = std::chrono::system_clock::time_point(FnChronoTime);
-    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(tp.time_since_epoch()).count();
+    auto ms = std::chrono::duration_cast<std::chrono::seconds>(tp.time_since_epoch()).count();
 
     MoEpochTime = ms + LnMsOffset;
 
