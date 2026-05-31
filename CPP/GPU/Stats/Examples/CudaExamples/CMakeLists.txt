@@ -9,10 +9,10 @@ else()
 endif()
 include("${RADICAL_PATH}/Radical-App-Build.cmake")
 
-find_package(PrepCUDA REQUIRED)
 
 set(THIS ${ArgProjectName})
 project(${THIS} LANGUAGES CXX CUDA)
+find_package(PrepCUDA REQUIRED)
 
 set(PrivateLibs "")
 list(APPEND PrivateLibs "Iterator")

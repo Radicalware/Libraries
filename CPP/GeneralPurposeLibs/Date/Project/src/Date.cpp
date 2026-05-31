@@ -128,12 +128,12 @@ RA::Date::Date(int FnYear, int FnMonth, int FnDay, Offset FeOffset)
 
 RA::Date::Date(const Date& Other)
 {
-    *this = Other;
+    The = Other;
 }
 
 RA::Date::Date(Date&& Other) noexcept
 {
-    *this = std::move(Other);
+    The = std::move(Other);
 }
 
 void RA::Date::operator=(const xint FnTime)
@@ -216,7 +216,7 @@ const xstring& RA::Date::GetStr()
 
 xstring RA::Date::GetStr() const
 {
-    Date Copy = *this;
+    Date Copy = The;
     return Copy.GetStr();
 }
 
@@ -526,10 +526,43 @@ bool RA::Date::operator>(const Date& Other) const {
 bool RA::Date::operator<(const Date& Other) const {
     return MoEpochTime < Other.MoEpochTime;
 }
+
+RA::Date RA::Date::operator+(const xint FnSeconds) const {
+    return Date(static_cast<xint>(MoEpochTime) + FnSeconds);
+}
+RA::Date RA::Date::operator-(const xint FnSeconds) const {
+    return Date(static_cast<xint>(MoEpochTime) - FnSeconds);
+}
+RA::Date RA::Date::operator*(const xint FnFactor) const {
+    return Date(static_cast<xint>(MoEpochTime) * FnFactor);
+}
+RA::Date RA::Date::operator/(const xint FnDivisor) const {
+    return Date(static_cast<xint>(MoEpochTime) / FnDivisor);
+}
+xint RA::Date::operator-(const Date& Other) const {
+    return static_cast<xint>(MoEpochTime) - static_cast<xint>(Other.MoEpochTime);
+}
+
+RA::Date& RA::Date::operator+=(const xint FnSeconds) {
+    The = The + FnSeconds;
+    return The;
+}
+RA::Date& RA::Date::operator-=(const xint FnSeconds) {
+    The = The - FnSeconds;
+    return The;
+}
+RA::Date& RA::Date::operator*=(const xint FnFactor) {
+    The = The * FnFactor;
+    return The;
+}
+RA::Date& RA::Date::operator/=(const xint FnDivisor) {
+    The = The / FnDivisor;
+    return The;
+}
 // ------------------------------------------------------
 RA::Date RA::Date::Year(int FnYear) const
 {
-    Date RoDate = *this;
+    Date RoDate = The;
     RA::Date::Layout LoTime = RoDate.GetLayout();
     LoTime.Year += FnYear;
     RoDate.SetDateTime(LoTime);
@@ -538,7 +571,7 @@ RA::Date RA::Date::Year(int FnYear) const
 
 RA::Date RA::Date::Month(int FnMonth) const
 {
-    Date RoDate = *this;
+    Date RoDate = The;
     RA::Date::Layout LoLayout = RoDate.GetLayout();
     int CurentMonth = LoLayout.Month;
     int MoveMonths  = CurentMonth + FnMonth;

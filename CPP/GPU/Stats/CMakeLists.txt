@@ -16,8 +16,8 @@ set(THIS ${ArgProjectName})
 # ------------------------------------
 #project(${THIS})
 # ------------------------------------
-find_package(PrepCUDA)
 project(${THIS} LANGUAGES CXX CUDA)
+find_package(PrepCUDA)
 # ------------------------------------
 
 set(PrivateLibs "")

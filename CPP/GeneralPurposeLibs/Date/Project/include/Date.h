@@ -36,7 +36,7 @@ namespace RA
         using SteadyClock = std::chrono::steady_clock;
         using EpochTime = std::time_t;
         using ChronoMilliseconds = std::chrono::time_point<std::chrono::system_clock, std::chrono::milliseconds>;
-        using ChronoSeconds = std::chrono::time_point<std::chrono::system_clock, std::chrono::seconds>;
+        using ChronoSeconds      = std::chrono::time_point<std::chrono::system_clock, std::chrono::seconds>;
 
         enum class Offset
         {
@@ -189,6 +189,17 @@ namespace RA
         bool operator> (const Date& Other) const;
         bool operator< (const Date& Other) const;
 
+        Date  operator+(const xint FnSeconds) const;
+        Date  operator-(const xint FnSeconds) const;
+        Date  operator*(const xint FnFactor)  const;
+        Date  operator/(const xint FnDivisor) const;
+        xint  operator-(const Date& Other)    const;
+
+        Date& operator+=(const xint FnSeconds);
+        Date& operator-=(const xint FnSeconds);
+        Date& operator*=(const xint FnFactor);
+        Date& operator/=(const xint FnDivisor);
+
     private:
         istatic const re2::RE2 SnMatchDateTimeCaptureFull =
             re2::RE2(R"(^(\d\d\d\d)[^\d]+(\d\d)[^\d]+(\d\d)[^\d]+(\d\d)[^\d]+(\d\d)[^\d]+(\d\d).*$)");
@@ -219,7 +230,7 @@ EXI bool operator< (const xint& Left, const RA::Date& Right);
 namespace std {
     template <>
     struct hash<RA::Date> {
-        inline std::size_t operator()(const RA::Date& FoDate) const {
+        inline xint operator()(const RA::Date& FoDate) const {
             return std::hash<xint>{}(FoDate.GetEpochTimeEvenMilliseconds());
         }
     };
