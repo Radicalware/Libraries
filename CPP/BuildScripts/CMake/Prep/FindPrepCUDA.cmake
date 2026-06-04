@@ -8,15 +8,21 @@ set(UsingNVCC ON)
 
 remove_definitions(-DUsingMSVC)
 add_definitions(-DUsingNVCC)
+set(CMAKE_CUDA_VERBOSE_BUILD OFF)
+set(CUDA_VERBOSE_BUILD OFF)
+
+# the -q is for quiet / no compile commands
+set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -q --expt-relaxed-constexpr")
+
 
 #list(APPEND CMAKE_CUDA_FLAGS -DUsingNVCC)
 
-set(CMAKE_CUDA_ARCHITECTURES ${CUDA_GPU}) # Pascal GPUs (aka 1000 Series GPUs)
-
 set(CUDA_INCLUDE_DIRS   "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v${CUDA_VERSION}/include")
 set(CMAKE_CUDA_COMPILER "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v${CUDA_VERSION}/bin/nvcc.exe")
+set(NVCC                "${CMAKE_CUDA_COMPILER}")
 set(CUDA_LIB_PATH       "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v${CUDA_VERSION}/lib/x64")
 set(CUDA_DIR            "${CUDA_LIB_PATH}")
+set(CUDAToolkit_ROOT    "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v${CUDA_VERSION}")
 
 
 # -D_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS -DJSON_HAS_RANGES=0
@@ -27,20 +33,22 @@ set(CUDA_DIR            "${CUDA_LIB_PATH}")
 #set(CUDA_SEPARABLE_COMPILATION ON)
 #set(CUDA_RESOLVE_DEVICE_SYMBOLS ON)
 
-set(CUDA_VERBOSE_BUILD ON)
 
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_DEFAULT 23)
-set(CMAKE_CUDA_STANDARD 23)
-set(CMAKE_CUDA_STANDARD_DEFAULT 23)
+set(CPP_VERSION 20)
+set(CMAKE_CXX_STANDARD "${CPP_VERSION}")
+set(CMAKE_CXX_STANDARD_DEFAULT "${CPP_VERSION}")
+set(CMAKE_CUDA_STANDARD "${CPP_VERSION}")
+set(CMAKE_CUDA_STANDARD_DEFAULT "${CPP_VERSION}")
 
 enable_language(CUDA)
-find_package(CUDA REQUIRED)
+find_package(CUDAToolkit REQUIRED)
 
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_DEFAULT 23)
-set(CMAKE_CUDA_STANDARD 23)
-set(CMAKE_CUDA_STANDARD_DEFAULT 23)
+set(CMAKE_CXX_STANDARD "${CPP_VERSION}")
+set(CMAKE_CXX_STANDARD_DEFAULT "${CPP_VERSION}")
+set(CMAKE_CUDA_STANDARD "${CPP_VERSION}")
+set(CMAKE_CUDA_STANDARD_DEFAULT "${CPP_VERSION}")
+
+
 
 # add_compile_definitions("UsingNVCC")
 # set(CUDA_NVCC_FLAGS  "${CUDA_NVCC_FLAGS}  -DUsingNVCC")
@@ -51,7 +59,11 @@ link_directories("D:/AIE/vcpkg/installed/x64-windows/lib")
 link_directories("${CUDA_LIB_PATH}")
 
 function(ConfigCUDA BINARY)
-    set_target_properties(${BINARY} PROPERTIES CUDA_ARCHITECTURES ${CUDA_GPU})
+    if (CUDA_GPU)
+        message(">>>> GPU: ${CUDA_GPU}")
+        set_target_properties(${BINARY} PROPERTIES CUDA_ARCHITECTURES ${CUDA_GPU})
+    endif()
+
     set_target_properties(${BINARY} PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
     if(${debug})
@@ -69,7 +81,7 @@ function(ConfigCUDA BINARY)
                                -diag-suppress=554
                                -diag-suppress=174
                                -diag-suppress=68
-                               -arch=sm_61
+                               # -arch=sm_61
                                >)
 
         # -Xcompiler="/DUsingNVCC"
@@ -90,7 +102,7 @@ function(ConfigCUDA BINARY)
                                -diag-suppress=554
                                -diag-suppress=174
                                -diag-suppress=68
-                               -arch=sm_61
+                               # -arch=sm_61
                                >)
 
         # -Xcompiler="/DUsingNVCC"

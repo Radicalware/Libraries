@@ -9,13 +9,14 @@ include("${RADICAL_PATH}/Radical-Lib-Build.cmake")
 
 
 # ------------------------------------
-find_package(PrepCUDA)
-
 set(THIS ${ArgProjectName})
 project(${THIS} LANGUAGES CXX CUDA)
+find_package(PrepCUDA)
 # ------------------------------------
 
+list(APPEND PrivateLibs "Iterator")
 list(APPEND PrivateLibs "Memory")
+list(APPEND PrivateLibs "Macros")
 BuildRadicalProject("STATIC" PrivateLibs "")
 
 ConfigCUDA(${THIS})

@@ -153,6 +153,11 @@ Class PS_Builder
             Write-Host "devenv $($this.ArgStruct.name + '.slnx') /Build $($this.ArgStruct.build_type)"
             devenv $($this.ArgStruct.name + '.slnx') /Build $this.ArgStruct.build_type | Write-Host
             
+            for($i = 0; $i -lt 3; $i++){
+                [console]::beep(1000,300)
+                Start-Sleep -Milliseconds 200
+            }
+            
             # Method 3 (best if you have incredibuild)
             #BuildConsole.exe $($this.ArgStruct.name + '.slnx') /cfg="$($this.ArgStruct.build_type)|x64" /NoLogo  | `
             #    Select-String -pattern "^\s|IncrediBuildAlwaysCreate|Temporary license|^\d+\>(Target|(\s+ (Deleting|Touching|Creating|All outputs are up-to-date|Building Custom Rule)))|^\d build system warnings|IncrediBuild|--------------------" -NotMatch | Write-Host

@@ -57,10 +57,15 @@ typedef long double        xdbl; // extended double
     #define EXI
 #endif
 
+
 #ifdef _DEBUG
+#undef BxDebug
+#undef BxRelease
 #define BxDebug 1
 #define BxRelease 0
 #else
+#undef BxDebug
+#undef BxRelease
 #define BxRelease 1
 #define BxDebug 0
 #endif

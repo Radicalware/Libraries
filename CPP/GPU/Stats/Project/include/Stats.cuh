@@ -60,7 +60,7 @@ namespace RA
         void ClearStorageRequriedObjs();
 
         void CreateObjs(const xvector<EStatOpt>& FvOptions);
-        void Allocate(const xint FnStorageSize, const double* FvValues);
+        void Allocate(const xint FnStorageSize, const double* FvValues = nullptr);
 
     public:
         ~Stats();

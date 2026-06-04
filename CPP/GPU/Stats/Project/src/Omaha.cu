@@ -64,13 +64,11 @@ DXF void RA::Omaha::Update()
         MnRunningSize = MnStorageSize;
         RemoveOldest();
     }
-
-    return DXF void();
 }
 
 DXF void RA::Omaha::Update(const double FnValue)
 {
-    ThrowIt("Not Coded Yet");
+    CudaThrow("Not Coded Yet");
 }
 
 DXF void RA::Omaha::SetDefaultValues(const double FnValue)

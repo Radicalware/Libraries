@@ -23,10 +23,10 @@ namespace RA
         };
         struct Config
         {
-            Config(const xdbl FnCompression);
-            Config(const xdbl FnCompression, const xdbl  FnMin, const xdbl  FnMax);
-            Config(const xdbl FnCompression, const xdbl* FnMinPtr, const xdbl* FnMaxPtr);
-            Config(const xdbl FnCompression, const Config& FoConfig);
+            DXF Config(const xdbl FnCompression);
+            DXF Config(const xdbl FnCompression, const xdbl  FnMin, const xdbl  FnMax);
+            DXF Config(const xdbl FnCompression, const xdbl* FnMinPtr, const xdbl* FnMaxPtr);
+            DXF Config(const xdbl FnCompression, const Config& FoConfig);
             const xdbl MnCompression = 1;
             const xdbl MnMax = -DBL_MAX;
             const xdbl MnMin = DBL_MAX;
@@ -62,6 +62,8 @@ namespace RA
         IXF static constexpr xdbl ToNormalLog(const double& FnRaw, const Config& FoConfig);
         IXF static constexpr xdbl ToRawLog(const double& FnCompressedNormal, const Config& FoConfig);
 
+        IXF static constexpr bool Appx(const double& FnFirst, const double& FnSecond, const xdbl FnAcceptibleRange = 0.00001L);
+
         DXF xdbl ToNormalLinear(const double& FnRaw);
         DXF xdbl ToRawLinear(const double& FnNormal);
 
@@ -77,6 +79,8 @@ namespace RA
 #else // UsingMSVC
         DXF const double* GetNormals() const { return MvNormals; }
         DXF double GetNormal(const xint Idx) const { return MvNormals[Idx]; }
+        DXF double GetNormalFront(const xint Idx) const;
+        DXF double GetNormalBack(const xint Idx) const;
 #endif
     private:
         DXF void Update();
@@ -108,7 +112,7 @@ namespace RA
 
 IXF constexpr xdbl RA::Normals::ToNormalLinear(const double& FnRaw, const Config& FoConfig)
 {
-    if (RA::Appx(FoConfig.MnMin, FoConfig.MnMax))
+    if (Appx(FoConfig.MnMin, FoConfig.MnMax))
         return 0; // 0 is the centerpoint so min/max even means you are at zero
 
     const auto LnNormal = 2.0L * ((FnRaw - FoConfig.MnMin) / (FoConfig.MnMax - FoConfig.MnMin)) - 1.0L;
@@ -118,7 +122,7 @@ IXF constexpr xdbl RA::Normals::ToNormalLinear(const double& FnRaw, const Config
 
 IXF constexpr xdbl RA::Normals::ToRawLinear(const double& FnNormal, const Config& FoConfig)
 {
-    if (RA::Appx(FoConfig.MnMin, FoConfig.MnMax))
+    if (Appx(FoConfig.MnMin, FoConfig.MnMax))
         return FoConfig.MnMax;
 
     const auto LoUncompressedNormal = FnNormal * FoConfig.MnCompression;
@@ -128,14 +132,14 @@ IXF constexpr xdbl RA::Normals::ToRawLinear(const double& FnNormal, const Config
 
 IXF constexpr xdbl RA::Normals::ToNormalLog(const double& FnRaw, const Config& FoConfig)
 {
-    if (RA::Appx(FoConfig.MnMin, FoConfig.MnMax))
+    if (Appx(FoConfig.MnMin, FoConfig.MnMax))
         return 0;
 
     cvar LnMidpoint = (FoConfig.MnMin + FoConfig.MnMax) / 2.0L;
     if (FnRaw > LnMidpoint)
     {
         cvar LnLinearNormal = ToNormalLinear(FnRaw, Config(1, FoConfig));
-        cvar LnLogNormal(std::log(LnLinearNormal + 1.0L) / std::log(2.0L));
+        cvar LnLogNormal(logf(LnLinearNormal + 1.0L) / logf(2.0L));
         cvar LnLogCompressed = LnLogNormal / FoConfig.MnCompression;
         return LnLogCompressed;
     }
@@ -147,7 +151,7 @@ IXF constexpr xdbl RA::Normals::ToNormalLog(const double& FnRaw, const Config& F
         // (2 * 2) + 8 = 12
         cvar LnRaw = ((LnMidpoint - FnRaw) * 2) + FnRaw;
         cvar FnNormalized = ToNormalLinear(LnRaw, Config(1, FoConfig));
-        cvar LnLogNormal = -(std::log(FnNormalized + 1.0L) / std::log(2.0L));
+        cvar LnLogNormal = -(logf(FnNormalized + 1.0L) / logf(2.0L));
         cvar LnLogCompressed = LnLogNormal / FoConfig.MnCompression;
         return LnLogCompressed;
     }
@@ -156,15 +160,15 @@ IXF constexpr xdbl RA::Normals::ToNormalLog(const double& FnRaw, const Config& F
 
 IXF constexpr xdbl RA::Normals::ToRawLog(const double& FnCompressedNormal, const Config& FoConfig)
 {
-    if (RA::Appx(FoConfig.MnMin, FoConfig.MnMax))
+    if (Appx(FoConfig.MnMin, FoConfig.MnMax))
         return FoConfig.MnMax;
 
     //cvar FnUncompressed = FnCompressedNormal * FoConfig.MnCompression;
     xdbl LoLogUncompressed = 0.0L;
     if (FnCompressedNormal > 0)
-        LoLogUncompressed = std::exp(FnCompressedNormal * std::log(2.0L)) - 1.0L;
+        LoLogUncompressed = std::exp(FnCompressedNormal * logf(2.0L)) - 1.0L;
     else if (FnCompressedNormal < 0)
-        LoLogUncompressed = -(std::exp(-FnCompressedNormal * std::log(2.0L)) - 1.0L);
+        LoLogUncompressed = -(std::exp(-FnCompressedNormal * logf(2.0L)) - 1.0L);
     else
         LoLogUncompressed = 0.0L;
 
@@ -172,4 +176,11 @@ IXF constexpr xdbl RA::Normals::ToRawLog(const double& FnCompressedNormal, const
     return LnRaw;
 }
 
+IXF constexpr bool RA::Normals::Appx(const double& FnFirst, const double& FnSecond, const xdbl FnAcceptibleRange)
+{
+    auto LnDiff = (FnFirst - FnSecond);
+    if (LnDiff < 0)
+        LnDiff *= -1;
+    return !!(FnAcceptibleRange > LnDiff);
+}
 

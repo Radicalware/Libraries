@@ -26,19 +26,39 @@ if(WIN32)
     endif()
     message("re2::re2 >> ${RE2_LIB_PATH}")
 
-    add_library(re2 STATIC IMPORTED)
-    set_target_properties(re2 PROPERTIES IMPORTED_LOCATION "${RE2_LIB_PATH}")
-    add_library(re2::re2 ALIAS re2)
-    find_package(absl CONFIG REQUIRED)
+    if(UsingNVCC)
+        message("Building RE2 for NVCC")
+        set(RE2_BUILD_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Build/${OS_TYPE}/${BUILD_TYPE}/RE2")
+        set(RE2_BUILD_SHARED OFF CACHE BOOL "Build RE2 static" FORCE)
+        set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build static libs" FORCE)
+        add_subdirectory("${RE2_DIR}" "${RE2_BUILD_DIR}")
 
-    set_target_properties(re2 PROPERTIES LINKER_LANGUAGE CXX)
-    link_libraries(absl::any absl::log absl::base absl::bits)
+        if(NOT TARGET re2::re2)
+            add_library(re2::re2 ALIAS re2)
+        endif()
 
-    message("Copying RE2 ${RE2_LIB_PATH} --> ${OUTPUT_DIR}")
-    if(${BuildAll})
-        MakeBinaryFileCopy(${RE2_LIB_PATH} "${OUTPUT_DIR}/lib/${PF}${RE2_LIB}.${ST}")
+        find_package(absl CONFIG REQUIRED)
+        target_link_libraries(re2 PRIVATE
+            absl::any
+            absl::log
+            absl::base
+            absl::bits
+        )
     else()
-        MakeBinaryFileCopy(${RE2_LIB_PATH} "${EXT_BIN_PATH}/lib/${PF}${RE2_LIB}.${ST}")
+        add_library(re2 STATIC IMPORTED)
+        set_target_properties(re2 PROPERTIES IMPORTED_LOCATION "${RE2_LIB_PATH}")
+        add_library(re2::re2 ALIAS re2)
+        find_package(absl CONFIG REQUIRED)
+
+        set_target_properties(re2 PROPERTIES LINKER_LANGUAGE CXX)
+        link_libraries(absl::any absl::log absl::base absl::bits)
+
+        message("Copying RE2 ${RE2_LIB_PATH} --> ${OUTPUT_DIR}")
+        if(BuildAll)
+            MakeBinaryFileCopy(${RE2_LIB_PATH} "${OUTPUT_DIR}/lib/${PF}${RE2_LIB}.${ST}")
+        else()
+            MakeBinaryFileCopy(${RE2_LIB_PATH} "${EXT_BIN_PATH}/lib/${PF}${RE2_LIB}.${ST}")
+        endif()
     endif()
 else()
     message("No Linux Support")

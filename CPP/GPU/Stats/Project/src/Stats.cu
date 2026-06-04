@@ -160,6 +160,7 @@ void RA::Stats::Allocate(const xint FnStorageSize, const double* FvValues)
 {
     Begin();
     Clear();
+    constexpr static double LnDefaultValue = 0;
     switch (MeHardware)
     {
     case RA::EHardware::CPU:
@@ -181,7 +182,7 @@ void RA::Stats::Allocate(const xint FnStorageSize, const double* FvValues)
                 }
             }else{
                 for (auto* Ptr = MvValues; Ptr < MvValues + FnStorageSize; Ptr++)
-                    *Ptr = 0;
+                    *Ptr = LnDefaultValue;
             }
         }
         break;
@@ -196,9 +197,19 @@ void RA::Stats::Allocate(const xint FnStorageSize, const double* FvValues)
         if (MnStorageSize)
         {
             CudaDelete(MvValues);
+            xint LnCount = 0;
             auto Ptr = RA::MakeShared<double[]>(MnStorageSize + 1);
-            for (auto& Val : Ptr)
-                Val = FnDefaultVal;
+            if (FvValues != nullptr)
+            {
+                for (auto* Ptr = MvValues; Ptr < MvValues + FnStorageSize; Ptr++) {
+                    cvar LnVal = FvValues[LnCount++]; // for dbg
+                    *Ptr = LnVal;
+                }
+            }
+            else {
+                for (auto& Val : Ptr)
+                    Val = LnDefaultValue;
+            }
             MvValues = RA::Host::AllocateArrOnDevice<double>(Ptr.Raw(), RA::Allocate(MnStorageSize, sizeof(double)));
         }
         break;

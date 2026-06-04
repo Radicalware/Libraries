@@ -79,7 +79,9 @@ DXF void RA::Normals::Update()
             else if (MeType == EType::Log)
                 MvNormals[LnLoop] = ToRawLinear(MvValues[LnIdx]);
             else
-                ThrowIt("Bad Code");
+            {
+                CudaThrow("Bad Code");
+            }
         }
         if (++LnIdx >= MnStorageSize)
             LnIdx = 0;
@@ -95,7 +97,7 @@ DXF void RA::Normals::Update(const double FnValue)
     else if (MeType == EType::Log)
         MnLastNormal = ToRawLinear(FnValue);
     else
-        ThrowIt("Bad Code");
+        CudaThrow("Bad Code");
 }
 
 DXF void RA::Normals::SetDefaultValues(const double FnDefaualt)
@@ -103,26 +105,26 @@ DXF void RA::Normals::SetDefaultValues(const double FnDefaualt)
     MnLastNormal = 0;
 }
 
-RA::Normals::Config::Config(const xdbl FnCompression)
+DXF RA::Normals::Config::Config(const xdbl FnCompression)
     : MnCompression(FnCompression)
 {
 }
 
-RA::Normals::Config::Config(const xdbl FnCompression, const xdbl FnMin, const xdbl FnMax):
+DXF RA::Normals::Config::Config(const xdbl FnCompression, const xdbl FnMin, const xdbl FnMax):
     MnCompression(FnCompression),
     MnMin(FnMin),
     MnMax(FnMax)
 {
 }
 
-RA::Normals::Config::Config(const xdbl FnCompression, const xdbl* FnMinPtr, const xdbl* FnMaxPtr):
+DXF RA::Normals::Config::Config(const xdbl FnCompression, const xdbl* FnMinPtr, const xdbl* FnMaxPtr):
     MnCompression(FnCompression),
     MnMin(*FnMinPtr),
     MnMax(*FnMaxPtr)
 {
 }
 
-RA::Normals::Config::Config(const xdbl FnCompression, const Config& FoConfig):
+DXF RA::Normals::Config::Config(const xdbl FnCompression, const Config& FoConfig):
     MnCompression(FoConfig.MnCompression),
     MnMin(FoConfig.MnMin),
     MnMax(FoConfig.MnMax)
@@ -157,6 +159,7 @@ DXF xdbl RA::Normals::ToRawLog(const double& FnNormal)
     return ToRawLog(FnNormal, Config(MnCompression, MnMinPtr, MnMaxPtr));
 }
 
+#ifdef UsingMSVC
 DXF double RA::Normals::GetNormalFront(const xint Idx) const
 {
     AssertDblRange(MvNormals.Size() - 1, Idx, 0);
@@ -168,3 +171,16 @@ DXF double RA::Normals::GetNormalBack(const xint Idx) const
     AssertDblRange(MvNormals.Size() - 1, Idx, 0);
     return MvNormals.Last(Idx);
 }
+#else
+DXF double RA::Normals::GetNormalFront(const xint Idx) const
+{
+    CudaThrow("Index out of range");
+    return MvNormals[Idx];
+}
+
+DXF double RA::Normals::GetNormalBack(const xint Idx) const
+{
+    CudaThrow("Index out of range");
+    return MvNormals[MnRunningSize - 1 - Idx];
+}
+#endif

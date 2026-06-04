@@ -109,7 +109,7 @@ DXF void RA::ZEA::Update(const double FnValue, const double FnValueBack)
     }
     else
     {
-        ThrowIt("Storage Size Required");
+        CudaThrow("Storage Size Required");
     }
 }
 

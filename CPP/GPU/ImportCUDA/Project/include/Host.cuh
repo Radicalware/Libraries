@@ -6,7 +6,6 @@
 #include "BasicCUDA.cuh"
 #include "Allocate.cuh"
 #include "Memory.h"
-
 #include <stdio.h>
 #include <cmath>
 
@@ -28,8 +27,8 @@ namespace RA
 
         TTT static T* CopyHostToDevice(T* FvHostDataPtr, const Allocate& FoAllocate);
 
-        TTT static std::enable_if_t<IsFundamental(T), T*>
-                      AllocateArrOnDevice(const xint FnLeng);
+        TTT static std::enable_if_t<BxFundamental(T), T*>
+            AllocateArrOnDevice(const xint FnLeng);
         TTT static T* AllocateArrOnDevice(const Allocate& FoAllocate);
         TTT static T* AllocateArrOnDevice(const T* FoHostPtr, const Allocate& FoAllocate);
 
@@ -72,7 +71,7 @@ TTT T* RA::Host::CopyHostToDevice(T* FvHostDataPtr, const RA::Allocate& FoAlloca
     Rescue();
 }
 
-TTT std::enable_if_t<IsFundamental(T), T*> RA::Host::AllocateArrOnDevice(const xint FnLeng)
+TTT std::enable_if_t<BxFundamental(T), T*> RA::Host::AllocateArrOnDevice(const xint FnLeng)
 {
     Begin();
     auto LvHostDataPtr = RA::SharedPtr<T[]>(FnLeng);
@@ -135,11 +134,17 @@ void RA::Host::PrintDeviceStats()
     for (int devNo = 0; devNo < deviceCount; devNo++) {
 
         cudaDeviceProp iProp;
+
+        int smClock = 0, memClock = 0;
+        cudaDeviceGetAttribute(&smClock, cudaDevAttrClockRate, devNo);
+        cudaDeviceGetAttribute(&memClock, cudaDevAttrMemoryClockRate, devNo);
+
         cudaGetDeviceProperties(&iProp, devNo);
         printf(Line);
         printf("Device %d Model:                                 %s\n", devNo, iProp.name);
         printf("  Number of multiprocessors:                     %d\n", iProp.multiProcessorCount);
-        printf("  clock rate:                                    %d\n", iProp.clockRate);
+        printf("  sm clock rate:                                 %d\n", smClock);
+        printf("  mem clock rate:                                %d\n", memClock);
         printf("  Compute capability:                            %d.%d\n", iProp.major, iProp.minor);
         printf("  Total amount of global memory:                 %4.2f KB\n", iProp.totalGlobalMem / 1024.0);
         printf("  Total amount of constant memory:               %4.2f KB\n", iProp.totalConstMem / 1024.0);
@@ -211,25 +216,25 @@ std::tuple<dim3, dim3> RA::Host::GetDimensions3D(const unsigned int FnLeng)
 
     constexpr auto Mult = [](const dim3& FoDim) ->xint {
         return static_cast<xint>(FoDim.x * FoDim.y * FoDim.z);
-    };
+        };
     constexpr auto DecreaseVals = [](dim3& FoDim) -> void
-    {
-        if (FoDim.z >= FoDim.x && FoDim.z >= FoDim.y)
-            --FoDim.z;
-        else if (FoDim.y >= FoDim.x)
-            --FoDim.y;
-        else
-            --FoDim.x;
-    };
+        {
+            if (FoDim.z >= FoDim.x && FoDim.z >= FoDim.y)
+                --FoDim.z;
+            else if (FoDim.y >= FoDim.x)
+                --FoDim.y;
+            else
+                --FoDim.x;
+        };
     constexpr auto IncreaseVals = [](dim3& FoDim) -> void
-    {
-        if (FoDim.z < FoDim.x && FoDim.z < FoDim.y)
-            ++FoDim.z;
-        else if (FoDim.y < FoDim.x)
-            ++FoDim.y;
-        else
-            ++FoDim.x;
-    };
+        {
+            if (FoDim.z < FoDim.x && FoDim.z < FoDim.y)
+                ++FoDim.z;
+            else if (FoDim.y < FoDim.x)
+                ++FoDim.y;
+            else
+                ++FoDim.x;
+        };
 
     auto Ln6Split = RA::Pow(FnLeng, 1.0 / 6.0);
     while (RA::Pow(Ln6Split, 6.0) < FnLeng)
@@ -282,21 +287,21 @@ std::tuple<dim3, dim3> RA::Host::GetDimensions2D(const unsigned int FnLeng)
 
     constexpr auto Mult = [](const dim3& FoDim) ->xint {
         return static_cast<xint>(FoDim.x * FoDim.y * FoDim.z);
-    };
+        };
     constexpr auto DecreaseVals = [](dim3& FoDim) -> void
-    {
-        if (FoDim.y >= FoDim.x)
-            --FoDim.y;
-        else
-            --FoDim.x;
-    };
+        {
+            if (FoDim.y >= FoDim.x)
+                --FoDim.y;
+            else
+                --FoDim.x;
+        };
     constexpr auto IncreaseVals = [](dim3& FoDim) -> void
-    {
-        if (FoDim.y < FoDim.x)
-            ++FoDim.y;
-        else
-            ++FoDim.x;
-    };
+        {
+            if (FoDim.y < FoDim.x)
+                ++FoDim.y;
+            else
+                ++FoDim.x;
+        };
 
     auto Ln4Split = RA::Pow(FnLeng, 1.0 / 4.0);
     while (RA::Pow(Ln4Split, 4.0) < FnLeng)
@@ -372,6 +377,6 @@ void RA::Host::PrintGridBlockDims(const dim3 FvGrid, const dim3 FvBlock)
 xstring RA::Host::GetGridBlockStr(const dim3 FvGrid, const dim3 FvBlock)
 {
     return RA::BindStr(
-            "(", FvGrid.x,  ',', FvGrid.y,  ',', FvGrid.z,  ")",
-            "(", FvBlock.x, ',', FvBlock.y, ',', FvBlock.z, ")");
+        "(", FvGrid.x, ',', FvGrid.y, ',', FvGrid.z, ")",
+        "(", FvBlock.x, ',', FvBlock.y, ',', FvBlock.z, ")");
 }

@@ -39,8 +39,8 @@ endif()
 set(CMAKE_CXX_IGNORE_EXTENSIONS      "${CMAKE_CXX_IGNORE_EXTENSIONS};txt;rc")
 set(CMAKE_CXX_SOURCE_FILE_EXTENSIONS "${CMAKE_CXX_SOURCE_FILE_EXTENSIONS};cuh;cu")
 
-set(CUDA_VERSION "12.6")
-set(CUDA_GPU 61)
+set(CUDA_VERSION "13.3")
+# set(CUDA_GPU 61)
 
 cmake_policy(SET CMP0167 NEW)
 
@@ -147,9 +147,15 @@ else() # -----------------------------------------------------------------------
     set(CPP_ARGS "${CPP_ARGS} -std=c++latest")
 
     set(CMAKE_PATH                "/usr/share/cmake-$ENV{CMAKE_VERSION}/Modules")
+    if(NOT EXISTS "${CMAKE_PATH}")
+        message(FATAL_ERROR "CMAKE_PATH does not exist: ${CMAKE_PATH}")
+    endif()
+    
     list(APPEND CMAKE_MODULE_PATH "/usr/share/cmake-$ENV{CMAKE_VERSION}/Utilities/cmlibarchive/build/cmake")
     list(APPEND CMAKE_MODULE_PATH ${CMAKE_PATH})
     list(APPEND CMAKE_MODULE_PATH ${RADICAL_PATH})
+    message("Paths to CMake Modules")
+    PrintList(CMAKE_MODULE_PATH)
 
     set(PF  "lib")
     set(ST  "a")
@@ -194,6 +200,7 @@ if(BUILD_TYPE STREQUAL "")
 else()
     set(CMAKE_BUILD_TYPE ${BUILD_TYPE})
 endif()
+set(BUILD_TYPE "${CMAKE_BUILD_TYPE}")
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
     if(WIN32)
