@@ -65,8 +65,6 @@ if(WIN32) # --------------------------------------------------------------------
     # set(CMAKE_SYSTEM_VERSION ${WINDOWS_SDK})
     # set(CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION ${WINDOWS_SDK})
 
-    add_definitions(-DUsingMSVC)
-
     # RUN: vcpkg integrate install
 
     # Get the VCPKG_ROOT environment variable
@@ -105,7 +103,8 @@ if(WIN32) # --------------------------------------------------------------------
 
     set(C_ARGS   "${CPP_ARGS} ${C_ARGS}")
     set(C_ARGS "  ${C_ARGS}   /std:c17")
-    set(CPP_ARGS "${CPP_ARGS} /std:c++latest /EHsc /bigobj /MP /DPARALLEL")
+    set(CPP_ARGS "${CPP_ARGS} /EHsc /bigobj /MP /DPARALLEL")
+
     # MP = Multp Processing = build using mutiple threads
     # TP = Treat all files as cPP files
     # /DPARALLEL supports C++latest threading

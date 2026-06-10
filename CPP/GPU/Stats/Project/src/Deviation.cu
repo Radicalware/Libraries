@@ -5,6 +5,11 @@
 #include "Deviation.cuh"
 #endif
 
+DXF bool RA::Deviation::BxJoined() const
+{
+    return (MoAvgPtr != nullptr);
+}
+
 RA::Deviation::Deviation(RA::AVG* FoAvgPtr, const EType FeType) : MoAvgPtr(FoAvgPtr), MeType(FeType)
 {
     Begin();
@@ -16,7 +21,12 @@ RA::Deviation::Deviation(RA::AVG* FoAvgPtr, const EType FeType) : MoAvgPtr(FoAvg
 DXF void RA::Deviation::Update(const double FnValue)
 {
     TestRealNum(FnValue);
+    if (!MoAvgPtr) {
+        CudaThrow("MoAvgPtr == Null");
+    }
+
     auto& MoAvg = *MoAvgPtr;
+
     MnLastVal = MnCurrentVal;
     MnCurrentVal = FnValue;
 
@@ -77,11 +87,13 @@ DXF void RA::Deviation::Update(const double FnValue)
             MnAvgOffset = MnSumOffset / (MoAvg.GetLogicalSize() - 1);
         else
             MnAvgOffset = MnSumOffset / MoAvg.GetLogicalSize();
+
     }
 }
 
 DXF void RA::Deviation::CopyStats(const Deviation& Other)
 {
+    printf(__CLASS__ ": Copying Deviation Stats\n");
     MoAvgPtr = Other.MoAvgPtr;
     MeType = Other.MeType;
     MnDeviation = Other.MnDeviation;
@@ -92,6 +104,13 @@ DXF void RA::Deviation::SetDefaultValues()
 {
     MnSumDeviation = 0;
     MnDeviation = 0;
+}
+
+DXF void RA::Deviation::SetAvg(AVG* FoAvgPtr)
+{
+    if (!FoAvgPtr)
+        CudaThrow("Null Avg Ptr");
+    MoAvgPtr = FoAvgPtr;
 }
 
 // -------------------------------------------------------------------------------------------------------------------------------------------------

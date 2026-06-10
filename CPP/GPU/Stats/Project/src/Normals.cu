@@ -28,8 +28,8 @@ RA::Normals::Normals(
     const EHardware FeHardware,
     const double* FvValues,
     const   xint* FnInsertIdxPtr,
-    const   xdbl* FnMinPtr,
-    const   xdbl* FnMaxPtr,
+    const   dbl* FnMinPtr,
+    const   dbl* FnMaxPtr,
     const   xint  FnStorageSize)
     :
     MeHardware(FeHardware),
@@ -79,9 +79,7 @@ DXF void RA::Normals::Update()
             else if (MeType == EType::Log)
                 MvNormals[LnLoop] = ToRawLinear(MvValues[LnIdx]);
             else
-            {
                 CudaThrow("Bad Code");
-            }
         }
         if (++LnIdx >= MnStorageSize)
             LnIdx = 0;
@@ -105,82 +103,82 @@ DXF void RA::Normals::SetDefaultValues(const double FnDefaualt)
     MnLastNormal = 0;
 }
 
-DXF RA::Normals::Config::Config(const xdbl FnCompression)
+RA::Normals::Config::Config(const dbl FnCompression)
     : MnCompression(FnCompression)
 {
 }
 
-DXF RA::Normals::Config::Config(const xdbl FnCompression, const xdbl FnMin, const xdbl FnMax):
+RA::Normals::Config::Config(const dbl FnCompression, const dbl FnMin, const dbl FnMax):
     MnCompression(FnCompression),
     MnMin(FnMin),
     MnMax(FnMax)
 {
 }
 
-DXF RA::Normals::Config::Config(const xdbl FnCompression, const xdbl* FnMinPtr, const xdbl* FnMaxPtr):
+RA::Normals::Config::Config(const dbl FnCompression, const dbl* FnMinPtr, const dbl* FnMaxPtr):
     MnCompression(FnCompression),
     MnMin(*FnMinPtr),
     MnMax(*FnMaxPtr)
 {
 }
 
-DXF RA::Normals::Config::Config(const xdbl FnCompression, const Config& FoConfig):
+RA::Normals::Config::Config(const dbl FnCompression, const Config& FoConfig):
     MnCompression(FoConfig.MnCompression),
     MnMin(FoConfig.MnMin),
     MnMax(FoConfig.MnMax)
 {
 }
 
-DXF xdbl RA::Normals::ToNormalLinear(const double& FnRaw)
+DXF dbl RA::Normals::ToNormalLinear(const double& FnRaw)
 {
     if (MbLiteral)
         return FnRaw;
     return ToNormalLinear(FnRaw, Config(MnCompression, MnMinPtr, MnMaxPtr));
 }
 
-DXF xdbl RA::Normals::ToRawLinear(const double& FnNormal)
+DXF dbl RA::Normals::ToRawLinear(const double& FnNormal)
 {
     if (MbLiteral)
         return FnNormal;
     return ToRawLinear(FnNormal, Config(MnCompression, MnMinPtr, MnMaxPtr));
 }
 
-DXF xdbl RA::Normals::ToNormalLog(const double& FnRaw)
+DXF dbl RA::Normals::ToNormalLog(const double& FnRaw)
 {
     if (MbLiteral)
         return FnRaw;
     return ToNormalLog(FnRaw, Config(MnCompression, MnMinPtr, MnMaxPtr));
 }
 
-DXF xdbl RA::Normals::ToRawLog(const double& FnNormal)
+DXF dbl RA::Normals::ToRawLog(const double& FnNormal)
 {
     if (MbLiteral)
         return FnNormal;
     return ToRawLog(FnNormal, Config(MnCompression, MnMinPtr, MnMaxPtr));
 }
 
-#ifdef UsingMSVC
-DXF double RA::Normals::GetNormalFront(const xint Idx) const
-{
-    AssertDblRange(MvNormals.Size() - 1, Idx, 0);
-    return MvNormals.First(Idx);
-}
+#if UsingMSVC
+    DXF double RA::Normals::GetNormalFront(const xint Idx) const
+    {
+        AssertDblRange(MvNormals.Size() - 1, Idx, 0);
+        return MvNormals.First(Idx);
+    }
 
-DXF double RA::Normals::GetNormalBack(const xint Idx) const
-{
-    AssertDblRange(MvNormals.Size() - 1, Idx, 0);
-    return MvNormals.Last(Idx);
-}
+    DXF double RA::Normals::GetNormalBack(const xint Idx) const
+    {
+        AssertDblRange(MvNormals.Size() - 1, Idx, 0);
+        return MvNormals.Last(Idx);
+    }
 #else
-DXF double RA::Normals::GetNormalFront(const xint Idx) const
-{
-    CudaThrow("Index out of range");
-    return MvNormals[Idx];
-}
+    DXF double RA::Normals::GetNormalFront(const xint Idx) const
+    {
+        CudaAssertDblRange(MnStorageSize - 1, Idx, 0.0);
+        return The.MvNormals[Idx];
+    }
 
-DXF double RA::Normals::GetNormalBack(const xint Idx) const
-{
-    CudaThrow("Index out of range");
-    return MvNormals[MnRunningSize - 1 - Idx];
-}
+    DXF double RA::Normals::GetNormalBack(const xint Idx) const
+    {
+        CudaAssertDblRange(MnStorageSize - 1, Idx, 0.0);
+        return The.MvNormals[MnStorageSize - 1 - Idx];
+    }
 #endif

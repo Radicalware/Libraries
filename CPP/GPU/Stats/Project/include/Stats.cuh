@@ -40,7 +40,7 @@
 #include "Support.cuh"
 #include "AVG.cuh"
 #include "ZEA.cuh"
-#include "Omaha.h"
+#include "Omaha.cuh"
 #include "STOCH.cuh"
 #include "RSI.cuh"
 #include "Normals.cuh"
@@ -167,7 +167,7 @@ namespace RA
         Deviation   *MoMeanAbsoluteDeviationPtr = nullptr;
         Deviation   *MoStandardDeviationPtr     = nullptr;
 
-        xdbl MnMin =  DBL_MAX;
-        xdbl MnMax = -DBL_MAX;
+        dbl MnMin =  DBL_MAX;
+        dbl MnMax = -DBL_MAX;
     };
 }

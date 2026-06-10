@@ -10,9 +10,7 @@ macro(BuildRadicalProject InLibType InPrivateLibs InPublicLibs)
 
     FindProgramFiles(ProjectFiles "${BUILD_DIR}")
 
-    if(NOT UsingNVCC)
-        set_source_files_properties(${ProjectFiles} PROPERTIES LANGUAGE CXX)
-    endif()
+    SetCudaConfig()
 
     add_library(${THIS} ${InLibType} ${ProjectFiles})
     add_library(Radical::${THIS} ALIAS ${THIS})

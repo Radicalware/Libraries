@@ -12,5 +12,6 @@
 #include "BasicCUDA.cuh"
 #include "Host.cuh"
 #include "Device.cuh"
+#include <Math.h>
 
 #endif

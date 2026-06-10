@@ -8,11 +8,19 @@ set(UsingNVCC ON)
 
 remove_definitions(-DUsingMSVC)
 add_definitions(-DUsingNVCC)
-set(CMAKE_CUDA_VERBOSE_BUILD OFF)
-set(CUDA_VERBOSE_BUILD OFF)
+# === Stronger silence for modern CMake CUDA ===
+set(CMAKE_CUDA_VERBOSE_BUILD OFF CACHE BOOL "" FORCE)
+set(CUDA_VERBOSE_BUILD OFF CACHE BOOL "" FORCE)        # legacy
+set(CMAKE_VERBOSE_MAKEFILE OFF CACHE BOOL "" FORCE)
+set_property(GLOBAL PROPERTY RULE_MESSAGES OFF)
+set(CMAKE_CUDA_COMPILE_OPTIONS_PIC "")   # sometimes reduces noise
+
+message(STATUS "CUDA_VERBOSE_BUILD = ${CUDA_VERBOSE_BUILD}")
+message(STATUS "CMAKE_VERBOSE_MAKEFILE = ${CMAKE_VERBOSE_MAKEFILE}")
 
 # the -q is for quiet / no compile commands
-set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -q --expt-relaxed-constexpr")
+set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --expt-relaxed-constexpr")
+
 
 
 #list(APPEND CMAKE_CUDA_FLAGS -DUsingNVCC)
@@ -39,6 +47,10 @@ set(CMAKE_CXX_STANDARD "${CPP_VERSION}")
 set(CMAKE_CXX_STANDARD_DEFAULT "${CPP_VERSION}")
 set(CMAKE_CUDA_STANDARD "${CPP_VERSION}")
 set(CMAKE_CUDA_STANDARD_DEFAULT "${CPP_VERSION}")
+set(CMAKE_CXX_STANDARD_LATEST "${CPP_VERSION}")
+set(CMAKE_CUDA_STANDARD_COMPUTED_DEFAULT "${CPP_VERSION}")
+set(CMAKE_CXX_STANDARD_COMPUTED_DEFAULT "${CPP_VERSION}")
+set(CMAKE_CUDA_STANDARD_LATEST "${CPP_VERSION}")
 
 enable_language(CUDA)
 find_package(CUDAToolkit REQUIRED)
@@ -47,8 +59,10 @@ set(CMAKE_CXX_STANDARD "${CPP_VERSION}")
 set(CMAKE_CXX_STANDARD_DEFAULT "${CPP_VERSION}")
 set(CMAKE_CUDA_STANDARD "${CPP_VERSION}")
 set(CMAKE_CUDA_STANDARD_DEFAULT "${CPP_VERSION}")
-
-
+set(CMAKE_CXX_STANDARD_LATEST "${CPP_VERSION}")
+set(CMAKE_CUDA_STANDARD_COMPUTED_DEFAULT "${CPP_VERSION}")
+set(CMAKE_CXX_STANDARD_COMPUTED_DEFAULT "${CPP_VERSION}")
+set(CMAKE_CUDA_STANDARD_LATEST "${CPP_VERSION}")
 
 # add_compile_definitions("UsingNVCC")
 # set(CUDA_NVCC_FLAGS  "${CUDA_NVCC_FLAGS}  -DUsingNVCC")
@@ -72,7 +86,6 @@ function(ConfigCUDA BINARY)
                                -D"UsingNVCC=\"1\""
                                -DPARALLEL
                                -rdc=true
-                               -dlink
                                -g
                                -G
                                -diag-suppress=1394
@@ -82,6 +95,7 @@ function(ConfigCUDA BINARY)
                                -diag-suppress=174
                                -diag-suppress=68
                                # -arch=sm_61
+                               # -dlink
                                >)
 
         # -Xcompiler="/DUsingNVCC"
@@ -95,7 +109,6 @@ function(ConfigCUDA BINARY)
                                -D"UsingNVCC=\"1\""
                                -DPARALLEL
                                -rdc=true
-                               -dlink
                                -diag-suppress=1394
                                -diag-suppress=3133
                                -diag-suppress=611
@@ -103,6 +116,7 @@ function(ConfigCUDA BINARY)
                                -diag-suppress=174
                                -diag-suppress=68
                                # -arch=sm_61
+                               # -dlink
                                >)
 
         # -Xcompiler="/DUsingNVCC"

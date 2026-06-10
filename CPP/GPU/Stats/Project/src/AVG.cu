@@ -13,6 +13,9 @@ RA::AVG::AVG(
     MnInsertIdxPtr(FnInsertIdxPtr),
     MnStorageSize(FnStorageSize)
 {
+    if (MvValues != nullptr && MnStorageSize == 0) {
+        CudaThrow("Storage size must be greater than zero when using storage values.");
+    }
 }
 
 DXF void RA::AVG::CopyStats(const RA::AVG& Other)
@@ -24,11 +27,15 @@ DXF void RA::AVG::CopyStats(const RA::AVG& Other)
     MnAvg = Other.MnAvg;
     MnSum = Other.MnSum;
     SetDebugErrorLevel(MnAvg);
+
+    if (MvValues && MnStorageSize == 0) {
+        CudaThrow("Storage size must be greater than zero when using storage values.");
+    }
 }
 
 DXF void RA::AVG::SetDefaultValues(const double FnDefaualt)
 {
-    MnRunningSize = MnStorageSize;
+    MnRunningSize = 0;
     MnAvg = FnDefaualt;
     MnSum = MnAvg * MnRunningSize;
     MnLogiclaSize = 0;
@@ -51,6 +58,9 @@ DXF void RA::AVG::Update(const double FnValue)
 {
     if (MvValues)
     {
+        if (MnStorageSize == 0) {
+            CudaThrow("Storage size cannot be zero when using storage values.");
+        }
         MnCurrentValue = FnValue;
         MnRunningSize++;
         if (MnRunningSize >= MnStorageSize)

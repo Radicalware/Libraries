@@ -18,8 +18,8 @@ namespace RA
             const EHardware FeHardware,
             const double* FvValues,
             const   xint* FnInsertIdxPtr,
-            const   xdbl* FnMinPtr,
-            const   xdbl* FnMaxPtr,
+            const   dbl* FnMinPtr,
+            const   dbl* FnMaxPtr,
             const   xint  FnStorageSize = 0);
 
         ~Omaha();
@@ -60,8 +60,8 @@ namespace RA
         const double* MvValues = nullptr; // end point slides with MnInsertIdxPtr
         const xint* MnInsertIdxPtr;
         xint        MnStorageSize;
-        const xdbl* MnMinPtr = nullptr;
-        const xdbl* MnMaxPtr = nullptr;
+        const dbl* MnMinPtr = nullptr;
+        const dbl* MnMaxPtr = nullptr;
         xint        MnRunningSize = 0;
 
         std::list<double> MvTimeseries;

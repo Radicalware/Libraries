@@ -3,19 +3,20 @@
 // Copyright via Apache v2 Licence [2023][Joel Leagues aka Scourge]
 #if UsingMSVC
 #include "Omaha.h"
+#include "Normals.h"
 #else
 #include "Omaha.cuh"
+#include "Normals.cuh"
 #endif
 #include "xstring.h"
 #include "Macros.h"
-#include "Normals.h"
 
 RA::Omaha::Omaha(
     const EHardware FeHardware,
     const double* FvValues,
     const   xint* FnInsertIdxPtr,
-    const   xdbl* FnMinPtr,
-    const   xdbl* FnMaxPtr,
+    const   dbl* FnMinPtr,
+    const   dbl* FnMaxPtr,
     const   xint  FnStorageSize) 
     :
     MeHardware(FeHardware),

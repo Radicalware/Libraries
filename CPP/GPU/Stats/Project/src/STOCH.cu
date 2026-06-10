@@ -8,8 +8,8 @@
 RA::STOCH::STOCH(
     const double* FvValues,
     const   xint* FnInsertIdxPtr,
-    const   xdbl* FnMinPtr,
-    const   xdbl* FnMaxPtr,
+    const   dbl* FnMinPtr,
+    const   dbl* FnMaxPtr,
     const   xint  FnStorageSize)
     :
     MvValues(FvValues),

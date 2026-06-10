@@ -36,13 +36,16 @@ if(WIN32)
         if(NOT TARGET re2::re2)
             add_library(re2::re2 ALIAS re2)
         endif()
-
+        AddIincludeDirectoryVCPKG("absl")
         find_package(absl CONFIG REQUIRED)
-        target_link_libraries(re2 PRIVATE
+        link_libraries(
             absl::any
             absl::log
             absl::base
             absl::bits
+        )
+        set_target_properties(re2 PROPERTIES
+            ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIG>/lib"
         )
     else()
         add_library(re2 STATIC IMPORTED)

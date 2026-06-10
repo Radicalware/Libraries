@@ -59,7 +59,7 @@ DXF void RA::ZEA::SetDefaultValues(const double FnDefaualt)
     MnAvg = FnDefaualt;
     MnSum = MnAvg * MnRunningSize;
     MnLogiclaSize = 0;
-    SetPeriodSize(SnDefaultPeriod);
+    SetPeriodSize(FnDefaualt);
 }
 
 DXF xint RA::ZEA::GetThisIDX() const
@@ -95,10 +95,7 @@ DXF void RA::ZEA::Update(const double FnValue, const double FnValueBack)
             ? 0
             : MvValues[(LnNextIdx >= MnStorageSize) ? 0 : LnNextIdx];
 
-        cvar LnVal = MvValues[LnIdx];
-
         auto LnPriceLag = FnValue + (FnValue - FnValueBack);
-
 
         if (MnRunningSize >= MnPeriod) {
             MnZMA = MnAlpha * LnPriceLag + (1.0 - MnAlpha) * MnZMA;

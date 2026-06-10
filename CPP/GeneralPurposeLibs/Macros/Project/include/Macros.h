@@ -420,6 +420,14 @@ namespace RA
         ThrowIt("!(", _Upper_, " >= ", _Val_, " >= ", _Lower_, ")"); \
     }
 
+#ifdef UsingNVCC
+    #define CudaAssertDblRange(_Upper_, _Val_, _Lower_) \
+        printf(RED "!(%f >= %f >= %f)\n" WHITE, _Upper_, _Val_, _Lower_);
+#else
+    #define CudaAssertDblRange(_Upper_, _Val_, _Lower_) AssertDblRange(_Upper_, _Val_, _Lower_)
+#endif
+
+
 #define ThrowFailingCompare(_Left_, _Op_, _Right_) \
     if(!(_Left_ _Op _Right_)) { \
         ThrowIt("<(", _Left_, ' ', #_Op_, ' ', _Right_, ")>|<("#_Left_,' ', #_Op_, ' ', #_Right_,")>"); \
@@ -538,5 +546,13 @@ constexpr auto EnumRangeEX(E FnFirst, E LnLastExclusive) {
     return std::views::iota(static_cast<U>(FnFirst) + 1, static_cast<U>(LnLastExclusive))
         | std::views::transform([](U val) { return static_cast<E>(val); });
 }
+
+// -----------------------------------------------------------------------------------------------------------------------------
+
+#ifdef UsingMSVC
+#define CudaThrow(__Message__) ThrowIt(__Message__);
+#elif defined(UsingNVCC)
+#define CudaThrow(__Message__) printf(RED __CLASS__ ":" "%d" " >> " __Message__ "\n" RESET, __LINE__);
+#endif
 
 // -----------------------------------------------------------------------------------------------------------------------------

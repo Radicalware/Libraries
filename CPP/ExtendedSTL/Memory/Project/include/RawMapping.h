@@ -38,8 +38,9 @@ typedef unsigned short int uint8;
 typedef unsigned long      uint32;
 typedef unsigned long long uint64;
 typedef size_t             xint; // extended int
-typedef long long          sint; // signed int
+typedef long long          sint; // signed   int
 typedef long double        xdbl; // extended double
+typedef      double         dbl; //          double
 #endif
 
 

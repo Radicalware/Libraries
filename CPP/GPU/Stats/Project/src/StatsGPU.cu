@@ -37,7 +37,7 @@ void RA::StatsGPU::operator=(const StatsGPU& Other)
     MnMax = Other.MnMax;
     if (Other.MvValues && Other.MnStorageSize)
     {
-        Allocate(Other.MnStorageSize);
+        Allocate(Other.MnStorageSize, Other.MvValues);
         cudaMemcpy(MvValues, Other.MvValues, Other.MnStorageSize, cudaMemcpyDeviceToDevice);
         MbHadFirstInsert = Other.MbHadFirstInsert;
         MnInsertIdx = Other.MnInsertIdx;

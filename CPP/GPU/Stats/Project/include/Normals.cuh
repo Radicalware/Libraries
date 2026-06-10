@@ -12,8 +12,8 @@ namespace RA
     class Normals
     {
         friend class Stats;
-        constexpr istatic xdbl SnUpper = 2.0L;
-        constexpr istatic xdbl SnLower = 1.0L;
+        constexpr istatic dbl SnUpper = 2.0;
+        constexpr istatic dbl SnLower = 1.0;
 
     public:
         enum class EType
@@ -23,13 +23,13 @@ namespace RA
         };
         struct Config
         {
-            DXF Config(const xdbl FnCompression);
-            DXF Config(const xdbl FnCompression, const xdbl  FnMin, const xdbl  FnMax);
-            DXF Config(const xdbl FnCompression, const xdbl* FnMinPtr, const xdbl* FnMaxPtr);
-            DXF Config(const xdbl FnCompression, const Config& FoConfig);
-            const xdbl MnCompression = 1;
-            const xdbl MnMax = -DBL_MAX;
-            const xdbl MnMin = DBL_MAX;
+            DXF Config(const dbl FnCompression);
+            DXF Config(const dbl FnCompression, const dbl  FnMin, const dbl  FnMax);
+            DXF Config(const dbl FnCompression, const dbl* FnMinPtr, const dbl* FnMaxPtr);
+            DXF Config(const dbl FnCompression, const Config& FoConfig);
+            const dbl MnCompression = 1;
+            const dbl MnMax = -DBL_MAX;
+            const dbl MnMin = DBL_MAX;
         };
 
         DXF void CopyStats(const Normals& Other);
@@ -37,8 +37,8 @@ namespace RA
             const EHardware FeHardware,
             const double* FvValues,
             const   xint* FnInsertIdxPtr,
-            const   xdbl* FnMinPtr,
-            const   xdbl* FnMaxPtr,
+            const   dbl* FnMinPtr,
+            const   dbl* FnMaxPtr,
             const   xint  FnStorageSize = 0);
 
         ~Normals();
@@ -56,19 +56,17 @@ namespace RA
         IXF auto GetRunningSize() const { return MnRunningSize; }
 
 
-        IXF static constexpr xdbl ToNormalLinear(const double& FnRaw, const Config& FoConfig);
-        IXF static constexpr xdbl ToRawLinear(const double& FnCompressedNormal, const Config& FoConfig);
+        IXF static constexpr dbl ToNormalLinear(const double& FnRaw, const Config& FoConfig);
+        IXF static constexpr dbl ToRawLinear(const double& FnCompressedNormal, const Config& FoConfig);
 
-        IXF static constexpr xdbl ToNormalLog(const double& FnRaw, const Config& FoConfig);
-        IXF static constexpr xdbl ToRawLog(const double& FnCompressedNormal, const Config& FoConfig);
+        IXF static constexpr dbl ToNormalLog(const double& FnRaw, const Config& FoConfig);
+        IXF static constexpr dbl ToRawLog(const double& FnCompressedNormal, const Config& FoConfig);
 
-        IXF static constexpr bool Appx(const double& FnFirst, const double& FnSecond, const xdbl FnAcceptibleRange = 0.00001L);
+        DXF dbl ToNormalLinear(const double& FnRaw);
+        DXF dbl ToRawLinear(const double& FnNormal);
 
-        DXF xdbl ToNormalLinear(const double& FnRaw);
-        DXF xdbl ToRawLinear(const double& FnNormal);
-
-        DXF xdbl ToNormalLog(const double& FnRaw);
-        DXF xdbl ToRawLog(const double& FnNormal);
+        DXF dbl ToNormalLog(const double& FnRaw);
+        DXF dbl ToRawLog(const double& FnNormal);
 
         IXF void SetLiteral(const bool Truth) { MbLiteral = Truth; }
 
@@ -81,6 +79,7 @@ namespace RA
         DXF double GetNormal(const xint Idx) const { return MvNormals[Idx]; }
         DXF double GetNormalFront(const xint Idx) const;
         DXF double GetNormalBack(const xint Idx) const;
+
 #endif
     private:
         DXF void Update();
@@ -90,12 +89,12 @@ namespace RA
         EHardware MeHardware = EHardware::Default;
         EType MeType = EType::Linear;
         const double* MvValues = nullptr; // end point slides with MnInsertIdxPtr
-        const xdbl* MnMinPtr = nullptr;
-        const xdbl* MnMaxPtr = nullptr;
+        const dbl* MnMinPtr = nullptr;
+        const dbl* MnMaxPtr = nullptr;
         const xint* MnInsertIdxPtr;
         xint        MnStorageSize;
         bool        MbLiteral = false;
-        xdbl        MnCompression = 1.0;
+        dbl        MnCompression = 1.0;
 
         double      MnLastNormal = 0;
         xint        MnRunningSize = 0;
@@ -110,36 +109,36 @@ namespace RA
 
 
 
-IXF constexpr xdbl RA::Normals::ToNormalLinear(const double& FnRaw, const Config& FoConfig)
+IXF constexpr dbl RA::Normals::ToNormalLinear(const double& FnRaw, const Config& FoConfig)
 {
     if (Appx(FoConfig.MnMin, FoConfig.MnMax))
         return 0; // 0 is the centerpoint so min/max even means you are at zero
 
-    const auto LnNormal = 2.0L * ((FnRaw - FoConfig.MnMin) / (FoConfig.MnMax - FoConfig.MnMin)) - 1.0L;
+    const auto LnNormal = 2.0 * ((FnRaw - FoConfig.MnMin) / (FoConfig.MnMax - FoConfig.MnMin)) - 1.0;
     const auto LnCompressedNormal = LnNormal / FoConfig.MnCompression;
     return LnCompressedNormal;
 }
 
-IXF constexpr xdbl RA::Normals::ToRawLinear(const double& FnNormal, const Config& FoConfig)
+IXF constexpr dbl RA::Normals::ToRawLinear(const double& FnNormal, const Config& FoConfig)
 {
     if (Appx(FoConfig.MnMin, FoConfig.MnMax))
         return FoConfig.MnMax;
 
     const auto LoUncompressedNormal = FnNormal * FoConfig.MnCompression;
-    return ((LoUncompressedNormal + 1.0L) / 2.0L) * (FoConfig.MnMax - FoConfig.MnMin) + FoConfig.MnMin;
+    return ((LoUncompressedNormal + 1.0) / 2.0) * (FoConfig.MnMax - FoConfig.MnMin) + FoConfig.MnMin;
 }
 
 
-IXF constexpr xdbl RA::Normals::ToNormalLog(const double& FnRaw, const Config& FoConfig)
+IXF constexpr dbl RA::Normals::ToNormalLog(const double& FnRaw, const Config& FoConfig)
 {
     if (Appx(FoConfig.MnMin, FoConfig.MnMax))
         return 0;
 
-    cvar LnMidpoint = (FoConfig.MnMin + FoConfig.MnMax) / 2.0L;
+    cvar LnMidpoint = (FoConfig.MnMin + FoConfig.MnMax) / 2.0;
     if (FnRaw > LnMidpoint)
     {
         cvar LnLinearNormal = ToNormalLinear(FnRaw, Config(1, FoConfig));
-        cvar LnLogNormal(logf(LnLinearNormal + 1.0L) / logf(2.0L));
+        cvar LnLogNormal(log(LnLinearNormal + 1.0) / log(2.0));
         cvar LnLogCompressed = LnLogNormal / FoConfig.MnCompression;
         return LnLogCompressed;
     }
@@ -151,24 +150,24 @@ IXF constexpr xdbl RA::Normals::ToNormalLog(const double& FnRaw, const Config& F
         // (2 * 2) + 8 = 12
         cvar LnRaw = ((LnMidpoint - FnRaw) * 2) + FnRaw;
         cvar FnNormalized = ToNormalLinear(LnRaw, Config(1, FoConfig));
-        cvar LnLogNormal = -(logf(FnNormalized + 1.0L) / logf(2.0L));
+        cvar LnLogNormal = -(log(FnNormalized + 1.0) / log(2.0));
         cvar LnLogCompressed = LnLogNormal / FoConfig.MnCompression;
         return LnLogCompressed;
     }
     return 0;
 }
 
-IXF constexpr xdbl RA::Normals::ToRawLog(const double& FnCompressedNormal, const Config& FoConfig)
+IXF constexpr dbl RA::Normals::ToRawLog(const double& FnCompressedNormal, const Config& FoConfig)
 {
     if (Appx(FoConfig.MnMin, FoConfig.MnMax))
         return FoConfig.MnMax;
 
     //cvar FnUncompressed = FnCompressedNormal * FoConfig.MnCompression;
-    xdbl LoLogUncompressed = 0.0L;
+    dbl LoLogUncompressed = 0.0L;
     if (FnCompressedNormal > 0)
-        LoLogUncompressed = std::exp(FnCompressedNormal * logf(2.0L)) - 1.0L;
+        LoLogUncompressed = exp(FnCompressedNormal * log(2.0)) - 1.0;
     else if (FnCompressedNormal < 0)
-        LoLogUncompressed = -(std::exp(-FnCompressedNormal * logf(2.0L)) - 1.0L);
+        LoLogUncompressed = -(exp(-FnCompressedNormal * log(2.0)) - 1.0);
     else
         LoLogUncompressed = 0.0L;
 
@@ -176,11 +175,4 @@ IXF constexpr xdbl RA::Normals::ToRawLog(const double& FnCompressedNormal, const
     return LnRaw;
 }
 
-IXF constexpr bool RA::Normals::Appx(const double& FnFirst, const double& FnSecond, const xdbl FnAcceptibleRange)
-{
-    auto LnDiff = (FnFirst - FnSecond);
-    if (LnDiff < 0)
-        LnDiff *= -1;
-    return !!(FnAcceptibleRange > LnDiff);
-}
 

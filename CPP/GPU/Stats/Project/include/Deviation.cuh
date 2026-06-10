@@ -19,6 +19,7 @@ namespace RA
 {
     class Deviation
     {
+        friend class Stats;
     public:
         enum class EType
         {
@@ -42,6 +43,7 @@ namespace RA
         double MnCurrentVal = 0;
         double MnLastVal = 0;
 
+        DXF bool BxJoined() const;
     public:
         Deviation(RA::AVG* FoAvgPtr, const EType FeType);
 
@@ -49,7 +51,7 @@ namespace RA
 
         DXF void   CopyStats(const Deviation& Other);
         DXF void   SetDefaultValues();
-        IXF void   SetAvg(AVG* FoAvgPtr) { MoAvgPtr = FoAvgPtr; }
+        DXF void   SetAvg(AVG* FoAvgPtr);
 
         IXF auto   GetDeviation()   const { return MnDeviation; }
         IXF auto   GetAvgOffset()   const { return MnAvgOffset; }

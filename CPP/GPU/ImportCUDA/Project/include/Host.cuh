@@ -64,7 +64,7 @@ TTT T* RA::Host::CopyHostToDevice(T* FvHostDataPtr, const RA::Allocate& FoAlloca
     auto Error = cudaMalloc((void**)&LoDevicePtr, FoAllocate.GetMallocSize());
     if (Error)
         ThrowIt("CUDA Malloc Error: ", cudaGetErrorString(Error));
-    Error = cudaMemcpy(LoDevicePtr, FvHostDataPtr, FoAllocate.GetMemCopySize(), cudaMemcpyHostToDevice);
+    Error = cudaMemcpy(LoDevicePtr, FvHostDataPtr, FoAllocate.GetMallocSize(), cudaMemcpyHostToDevice);
     if (Error)
         ThrowIt("CUDA Memcpy Error: ", cudaGetErrorString(Error));
     return LoDevicePtr;
@@ -94,7 +94,7 @@ TTT T* RA::Host::AllocateArrOnDevice(const T* FoHostPtr, const RA::Allocate& FoA
     auto Error = cudaMalloc((void**)&LoDevicePtr, FoAllocate.GetMallocSize());
     if (Error)
         ThrowIt("CUDA Malloc Error: ", cudaGetErrorString(Error));
-    Error = cudaMemcpy(LoDevicePtr, FoHostPtr, FoAllocate.GetMemCopySize(), cudaMemcpyHostToDevice);
+    Error = cudaMemcpy(LoDevicePtr, FoHostPtr, FoAllocate.GetMallocSize(), cudaMemcpyHostToDevice);
     if (Error)
         ThrowIt("CUDA Memcpy Error: ", cudaGetErrorString(Error));
     return LoDevicePtr;

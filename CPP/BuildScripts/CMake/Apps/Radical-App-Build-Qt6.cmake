@@ -89,9 +89,7 @@ macro(BuildRadicalQt6Solution InPrivateLibs InPublicLibs)
         )
     endif()
 
-    if (MSVC) 
-        target_compile_options(${THIS} PRIVATE /std:c++latest) 
-    endif()
+    SetCudaConfig()
 
     target_include_directories(${THIS} PRIVATE
         ${InstalledIncludeDirs}

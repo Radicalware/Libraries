@@ -2,11 +2,14 @@
 
 #include "Macros.h"
 #include "xmap.h"
-
+#include "Timer.h"
 #include "StatsGPU.cuh"
 #include "CudaBridge.cuh"
 
 // #include "vld.h"
+
+// Manually add includes to "VC++ Directories"
+// General > C++ Language Standard: C++20
 
 using std::cout;
 using std::endl;
@@ -240,7 +243,7 @@ namespace Test
                 cout << '\n' << __CLASS__ << '\n';
 
                 const auto LnStorageSize = 20;
-                auto Stats1 = RA::Host::AllocateObjOnDevice<RA::StatsGPU>(LnStorageSize,  xvector<RA::EStatOpt>{ RA::EStatOpt::AVG });
+                auto Stats1 = RA::Host::AllocateSizedObjOnDevice<RA::StatsGPU>(LnStorageSize,  xvector<RA::EStatOpt>{ RA::EStatOpt::AVG });
 
                 const auto LnLogicalLoopSize = 20;
 
@@ -249,7 +252,7 @@ namespace Test
                 CudaShot(&Kernel::Print::SumAndAVG, Stats1);
                 CudaShot(&Kernel::Check::AverageEquals, Stats1, 10.5);
 
-                auto Stats2 = RA::Host::AllocateObjOnDevice<RA::StatsGPU>(LnStorageSize, xvector<RA::EStatOpt>{ RA::EStatOpt::AVG });
+                auto Stats2 = RA::Host::AllocateSizedObjOnDevice<RA::StatsGPU>(LnStorageSize, xvector<RA::EStatOpt>{ RA::EStatOpt::AVG });
                 RA::Host::ConfigureStatsSync(Stats2);
                 CudaShot(&Kernel::Add::ValuesToRange, Stats2, 1, LnLogicalLoopSize * 2);
                 CudaShot(&Kernel::Print::SumAndAVG, Stats2);
@@ -264,7 +267,7 @@ namespace Test
 
                 const auto LnStorageSize = 20;
                 {
-                    auto Stats = RA::Host::AllocateObjOnDevice<RA::StatsGPU>(LnStorageSize, xvector<RA::EStatOpt>{ RA::EStatOpt::AVG, RA::EStatOpt::STOCH });
+                    auto Stats = RA::Host::AllocateSizedObjOnDevice<RA::StatsGPU>(LnStorageSize, xvector<RA::EStatOpt>{ RA::EStatOpt::AVG, RA::EStatOpt::STOCH });
                     RA::Host::ConfigureStatsSync(Stats);
 
                     double LnPrice = 50;
@@ -276,7 +279,7 @@ namespace Test
                     CudaShot(&Kernel::Check::StochEquals, Stats, 40);
                 }
                 {
-                    auto Stats = RA::Host::AllocateObjOnDevice<RA::StatsGPU>(LnStorageSize, xvector<RA::EStatOpt>{ RA::EStatOpt::AVG, RA::EStatOpt::STOCH });
+                    auto Stats = RA::Host::AllocateSizedObjOnDevice<RA::StatsGPU>(LnStorageSize, xvector<RA::EStatOpt>{ RA::EStatOpt::AVG, RA::EStatOpt::STOCH });
                     RA::Host::ConfigureStatsSync(Stats);
 
                     double LnPrice = 50;
@@ -297,7 +300,7 @@ namespace Test
                 cout << '\n' << __CLASS__ << '\n';
 
                 const auto LnStorageSize = 20;
-                auto Stats = RA::Host::AllocateObjOnDevice<RA::StatsGPU>(LnStorageSize, xvector<RA::EStatOpt>{ RA::EStatOpt::RSI });
+                auto Stats = RA::Host::AllocateSizedObjOnDevice<RA::StatsGPU>(LnStorageSize, xvector<RA::EStatOpt>{ RA::EStatOpt::RSI });
                 RA::Host::ConfigureStatsSync(Stats);
 
                 double LnPrice = 50;
@@ -325,7 +328,7 @@ namespace Test
                 cout << '\n' << __CLASS__ << '\n';
 
                 const auto LnStorageSize = 4;
-                auto Stats = RA::Host::AllocateObjOnDevice<RA::StatsGPU>(LnStorageSize, xvector<RA::EStatOpt>{ RA::EStatOpt::AVG, RA::EStatOpt::SD });
+                auto Stats = RA::Host::AllocateSizedObjOnDevice<RA::StatsGPU>(LnStorageSize, xvector<RA::EStatOpt>{ RA::EStatOpt::AVG, RA::EStatOpt::SD });
                 RA::Host::ConfigureStatsSync(Stats);
 
                 for (xint i = 0; i < 2; i++)
@@ -348,7 +351,7 @@ namespace Test
                 cout << '\n' << __CLASS__ << '\n';
 
                 const auto LnStorageSize = 6;
-                auto Stats = RA::Host::AllocateObjOnDevice<RA::StatsGPU>(LnStorageSize, xvector<RA::EStatOpt>{ RA::EStatOpt::AVG, RA::EStatOpt::MAD });
+                auto Stats = RA::Host::AllocateSizedObjOnDevice<RA::StatsGPU>(LnStorageSize, xvector<RA::EStatOpt>{ RA::EStatOpt::AVG, RA::EStatOpt::MAD });
                 RA::Host::ConfigureStatsSync(Stats);
 
                 for (xint i = 0; i < 2; i++)
@@ -379,9 +382,9 @@ namespace Test
                 cout << '\n' << __CLASS__ << '\n';
 
                 const auto LnStorageSize = 0;
-                auto Stats1 = RA::Host::AllocateObjOnDevice<RA::StatsGPU>(LnStorageSize, xvector<RA::EStatOpt>{ RA::EStatOpt::AVG });
-
+                auto Stats1 = RA::Host::AllocateSizedObjOnDevice<RA::StatsGPU>(LnStorageSize, xvector<RA::EStatOpt>{ RA::EStatOpt::AVG, RA::EStatOpt::MAD });
                 RA::Host::ConfigureStatsSync(Stats1);
+
                 CudaShot(&Kernel::Add::ValuesToRange, Stats1, 1, 20);
                 CudaShot(&Kernel::Print::SumAndAVG, Stats1);
                 CudaShot(&Kernel::Check::AverageEquals, Stats1, 10.5);
@@ -394,15 +397,16 @@ namespace Test
                 cout << '\n' << __CLASS__ << '\n';
 
                 const auto LnStorageSize = 4;
-                auto LoStorage = RA::Host::AllocateObjOnDevice<RA::StatsGPU>(LnStorageSize, xvector<RA::EStatOpt>{ RA::EStatOpt::AVG, RA::EStatOpt::MAD });
-                RA::Host::ConfigureStatsSync(LoStorage);
 
-                auto LoLogical = RA::Host::AllocateObjOnDevice<RA::StatsGPU>(0, xvector<RA::EStatOpt>{ RA::EStatOpt::AVG, RA::EStatOpt::MAD });
-                RA::Host::ConfigureStatsSync(LoLogical);
+                auto LoStorage = RA::Host::AllocateSizedObjOnDevice<RA::StatsGPU>(LnStorageSize, xvector<RA::EStatOpt>{ RA::EStatOpt::AVG, RA::EStatOpt::MAD });
+                auto LoLogical = RA::Host::AllocateSizedObjOnDevice<RA::StatsGPU>(0, xvector<RA::EStatOpt>{ RA::EStatOpt::AVG, RA::EStatOpt::MAD });
 
+                RA::Host::ConfigureStats(LoStorage);
+                RA::Host::ConfigureStats(LoLogical);
+                RA::CudaBridge<>::SyncAll();
 
-                auto LoDistributor = RA::Rand::GetDistributor<int>(0, 100);
-                for (xint i = 0; i < 100; i++)
+                auto LoDistributor = RA::Rand::GetDistributor<int>(1, 100);
+                for (int i = 0; i < 100; i++)
                 {
                     cvar LnVal = (double)RA::Rand::GetValue(LoDistributor);
                     CudaShot(&Kernel::Add::Value, LoStorage, LnVal);
@@ -421,14 +425,14 @@ namespace Test
                 cout << '\n' << __CLASS__ << '\n';
 
                 const auto LnStorageSize = 4;
-                auto LoStorage = RA::Host::AllocateObjOnDevice<RA::StatsGPU>(LnStorageSize, xvector<RA::EStatOpt>{ RA::EStatOpt::AVG, RA::EStatOpt::SD });
-                RA::Host::ConfigureStatsSync(LoStorage);
+                auto LoLogical = RA::Host::AllocateSizedObjOnDevice<RA::StatsGPU>(0, xvector<RA::EStatOpt>{ RA::EStatOpt::AVG, RA::EStatOpt::SD });
+                auto LoStorage = RA::Host::AllocateSizedObjOnDevice<RA::StatsGPU>(LnStorageSize, xvector<RA::EStatOpt>{ RA::EStatOpt::AVG, RA::EStatOpt::SD });
 
-                auto LoLogical = RA::Host::AllocateObjOnDevice<RA::StatsGPU>(0, xvector<RA::EStatOpt>{ RA::EStatOpt::AVG, RA::EStatOpt::SD });
-                RA::Host::ConfigureStatsSync(LoLogical);
+                RA::Host::ConfigureStats(LoStorage);
+                RA::Host::ConfigureStats(LoLogical);
+                RA::CudaBridge<>::SyncAll();
 
-
-                auto LoDistributor = RA::Rand::GetDistributor<int>(0, 100);
+                auto LoDistributor = RA::Rand::GetDistributor<int>(1, 100);
                 for (xint i = 0; i < 100; i++)
                 {
                     cvar LnVal = (double)RA::Rand::GetValue(LoDistributor);
@@ -460,6 +464,11 @@ namespace Test
 void RunGPU()
 {
     Begin();
+
+
+    RA::Print("This code is broken because the allocation when copying to device does not correctly calculate the size of the embedded objects");
+    RA::Print("Each object needs to tally up it's sizeof() to correctly allocate enough memory to the CUDA Kernel");
+
     Test::Storage::GPU::AVG();
     Test::Logical::GPU::AVG();
 

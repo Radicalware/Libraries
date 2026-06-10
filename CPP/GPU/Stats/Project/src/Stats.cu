@@ -137,7 +137,7 @@ void RA::Stats::CreateObjs(const xvector<EStatOpt>& FvOptions)
                 MoAvgPtr = RA::Host::AllocateObjOnDevice<AVG>(MvValues, &MnInsertIdx, MnStorageSize);
 
             if (LeOpt == EStatOpt::STOCH)
-                MoSTOCHPtr = RA::Host::AllocateObjOnDevice<STOCH>(MvValues, &MnInsertIdx, MnStorageSize);
+                MoSTOCHPtr = RA::Host::AllocateObjOnDevice<STOCH>(MvValues, &MnInsertIdx, &MnMin, &MnMax, MnStorageSize);
             if (LeOpt == EStatOpt::ZEA)
                 MoZeaPtr = RA::Host::AllocateObjOnDevice<ZEA>(MvValues, &MnInsertIdx, MnStorageSize);
             else if (LeOpt == EStatOpt::RSI)
@@ -160,7 +160,7 @@ void RA::Stats::Allocate(const xint FnStorageSize, const double* FvValues)
 {
     Begin();
     Clear();
-    constexpr static double LnDefaultValue = 0;
+
     switch (MeHardware)
     {
     case RA::EHardware::CPU:
@@ -173,48 +173,51 @@ void RA::Stats::Allocate(const xint FnStorageSize, const double* FvValues)
             DeleteArr(MvValues);
             MvValues = new double[FnStorageSize + 1];
             MvValues[FnStorageSize] = 0;
-            xint LnCount = 0;
             if (FvValues != nullptr)
             {
+                xint LnCount = 0;
                 for (auto* Ptr = MvValues; Ptr < MvValues + FnStorageSize; Ptr++){
                     cvar LnVal = FvValues[LnCount++]; // for dbg
                     *Ptr = LnVal;
                 }
             }else{
                 for (auto* Ptr = MvValues; Ptr < MvValues + FnStorageSize; Ptr++)
-                    *Ptr = LnDefaultValue;
+                    *Ptr = 0;
             }
         }
         break;
     }
-
-#ifndef UsingMSVC
     case RA::EHardware::GPU:
     {
+#ifdef UsingNVCC
+
         MnStorageSize = FnStorageSize;
         MnInsertIdx = 0;
         MbHadFirstInsert = false;
         if (MnStorageSize)
         {
             CudaDelete(MvValues);
-            xint LnCount = 0;
-            auto Ptr = RA::MakeShared<double[]>(MnStorageSize + 1);
+            auto LvHostArr = new double[FnStorageSize + 1];
             if (FvValues != nullptr)
             {
-                for (auto* Ptr = MvValues; Ptr < MvValues + FnStorageSize; Ptr++) {
+                xint LnCount = 0;
+                for (auto* Ptr = LvHostArr; Ptr < LvHostArr + FnStorageSize; Ptr++) {
                     cvar LnVal = FvValues[LnCount++]; // for dbg
                     *Ptr = LnVal;
                 }
             }
             else {
-                for (auto& Val : Ptr)
-                    Val = LnDefaultValue;
+                for (auto* Ptr = LvHostArr; Ptr < LvHostArr + FnStorageSize; Ptr++)
+                    *Ptr = 0;
             }
-            MvValues = RA::Host::AllocateArrOnDevice<double>(Ptr.Raw(), RA::Allocate(MnStorageSize, sizeof(double)));
+            MvValues = RA::Host::AllocateArrOnDevice<double>(LvHostArr, RA::Allocate(MnStorageSize, sizeof(double)));
+            HostDelete(LvHostArr)
         }
         break;
-    }
+#else
+        ThrowIt("GPU Option Not Supported on this Compiler");
 #endif
+    }
     default:
         ThrowIt("EHardware (GPU/CPU) Option Not Given");
     }
@@ -495,7 +498,7 @@ DXF void RA::Stats::operator<<(const double FnValue)
                 LnInsertIdx = 0;
                 if (++LnMainIdx >= MnStorageSize)
                     LnMainIdx = 0;
-                const auto& LnDbgSlipNum = MoSlippage.MvNums[LnSlipIdx];
+                // const auto& LnDbgSlipNum = MoSlippage.MvNums[LnSlipIdx];
                 SetValue(LnMainIdx, MoSlippage.MvNums[LnSlipIdx]);
             }
 
@@ -543,6 +546,10 @@ DXF void RA::Stats::operator<<(const double FnValue)
     if (MoJoinery.MnSize && !MoJoinery.MbFilled)
         return; // you don't want half-filled joinery to impact deviations
 
+#ifdef UsingNVCC
+    The.SetDeviceJoinery(); // issue that needs to be fixed
+#endif // UsingNVCC
+
     if (!MnStorageSize || !MvValues)
     {
         SRef(MoAvgPtr).Update(MnValue);
@@ -558,19 +565,23 @@ DXF void RA::Stats::operator<<(const double FnValue)
     if (MnInsertIdx != GetInsertIdx())
         printf(RED __CLASS__ " >> Bad Index Alignment\n" WHITE);
 
-    if (MoZeaPtr)
-    {
-        auto& MoZea = *MoZeaPtr;
-        auto LnBack = GetBack(MoZea.GetPeriodSize()-1);
-        SRef(MoZeaPtr).Update(MnValue, LnBack);
-    }
     SRef(MoAvgPtr).Update(MnValue);
+    if (MoAvgPtr && MoAvgPtr->GetRunningSize() < 1) {
+        CudaThrow("Bad Running Size");
+    }
     SRef(MoStandardDeviationPtr).Update(MnValue);
     SRef(MoMeanAbsoluteDeviationPtr).Update(MnValue);
     SRef(MoNormalsPtr).Update();
     SRef(MoOmahaPtr).Update();
     SRef(MoRSIPtr).Update();
     SRef(MoSTOCHPtr).Update();
+
+    if (MoZeaPtr)
+    {
+        auto& MoZea = *MoZeaPtr;
+        auto LnBack = GetBack(MoZea.GetPeriodSize() - 1);
+        SRef(MoZeaPtr).Update(MnValue, LnBack);
+    }
 
     MbHadFirstInsert = true;
 }
@@ -668,8 +679,15 @@ DXF void RA::Stats::SetDeviceJoinery()
         MoObj.MnMinPtr = &MnMin;
         MoObj.MnMaxPtr = &MnMax;
     }
-    SRef(MoStandardDeviationPtr).SetAvg(MoAvgPtr);
-    SRef(MoMeanAbsoluteDeviationPtr).SetAvg(MoAvgPtr);
+
+    if (MoStandardDeviationPtr)
+    {
+        MoStandardDeviationPtr->MoAvgPtr = MoAvgPtr;
+    }
+    if (MoMeanAbsoluteDeviationPtr)
+    {
+        MoMeanAbsoluteDeviationPtr->MoAvgPtr = MoAvgPtr;
+    }
 }
 
 DXF double RA::Stats::GetSkippedNum(const xint FIdx) const

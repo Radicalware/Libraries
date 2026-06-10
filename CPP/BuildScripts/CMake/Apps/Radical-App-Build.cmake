@@ -11,10 +11,7 @@ macro(BuildRadicalSolution InPrivateLibs InPublicLibs)
     FindProgramFiles(SolutionFiles "${CMAKE_CURRENT_SOURCE_DIR}/Solution")
     add_executable(${THIS} ${SolutionFiles})
 
-    if (MSVC) 
-        target_compile_options(${THIS} PRIVATE /std:c++latest) 
-        #target_link_options(${THIS} PRIVATE /NODEFAULTLIB:MSVCRT)
-    endif()
+    SetCudaConfig()
 
     # ----------------------------------------------------------------------------
     # Get the FindX.cmake for each array input

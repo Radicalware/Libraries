@@ -17,8 +17,8 @@ namespace RA
 
         STOCH(const double* FvValues,
               const   xint* FnInsertIdxPtr,
-              const   xdbl* FnMinPtr,
-              const   xdbl* FnMaxPtr,
+              const   dbl* FnMinPtr,
+              const   dbl* FnMaxPtr,
               const   xint  FnStorageSize = 0);
 
         IXF auto GetMin()         const { return *MnMinPtr; }
@@ -38,8 +38,8 @@ namespace RA
         const xint*   MnInsertIdxPtr;
         const xint    MnStorageSize;
 
-        const xdbl* MnMinPtr = nullptr;
-        const xdbl* MnMaxPtr = nullptr;
+        const dbl* MnMinPtr = nullptr;
+        const dbl* MnMaxPtr = nullptr;
 
         double  MnLast = 0;
         double  MnSTOCH = 0;

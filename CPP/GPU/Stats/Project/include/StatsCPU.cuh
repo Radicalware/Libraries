@@ -50,7 +50,7 @@ namespace RA
         IXF double GetRSI()   const { return The.RSI().GetRSI(); }
         IXF auto GetNormals() const { return The.Normals().GetNormals(); }
         IXF auto GetNormalFront(const xint Idx = 0) const { return The.Normals().GetNormalFront(Idx); }
-        IXF auto GetNormalBack(const xint Idx = 0)  const { return The.Normals().GetNormalBack(Idx); }
+        IXF auto GetNormalBack(const xint Idx = 0) const { return The.Normals().GetNormalBack(Idx); }
 
         IXF double GetScaledSTOCH() const { return The.STOCH().GetScaledSTOCH(); }
         IXF double GetScaledRSI()   const { return The.RSI().GetScaledRSI(); }

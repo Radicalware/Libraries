@@ -41,6 +41,22 @@ macro(RunPowershell COMMAND)
     message("Output: ${Output}")
 endmacro()
 
+macro(AddIincludeDirectoryVCPKG FsPackage)
+    include_directories(
+        "${VCPKG_ROOT}/packages/${FsPackage}_x64-windows/include"
+    )
+endmacro()
+
+macro(SetCudaConfig)
+    if(UsingNVCC)
+        add_definitions(-DUsingNVCC)
+    else()
+        add_definitions(-DUsingMSVC)
+        set(UsingMSVC ON)
+        target_compile_options(${THIS} PRIVATE /std:c++latest) 
+        set_source_files_properties(${ProjectFiles} PROPERTIES LANGUAGE CXX)
+    endif()
+endmacro()
 
 macro(RunSystemCommand COMMAND)
     if(${IsWindows})

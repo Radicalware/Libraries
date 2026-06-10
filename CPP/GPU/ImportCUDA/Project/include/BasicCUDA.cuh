@@ -22,7 +22,7 @@ using xint = size_t;
 
 #define This (*this)
 
-// Divergent ___ Functions
+// Inline ___ Functions
 // DHF = Inline Host Function
 // DDF = Inline Device Function
 // DXF = Inline Cross Function
@@ -30,7 +30,7 @@ using xint = size_t;
 #define IHF inline __host__
 #define IDF inline __device__
 #define IXF inline __host__ __device__
-#define IGF static __global__
+#define IGF inline static __global__
 
 // Divergent ___ Functions
 // DHF = Divergent Host Function
@@ -132,3 +132,4 @@ __device__ unsigned int atomicDec(
     unsigned int* address,
     unsigned int val);
 // -----------------------------------------------------
+

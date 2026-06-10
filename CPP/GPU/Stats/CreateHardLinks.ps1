@@ -1,4 +1,5 @@
 ﻿
+Write-Host "Run after CudaInstall.ps1 to create HostStat .h/.cpp Hard Links"
 
 $ProjectPath = "C:\Source\CMake\Radicalware\Libraries\Projects\HostStats"
 
@@ -8,7 +9,10 @@ if($(Test-Path $ProjectPath) -eq $false)
 }
 
 $TargetPath = "$ProjectPath\include"
-Remove-Item -Recurse $TargetPath
+if($(Test-Path $TargetPath) -eq $true)
+{
+    Remove-Item -Recurse $TargetPath
+}
 New-Item -ItemType Directory $TargetPath
 Set-Location $TargetPath
 
@@ -33,6 +37,7 @@ foreach ( $item in $(Get-ChildItem C:\Source\CMake\Radicalware\Libraries\Project
 Set-Location "C:\Source\Radicalware\Libraries\GPU\Stats"
 
 Copy-Item -Force .\FindHostStats.cmake C:\Source\CMake\Modules
+Copy-Item -Force .\FindStats.cmake C:\Source\CMake\Modules
 
 $FromApplications = "C:\Source\CMake\Radicalware\Applications\Build\Debug\lib\HostStats.lib"
 $ToLibs           = "C:\Source\CMake\Radicalware\Libraries\Build\Debug\lib\HostStats.lib"
@@ -43,3 +48,4 @@ $FromApplications = "C:\Source\CMake\Radicalware\Applications\Build\Release\lib\
 $ToLibs           = "C:\Source\CMake\Radicalware\Libraries\Build\Release\lib\HostStats.lib"
 New-Item -Path $ToLibs -ItemType HardLink -Target $FromApplications -Force
 
+Write-Host "Linking Done!!"

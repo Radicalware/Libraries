@@ -21,8 +21,7 @@ namespace RA
 
         constexpr xint GetLength() const { return MnLength; }
         constexpr xint GetUnitSize() const { return MnObjSize; }
-        constexpr xint GetMallocSize() const { return MnLength * MnObjSize + sizeof(xint); }
-        constexpr xint GetMemCopySize() const { return MnLength * MnObjSize; }
+        constexpr xint GetMallocSize() const { return MnLength * MnObjSize; }
 
     private:
         xint MnLength;
