@@ -10,8 +10,10 @@ macro(BuildRadicalProject InLibType InPrivateLibs InPublicLibs)
 
     FindProgramFiles(ProjectFiles "${BUILD_DIR}")
 
-    SetCudaConfig()
-
+    if(UsingCUDA)
+        SetCudaConfig()
+    endif()
+    
     add_library(${THIS} ${InLibType} ${ProjectFiles})
     add_library(Radical::${THIS} ALIAS ${THIS})
 

@@ -54,6 +54,7 @@ private:
     istatic RA::Threads SoThreads;
     istatic RA::Mutex SoMutex;
     istatic RA::Atomic<bool> SbDisabled = false;
+    istatic RA::Atomic<bool> SbTasksRunning = false;
 
     istatic bool SbInitialized = false;
     istatic std::atomic<bool> SbFinishTasks = false;
@@ -106,7 +107,7 @@ public:
     istatic xint Size() { return SnInstTaskCount; }
 
     istatic void WaitAll();
-    istatic bool TaskCompleted() { return SvTaskQueue.size();  }
+    istatic bool BxDone();
     istatic void Clear();
     istatic void CheckClearMutexes();
 
@@ -137,6 +138,7 @@ RIN void Nexus<void>::TaskLooper(int thread_idx)
                 if (SvTaskQueue.empty())
                     return;
 
+                SbTasksRunning = true;
                 ++SoThreads;
                 ++SnInstTaskCount;
 
@@ -159,8 +161,10 @@ RIN void Nexus<void>::TaskLooper(int thread_idx)
 
             if (!!LoSingleTaskPtr)
             {
+                SbTasksRunning = true;
                 (*LoSingleTaskPtr).RunTask();
                 LoSingleTaskPtr = nullptr;
+                SbTasksRunning = false;
             }
             else
             {
@@ -415,6 +419,14 @@ RIN void Nexus<void>::Clear()
         SmMutex.insert({ SoBlankMutexPtr.Get().GetID(), SoBlankMutexPtr });
     }
     RA::Mutex::ResetTotalMutexCount();
+}
+
+RIN bool Nexus<void>::BxDone()
+{
+    auto LbDone = (SnInstTaskCount == 0 && SvTaskQueue.size() == 0);
+    if (SbTasksRunning)
+        LbDone = false;
+    return LbDone;
 }
 
 RIN void Nexus<void>::CheckClearMutexes()

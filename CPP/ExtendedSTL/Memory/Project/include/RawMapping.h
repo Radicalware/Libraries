@@ -15,6 +15,8 @@
 #include <functional>
 #include <vcruntime.h>
 #include <typeinfo>
+#include <string>
+#include <exception>
 
 
 #if _HAS_CXX20
@@ -597,32 +599,33 @@ using FunctionReturnType = typename decltype(std::function{ std::declval<Callabl
 #define GetFunctionReturnType(_TYPE_) FunctionReturnType<decltype(_TYPE_)>
 
 // -----------------------------------------------------------------------------------------------------------------------------
-//// Example
-//if  constexpr (BxArray(int[]))
-//    cout << "yes" << endl; // this will trigger
+// Exception Handling
 
-#ifndef __MACROS_H__
-#ifdef  UsingMSVC
-
-#define __A_RESCUE_PRINT__ \
-    cout <<   "\nException :>: "<< __CLASS__ <<  " (" << __LINE__ <<  ")\n\n"
-
-#define __W_RESCUE_PRINT__ \
-    wcout << L"\nException :>: " << __CLASS__ << L" (" << __LINE__ << L")\n\n"
-
-#define __A_RESCUE_THROW__ \
-    cout  << "\nException :>: " << __CLASS__ <<    " (" << __LINE__ <<  ")  "
-
-#define __W_RESCUE_THROW__ \
-    wcout << L"\nException :>: " << __CLASS__ <<  L" (" << __LINE__ << L")  "
-
-
+#ifndef Begin
 #define Begin() \
     try {
+#endif
 
-#define Rescue() \
+
+#ifndef __A_RESCUE_THROW__
+#define __A_RESCUE_THROW__ \
+    cout  << "\nException :>: " << __CLASS__ <<    " (" << __LINE__ <<  ")  "
+#endif
+
+#ifndef __W_RESCUE_THROW__
+#define __W_RESCUE_THROW__ \
+    wcout << L"\nException :>: " << __CLASS__ <<  L" (" << __LINE__ << L")  "
+#endif
+
+#undef  RescueThrow
+#define RescueThrow(...) GET_MACRO(RescueThrow, void(), __VA_ARGS__)
+
+#define RescueThrow0(VD) \
     }catch(const char* Err){ \
         __A_RESCUE_THROW__ << Err; \
+        throw " "; \
+    }catch(const std::exception& Err){ \
+        __A_RESCUE_THROW__ << Err.what(); \
         throw " "; \
     }catch(const std::string& Err){ \
         __A_RESCUE_THROW__ << Err; \
@@ -633,13 +636,115 @@ using FunctionReturnType = typename decltype(std::function{ std::declval<Callabl
     }catch (const wchar_t* Err){ \
         __W_RESCUE_THROW__ << Err; \
         throw " "; \
-    }catch(const std::exception& Err){ \
-        __A_RESCUE_THROW__ << Err.what(); \
-        throw " "; \
     }catch(...){\
         cout << "Exception Caught: \"Unknown Handler Type\""; \
         throw " "; \
     }
 
+// auto Lambda = std::bind(<lambda>); 
+// Rescue(Lambda);
+#define RescueThrow1(VD, _Lambda_) \
+    }catch(const char* Err){ \
+        _Lambda_(); \
+        __A_RESCUE_THROW__ << Err; \
+        throw " "; \
+    }catch(const std::exception& Err){ \
+        _Lambda_(); \
+        __A_RESCUE_THROW__ << Err.what(); \
+        throw " "; \
+    }catch(const std::string& Err){ \
+        _Lambda_(); \
+        __A_RESCUE_THROW__ << Err; \
+        throw " "; \
+    }catch(const std::wstring& Err){ \
+        _Lambda_(); \
+        __W_RESCUE_THROW__ << Err; \
+        throw " "; \
+    }catch (const wchar_t* Err){ \
+        _Lambda_(); \
+        __W_RESCUE_THROW__ << Err; \
+        throw " "; \
+    }catch(...){\
+        _Lambda_(); \
+        cout << "Exception Caught: \"Unknown Handler Type\""; \
+        throw " "; \
+    }
+
+#ifndef __A_RESCUE_PRINT__
+#define __A_RESCUE_PRINT__ \
+    cout <<   "\nException :>: "<< __CLASS__ <<  " (" << __LINE__ <<  ")\n\n"
+#endif 
+
+#ifndef __W_RESCUE_PRINT__
+#define __W_RESCUE_PRINT__ \
+    wcout << L"\nException :>: " << __CLASS__ << L" (" << __LINE__ << L")\n\n"
 #endif
-#endif
+
+#undef  RescuePrint
+#define RescuePrint(...) GET_MACRO(RescuePrint, void(), __VA_ARGS__)
+#define FinalRescue(...) RescuePrint(__VA_ARGS__)
+
+#define RescuePrint0(VD) \
+    }catch(const char* Err){ \
+        __A_RESCUE_PRINT__ << Err << '\n'; \
+    }catch(const std::exception& Err){ \
+        __A_RESCUE_PRINT__ << Err.what() << '\n'; \
+    }catch(const std::string& Err){ \
+        __A_RESCUE_PRINT__ << Err << '\n'; \
+    }catch(const std::wstring& Err){ \
+        __W_RESCUE_PRINT__ << Err << L'\n'; \
+    }catch (const wchar_t* Err){ \
+        __W_RESCUE_PRINT__ << Err << L'\n'; \
+    }catch(...){\
+        cout << "Exception Caught: \"Unknown Handler Type\""; \
+    }
+
+#define RescuePrint1(VD, _Lambda_) \
+    }catch(const char* Err){ \
+        _Lambda_(); \
+        __A_RESCUE_PRINT__ << Err << '\n'; \
+    }catch(const std::exception& Err){ \
+        _Lambda_(); \
+        __A_RESCUE_PRINT__ << Err.what() << '\n'; \
+    }catch(const std::string& Err){ \
+        _Lambda_(); \
+        __A_RESCUE_PRINT__ << Err << '\n'; \
+    }catch(const std::wstring& Err){ \
+        _Lambda_(); \
+        __W_RESCUE_PRINT__ << Err << L'\n'; \
+    }catch (const wchar_t* Err){ \
+        _Lambda_(); \
+        __W_RESCUE_PRINT__ << Err << L'\n'; \
+    }catch(...){\
+        _Lambda_(); \
+        cout << "Exception Caught: \"Unknown Handler Type\""; \
+    }
+
+
+#undef  Rescue
+#define Rescue(...) GET_MACRO(Rescue, void(), __VA_ARGS__)
+#define Rescue0(VD)           RescueThrow0(void);
+#define Rescue1(VD, _Lambda_) RescueThrow1(void, _Lambda_);
+
+#undef  FinalRescue
+#define FinalRescue(...) GET_MACRO(FinalRescue, void(), __VA_ARGS__)
+#define FinalRescue0(VD)           RescuePrint0(void);
+#define FinalRescue1(VD, _Lambda_) RescuePrint1(void, _Lambda_);
+
+#define WATCH(__EXPR__) Begin(); __EXPR__; Rescue();
+
+//#if UsingNVCC
+//
+//#define NVBegin Begin
+//#define NVRescue Rescue
+//#define NVFinalRescue FinalRescue
+//
+//#undef Begin
+//#undef Rescue
+//#undef FinalRescue
+//
+//#define Begin()
+//#define Rescue()
+//#define FinalRescue()
+//#endif
+

@@ -546,10 +546,6 @@ DXF void RA::Stats::operator<<(const double FnValue)
     if (MoJoinery.MnSize && !MoJoinery.MbFilled)
         return; // you don't want half-filled joinery to impact deviations
 
-#ifdef UsingNVCC
-    The.SetDeviceJoinery(); // issue that needs to be fixed
-#endif // UsingNVCC
-
     if (!MnStorageSize || !MvValues)
     {
         SRef(MoAvgPtr).Update(MnValue);
@@ -702,6 +698,23 @@ DXF void RA::Stats::SetValue(const xint FIdx, const double FnValue)
     MvValues[FIdx] = FnValue;
     if (MoNormalsPtr && MoNormalsPtr->BxLiteral())
         MvValues[FIdx] = (FnValue / static_cast<double>(MoNormalsPtr->GetCompression()));
+}
+
+DXF xint RA::Stats::GetByteSize() const
+{
+    xint Size = sizeof(RA::Stats);
+    if (MvValues)       Size += sizeof(*MvValues) * MnStorageSize;
+    if (MoAvgPtr)       Size += sizeof(*MoAvgPtr);
+    if (MoZeaPtr)       Size += sizeof(*MoZeaPtr);
+    if (MoSTOCHPtr)     Size += sizeof(*MoSTOCHPtr);
+    if (MoOmahaPtr)     Size += sizeof(*MoOmahaPtr);
+    if (MoNormalsPtr)   Size += sizeof(*MoNormalsPtr);
+    if (MoRSIPtr)       Size += sizeof(*MoRSIPtr);
+    if (MoMeanAbsoluteDeviationPtr) Size += sizeof(*MoMeanAbsoluteDeviationPtr);
+    if (MoStandardDeviationPtr)     Size += sizeof(*MoStandardDeviationPtr);
+    Size += MoJoinery.GetValuesByteSize();
+    Size += MoSlippage.GetValuesByteSize();
+    return Size;
 }
 
 DXF void RA::Stats::TheJoinery::InsertNum(const double FnNum)

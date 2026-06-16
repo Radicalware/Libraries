@@ -35,7 +35,14 @@ namespace RA
         template<typename T, typename ...A>
         static T* AllocateObjOnDevice(A&&... Args);
         template<typename B, typename D, typename ...A>
-        static B* AllocateObjOnDevice(A&&... Args);
+        static B* AllocateObjOnDevice(A&&... Args); // Based Derived Class
+
+        template<typename T, typename ...A>
+        static T* AllocateSizedObjOnDevice(A&&... Args);
+        template<typename B, typename D, typename ...A>
+        static B* AllocateSizedObjOnDevice(A&&... Args); // Based Derived Class
+
+        static void SyncAll();
 
         static void PrintDeviceStats();
 
@@ -105,14 +112,45 @@ template<typename T, typename ...A>
 T* RA::Host::AllocateObjOnDevice(A&& ...Args)
 {
     auto LvHostDataPtr = RA::MakeShared<T>(std::forward<A>(Args)...);
-    return RA::Host::CopyHostToDevice<T>(LvHostDataPtr.Ptr(), Allocate(1, sizeof(T)));
+    auto LvDevicePtr = RA::Host::CopyHostToDevice<T>(LvHostDataPtr.Ptr(), Allocate(1, sizeof(T)));
+    SyncAll();
+    return LvDevicePtr;
 }
 
 template<typename B, typename D, typename ...A>
-B* RA::Host::AllocateObjOnDevice(A&& ...Args)
+B* RA::Host::AllocateObjOnDevice(A&& ...Args)  // Based Derived Class
 {
     xp<B> LvHostDataPtr = RA::MakeShared<D>(std::forward<A>(Args)...);
-    return RA::Host::CopyHostToDevice<B>(LvHostDataPtr.Ptr(), Allocate(1, sizeof(B)));
+    auto LvDevicePtr = RA::Host::CopyHostToDevice<B>(LvHostDataPtr.Ptr(), Allocate(1, sizeof(B)));
+    SyncAll();
+    return LvDevicePtr;
+}
+
+template<typename T, typename ...A>
+T* RA::Host::AllocateSizedObjOnDevice(A&& ...Args)
+{
+    auto LvHostDataPtr = RA::MakeShared<T>(std::forward<A>(Args)...);
+    auto LvDevicePtr = RA::Host::CopyHostToDevice<T>(LvHostDataPtr.Ptr(), Allocate(LvHostDataPtr->GetByteSize(), 1));
+    SyncAll();
+    return LvDevicePtr;
+}
+
+template<typename B, typename D, typename ...A>
+B* RA::Host::AllocateSizedObjOnDevice(A&& ...Args)  // Based Derived Class
+{
+    xp<B> LvHostDataPtr = RA::MakeShared<D>(std::forward<A>(Args)...);
+    auto LvDevicePtr = RA::Host::CopyHostToDevice<B>(LvHostDataPtr.Ptr(), Allocate(LvHostDataPtr->GetByteSize(), 1));
+    SyncAll();
+    return LvDevicePtr;
+}
+
+void RA::Host::SyncAll()
+{
+    Begin();
+    auto Error = cudaDeviceSynchronize();
+    if (Error)
+        ThrowIt("CUDA cudaDeviceSynchronize Error: ", cudaGetErrorString(Error));;
+    Rescue();
 }
 
 void RA::Host::PrintDeviceStats()

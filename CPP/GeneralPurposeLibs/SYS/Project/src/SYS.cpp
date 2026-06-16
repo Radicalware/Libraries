@@ -131,7 +131,13 @@ void RA::SYS::SetArgs(int argc, char** argv)
 
 void RA::SYS::AddAlias(const char FChr, const xstring& FStr)
 {
+    Begin();
+    if (FStr.Size() < 3)
+        ThrowIt("Alias string cannot be empty");
+    if (!(FStr[0] == '-' && FStr[1] == '-'))
+        ThrowIt("Alias string must start with a \"--\"");
     MmAliasSC.AddPair(FStr.ToLower(), FChr);
+    Rescue();
 }
 
 // -------------------------------------------------------------------------------------------------------------------

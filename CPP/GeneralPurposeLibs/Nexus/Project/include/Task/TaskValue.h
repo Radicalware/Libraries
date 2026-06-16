@@ -102,19 +102,16 @@ RIN void TaskValueAPI::RunTask()
         return;
 
     RA::Threads::TotalTasksCounted++;
-    try
-    {
-        if (MfMethodPtr != nullptr)
+    Begin()
+        if (MfMethodPtr != nullptr) {
             MoValuePtr = MfMethodPtr();
-        else if (MfMethodValue != nullptr)
-              MoValuePtr = RA::MakeShared<T>(MfMethodValue());
-        else
+        }
+        else if (MfMethodValue != nullptr){
+                MoValuePtr = RA::MakeShared<T>(MfMethodValue());
+        }else{
             throw "TaskValueAPI::RunTask No Available Method!!";
-    }
-    catch (...) {
-        MoException = std::current_exception();
-    }
-
+        }
+    Rescue([this]() { this->MbDone = true; })
     MbDone = true;
 }
 

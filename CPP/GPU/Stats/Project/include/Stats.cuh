@@ -121,6 +121,8 @@ namespace RA
 
         IXF auto   GetMin() const { return MnMin; }
         IXF auto   GetMax() const { return MnMax; }
+
+        DXF xint   GetByteSize() const;
     protected:
         DXF void SetValue(const xint FIdx, const double FnValue);
         struct TheJoinery
@@ -132,6 +134,8 @@ namespace RA
             double MnSum = 0;
             double* MvValues = nullptr;
             DXF void InsertNum(const double FnNum);
+            DXF xint GetByteSize() const { return sizeof(TheJoinery) + (sizeof(double) * (MnSize + 1)); }
+            DXF xint GetValuesByteSize() const { return (sizeof(double) * (MnSize + 1)); }
         };
 
         struct TheSlippage
@@ -140,6 +144,8 @@ namespace RA
             xint MnSlipSize = 0;
             EHardware MeHardware = EHardware::Default;
             double* MvNums = nullptr;
+            DXF xint GetByteSize() const { return sizeof(TheSlippage) + (sizeof(double) * (MnDataLeng + 1)); }
+            DXF xint GetValuesByteSize() const { return (sizeof(double) * (MnDataLeng + 1)); }
         };
 
         EHardware MeHardware = EHardware::Default;

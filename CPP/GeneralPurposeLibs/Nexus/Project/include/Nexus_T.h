@@ -55,7 +55,7 @@ private:
     std::unordered_map<std::string, xp<Task<T>>> MmStrTask;
     std::unordered_map<xint,        xp<Task<T>>> MmIdxTask;
 
-    RIN void TaskLooper(int thread_idx);
+    RIN void TaskLooper(int FnThreadIdx);
 
     template<typename F, typename ...A> RIN void Add(   F& function, A&& ...Args);
     template<typename F, typename ...A> RIN void AddRef(F& function, A&& ...Args);
@@ -103,7 +103,7 @@ public:
 
     RIN xint Size() const;
     RIN void WaitAll();
-    RIN bool TaskCompleted() const;
+    RIN bool BxDone() const;
     RIN void Clear();
     RIN void Sleep(unsigned int extent) const;
 };
@@ -111,7 +111,7 @@ public:
 // =========================================================================================
 
 template<typename T>
-RIN void Nexus<T>::TaskLooper(int thread_idx)
+RIN void Nexus<T>::TaskLooper(int FnThreadIdx)
 {
     try
     {
@@ -535,9 +535,18 @@ RIN void Nexus<T>::WaitAll()
 }
 
 template<typename T>
-RIN bool Nexus<T>::TaskCompleted() const
+RIN bool Nexus<T>::BxDone() const
 {
-    return !MvTaskDeque.size();
+    auto LbDone = !MvTaskDeque.size(); 
+    if (LbDone)
+    {
+        for (const auto& TaskPair : MmIdxTask)
+        {
+            if (!TaskPair.second.Get().IsDone())
+                return false;
+        }
+    }
+    return LbDone;
 }
 
 template<typename T>
