@@ -120,7 +120,7 @@ RIN void Nexus<T>::TaskLooper(int FnThreadIdx)
         while (true)
         {
             {
-                const auto LoThreadLock = MoThreadMtx.CreateLock([this]() {
+                const auto LoThreadLock = MoThreadMtx.NewLock([this]() {
                     return (
                         !MbDisabled
                         && (MbFinishTasks || MvTaskDeque.size())
@@ -193,7 +193,7 @@ RIN void Nexus<T>::Add(F& function, A&& ...Args)
         MvTaskDeque.emplace_back(RA::MakeShared<Task<T>>(++MnNextTaskID, std::move(BindedFunction)));
     else
     {
-        const auto Lock = MoThreadMtx.CreateLock();
+        const auto Lock = MoThreadMtx.NewLock();
         MvTaskDeque.emplace_back(RA::MakeShared<Task<T>>(++MnNextTaskID, std::move(BindedFunction)));
         MoThreadMtx.SignalOne();
     }
@@ -208,7 +208,7 @@ RIN void Nexus<T>::AddRef(F& function, A&& ...Args)
         MvTaskDeque.emplace_back(RA::MakeShared<Task<T>>(++MnNextTaskID, std::move(BindedFunction)));
     else
     {
-        const auto Lock = MoThreadMtx.CreateLock();
+        const auto Lock = MoThreadMtx.NewLock();
         MvTaskDeque.emplace_back(RA::MakeShared<Task<T>>(++MnNextTaskID, std::move(BindedFunction)));
         MoThreadMtx.SignalOne();
     }
@@ -223,7 +223,7 @@ RIN void Nexus<T>::AddKVP(const std::string& key, F& function, A&& ...Args)
         MvTaskDeque.emplace_back(RA::MakeShared<Task<T>>(++MnNextTaskID, key, std::move(BindedFunction)));
     else
     {
-        const auto Lock = MoThreadMtx.CreateLock();
+        const auto Lock = MoThreadMtx.NewLock();
         MvTaskDeque.emplace_back(RA::MakeShared<Task<T>>(++MnNextTaskID, key, std::move(BindedFunction)));
         MoThreadMtx.SignalOne();
     }
@@ -238,7 +238,7 @@ RIN void Nexus<T>::AddKVPRef(const std::string& key, F& function, A&& ...Args)
         MvTaskDeque.emplace_back(RA::MakeShared<Task<T>>(++MnNextTaskID, key, std::move(BindedFunction)));
     else
     {
-        const auto Lock = MoThreadMtx.CreateLock();
+        const auto Lock = MoThreadMtx.NewLock();
         MvTaskDeque.emplace_back(RA::MakeShared<Task<T>>(++MnNextTaskID, key, std::move(BindedFunction)));
         MoThreadMtx.SignalOne();
     }
@@ -336,7 +336,7 @@ RIN void Nexus<T>::AddTaskVal(F&& function, ONE& element, A&& ...Args)
         MvTaskDeque.emplace_back(RA::MakeShared<Task<T>>(++MnNextTaskID, std::move(BindedFunction)));
     else
     {
-        auto Lock = MoThreadMtx.CreateLock();
+        auto Lock = MoThreadMtx.NewLock();
         MvTaskDeque.emplace_back(RA::MakeShared<Task<T>>(++MnNextTaskID, std::move(BindedFunction)));
         MoThreadMtx.SignalOne();
     }
@@ -351,7 +351,7 @@ RIN void Nexus<T>::AddTaskPair(F&& function, K& key, V& value, A&& ...Args)
         MvTaskDeque.emplace_back(RA::MakeShared<Task<T>>(++MnNextTaskID, std::move(BindedFunction)));
     else
     {
-        auto Lock = MoThreadMtx.CreateLock();
+        auto Lock = MoThreadMtx.NewLock();
         MvTaskDeque.emplace_back(RA::MakeShared<Task<T>>(++MnNextTaskID,std::move(BindedFunction)));
         MoThreadMtx.SignalOne();
     }
@@ -431,7 +431,7 @@ template<typename T>
 RIN std::vector<T> Nexus<T>::GetAll()
 {
     The.WaitAll();
-    auto Lock = MoThreadMtx.CreateLock();
+    auto Lock = MoThreadMtx.NewLock();
     std::vector<T> Captures;
     for (std::pair<const xint, xp<Task<T>>>& TaskPair : MmIdxTask)
     {
@@ -459,7 +459,7 @@ template<typename T>
 RIN auto Nexus<T>::GetAllPtrs()
 {
     The.WaitAll();
-    auto Lock = MoThreadMtx.CreateLock();
+    auto Lock = MoThreadMtx.NewLock();
 
     if constexpr (BxSharedPtr(T)){
         return ContGetAllPtrs<T, T>();
@@ -473,7 +473,7 @@ template<typename T>
 RIN std::vector<T> Nexus<T>::GetMoveAllIndices()
 {
     The.WaitAll();
-    auto Lock = MoThreadMtx.CreateLock();
+    auto Lock = MoThreadMtx.NewLock();
     std::vector<T> Captures;
     Captures.reserve(Size());
     for (auto& Target : MmIdxTask)

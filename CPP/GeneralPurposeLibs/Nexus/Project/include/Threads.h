@@ -27,8 +27,8 @@ namespace RA
         istatic int  GetThreadCountAvailable() { return Allowed - Used; }
         istatic bool BxThreadsAreAvailable()   { return Allowed > Used; }
 
-        istatic void ResetAllowedThreadCount() { Allowed = CPUThreads;  }
-         static void SetAllowedThreadCount(int FInt);
+        istatic void ResetThreadCount() { Allowed = CPUThreads;  }
+         static void SetThreadCount(int FInt);
          
         RIN void operator++() { ++Used;}
         RIN void operator--() { --Used; }

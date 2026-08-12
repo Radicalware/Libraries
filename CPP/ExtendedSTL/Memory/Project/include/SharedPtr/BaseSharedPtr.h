@@ -41,8 +41,8 @@ namespace RA
         CIN std::shared_ptr<X> GetBase();
         CIN std::shared_ptr<X> SPtr();
 
-        CIN bool operator!(void) const;
-        CIN bool IsNull() const;
+        CIN bool operator!(void) const noexcept;
+        CIN bool IsNull() const noexcept;
 
         CIN void operator=(nullptr_t) { The.reset(); }
 
@@ -62,10 +62,10 @@ namespace RA
 
 
 template<typename T>
-CIN bool RA::BaseSharedPtr<T>::operator!(void) const { return bool(The.get() == nullptr); }
+CIN bool RA::BaseSharedPtr<T>::operator!(void) const noexcept { return bool(The.get() == nullptr); }
 
 template<typename T>
-CIN bool RA::BaseSharedPtr<T>::IsNull() const { return The.get() == nullptr; }
+CIN bool RA::BaseSharedPtr<T>::IsNull() const noexcept { return The.get() == nullptr; }
 
 template<typename X>
 CIN X& RA::BaseSharedPtr<X>::operator*()

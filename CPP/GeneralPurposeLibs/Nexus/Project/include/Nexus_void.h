@@ -131,7 +131,7 @@ RIN void Nexus<void>::TaskLooper(int thread_idx)
                         && (Nexus<void>::SbFinishTasks || Nexus<void>::SvTaskQueue.size())
                         && (RA::Threads::BxThreadsAreAvailable()));
                 };
-                auto Lock = SoMutex.CreateLock(BxNexusVoidThreadReady);
+                auto Lock = SoMutex.NewLock(BxNexusVoidThreadReady);
 
                 if (SbDisabled == true)
                     continue;
@@ -175,7 +175,7 @@ RIN void Nexus<void>::TaskLooper(int thread_idx)
                         && SmMutex.contains(VoidTask.GetID())
                         && SmMutex.at(VoidTask.GetID()).Get().BxUseMutex())
                     {
-                        auto Lock = SmMutex.at(VoidTask.GetID()).Get().CreateLock();
+                        auto Lock = SmMutex.at(VoidTask.GetID()).Get().NewLock();
                         VoidTask.RunTask();
                     }
                     else // lock was given but the mutex was set to off
@@ -263,7 +263,7 @@ RIN UsingFunction(void) Nexus<void>::AddTask(F&& Function, A&& ...Args)
         SvTaskQueue.emplace(RA::MakeShared<Task<void>>(0, std::move(BindedFunction)));
     else 
     {
-        auto Lock = SoMutex.CreateLock();
+        auto Lock = SoMutex.NewLock();
         SvTaskQueue.emplace(RA::MakeShared<Task<void>>(0, std::move(BindedFunction)));
         SoMutex.SignalOne();
     }
@@ -276,7 +276,7 @@ RIN UsingFunction(void) Nexus<void>::AddTaskRef(F&& Function, A&& ...Args)
         SvTaskQueue.emplace(RA::MakeShared<Task<void>>(0, std::move(BindedFunction)));
     else
     {
-        auto Lock = SoMutex.CreateLock();
+        auto Lock = SoMutex.NewLock();
         SvTaskQueue.emplace(RA::MakeShared<Task<void>>(0, std::move(BindedFunction)));
         SoMutex.SignalOne();
     }
@@ -290,7 +290,7 @@ RIN UsingFunction(void) Nexus<void>::AddTask(O& object, F&& Function, A&& ...Arg
         SvTaskQueue.emplace(RA::MakeShared<Task<void>>(0, std::move(BindedFunction)));
     else
     {
-        auto Lock = SoMutex.CreateLock();
+        auto Lock = SoMutex.NewLock();
         SvTaskQueue.emplace(RA::MakeShared<Task<void>>(0, std::move(BindedFunction)));
         SoMutex.SignalOne();
     }
@@ -303,7 +303,7 @@ RIN UsingFunction(void) Nexus<void>::AddTaskRef(O& object, F&& Function, A&& ...
         SvTaskQueue.emplace(RA::MakeShared<Task<void>>(0, std::move(BindedFunction)));
     else
     {
-        auto Lock = SoMutex.CreateLock();
+        auto Lock = SoMutex.NewLock();
         SvTaskQueue.emplace(RA::MakeShared<Task<void>>(0, std::move(BindedFunction)));
         SoMutex.SignalOne();
     }
@@ -320,7 +320,7 @@ RIN UsingFunction(void) Nexus<void>::AddTask(M& FoMutex, O& object, F&& Function
     }
     else
     {
-        auto Lock = SoMutex.CreateLock();
+        auto Lock = SoMutex.NewLock();
         CheckClearMutexes();
         MutexTask(FoMutex, BindedFunction);
         SoMutex.SignalOne();
@@ -338,7 +338,7 @@ RIN UsingFunction(void) Nexus<void>::AddTaskRef(M& FoMutex, O& object, F&& Funct
     }
     else
     {
-        auto Lock = SoMutex.CreateLock();
+        auto Lock = SoMutex.NewLock();
         CheckClearMutexes();
         MutexTask(FoMutex, BindedFunction);
         SoMutex.SignalOne();
@@ -373,7 +373,7 @@ RIN void Nexus<void>::AddTaskVal(F&& Function, V& element, A&& ...Args)
         SvTaskQueue.emplace(RA::MakeShared<Task<void>>(0, std::move(BindedFunction)));
     else
     {
-        auto Lock = SoMutex.CreateLock();
+        auto Lock = SoMutex.NewLock();
         CheckClearMutexes();
         SvTaskQueue.emplace(RA::MakeShared<Task<void>>(0, std::move(BindedFunction)));
         SoMutex.SignalOne();
@@ -388,7 +388,7 @@ RIN void Nexus<void>::AddTaskPair(F&& Function, K key, V& value, A&& ...Args)
         SvTaskQueue.emplace(RA::MakeShared<Task<void>>(0, std::move(BindedFunction)));
     else
     {
-        auto Lock = SoMutex.CreateLock();
+        auto Lock = SoMutex.NewLock();
         CheckClearMutexes();
         SvTaskQueue.emplace(RA::MakeShared<Task<void>>(0, std::move(BindedFunction)));
         SoMutex.SignalOne();

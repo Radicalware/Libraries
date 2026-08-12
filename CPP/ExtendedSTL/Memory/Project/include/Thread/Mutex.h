@@ -33,8 +33,8 @@ namespace RA
 
         // WARNING: Don't use a simple lock in conjunction with a smart lock
         template<typename F>
-        RIN auto     CreateLock(F&& Function);
-            ULock    CreateLock();
+        RIN auto     NewLock(F&& Function);
+            ULock    NewLock();
             void     Wait() const;
         // RA::Lock    CreateCustomLock();
 
@@ -54,7 +54,7 @@ namespace RA
 
 
 template<typename F>
-RIN auto RA::Mutex::CreateLock(F&& Function)
+RIN auto RA::Mutex::NewLock(F&& Function)
 {
     try
     {

@@ -17,11 +17,16 @@
 #include <typeinfo>
 #include <string>
 #include <exception>
+#include <print>
+#include <utility>
 
 
 #if _HAS_CXX20
 #define CXX20 1
 #endif
+
+template<typename K, typename V>
+using kvps = std::pair<K, V>; // used like xmap{kvps { "x", 800 }, { "y", 500 }, { "z", 200 } }
 
 using std::cout;
 using std::wcout;
@@ -92,6 +97,11 @@ typedef      double         dbl; //          double
 // Non-Const VARiable
 #define nvar auto
 
+#define ISC  inline static const
+#define IS   inline static
+#define SC   static const
+#define IC   inline const
+
 #define BxIsNotZero(__NUM__) (bool(__NUM__ > 0 || __NUM__ < 0))
 #define BxIsZero(__NUM__) (bool(!(BxIsNotZero(__NUM__))))
 #define BxPos(_NUM_) (!(_NUM_ < 0))
@@ -151,11 +161,17 @@ typedef      double         dbl; //          double
 #define RemoveConst(_TempObj_)              typename std::remove_const<_TempObj_>::type
 
 // Misc
-#define BxSameType(_TempObj_, _Comparison_)     std::is_same<_TempObj_, _Comparison_>::value
-#define BxType(_Var_, _Type_)               BxSameType(RemoveConst(RemoveRef(RemoveAllExts(std::decay_t<decltype(Input)>))), _Type_)
+#define BxSameType(_TempObj_, _Comparison_) std::is_same<_TempObj_, _Comparison_>::value
+#define BxType(_Var_, _Type_)               BxSameType(RemoveConst(RemoveRef(RemoveAllExts(std::decay_t<decltype(_Var_)>))), _Type_)
 #define BxMutexPtr(_TempObj_)               std::is_same<_TempObj_, RA::SharedPtr<RA::Mutex>>::value
 #define BxSharedPtr(_TempObj_)              RA::IsTypeSharedPtr<_TempObj_>()
 #define NotSharedPtr(_TempObj_)             RA::NotTypeSharedPtr<_TempObj_>()
+
+#define EnableIfSameType(_TempObj_, _Comparison_) typename std::enable_if<BxSameType(_TempObj_, _Comparison_), int>::type
+// Example: where you want typename B to be a bool and not an int
+// Header => template<typename B, EnableIfSameType(B, bool) = 0>
+// Source => template<typename B, EnableIfSameType(B, bool) N 
+
 
 // Get Configs
 #define GetRankCount(_TempObj_)             std::rank<_TempObj_>::value
@@ -175,6 +191,7 @@ typedef      double         dbl; //          double
 #define BxInvocable(_Function_)             std::is_invocable<RemoveRef(_Function_)>::value
 
 #define BxConstructible(_TempObj_)          std::is_constructible<_TempObj_>::value
+#define BxPolymorphic(_TempObj_)            std::is_polymorphic<_TempObj_>::value
 #define BxDefaultConstructable(_TempObj_)   std::is_default_constructible<_TempObj_>::value
 #define BxCopyAssignable(_TempObj_)         std::is_copy_assignable<RemoveRef(_TempObj_)>::value
 #define BxTrivial(_TempObj_)                std::is_trivial<RemoveRef(_TempObj_)>::value
@@ -202,9 +219,9 @@ typedef      double         dbl; //          double
 
 #define BxFunctionVA(_Function_, _Args_)    std::is_invocable<_Function_, _Args_...>::value
 #define BxFunction(_Function_) \
-    ((BxInvocable(_Function_) && _InvocableReq_(_Function_)) && !BxAggregate(_Function_) || _InvocableReq_(_Function_) && !BxAggregate(_Function_))
+    ((BxInvocable(_Function_) && _InvocableReq_(_Function_)) && !BxAggregate(_Function_) || (_InvocableReq_(_Function_) && !BxAggregate(_Function_)))
 
-#define BxObject(_Object_) !BxFunction(_Object_)
+#define BxObject(_Object_) !BxFunction(_Object_) && !BxArithmetic(_Object_)
 
 #define BxBasicFunction(_TempObj_) std::is_function<_TempObj_>::value
 
@@ -212,11 +229,13 @@ typedef      double         dbl; //          double
 #define TypeIfFunction(_RET_, _Function_)  typename std::enable_if<BxFunction(_Function_), _RET_>::type
 #define TypeIfObject(_RET_, _Object_)      typename std::enable_if<BxObject(_Object_), _RET_>::type
 #define TypeIfFundamental(_RET_, _Object_) typename std::enable_if<BxFundamental(_Object_), _RET_>::type
+#define TypeIfArithmetic(_RET_, _Object_) typename std::enable_if<BxArithmetic(_Object_), _RET_>::type
 #define RetIfTrue(_RET_, _Condition_)      typename std::enable_if<_Condition_, _RET_>::type
-
+//
 #define UsingFunction(_RET_)    TypeIfFunction(_RET_, F)
 #define UsingObject(_RET_)      TypeIfObject(_RET_, O)
 #define UsingFundamental(_RET_) TypeIfFundamental(_RET_, N)
+#define UsingArithmetic(_RET_)  TypeIfArithmetic(_RET_, N)
 
 namespace RA
 {
@@ -385,18 +404,6 @@ namespace RA
 
 #define GetType(_IN_) RemoveRef(RemovePtr(decltype(_IN_)))
 
-template<typename R, typename N>
-UsingFundamental(R) RCast(const N& Num) 
-{ 
-    if constexpr (BxUnsigned(R))
-        return static_cast<R>(round(Num));
-    else
-        return static_cast<R>(Num);
-}
-
-template<typename R, typename O>
-UsingObject(R&)     RCast(const O& Obj) { return static_cast<R&>(Obj); }
-
 namespace RA
 {
     TT2 CIN T1  Pow(const T1 FnBase, const T2 FnExp = 2.0);
@@ -410,11 +417,13 @@ namespace RA
     TT2 CIN T1   TrimZeros(const T1 FnNum, const T2 FnAccuracy);
     TT2 CIN bool Appx(const T1& FnFirst, const T2& FnSecond, const xdbl FnAcceptibleRange = 1e-12);
     TT3 CIN bool Appx(const T1& FnFirst, const T2& FnSecond, const T3& FnEndpoint1, const T3& FnEndpoint2);
+    TT2 CIN T2   Clamp(const T1& FnObj, const T2& FnLow, const T2& FnHigh);
     TT2 CIN bool Same(const T1& FnFirst, const T2& FnSecond);
     TT1 CIN T1   Abs(const T1& FnVal) { return FnVal < 0.0L ? -FnVal : FnVal; }
     TT2 CIN T1   Max(const T1& FnLeft, const T2& FnRight) { return (FnLeft > FnRight) ? FnLeft : FnRight; }
     TT2 CIN T1   Min(const T1& FnLeft, const T2& FnRight) { return (FnLeft < FnRight) ? FnLeft : FnRight; }
     TT1 CIN T1   MSE(const T1& FnInput);
+    TT1 CIN T1   Round(const T1& FnVal) { return static_cast<T1>(static_cast<long long>(FnVal + (FnVal >= 0 ? 0.5 : -0.5))); }
 
     TTT CIN T RoundToNearestPowerOf10(const T& FNum);
     TTT CIN T RoundToNearestNegativePowerOf10(const T& FNum);
@@ -456,7 +465,6 @@ TTT constexpr T RA::Log(const T FnBase)
 {
     return std::log(FnBase);
 }
-
 
 // --- CUDA -----------------------------
 #ifdef UsingMSVC
@@ -508,6 +516,14 @@ TT3 constexpr bool RA::Appx(const T1& FnFirst, const T2& FnSecond, const T3& FnE
     return RA::Appx(FnFirst, FnSecond, LnAcceptibleRange);
 }
 
+TT2 CIN T2 RA::Clamp(const T1& FnObj, const T2& FnLow, const T2& FnHigh)
+{
+    if (FnObj < FnLow)
+        return FnLow;
+    if (FnObj > FnHigh)
+        return FnHigh;
+    return static_cast<T2>(FnObj);
+}
 
 TT2 constexpr bool RA::Same(const T1& FnFirst, const T2& FnSecond)
 {
@@ -598,6 +614,8 @@ template<typename CallableFunctionT>
 using FunctionReturnType = typename decltype(std::function{ std::declval<CallableFunctionT>() })::result_type;
 #define GetFunctionReturnType(_TYPE_) FunctionReturnType<decltype(_TYPE_)>
 
+#define PrintStart() RA::Print("Starting: ", __CLASS__, " (", __LINE__, ")")
+
 // -----------------------------------------------------------------------------------------------------------------------------
 // Exception Handling
 
@@ -609,12 +627,12 @@ using FunctionReturnType = typename decltype(std::function{ std::declval<Callabl
 
 #ifndef __A_RESCUE_THROW__
 #define __A_RESCUE_THROW__ \
-    cout  << "\nException :>: " << __CLASS__ <<    " (" << __LINE__ <<  ")  "
+    cout  << "\nException -> " << __CLASS__ <<    " (" << __LINE__ <<  ")  "
 #endif
 
 #ifndef __W_RESCUE_THROW__
 #define __W_RESCUE_THROW__ \
-    wcout << L"\nException :>: " << __CLASS__ <<  L" (" << __LINE__ << L")  "
+    wcout << L"\nException -> " << __CLASS__ <<  L" (" << __LINE__ << L")  "
 #endif
 
 #undef  RescueThrow
@@ -672,12 +690,12 @@ using FunctionReturnType = typename decltype(std::function{ std::declval<Callabl
 
 #ifndef __A_RESCUE_PRINT__
 #define __A_RESCUE_PRINT__ \
-    cout <<   "\nException :>: "<< __CLASS__ <<  " (" << __LINE__ <<  ")\n\n"
+    cout <<   "\nException -> "<< __CLASS__ <<  " (" << __LINE__ <<  ")\n\n"
 #endif 
 
 #ifndef __W_RESCUE_PRINT__
 #define __W_RESCUE_PRINT__ \
-    wcout << L"\nException :>: " << __CLASS__ << L" (" << __LINE__ << L")\n\n"
+    wcout << L"\nException -> " << __CLASS__ << L" (" << __LINE__ << L")\n\n"
 #endif
 
 #undef  RescuePrint
@@ -747,4 +765,3 @@ using FunctionReturnType = typename decltype(std::function{ std::declval<Callabl
 //#define Rescue()
 //#define FinalRescue()
 //#endif
-

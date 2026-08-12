@@ -172,11 +172,11 @@ foreach(EXE ${EXES})
         if(${debug})
             LinkStatic(${EXE} vld)
         endif()
-
+        
+        LinkAllStaticLibs(${EXE})
         LinkAllSharedLibs(${EXE})
         SetAllDependenciesOn(${EXE})
         LinkStatic(${EXE} re2)
-        LinkAllStaticLibs(${EXE})
         target_link_libraries(${EXE} PRIVATE "${UsedVcpkgLibs}")
 endforeach()
 message("====================================")

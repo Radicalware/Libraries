@@ -60,7 +60,7 @@ int main()
     // NOTE: All test functions are inline to make example reading easier.
     Option option;
     option.Split();
-    option.Findall();
+    option.FindAll();
     option.Search();
     option.Match();
     option.Sub();

@@ -621,23 +621,31 @@ bool xstring::ScanList(const xvector<xp<re2::RE2>>& FvRex) const
     return false;
 }
 
-xvector<xstring> xstring::Findall(const re2::RE2& FsRex) const
+xstring xstring::FindOne(const re2::RE2& FsRex) const
+{
+    re2::StringPiece data_cpy = The;
+    xstring out;
+    while (re2::RE2::FindAndConsume(&data_cpy, FsRex, reinterpret_cast<std::string*>(&out)))
+        return out;
+    return "";
+}
+
+xvector<xstring> xstring::FindAll(const re2::RE2& FsRex) const
 {
     xvector<xstring> retv;
     re2::StringPiece data_cpy = The;
     xstring out;
     while (re2::RE2::FindAndConsume(&data_cpy, FsRex, reinterpret_cast<std::string*>(&out)))
         retv << out;
-
     return retv;
 }
 
-xvector<xstring> xstring::Findwalk(const re2::RE2& FsRex) const
+xvector<xstring> xstring::FindWalk(const re2::RE2& FsRex) const
 {
     xvector<xstring> retv;
     xvector<xstring> lines = The.Split('\n');
     for (const auto& line : lines) {
-        for (const xstring& val : line.Findall(FsRex))
+        for (const xstring& val : line.FindAll(FsRex))
             retv << val;
     }
     return retv;
@@ -685,22 +693,13 @@ xstring& xstring::InSub(const RE2& FsRex, const char* FsReplacement)
 xstring& xstring::InRemove(const char FsRex)
 {
     const auto LnSize = Size();
-    xint LnNextIdx = 0;
     xint LnTargetIdx = 0;
-    xint LnNumOfReplacements = 0;
-    for (xint i = 0; LnNextIdx < (LnSize - 1); i++)
+    for (xint LnIdx = 0; LnIdx < LnSize; ++LnIdx)
     {
-        if (The[LnNextIdx] == FsRex)
-        {
-            ++LnNextIdx;
-            ++LnNumOfReplacements;
-        }
-        else
-            The[LnTargetIdx++] = The [LnNextIdx++];
+        if (The[LnIdx] != FsRex)
+            The[LnTargetIdx++] = The[LnIdx];
     }
-
-    for (xint i = LnSize; i > LnSize - LnNumOfReplacements; --i)
-        The[i] = '\0';
+    The.resize(LnTargetIdx);
     return The;
 }
 
@@ -994,7 +993,7 @@ xstring xstring::RemoveNonAscii() const
 
 // =========================================================================================================================
 
-xvector<xstring> xstring::Findall(const std::regex& FsRex) const
+xvector<xstring> xstring::FindAll(const std::regex& FsRex) const
 {
     xvector<xstring> retv;
     for (std::sregex_token_iterator iter(The.begin(), The.end(), FsRex, 1); iter != std::sregex_token_iterator(); ++iter)
@@ -1002,15 +1001,30 @@ xvector<xstring> xstring::Findall(const std::regex& FsRex) const
     return retv;
 }
 
-xvector<xstring> xstring::Findall(const xstring& FsPattern, RXM::Type FeMod) const {
-    return The.Findall(std::regex(FsPattern, FeMod));
+xvector<xstring> xstring::FindAll(const xstring& FsPattern, RXM::Type FeMod) const {
+    return The.FindAll(std::regex(FsPattern, FeMod));
 }
 
-xvector<xstring> xstring::Findall(const char* FsPattern, RXM::Type FeMod) const {
-    return The.Findall(std::regex(FsPattern, FeMod));
+xvector<xstring> xstring::FindAll(const char* FsPattern, RXM::Type FeMod) const {
+    return The.FindAll(std::regex(FsPattern, FeMod));
 }
 
-xvector<xstring> xstring::Findwalk(const std::regex& FsRex) const
+xstring xstring::FindOne(const std::regex& FsRex) const
+{
+    for (std::sregex_token_iterator iter(The.begin(), The.end(), FsRex, 1); iter != std::sregex_token_iterator(); ++iter)
+        return xstring(*iter);
+    return "";
+}
+
+xstring xstring::FindOne(const xstring& FsPattern, RXM::Type FeMod) const {
+    return The.FindOne(std::regex(FsPattern, FeMod));
+}
+
+xstring xstring::FindOne(const char* FsPattern, RXM::Type FeMod) const {
+    return The.FindOne(std::regex(FsPattern, FeMod));
+}
+
+xvector<xstring> xstring::FindWalk(const std::regex& FsRex) const
 {
     xvector<xstring> retv;
     xvector<xstring> lines = The.Split('\n');
@@ -1021,13 +1035,15 @@ xvector<xstring> xstring::Findwalk(const std::regex& FsRex) const
     return retv;
 }
 
-xvector<xstring> xstring::Findwalk(const xstring& FsPattern, RXM::Type FeMod) const {
-    return The.Findwalk(std::regex(FsPattern, FeMod));
+xvector<xstring> xstring::FindWalk(const xstring& FsPattern, RXM::Type FeMod) const {
+    return The.FindWalk(std::regex(FsPattern, FeMod));
 }
 
-xvector<xstring> xstring::Findwalk(const char* FsPattern, RXM::Type FeMod) const {
-    return The.Findwalk(std::regex(FsPattern, FeMod));
+xvector<xstring> xstring::FindWalk(const char* FsPattern, RXM::Type FeMod) const {
+    return The.FindWalk(std::regex(FsPattern, FeMod));
 }
+
+
 
 xvector<xstring> xstring::Search(const std::regex& FsRex, int count) const
 {
@@ -1130,7 +1146,6 @@ xstring xstring::IfFindReplace(const char* LsFind, const char* LsReplace, const 
         return std::regex_replace(c_str(), std::regex(LsReplace, FeMod), LsReplacement);
     return The;
 }
-
 
 xstring& xstring::Trim()
 {
@@ -1317,8 +1332,17 @@ xint xstring::To64() const
     return std::atoll(The.c_str());
 }
 
+double xstring::ToDouble()
+{
+    if (The[0] == '.')
+        The.insert(The.begin(), '0');
+    return std::atof(The.c_str());
+}
+
 double xstring::ToDouble() const
 {
+    if (The[0] == '.')
+        return xstring(The).ToDouble();
     return std::atof(The.c_str());
 }
 
@@ -1414,14 +1438,14 @@ xstring xstring::ToInvertedColor() const {
 // =================================================================================================================================
 
 xstring RA::WTXS(const wchar_t* wstr) {
-    if (!wstr)
+    if (!wstr || !*wstr)
         return xstring::StaticClass;
     xstring str;
     const xint Max = wcslen(wstr);
     str.resize(Max);
-    xint loc = 0;
-    for (const wchar_t* ptr = wstr; Max > loc; ptr++)
-        str[loc++] = static_cast<char>(*ptr);
+    char* dst = str.data();
+    for (xint i = 0; i < Max; ++i)
+        dst[i] = static_cast<char>(wstr[i]);
     return str;
 }
 
@@ -1429,7 +1453,7 @@ xstring RA::WTXS(const std::wstring& wstr) {
     if (!wstr.size())
         return xstring::StaticClass;
     xstring str;
-    str.resize(wcslen(wstr.c_str()));
+    str.resize(wstr.size());
     xint loc = 0;
     for(auto Char : wstr)
         str[loc++] = static_cast<char>(Char); // can't use std::move between 2 different types

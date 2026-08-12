@@ -87,7 +87,7 @@ public:
     template<typename F, typename... A>
     inline void Proc(F&& function, A&& ...Args);
     template<typename F, typename... A>
-    inline void ThreadProc(F&& function, A&& ...Args);
+    inline void ProcThread(F&& function, A&& ...Args);
 
     // R = Return Type  ||  T = Nexus Type
     template<typename R = K, typename F, typename ...A>
@@ -104,6 +104,7 @@ public:
     inline void Print(int num) const;
     // ======== Functional ===========================================================================
 };
+
 
 // ======== INITALIZATION ========================================================================
 
@@ -412,7 +413,7 @@ inline void xmap<K, V, H>::Proc(F&& function, A&& ...Args)
 
 template<typename K, typename V, typename H>
 template<typename F, typename... A>
-inline void xmap<K, V, H>::ThreadProc(F&& function, A&& ...Args)
+inline void xmap<K, V, H>::ProcThread(F&& function, A&& ...Args)
 {
     for (typename xmap<K, V, H>::iterator iter = this->begin(); iter != this->end(); ++iter)
         Nexus<>::AddTaskPair(function, iter->first, iter->second, std::ref(Args)...);
@@ -495,7 +496,7 @@ inline void xmap<K, V, H>::Print(int num) const
     char* new_lines = static_cast<char*>(calloc(static_cast<size_t>(num) + 1, sizeof(char)));
     // calloc was used instead of "new" because "new" would give un-wanted after-effects.
     for (int i = 0; i < num; i++)
-#pragma warning(suppress:6011) // we are derferencing a pointer, but assigning it a value at the same time
+#pragma warning(suppress:6011) // we are derencing a pointer, but assigning it a value at the same time
         new_lines[i] = '\n';
     std::cout << new_lines;
     free(new_lines);

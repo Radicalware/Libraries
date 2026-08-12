@@ -388,7 +388,7 @@ xstring RA::OS::InstRead()
 }
 
 
-xstring RA::OS::ReadFile(const xstring& FsFilename, bool FbRetry, bool FbUseBinaries)
+xstring RA::OS::ReadFileSlow(const xstring& FsFilename, bool FbRetry, bool FbUseBinaries)
 {
     Begin();
     if (!FsFilename.size())
@@ -442,22 +442,10 @@ xstring RA::OS::ReadFile(const xstring& FsFilename, bool FbRetry, bool FbUseBina
     rets.reserve(file_size);
     if (rbuffer && !FbUseBinaries)
     {
-        int NonASCIICount = 0;
         for (auto i = 0; i < file_size; i++)
         {
             if (rbuffer[i] > 0 && rbuffer[i] < 128)
-            {
                 rets += rbuffer[i];
-            }
-            else if(rbuffer[i] > 128)
-                NonASCIICount++;
-
-            if (NonASCIICount > 10)
-            {
-                free(rbuffer);
-                if (fp) fclose(fp);
-                return xstring();
-            }
         }
         free(rbuffer);
         if (fp) fclose(fp);
@@ -608,7 +596,7 @@ RA::OS RA::OS::Write(const xstring& content, bool store /* = false */)
 }
 
 
-xvector<xstring> RA::OS::Dir(const xstring& folder_start, const char mod1, const char mod2, const char mod3)
+xvector<xstring> RA::OS::GetDirectories(const xstring& folder_start, const char mod1, const char mod2, const char mod3)
 {
     Begin();
     // recursive = search foldres recursivly

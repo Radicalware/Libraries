@@ -72,7 +72,7 @@ RA::Stash& RA::Stash::SetCollection(const xstring& FsCollection)
 void RA::Stash::SetUniqueIndex(const xstring& Key, const bool FbAscending)
 {
     Begin()
-    auto LoIndexBuilder = BSON::Document();
+    auto LoIndexBuilder = BSON::Builder();
     LoIndexBuilder.append(BSON::KVP(Key.ToStdString(), static_cast<int>(FbAscending))); // 1 for ascending order
     auto LoOptions = mongocxx::options::index{};
     if(Key != "_id")
@@ -98,29 +98,29 @@ void RA::Stash::DropCollection()
     Rescue();
 }
 
-BSON::Result::InsertOne RA::Stash::operator<<(const BSON::Value& FoView)
+RA::BSON::Result::InsertOne RA::Stash::operator<<(const BSON::Value& FoView)
 {
     Begin();
     return MoCollection.insert_one(FoView.view());
     Rescue();
 }
 
-BSON::Result::InsertOne RA::Stash::operator<<(const xstring& FoJsonStr)
+RA::BSON::Result::InsertOne RA::Stash::operator<<(const xstring& FoJsonStr)
 {
     Begin();
     return *this << bsoncxx::from_json(FoJsonStr.c_str());
     Rescue();
 }
 
-RA::JSON RA::Stash::CursorToJSON(BSON::Cursor& FoCursor, RA::JSON::Init FeInit)
+RA::JSON RA::Stash::CursorToJSON(BSON::Cursor& FoCursor)
 {
     Begin();
     std::ostringstream Json;
     xint Count = 0;
 
     Json << '[';
-    for (const BSON::View& Document : FoCursor)
-        Json << bsoncxx::to_json(Document);
+    for (const BSON::View& Builder : FoCursor)
+        Json << bsoncxx::to_json(Builder);
     Json << ']';
 
     if(Count == 0)
@@ -129,50 +129,85 @@ RA::JSON RA::Stash::CursorToJSON(BSON::Cursor& FoCursor, RA::JSON::Init FeInit)
     if (Count == 1)
     {
         auto JsonStr = xstring(Json);
-        return RA::JSON(JsonStr(1, -1), FeInit);
+        return RA::JSON(JsonStr(1, -1));
     }
 
-    return RA::JSON(Json, FeInit);
+    return RA::JSON(Json);
 
     Rescue();
 }
 
-RA::JSON RA::Stash::GetAll(const int FnOrder, RA::JSON::Init FeInit)
+RA::JSON RA::Stash::ToJSON(const EOrder FnOrder)
 {
     Begin();
     auto LoCursor = MoCollection.find(
-        BSON::MakeDocument(),
-        mongocxx::options::find{}.sort(BSON::MakeDocument(bsoncxx::builder::basic::kvp("_id", FnOrder)))
+        BSON::NewBuilderKVP(),
+        mongocxx::options::find{}.sort(BSON::NewKVP("_id", static_cast<int>(FnOrder)))
     );
-    auto LoJSON = xstring('[');
+
+    auto LsJSON = xstring();
+    int LnCount = 0;
     for (auto&& doc : LoCursor)
-        LoJSON += bsoncxx::to_json(doc) + ',';
-    if (LoJSON.Last() == ',')
-        LoJSON.Last() = ']';
+    {
+        if (LnCount == 1)
+        {
+            LsJSON.insert(0, "[");
+        }
+        LsJSON += bsoncxx::to_json(doc) + ',';
+        if(LnCount == 0)
+            ++LnCount;
+        else if (LnCount == 1)
+            ++LnCount;
+    }
+    if(LnCount > 1)
+        LsJSON.Last() = ']';
     else
-        LoJSON += ']';
-    return LoJSON;
+        LsJSON.erase(LsJSON.size() - 1);
+    return LsJSON;
     Rescue();
 }
 
-RA::JSON RA::Stash::FindOne(const BSON::Data& FnData, RA::JSON::Init FeInit)
+RA::JSON RA::Stash::FindOne(const BSON::Data& FnData)
 {
     Begin();
-    return RA::JSON(MoCollection.find_one(FnData).value(), FeInit);
+    const auto LoJson = MoCollection.find_one(FnData);
+    if (!LoJson || LoJson->length() == 0)
+        return RA::JSON();
+    return RA::JSON(LoJson.value());
     Rescue();
 }
 
-RA::JSON RA::Stash::FindMany(const BSON::Data& FnData, RA::JSON::Init FeInit)
+RA::JSON RA::Stash::FindOne(const BSON::Value& FnData)
+{
+    return FindOne(RA::BSON::ToData(FnData));
+}
+
+RA::JSON RA::Stash::FindOne(const BSON::Builder& FnData)
+{
+    Begin();
+    const auto LoJson = MoCollection.find_one(FnData.view());
+    if (!LoJson || LoJson->length() == 0)
+        return RA::JSON();
+    return RA::JSON(LoJson.value());
+    Rescue();
+}
+
+RA::JSON RA::Stash::FindMany(const BSON::Data& FnData)
 {
     Begin();
     auto Data = MoCollection.find(FnData);
-    return RA::Stash::CursorToJSON(Data, FeInit);
+    return RA::Stash::CursorToJSON(Data);
     Rescue();
 }
 
-// AppendDocument(BSON::Document().extract()).extract());
-BSON::Document RA::Stash::AppendDocument(const BSON::Document& FoSource) {
-    auto LoTarget = BSON::Document();
+RA::JSON RA::Stash::FindMany(const BSON::Value& FnData)
+{
+    return FindMany(RA::BSON::ToData(FnData));
+}
+
+// AppendDocument(BSON::Builder().extract()).extract());
+RA::BSON::Builder RA::Stash::AppendDocument(const BSON::Builder& FoSource) {
+    auto LoTarget = BSON::Builder();
     for (const auto& element : FoSource.view())
         LoTarget.append(BSON::KVP(std::string(element.key().data(), element.key().length()), element.get_value()));
     return LoTarget;
@@ -183,7 +218,7 @@ std::map<RA::Date, xmap<xstring, double>> RA::Stash::TimeSeriesObjToMap(const RA
 {
     Begin();
     auto LmResults = std::map<RA::Date, xmap<xstring, double>>();
-    for (const auto& item : FoJson.GetJsonObject()) {
+    for (const auto& item : FoJson.AsObject()) {
         const auto& LoDailyData = item.second.as_object();
         auto LmVals = xmap<xstring, double>();
         for (const auto& Pair : LoDailyData)
@@ -194,7 +229,7 @@ std::map<RA::Date, xmap<xstring, double>> RA::Stash::TimeSeriesObjToMap(const RA
                 xstring(Pair.first).Sub(re2::RE2(R"(^\d+\. )"), ""),
                 std::stod(Pair.second.as_string())); // << std::stod(LmVals.second.as_string());
         }
-        LmResults[RA::Date(item.first)] = LmVals;
+        LmResults[RA::Date(RA::ETimeZone::UTC, item.first)] = LmVals;
     }
     return LmResults;
     Rescue();
@@ -204,14 +239,14 @@ std::map<RA::Date, xmap<xstring, double>> RA::Stash::TimeSeriesArrToMap(const RA
 {
     Begin();
     auto LmResults = std::map<RA::Date, xmap<xstring, double>>();
-    for (const auto& LoJSON : FoJson.GetJsonArray()) 
+    for (const web::json::value& LoJSON : FoJson.AsArray()) 
     {
         auto LmVals = xmap<xstring, double>();
         xp<RA::Date> LoDatePtr;
         for (const auto& Pair : LoJSON.as_object())
         {
             if (Pair.first == L"_id")
-                LoDatePtr = MKP<RA::Date>(Pair.second.as_integer());
+                LoDatePtr.New(RA::ETimeZone::UTC, Pair.second.as_integer());
             else if (xstring(Pair.first).Match(SoDateTimeRex)) // Pair.first is wchar*
                 continue;
             else
@@ -225,91 +260,107 @@ std::map<RA::Date, xmap<xstring, double>> RA::Stash::TimeSeriesArrToMap(const RA
     Rescue();
 }
 
-BSON::Result::InsertMany RA::Stash::InsertMany(const xvector<BSON::Value>& FvBSON)
+RA::BSON::Result::InsertMany RA::Stash::InsertMany(const xvector<BSON::Value>& FvBSON)
 {
     Begin();
     return MoCollection.insert_many(FvBSON);
     Rescue();
 }
 
-BSON::Result::Update RA::Stash::UpdateOne(const BSON::Value& FoFind, const BSON::Value& FoReplace)
+RA::BSON::Result::Update RA::Stash::UpdateOne(const BSON::View& FoFind, const BSON::View& FoReplace)
 {
     Begin();
-    return MoCollection.update_one(FoFind.view(), FoReplace.view());
+    return MoCollection.update_one(FoFind, FoReplace);
     Rescue();
 }
 
-BSON::Result::Update RA::Stash::UpdateMany(const BSON::Value& FoFind, const BSON::Value& FoReplace)
+RA::BSON::Result::Update RA::Stash::UpdateMany(const BSON::View& FoFind, const BSON::View& FoReplace)
 {
     Begin();
-    return MoCollection.update_many(FoFind.view(), FoReplace.view());
+    return MoCollection.update_many(FoFind, FoReplace);
     Rescue();
 }
 
-BSON::Result::Update RA::Stash::UpsertOne(const BSON::Document& FoUpdate, const BSON::Value& FoFilter) {
+RA::BSON::Result::Update RA::Stash::UpsertOne(const BSON::View& FoFilter, const BSON::Value& FoUpdate) {
     Begin();
     return The.MoCollection.update_one(
-        FoFilter.view(),
-        BSON::MakeDocument(
-            BSON::KVP("$set", FoUpdate)
-        ),
+        FoFilter,
+        BSON::NewKVP("$set", FoUpdate),
         BSON::Options{}.upsert(true)
     );
     Rescue();
 }
 
-xmap<RA::Date::EpochTime, BSON::Result::Update>
+RA::BSON::Result::Update RA::Stash::UpsertOne(const BSON::View& FoFilter, const BSON::Builder& FoUpdate) {
+    Begin();
+    return The.MoCollection.update_one(
+        FoFilter,
+        BSON::NewKVP("$set", FoUpdate),
+        BSON::Options{}.upsert(true)
+    );
+    Rescue();
+}
+
+xmap<RA::Date::EpochTime, RA::BSON::Result::Update>
 RA::Stash::UpsertTimeSeries(const xmap<RA::Date, xmap<xstring, double>>& FoDataMap, const xstring& FsAppend) {
     Begin();
     auto LvResults = xmap<RA::Date::EpochTime, BSON::Result::Update>();
-    for (const auto& LmDateVec : FoDataMap) {
-        //auto LoFilter = BSON::MakeDocument(BSON::KVP("_id", BSON::OID(LmDateVec.first.GetEpochTimeStr().Ptr(), 12)));
-        const auto LnTime = static_cast<int>(LmDateVec.first.GetEpochTime());
-        const auto LoFilter = BSON::MakeDocument(BSON::KVP("_id", LnTime));
-        auto LoInnerDocBuilder = BSON::Document();
-        LoInnerDocBuilder.append(BSON::KVP("DateTime", LmDateVec.first.GetStr().ToStdString()));
+    for (const auto& LmDateVec : FoDataMap) 
+    {
+        const auto LsTime = BSON::MakeEpochOID(LmDateVec.first.GetEpochTime());
+        const auto LoFilter = BSON::NewKVP("_id", LsTime);
+        auto LoInnerDocBuilder = BSON::Builder();
+        LoInnerDocBuilder.append(BSON::KVP("DateTime", LmDateVec.first.RetStr(RA::ETimeFormat::DateTime).ToStdString()));
         for (const auto& Pair : LmDateVec.second)
             LoInnerDocBuilder.append(BSON::KVP(Pair.first.ToStdString() + FsAppend, Pair.second));
-        if (!LvResults.Has(LnTime))
-            LvResults.AddPair(
-                LnTime,
-                UpsertOne(LoInnerDocBuilder, LoFilter));
-        else
-            cout << "Error: Duplicate Key: " << LnTime << endl;
+        LvResults.AddPair(
+            LmDateVec.first.GetEpochTime(),
+            UpsertOne(LoFilter, LoInnerDocBuilder));
     }
     return LvResults;
     Rescue();
 }
 
-BSON::Result::Delete RA::Stash::DeleteOne(const BSON::Data& FnDocument)
+RA::BSON::Result::Delete RA::Stash::DeleteOne(const BSON::View& FnDocument)
+{
+    return MoCollection.delete_one(FnDocument);
+}
+
+RA::BSON::Result::Delete RA::Stash::DeleteOne(const BSON::Data& FnDocument)
 {
     Begin();
     return MoCollection.delete_one(FnDocument);
     Rescue();
 }
 
-BSON::Result::Delete RA::Stash::DeleteMany(const BSON::Data& FnDocument)
+RA::BSON::Result::Delete RA::Stash::DeleteMany(const BSON::View& FnDocument)
+{
+    return MoCollection.delete_many(FnDocument);
+}
+
+RA::BSON::Result::Delete RA::Stash::DeleteMany(const BSON::Data& FnDocument)
 {
     Begin();
     return MoCollection.delete_many(FnDocument);
     Rescue();
 }
 
-RA::JSON RA::Stash::Sort(const xstring& FoKey, const int FnDirection, const RA::JSON::Init FeInit)
+
+RA::JSON RA::Stash::Sort(const xstring& FoKey, const int FnDirection)
 {
     Begin();
     BSON::Pipeline Pipeline{};
     Pipeline.sort(MongoKVP(FoKey.ToStdString(), FnDirection));
     BSON::Cursor Cursor = MoCollection.aggregate(Pipeline, BSON::Aggregate{});
-    return RA::Stash::CursorToJSON(Cursor, FeInit);
+    return RA::Stash::CursorToJSON(Cursor);
     Rescue();
 }
 
-RA::JSON RA::Stash::Aggrigate(const BSON::Pipeline& FoPipeline, const RA::JSON::Init FeInit)
+RA::JSON RA::Stash::Aggrigate(const BSON::Pipeline& FoPipeline)
 {
     Begin();
     BSON::Cursor Cursor = MoCollection.aggregate(FoPipeline, BSON::Aggregate{});
-    return RA::Stash::CursorToJSON(Cursor, FeInit);
+    return RA::Stash::CursorToJSON(Cursor);
     Rescue();
 }
 

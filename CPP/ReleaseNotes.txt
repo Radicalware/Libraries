@@ -4,6 +4,15 @@
 
 ---------------------------------------------------------------------
 
+08/11/2026 >> Libs v24.3.0
+
+Large updates to the RA::Stash, RA::JSON, RA::Date
+This was primarly to help with data handling. 
+Check out the new RA::Stash examples to see how you can more easily
+handle your MongoCXX data parsing!!
+
+---------------------------------------------------------------------
+
 9/23/2024 >> Libs v24.1.0
 
 Updated the .vscode dir so it can be easily coppied to use in any

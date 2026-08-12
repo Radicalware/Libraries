@@ -3,12 +3,6 @@
 #include <nlohmann/json.hpp>
 #include <cpprest/json.h>
 
-#define ThrowNoJSON() \
-    if (!MoFullJsonPtr.get())  ThrowIt("No JSON");
-
-#define ThrowNoBSON() \
-    if (!MoBsonValuePtr.get()) ThrowIt("No BSON");
-
 void RA::JSON::Print(const web::json::value& FoWebJson)
 {
     Begin();
@@ -21,552 +15,322 @@ void RA::JSON::Print(const web::json::value& FoWebJson)
     RescueThrow();
 }
 
-void RA::JSON::Clear()
+void RA::JSON::Print(const RA::JSON& FoWebJson)
 {
-    MoBsonValuePtr.reset();
-    MoFullJsonPtr.reset();
-    MoZoomedJsonPtr.reset();
+    Print(SCast<web::json::value>(FoWebJson));
 }
 
 RA::JSON::~JSON()
 {
-    Clear();
 }
 
-RA::JSON::JSON(const xstring& FoString, Init FeInit)
+RA::JSON::JSON(const xstring& FoString) : value(web::json::value::object())
 {
     if (!FoString.Size())
         ThrowIt("No Input");
-    Set(FoString, FeInit);
+    Set(FoString);
 }
 
-RA::JSON::JSON(const BSON::Value& FoBSON, Init FeInit)
+RA::JSON::JSON(const BSON::Value& FoBSON) : value(web::json::value::object())
 {
-    Set(FoBSON, FeInit);
+    Set(FoBSON);
 }
 
-RA::JSON::JSON(const web::json::value& FoJson, Init FeInit)
+RA::JSON::JSON(const web::json::value& FoJson) : value(web::json::value::object())
 {
-    Set(FoJson, FeInit);
+    Set(FoJson);
 }
 
 void RA::JSON::operator=(const RA::JSON& Other)
 {
-    MoBsonValuePtr.Clone(Other.MoBsonValuePtr);
-    MoFullJsonPtr.Clone(Other.MoFullJsonPtr);
-    MoZoomedJsonPtr.Clone(Other.MoZoomedJsonPtr);
+    if (Other.is_null())
+        web::json::value::operator=(web::json::value::null());
+    else if (Other.is_boolean())
+        web::json::value::operator=(web::json::value::boolean(Other.as_bool()));
+    else if (Other.is_double())
+        web::json::value::operator=(web::json::value::number(Other.as_double()));
+    else if (Other.is_integer())
+        web::json::value::operator=(web::json::value::number(Other.as_integer()));
+    else if (Other.is_string())
+        web::json::value::operator=(web::json::value::string(Other.as_string()));
+    else
+        web::json::value::operator=(static_cast<const web::json::value&>(Other));
 }
 
 void RA::JSON::operator=(JSON&& Other) noexcept
 {
-    MoBsonValuePtr  = std::move(Other.MoBsonValuePtr);
-    MoFullJsonPtr   = std::move(Other.MoFullJsonPtr);
-    MoZoomedJsonPtr = std::move(Other.MoZoomedJsonPtr);
+    if (Other.is_null())
+        web::json::value::operator=(web::json::value::null());
+    else if (Other.is_boolean())
+        web::json::value::operator=(web::json::value::boolean(Other.as_bool()));
+    else if (Other.is_double())
+        web::json::value::operator=(web::json::value::number(Other.as_double()));
+    else if (Other.is_integer())
+        web::json::value::operator=(web::json::value::number(Other.as_integer()));
+    else if (Other.is_string())
+        web::json::value::operator=(web::json::value::string(Other.as_string()));
+    else
+        web::json::value::operator=(static_cast<web::json::value&&>(Other));
 }
 
-void RA::JSON::SetJSON(const xstring& FoString)
+RA::JSON& RA::JSON::operator[](const std::wstring& FsKey)
+{
+    return static_cast<RA::JSON&>(web::json::value::operator[](FsKey));
+}
+
+RA::JSON& RA::JSON::operator[](const wchar_t* FsKey)
+{
+    return static_cast<RA::JSON&>(web::json::value::operator[](std::wstring(FsKey)));
+}
+
+RA::JSON& RA::JSON::operator=(const std::wstring& FsValue)
+{
+    web::json::value::operator=(web::json::value::string(FsValue));
+    return The;
+}
+
+RA::JSON& RA::JSON::operator=(const wchar_t* FsValue)
+{
+    return The = std::wstring(FsValue);
+}
+
+RA::BSON::Value RA::JSON::ToBSON(const xstring& FsObject)
+{
+    return bsoncxx::from_json(FsObject.c_str());
+}
+
+RA::BSON::Value RA::JSON::ToBSON() const
+{
+    return ToBSON(GetSingleLineJson());
+}
+
+void RA::JSON::Set(xstring&& FoString)
 {
     Begin();
-    //static const RE2 LsOID(R"(\$oid)");
-    //utility::stringstream_t StringStream;
-    //StringStream << '[';
-    //if (FoString.Has('$'))
-    //    StringStream << FoString.Sub(LsOID, "oid").Ptr();
-    //else
-    //    StringStream << FoString.Ptr();
-    //StringStream << ']';
-
-
-    auto HandleIncommingStr = [this](const xstring& FFoString) ->void
+    if (FoString.Last() == ',')
     {
-        if (FFoString.Has('$'))
-        {
-            if (!MoFullJsonPtr)
-                MoFullJsonPtr = RA::MakeShared<web::json::value>(web::json::value::parse(FFoString.Remove('$').Ptr()));
-            else
-                *MoFullJsonPtr = web::json::value::parse(FFoString.Remove('$').Ptr());
-        }
-        else
-        {
-            if (!MoFullJsonPtr)
-                MoFullJsonPtr = RA::MakeShared<web::json::value>(web::json::value::parse(FFoString.Ptr()));
-            else
-                *MoFullJsonPtr = web::json::value::parse(FFoString.Ptr());
-        }
-    };
-
-    auto Last1 = FoString.Last();
-    auto Last2 = FoString[FoString.size() - 1];
-    if(Last1 != Last2)
-        cout << "not equal: " << Last1 << " " << Last2 << endl;
-    if (Last2 == ',')
-    {
-        xstring LoString = '[' + FoString;
-        LoString.Last() = ']';
-        HandleIncommingStr(LoString);
+        FoString.insert(FoString.begin(), '[');
+        FoString.Last() = ']';
     }
-    else
-        HandleIncommingStr(FoString);
-
-    MoZoomedJsonPtr = nullptr;
+    The = web::json::value::parse(SCast<std::string>(FoString.InRemove('$')));
     RescueThrow([&FoString]() { RA::JSON(FoString).GetPrettyJson().Print(); });
 }
 
-void RA::JSON::SetBSON(const BSON::Value& FoBSON)
+void RA::JSON::Set(const xstring& FoString)
 {
     Begin();
-    if (MoBsonValuePtr == nullptr)
-        MoBsonValuePtr = RA::MakeShared<BSON::Value>(FoBSON);
-    else
-        *MoBsonValuePtr = FoBSON;
-    MoZoomedJsonPtr = nullptr;
-    RescueThrow([this]() { RA::JSON(The).ZoomReset().GetPrettyJson().Print(); });
-}
-
-void RA::JSON::Set(const xstring& FoString, Init FeInit)
-{
-    Begin();
-    if (FoString == "null")
-        return;
-
-    if (FeInit == Init::Default)
+    auto LoString = FoString;
+    if (LoString.Last() == ',')
     {
-        SetJSON(FoString);
-        return;
+        LoString.insert(LoString.begin(), '[');
+        LoString.Last() = ']';
     }
-
-    if(FeInit == Init::Both || FeInit == Init::JSON) // not exclusive to only JSON
-        SetJSON(FoString);
-    if(FeInit == Init::Both || FeInit == Init::BSON)
-        SetBSON(bsoncxx::from_json(FoString.c_str()));
-
-    RescueThrow([this]() { RA::JSON(The).ZoomReset().GetPrettyJson().Print(); });
+    The = web::json::value::parse(SCast<std::string>(LoString.InRemove('$')));
+    RescueThrow([&FoString]() { RA::JSON(FoString).GetPrettyJson().Print(); });
 }
 
-void RA::JSON::Set(const BSON::Value& FoBSON, Init FeInit)
+void RA::JSON::Set(const BSON::Value& FoBSON)
 {
     Begin();
-    if (FeInit == Init::Default)
-        FeInit = Init::Both;
-
-    if (FeInit == Init::Both || FeInit == Init::BSON)  // If not exclusivly only JSON
-        SetBSON(FoBSON);
-
-    if (FeInit == Init::Both || FeInit == Init::JSON)
-        SetJSON(bsoncxx::to_json(FoBSON));
-    RescueThrow([this]() { RA::JSON(The).ZoomReset().GetPrettyJson().Print(); });
+    Set(FoBSON.view());
+    RescueThrow([this]() { GetPrettyJson().Print(); });
 }
 
-void RA::JSON::Set(const web::json::value& FoJson, Init FeInit)
+void RA::JSON::Set(const BSON::View& FoBSON)
+{
+    Begin();
+    The = BSONViewToJson(FoBSON);
+    RescueThrow([this]() { GetPrettyJson().Print(); });
+}
+
+void RA::JSON::Set(const web::json::value& FoJson)
 {
     Begin();
     if (FoJson.is_null())
         return;
-    if (FeInit == Init::Default)
-        FeInit = Init::Both;
+    web::json::value::operator=(FoJson);
+    RescueThrow([this]() { GetPrettyJson().Print(); });
+}
 
-    try
+template<typename T>
+web::json::value RA::JSON::BSONElementToJson(const T& FoElem)
+{
+    switch (FoElem.type())
     {
-        if (FeInit == Init::Both || FeInit == Init::JSON) // If not exclusivly only BSON
-        {
-            if (MoFullJsonPtr == nullptr)
-                MoFullJsonPtr = RA::MakeShared<web::json::value>(FoJson);
-            else
-                *MoFullJsonPtr = FoJson;
-        }
-        if ((FeInit == Init::Both || FeInit == Init::BSON) && !IsNull())
-            SetBSON(bsoncxx::from_json(GetSingleLineJson().c_str()));
-    }
-    catch (...)
+    case bsoncxx::type::k_string:
+        return web::json::value::string(
+            utility::conversions::to_string_t(std::string(FoElem.get_string().value)));
+    case bsoncxx::type::k_int32:
+        return web::json::value::number(FoElem.get_int32().value);
+    case bsoncxx::type::k_int64:
+        return web::json::value::number(FoElem.get_int64().value);
+    case bsoncxx::type::k_double:
+        return web::json::value::number(FoElem.get_double().value);
+    case bsoncxx::type::k_bool:
+        return web::json::value::boolean(FoElem.get_bool().value);
+    case bsoncxx::type::k_document:
+        return BSONViewToJson(FoElem.get_document().value);
+    case bsoncxx::type::k_array:
     {
-        ThrowIt("Error >>\n", ZoomReset().GetPrettyJson());
+        web::json::value LoArr = web::json::value::array();
+        int LnIdx = 0;
+        for (const auto& LoItem : FoElem.get_array().value)
+            LoArr[LnIdx++] = BSONElementToJson(LoItem);
+        return LoArr;
     }
-    MoZoomedJsonPtr = nullptr;
-    RescueThrow([this]() { RA::JSON(The).ZoomReset().GetPrettyJson().Print(); });
+    // ... handle k_oid, k_date, k_null, etc. as needed
+    default:
+        return web::json::value::null();
+    }
+}
+
+web::json::value RA::JSON::BSONViewToJson(const BSON::View& FoBSON)
+{
+    web::json::value LoResult = web::json::value::object();
+    for (const auto& LoElem : FoBSON)
+    {
+        auto LoKey = utility::conversions::to_string_t(std::string(LoElem.key()));
+        LoResult[LoKey] = BSONElementToJson(LoElem);
+    }
+    return LoResult;
 }
 
 xstring RA::JSON::GetPrettyJson(const int FnSpaceCount, const char FcIndentChar, const bool FbEnsureAscii) const
 {
     Begin();
-    if (MoFullJsonPtr == nullptr)
-        return "null";
-    const web::json::value& JsonTarget = (MoZoomedJsonPtr) ? *MoZoomedJsonPtr : *MoFullJsonPtr;
-    if (JsonTarget.is_null())
+    if (The.is_null())
         return "{ null }\n";
-    return nlohmann::json::parse(WTXS(JsonTarget.serialize().c_str()).c_str())
+    return nlohmann::json::parse(WTXS(serialize().c_str()).c_str())
         .dump(FnSpaceCount, FcIndentChar, FbEnsureAscii).c_str();
-    RescueThrow([this]() { RA::JSON(The).ZoomReset().GetPrettyJson().Print(); });
+    RescueThrow([this]() { GetPrettyJson().Print(); });
 }
 
 xstring RA::JSON::GetSingleLineJson() const
 {
     Begin();
-    const web::json::value& JsonTarget = (MoZoomedJsonPtr) ? *MoZoomedJsonPtr : *MoFullJsonPtr;
-    if (JsonTarget.is_null())
+    if (The.is_null())
         return "{ null }\n";
-    return nlohmann::json::parse(WTXS(GetJSON().serialize().c_str()).c_str()).dump(4, ' ', true).c_str();
-    RescueThrow([this]() { RA::JSON(The).ZoomReset().GetPrettyJson().Print(); });
+    return nlohmann::json::parse(WTXS(serialize().c_str()).c_str()).dump(4, ' ', true).c_str();
+    RescueThrow([this]() { GetPrettyJson().Print(); });
 }
 
 void RA::JSON::PrintJson() const
 {
     Begin();
-    const web::json::value& JsonTarget = (MoZoomedJsonPtr) ? *MoZoomedJsonPtr : *MoFullJsonPtr;
-    if (JsonTarget.is_null())
+    GetPrettyJson().Print();
+    RescueThrow();
+}
+
+RA::JSON& RA::JSON::At(const xint Idx, const bool FbSilentError)
+{
+    Begin();
+    if (!is_array())
+        ThrowIt("JSON is not an array");
+    return SCast<JSON&>(at(Idx));
+    RescueThrow([&]() { if (!FbSilentError) GetPrettyJson().Print(); });
+}
+
+const RA::JSON& RA::JSON::At(const xint Idx, const bool FbSilentError) const
+{
+    return const_cast<JSON*>(this)->At(Idx, FbSilentError);
+}
+
+RA::JSON& RA::JSON::KeyFC(const char* FsKey, const bool FbSilentError)
+{
+    Begin();
+    size_t Size = strlen(FsKey) + 1;
+    std::wstring LsWide(Size - 1, L'\0');
+    for (size_t i = 0; i < Size - 1; ++i)
+        LsWide[i] = static_cast<wchar_t>(static_cast<unsigned char>(FsKey[i]));
+    Key(LsWide);
+    return The;
+    RescueThrow([&]() { if (!FbSilentError) GetPrettyJson().Print(); });
+}
+
+RA::JSON& RA::JSON::KeyFC(const xstring& FsKey, const bool FbSilentError)
+{
+    Begin();
+    return Key(FsKey.ToStdWString());
+    RescueThrow([&]() { if (!FbSilentError) GetPrettyJson().Print(); });
+}
+
+RA::JSON& RA::JSON::Key(const std::wstring& FsKey, const bool FbSilentError)
+{
+    Begin();
+    
+    if (is_array())
     {
-        cout << "{ null }\n";
-        return;
-    }
-    std::cout << nlohmann::json::parse(WTXS(GetJSON().serialize().c_str()).c_str()).dump(4, ' ', true).c_str() << std::endl;
-    RescueThrow([this]() { RA::JSON(The).ZoomReset().GetPrettyJson().Print(); });
-}
-
-bool RA::JSON::IsNull() const
-{
-    Begin();
-    if (MoFullJsonPtr == nullptr && MoBsonValuePtr == nullptr)
-        return true;
-    if (MoBsonValuePtr)
-        return false;
-    GSS(MoFullJson);
-    return MoFullJson.is_null();
-    RescueThrow([this]() { RA::JSON(The).ZoomReset().GetPrettyJson().Print(); });
-}
-
-bool RA::JSON::Has(const xstring& FsObjectName) const
-{
-    Begin();
-    GSS(MoFullJson);
-    return MoFullJson.has_field(FsObjectName.ToStdWString());
-    RescueThrow([this]() { RA::JSON(The).ZoomReset().GetPrettyJson().Print(); });
-}
-
-bool RA::JSON::Has(const wchar_t* FsObjectName) const
-{
-    Begin();
-    GSS(MoFullJson);
-    return MoFullJson.has_field(FsObjectName);
-    RescueThrow([this]() { RA::JSON(The).ZoomReset().GetPrettyJson().Print(); });
-}
-
-xint RA::JSON::Size() const
-{
-    Begin();
-    if (MoZoomedJsonPtr)
-        return MoZoomedJsonPtr->size();
-    else if (MoFullJsonPtr)
-        return MoFullJsonPtr->size();
-    else if (MoBsonValuePtr)
-        return MoBsonValuePtr->view().length();
-    else
-        return 0;
-    RescueThrow([this]() { RA::JSON(The).ZoomReset().GetPrettyJson().Print(); });
-}
-
-RA::JSON& RA::JSON::Zoom(const xint Idx)
-{
-    Begin();
-    GSS(MoFullJson);
-    if (MoFullJson.to_string() == L"null")
-        return *this;
-    if (MoZoomedJsonPtr == nullptr)
-    {
-        try
-        {
-            MoZoomedJsonPtr = RA::MakeShared<web::json::value>(MoFullJson.at(Idx));
+        if (size() == 1) {
+            if (at(0).is_object())
+                return SCast<JSON&>(at(0).as_object()[FsKey]);
+            ThrowIt("Index 0 has no object");
         }
-        catch (...)
-        {
-            cout << "Start of Failed JSON: " << WTXS(MoFullJson.to_string().c_str())(0, 100) << endl;
-            ThrowIt("Failed to Get JSON");
-        }
+        ThrowIt("JSON is an array, use At() instead of Key()");
     }
-    else
+    else if (is_object())
     {
-        GSS(MoZoomedJson);
-        MoZoomedJson = MoZoomedJson.at(Idx);
+        if (has_field(FsKey))
+            return SCast<JSON&>(as_object()[FsKey]);
+        ThrowIt("JSON Has No Key: ", FsKey);
     }
-    return *this;
-    RescueThrow([this]() { RA::JSON(The).ZoomReset().GetPrettyJson().Print(); });
+    ThrowIt("JSON is not an object"); /// todo: enum map for The.type();
+
+    RescueThrow([&]() { if (!FbSilentError) GetPrettyJson().Print(); });
 }
 
-RA::JSON& RA::JSON::Zoom(const char* FacObject)
+const RA::JSON& RA::JSON::KeyFC(const char* FsKey, const bool FbSilentError) const
 {
-    Begin();
-    ThrowNoJSON();
-    size_t Size = strlen(FacObject) + 1;
-    auto LacWideCharSPtr = RA::SharedPtr<wchar_t[]>(new wchar_t[Size]); auto LacWideCharPtr = LacWideCharSPtr.Ptr();
-    mbstowcs_s(NULL, LacWideCharPtr, strlen(FacObject) + 1, FacObject, strlen(FacObject));
-    LacWideCharPtr[Size - 1] = L'\0';
-    Zoom(LacWideCharPtr);
-    return *this;
-    RescueThrow([this]() { RA::JSON(The).ZoomReset().GetPrettyJson().Print(); });
+    return const_cast<JSON*>(this)->KeyFC(FsKey, FbSilentError);
 }
 
-RA::JSON& RA::JSON::Zoom(const xstring& FsObject)
+const RA::JSON& RA::JSON::KeyFC(const xstring& FsKey, const bool FbSilentError) const
 {
-    Begin();
-    ThrowNoJSON();
-    return Zoom(FsObject.c_str());
-    RescueThrow([this]() { RA::JSON(The).ZoomReset().GetPrettyJson().Print(); });
+    return const_cast<JSON*>(this)->KeyFC(FsKey, FbSilentError);
 }
 
-RA::JSON& RA::JSON::Zoom(const wchar_t* FacObject)
+const RA::JSON& RA::JSON::Key(const std::wstring& FsKey, const bool FbSilentError) const
 {
-    Begin();
-    GSS(MoFullJson);
-    if (MoFullJson.to_string() == L"null")
-        return *this;
-    if (MoZoomedJsonPtr == nullptr)
-    {
-        try
-        {
-            if (MoFullJson.is_array())
-            {
-                MoZoomedJsonPtr = RA::MakeShared<web::json::value>(MoZoomedJsonPtr.Get()
-                    //.as_array().at(0)
-                    .as_object().at(FacObject));
-            }else
-                MoZoomedJsonPtr = RA::MakeShared<web::json::value>(MoFullJson.at(FacObject));
-        }
-        catch (...)
-        {
-            cout << "Start of Failed JSON: " << WTXS(MoFullJson.to_string().c_str())(0, 100) << endl;
-            ThrowIt("Failed to Get JSON");
-        }
-    }
-    else
-    {
-        GSS(MoZoomedJson);
-        MoZoomedJson = MoZoomedJson.at(FacObject);
-    }
-    return *this;
-    RescueThrow([this]() { RA::JSON(The).ZoomReset().GetPrettyJson().Print(); });
+    return const_cast<JSON*>(this)->Key(FsKey, FbSilentError);
 }
 
-RA::JSON& RA::JSON::ZoomReset()
+bool RA::JSON::BxNullFC(const char* FsKey) const
 {
     Begin();
-    MoZoomedJsonPtr = nullptr;
-    return *this;
+    return KeyFC(FsKey).is_null();
     Rescue();
 }
 
-web::json::value RA::JSON::GetValue(const char* FacObject) const
+bool RA::JSON::BxNullFC(const xstring& FsKey) const
 {
     Begin();
-    size_t Size = strlen(FacObject) + 1;
-    auto LacWideCharSPtr = RA::SharedPtr<wchar_t[]>(new wchar_t[Size]); auto LacWideCharPtr = LacWideCharSPtr.Ptr();
-    mbstowcs_s(NULL, LacWideCharPtr, strlen(FacObject) + 1, FacObject, strlen(FacObject));
-    LacWideCharPtr[Size - 1] = L'\0';
-
-    if (!!MoZoomedJsonPtr)
-    {
-        GET(MoZoomedJson);
-        if (MoZoomedJson.is_array())
-        {
-            return MoZoomedJson
-                .as_array().at(0)
-                .as_object().at(LacWideCharPtr);
-        }
-        else
-            return MoZoomedJson
-            .as_object().at(LacWideCharPtr);
-    }
-    else
-    {
-        GET(MoFullJson);
-        if (MoFullJson.is_array())
-        {
-            return MoFullJson
-                .as_array().at(0)
-                .as_object().at(LacWideCharPtr);
-        }
-        else
-            return MoFullJson
-            .as_object().at(LacWideCharPtr);
-    }
-
+    return Key(FsKey.ToStdWString()).is_null();
     Rescue();
 }
 
-web::json::value RA::JSON::GetValue(const wchar_t* FacObject) const
+bool RA::JSON::BxNull() const
 {
     Begin();
-    GET(MoFullJson);
-    if (MoFullJson.is_array())
-    {
-        return MoFullJson
-            .as_array().at(0)
-            .as_object().at(FacObject);
-    }
-    else
-        return MoFullJson
-        .as_object().at(FacObject);
+    return is_null();
     Rescue();
 }
 
-web::json::object RA::JSON::GetObj(const xint Idx) const
+bool RA::JSON::BxNull(const std::wstring& FsKey) const
 {
     Begin();
-    return MoFullJsonPtr.Get().as_array().at(Idx).as_object();
+    return Key(FsKey).is_null();
     Rescue();
-}
-
-web::json::object RA::JSON::GetObj(const char* FacObject) const
-{
-    Begin();
-    return GetValue(FacObject).as_object();
-    Rescue();
-}
-
-web::json::object RA::JSON::GetObj(const xstring& FsObject) const
-{
-    Begin();
-    return GetObj(FsObject.Ptr());
-    Rescue();
-}
-
-web::json::array RA::JSON::GetArr(const xint Idx) const
-{
-    Begin();
-    return MoFullJsonPtr.Get().as_array().at(Idx).as_array();
-    Rescue();
-}
-
-web::json::array RA::JSON::GetArr(const char* FacObject) const
-{
-    Begin();
-    return GetValue(FacObject).as_array();
-    Rescue();
-}
-
-web::json::array RA::JSON::GetArr(const wchar_t* FacObject) const
-{
-    Begin();
-    GET(MoFullJson);
-    return GetValue(FacObject).as_array();
-    Rescue();
-}
-
-web::json::array RA::JSON::GetArr(const xstring& FsObject) const
-{
-    Begin();
-    return GetArr(FsObject.Ptr());
-    Rescue();
-}
-
-int RA::JSON::GetInt(const char* FacObject) const
-{
-    Begin();
-    return GetValue(FacObject).as_integer();
-    Rescue();
-}
-
-int RA::JSON::GetInt(const wchar_t* FacObject) const
-{
-    Begin();
-    return GetValue(FacObject).as_integer();
-    Rescue();
-}
-
-int RA::JSON::GetInt(const xstring& FacObject) const
-{
-    Begin();
-    return GetValue(FacObject.Ptr()).as_integer();
-    Rescue();
-}
-
-xint RA::JSON::GetUInt(const char* FacObject) const
-{
-    Begin();
-    return GetValue(FacObject).as_number().to_uint64();
-    Rescue();
-}
-
-xint RA::JSON::GetUInt(const wchar_t* FacObject) const
-{
-    Begin();
-    return GetValue(FacObject).as_number().to_uint64();
-    Rescue();
-}
-
-xint RA::JSON::GetUInt(const xstring& FacObject) const
-{
-    Begin();
-    return GetValue(FacObject.Ptr()).as_number().to_uint64();
-    Rescue();
-}
-
-xstring RA::JSON::GetString(const std::wstring& FwObject) const
-{
-    return RA::WTXS(The.GetJSON().as_object().at(FwObject).as_string().c_str());
-}
-
-std::wstring RA::JSON::GetWString(const std::wstring& FwObject) const
-{
-    return The.GetJSON().as_object().at(FwObject).as_string().c_str();
-}
-
-double RA::JSON::GetStringAsDouble(const std::wstring& FwObject) const
-{
-    return std::stod(The.GetJSON().as_object().at(FwObject).as_string().c_str());
-}
-
-const web::json::value& RA::JSON::GetFullObject() const
-{
-    Begin();
-    ThrowNoJSON();
-    return *MoFullJsonPtr;
-    RescueThrow([this]() { RA::JSON(The).ZoomReset().GetPrettyJson().Print(); });
-}
-
-const web::json::value& RA::JSON::GetJSON() const
-{
-    Begin();
-    ThrowNoJSON();
-    if (MoZoomedJsonPtr == nullptr)
-        return *MoFullJsonPtr;
-    else
-        return *MoZoomedJsonPtr;
-    RescueThrow([this]() { RA::JSON(The).ZoomReset().GetPrettyJson().Print(); });
-
-}
-
-const web::json::array& RA::JSON::GetJsonArray() const
-{
-    Begin();
-    ThrowNoJSON();
-    return GetJSON().as_array();
-    RescueThrow([this]() { RA::JSON(The).ZoomReset().GetPrettyJson().Print(); });
-}
-
-const web::json::object& RA::JSON::GetJsonObject() const
-{
-    Begin();
-    ThrowNoJSON();
-    return GetJSON().as_object();
-    RescueThrow([this]() { RA::JSON(The).ZoomReset().GetPrettyJson().Print(); });
-}
-
-const BSON::Value& RA::JSON::GetBSON() const
-{
-    Begin();
-    ThrowNoBSON();
-    return *MoBsonValuePtr;
-    RescueThrow([this]() { RA::JSON(The).ZoomReset().GetPrettyJson().Print(); });
 }
 
 xstring RA::JSON::ToString() const
 {
-    if (!!MoZoomedJsonPtr)
-        return RA::WTXS((*MoZoomedJsonPtr).to_string().c_str());
-    if (!!MoFullJsonPtr)
-        return RA::WTXS((*MoFullJsonPtr).to_string().c_str());
-    return xstring::StaticClass;
+    if (is_string())
+        return RA::WTXS(as_string().c_str());
+    return RA::WTXS(to_string().c_str());
 }
 
 xstring RA::JSON::ToString(const web::json::value& FwObject)
 {
+    if (FwObject.is_string())
+        return RA::WTXS(FwObject.as_string().c_str());
     return RA::WTXS(FwObject.serialize().c_str());
 }

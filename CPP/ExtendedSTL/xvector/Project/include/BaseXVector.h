@@ -86,6 +86,8 @@ public:
     RIN bool operator==(const xint value) const;
     RIN bool operator!=(const xint value) const;
 
+    inline explicit operator bool() const noexcept { return The.size() > 0; }
+
     xvector<xvector<T>> RIN Split(xint FnSplinters) const;
 
     RIN void Remove(const xint Idx);

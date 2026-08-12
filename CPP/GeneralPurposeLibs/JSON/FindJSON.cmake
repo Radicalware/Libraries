@@ -7,14 +7,16 @@ FindStaticLib("JSON")
 
 set(BSON_INCLUDE  "${VCPKG_INCLUDE}/bsoncxx/v_noabi")
 set(MONGO_INCLUDE "${VCPKG_INCLUDE}/mongocxx/v_noabi")
-#set(MONGO_PACKAGE "${VCPKG_PACKAGES}/mongo-cxx-driver_x64-windows/include/bsoncxx/v_noabi")
+
+include_directories("${VCPKG_INCLUDE}")
+include_directories("${VCPKG_INCLUDE}/bsoncxx")
+include_directories("${VCPKG_INCLUDE}/mongocxx")
 
 list(APPEND InstalledIncludeDirs "${BSON_INCLUDE}")
 include_directories("${BSON_INCLUDE}")
 
 list(APPEND InstalledIncludeDirs "${MONGO_INCLUDE}")
 include_directories("${MONGO_INCLUDE}")
-#include_directories("${MONGO_PACKAGE}")
 
 find_package(cpprestsdk CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
@@ -27,9 +29,6 @@ set(UsedVcpkgLibs
     cpprestsdk::cpprest 
     cpprestsdk::cpprestsdk_zlib_internal 
     cpprestsdk::cpprestsdk_brotli_internal
-
-    nlohmann_json
-    nlohmann_json::nlohmann_json
 
     mongo::bsoncxx_shared
     mongo::mongocxx_shared

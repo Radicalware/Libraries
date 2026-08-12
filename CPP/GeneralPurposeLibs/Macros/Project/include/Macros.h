@@ -198,6 +198,18 @@ namespace RA
         SS << FnArg;
     }
 
+    inline void _Support_JoinStr(std::ostringstream& SS, const std::wstring& FnArg) {
+        SS << WTXS(FnArg.c_str());
+    }
+
+    inline void _Support_JoinStr(std::ostringstream& SS, const wchar_t* FnArg) {
+        SS << WTXS(FnArg);
+    }
+
+    inline void _Support_JoinStr(std::ostringstream& SS, const wchar_t FnArg) {
+        SS << static_cast<char>(FnArg);
+    }
+
     template <typename FF, typename... RR>
     void _Support_JoinStr(std::ostringstream& SS, const FF& Frist, const RR&... Rest) {
         SS << Frist;
@@ -394,3 +406,109 @@ constexpr auto EnumRangeEX(E FnFirst, E LnLastExclusive) {
 #endif
 
 // -----------------------------------------------------------------------------------------------------------------------------
+
+template<typename R, typename N>
+UsingArithmetic(R) Cast(const N& Num)
+{
+    if constexpr (BxUnsigned(R))
+        return static_cast<R>(RA::Round(Num)); // Rounds nearest
+    else
+        return static_cast<R>(Num);
+}
+
+template<typename R, typename O>
+UsingObject(const R&) Cast(const O& Obj)
+{
+    Begin()
+    if constexpr (BxPolymorphic(O))
+    {
+        if (auto* p = dynamic_cast<const R*>(&Obj))
+            return *p;
+        ThrowIt("Bad Cast");
+    }
+    return static_cast<const R&>(Obj);
+    Rescue()
+}
+
+template<typename R, typename O>
+UsingObject(R) Cast(const O&& Obj)
+{
+    Begin()
+        if constexpr (BxPolymorphic(O))
+        {
+            if (auto* p = dynamic_cast<const R*>(&Obj))
+                return *p;
+            ThrowIt("Bad Cast");
+        }
+    return static_cast<R>(Obj);
+    Rescue()
+}
+
+template<typename R, typename O>
+UsingObject(R&) Cast(O* Ptr)
+{
+    Begin()
+    if (!Ptr)
+        ThrowIt("Null Pointer Cast");
+    if constexpr (BxPolymorphic(O))
+    {
+        if (auto* p = dynamic_cast<R*>(Ptr))
+            return *p;
+        ThrowIt("Bad Cast");
+    }
+    return *static_cast<R*>(Ptr);
+    Rescue()
+}
+
+template<typename R, typename O>
+UsingObject(const R&) Cast(const O* Ptr)
+{
+    Begin()
+    if (!Ptr)
+        ThrowIt("Null Pointer Cast");
+    if constexpr (BxPolymorphic(O))
+    {
+        if (auto* p = dynamic_cast<const R*>(Ptr))
+            return *p;
+        ThrowIt("Bad Cast");
+    }
+    return *static_cast<const R*>(Ptr);
+    Rescue()
+}
+
+template<typename R, typename O>
+UsingObject(R*) CastPtr(O* Ptr)
+{
+    Begin()
+    if (!Ptr)
+        return nullptr;
+    if constexpr (BxPolymorphic(O))
+    {
+        if (auto* p = dynamic_cast<R*>(Ptr))
+            return p;
+        return nullptr;
+    }
+    return static_cast<R*>(Ptr);
+    Rescue()
+}
+
+template<typename R, typename O>
+UsingObject(const R*) CastPtr(const O* Ptr)
+{
+    Begin()
+    if (!Ptr)
+        return nullptr;
+    if constexpr (BxPolymorphic(O))
+    {
+        if (auto* p = dynamic_cast<const R*>(Ptr))
+            return p;
+        return nullptr;
+    }
+    return static_cast<const R*>(Ptr);
+    Rescue()
+}
+
+#define SCast static_cast
+#define RCast reinterpret_cast
+#define DCast dynamic_cast
+

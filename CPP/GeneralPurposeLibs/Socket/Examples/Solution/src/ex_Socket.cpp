@@ -19,7 +19,7 @@ void DummyExample()
 
     xvector<xstring> LvNums = { "one", "two", "three" };
     xvector<xstring*> LvPtrNums = LvNums.GetPtrs();
-    LvPtrNums.ForEachThread([](auto& Val) { return Val + '\n'; }).Join(">> ").Split('\n').Join().Findall(R"(\w+)").Join('\n').Print();
+    LvPtrNums.ForEachThread([](auto& Val) { return Val + '\n'; }).Join(">> ").Split('\n').Join().FindAll(R"(\w+)").Join('\n').Print();
     auto& Val = LvPtrNums[1];
 
     Rescue();

@@ -14,8 +14,33 @@
 #undef  ConstructorHeader
 #define ConstructorHeader template<typename K, typename V, typename H> RIN BaseXMap<K, V, H>::BaseXMap
 
-
 template<typename K, typename V, typename H = std::hash<K>> class xmap;
+
+// -----------------------------------------------------------------------------------------------------------------
+// Pair-Key/Value extraction trait — accepts both std::pair<K,V> and std::pair<const K,V>
+// so CTAD works whether the user writes std::pair{"x", 800} (non-const key) or a pair
+// that already carries a const-qualified key (e.g. from std::map/std::unordered_map iterators).
+// -----------------------------------------------------------------------------------------------------------------
+template<typename T>
+struct XMapPairTraits; // Purposely undefined for non-pair types (SFINAE-friendly)
+
+template<typename K, typename V>
+struct XMapPairTraits<std::pair<K, V>> {
+    using Key = K;
+    using Val = V;
+};
+
+template<typename K, typename V>
+struct XMapPairTraits<std::pair<const K, V>> {
+    using Key = K;
+    using Val = V;
+};
+
+template<typename T>
+concept XMapPairLike = requires {
+    typename XMapPairTraits<T>::Key;
+    typename XMapPairTraits<T>::Val;
+};
 
 template<typename K, typename V, typename H>
 class BaseXMap : public std::unordered_map<K, V, H>, public RA::MutexHandler
@@ -48,6 +73,12 @@ public:
     RIN void operator=(const std::map<K, V, H>&  Other);
     RIN void operator=(      std::map<K, V, H>&& Other) noexcept;
     // -------------------------------------------------------------------------
+    RIN BaseXMap(const xvector<kvps<K, V>>&  Other);
+    RIN BaseXMap(      xvector<kvps<K, V>>&& Other) noexcept;
+
+    RIN void operator=(const xvector<kvps<K, V>>&  Other);
+    RIN void operator=(      xvector<kvps<K, V>>&& Other) noexcept;
+    // -------------------------------------------------------------------------
     // --------------------------------------------------------------------------
     RIN void AddPairIfNotExist(const K& one, const V& two);
     RIN void AddPairIfNotExist(const K& one, const V&& two);
@@ -68,6 +99,35 @@ ConstructorHeader(      std::unordered_map<K, V>&& Other) noexcept : std::unorde
 
 ConstructorHeader(const std::map<K, V>&  Other)                    : std::unordered_map<K, V, H>(Other.begin(), Other.end()){  }
 ConstructorHeader(      std::map<K, V>&& Other)           noexcept : std::unordered_map<K, V, H>(std::make_move_iterator(Other.begin()), std::make_move_iterator(Other.end())) { Other.clear(); }
+
+ConstructorHeader(const xvector<kvps<K, V>>&  Other)               : std::unordered_map<K, V, H>(Other.begin(), Other.end()) {  }
+ConstructorHeader(      xvector<kvps<K, V>>&& Other)      noexcept : std::unordered_map<K, V, H>(std::make_move_iterator(Other.begin()), std::make_move_iterator(Other.end())) { Other.clear(); }
+
+template<XMapPairLike P>
+xmap(std::initializer_list<P>) -> xmap<typename XMapPairTraits<P>::Key, typename XMapPairTraits<P>::Val>;
+
+template<typename InputIt>
+xmap(InputIt, InputIt) -> xmap<
+    typename XMapPairTraits<typename std::iterator_traits<InputIt>::value_type>::Key,
+    typename XMapPairTraits<typename std::iterator_traits<InputIt>::value_type>::Val>;
+
+template<typename K, typename V, typename H>
+xmap(const std::unordered_map<K, V, H>&) -> xmap<K, V, H>;
+
+template<typename K, typename V, typename H>
+xmap(std::unordered_map<K, V, H>&&) -> xmap<K, V, H>;
+
+template<typename K, typename V>
+xmap(const std::map<K, V>&) -> xmap<K, V>;
+
+template<typename K, typename V>
+xmap(std::map<K, V>&&) -> xmap<K, V>;
+
+template<typename K, typename V, typename H>
+xmap(const xmap<K, V, H>&) -> xmap<K, V, H>;
+
+template<typename K, typename V, typename H>
+xmap(xmap<K, V, H>&&) -> xmap<K, V, H>;
 
 // -------------------------------------------------------------------------------------
 template<typename K, typename V, typename H>
@@ -107,6 +167,20 @@ RIN void BaseXMap<K, V, H>::operator=(const std::map<K, V, H>& Other)
 
 template<typename K, typename V, typename H>
 RIN void BaseXMap<K, V, H>::operator=(std::map<K, V, H>&& Other) noexcept
+{
+    The.clear();
+    The.insert(std::make_move_iterator(Other.begin()), std::make_move_iterator(Other.end()));
+}
+// -------------------------------------------------------------------------------------
+template<typename K, typename V, typename H>
+RIN void BaseXMap<K, V, H>::operator=(const xvector<kvps<K, V>>& Other)
+{
+    The.clear();
+    The.insert(Other.begin(), Other.end());
+}
+
+template<typename K, typename V, typename H>
+RIN void BaseXMap<K, V, H>::operator=(xvector<kvps<K, V>>&& Other) noexcept
 {
     The.clear();
     The.insert(std::make_move_iterator(Other.begin()), std::make_move_iterator(Other.end()));

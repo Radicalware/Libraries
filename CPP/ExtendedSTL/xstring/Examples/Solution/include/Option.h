@@ -35,7 +35,7 @@ struct Option
 
     // ===================================================================================================
 
-    inline void Findall() {
+    inline void FindAll() {
         xstring emails = R"emails(my_email@gmail.com garbage
 un-needed subdomain.another_mailing_address@hotmail.com
 Hacker.Havoc.ctr@street.district.city junktext
@@ -54,30 +54,30 @@ more junk text vice.crusade.ctr@us.underground.nil   junk
         cout << "------------ FIND WALK FULL EMAIL -----------------------------\n";
         header = "\nFindall 1 = "; 
         header.Print(0);
-        emails.Findwalk(R"(([^\s]*\@[^\s]*))").Join(header).Print(2);
+        emails.FindWalk(R"(([^\s]*\@[^\s]*))").Join(header).Print(2);
         cout << "----\n";
         header.Print(0);
-        emails.Findwalk(RE2(R"(([^\s]*\@[^\s]*))")).Join(header).Print(2);
+        emails.FindWalk(RE2(R"(([^\s]*\@[^\s]*))")).Join(header).Print(2);
 
         // return the whole email
         // first  '(' is for string literal indicated by the 'R'
         // second '(' is for our primary capture group (anything outside will be omitted) from the capture returned
 
         // ------------------- OUTPUT BELOW --------------------------
-        //Findall 1 = my_email@gmail.com
-        //Findall 1 = subdomain.another_mailing_address@hotmail.com
-        //Findall 1 = Hacker.Havoc.ctr@street.district.city
-        //Findall 1 = vice.crusade.ctr@us.underground.nil
+        //FindAll 1 = my_email@gmail.com
+        //FindAll 1 = subdomain.another_mailing_address@hotmail.com
+        //FindAll 1 = Hacker.Havoc.ctr@street.district.city
+        //FindAll 1 = vice.crusade.ctr@us.underground.nil
         // -----------------------------------------------------------
 
         cout << "------------ FIND WALK EMAIL DOMAIN ---------------------------\n";
         header = "\nFindall 2 = "; 
         header.Print(0);
-        emails.Findwalk(R"rex((?:.*\@)(.+(\.?).+?)(?:\.))rex").Join(header).Print(2);
+        emails.FindWalk(R"rex((?:.*\@)(.+(\.?).+?)(?:\.))rex").Join(header).Print(2);
         cout << "----\n";
         header.Print(0);
         // 
-        emails.Findwalk(RE2(R"rex((?:.*\@)(.+(\.?).+?)(?:\.))rex")).Join(header).Print(2);
+        emails.FindWalk(RE2(R"rex((?:.*\@)(.+(\.?).+?)(?:\.))rex")).Join(header).Print(2);
 
         // a big advantage here is that look-ahead/behind is not a finite length like in python
         // lookahead  = (?:<regex>)
@@ -85,26 +85,26 @@ more junk text vice.crusade.ctr@us.underground.nil   junk
 
         // returns the domains with the top-level domain stripped
         // ----- OUTPUT BELOW --------------
-        // Findall 2 = gmail
-        // Findall 2 = hotmail
-        // Findall 2 = street.district
-        // Findall 2 = us.underground
+        // FindAll 2 = gmail
+        // FindAll 2 = hotmail
+        // FindAll 2 = street.district
+        // FindAll 2 = us.underground
         // ---------------------------------
 
         // next we do the same thing but regex over the whole thing at once
         cout << "------------ FIND ALL EMAIL DOMAIN ----------------------------\n";
         header = "\nFindall 3 = ";
         header.Print(0);
-        emails.Findall(R"rex((?:(?:^|\n).*\@)(.+(\.?).+?)(?:\.))rex").Join(header).Print(2);
+        emails.FindAll(R"rex((?:(?:^|\n).*\@)(.+(\.?).+?)(?:\.))rex").Join(header).Print(2);
         cout << "----\n";
         header.Print(0);
-        emails.Findall(RE2(R"rex((?:(?:^|\n).*\@)(.+(\.?).+?)(?:\.))rex")).Join(header).Print(2);
+        emails.FindAll(RE2(R"rex((?:(?:^|\n).*\@)(.+(\.?).+?)(?:\.))rex")).Join(header).Print(2);
 
         // ----- OUTPUT BELOW --------------
-        // Findall 2 = gmail
-        // Findall 2 = hotmail
-        // Findall 2 = street.district
-        // Findall 2 = us.underground
+        // FindAll 2 = gmail
+        // FindAll 2 = hotmail
+        // FindAll 2 = street.district
+        // FindAll 2 = us.underground
         // ---------------------------------
     }
 

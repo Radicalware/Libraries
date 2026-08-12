@@ -21,7 +21,7 @@ RA::Mutex::Mutex()
 //    return RA::Lock(std::move(LoLock), MoKeyPtr, MoSigPtr, MbMutexLockedPtr);
 //}
 
-RA::ULock RA::Mutex::CreateLock()
+RA::ULock RA::Mutex::NewLock()
 {
     return ULock(MoKeyPtr.Get());
 }

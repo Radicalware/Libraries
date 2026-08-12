@@ -3,31 +3,24 @@
 #include <unordered_map>
 #include <sstream>
 
-void RA::MutexHandler::CreateMTX()
+RA::Mutex& RA::MutexHandler::ReadyMutex()
 {
     if (MnMutexID == 0)
     {
         MnMutexID = ++SnMutexCount;
         SmMutex.insert({ MnMutexID, RA::Mutex() });
     }
+    return SmMutex[MnMutexID];
 }
 
-bool RA::MutexHandler::UsingMTX() const
+bool RA::MutexHandler::UsingMutex() const
 {
     return MnMutexID > 0;
 }
 
-RA::Mutex& RA::MutexHandler::GetMTX() const
+RA::Mutex& RA::MutexHandler::GetMutex() const
 {
     if (MnMutexID == 0)
         throw "MutexHandler::GetMutex >> Has No Mutex ID";
     return SmMutex.at(MnMutexID);
-}
-
-RA::Mutex& RA::MutexHandler::GetMTX()
-{
-    if (MnMutexID == 0)
-        CreateMTX();
-
-    return SmMutex[MnMutexID];
 }

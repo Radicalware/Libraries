@@ -125,8 +125,8 @@ public:
     template<typename N = T, typename F, typename ...A>                 RIN xvector<N> ForEach(F&& function, A&& ...Args) const;
     template<typename K, typename V, typename F, typename ...A>         RIN std::unordered_map<K, V> ForEach(F&& function, A&& ...Args) const;
     // multi-threaded const & non-const
-    template<typename N = T, typename F, typename... A>                 RIN xvector<xp<N>> ForEachThread(F&& function, A&& ...Args);
-    template<typename N = T, typename F, typename... A>                 RIN xvector<xp<N>> ForEachThread(F&& function, A&& ...Args) const;
+    template<typename N = T, typename F, typename... A>                 RIN xvector<N> ForEachThread(F&& function, A&& ...Args);
+    template<typename N = T, typename F, typename... A>                 RIN xvector<N> ForEachThread(F&& function, A&& ...Args) const;
     template<typename K, typename V, typename F, typename ...A>         RIN std::unordered_map<K, V> ForEachThread(F&& function, A&& ...Args) const;
 
     template<typename N = T, typename F, typename... A>                 RIN void StartTasks(F&& function, A&& ...Args);
@@ -680,38 +680,26 @@ RIN std::unordered_map<K, V> SPtrXVector<xp<T>>::ForEach(F&& function, A&& ...Ar
 
 template<typename T>
 template<typename N, typename F, typename ...A>
-RIN xvector<xp<N>> SPtrXVector<xp<T>>::ForEachThread(F&& function, A&& ...Args)
+RIN xvector<N> SPtrXVector<xp<T>>::ForEachThread(F&& function, A&& ...Args)
 {
-    if constexpr (std::is_same_v<N, T>)
-    {
-        SSET(MoNexus, MKP<Nexus<N>>());
-        MoNexus.Disable();
-        for (typename xvector<xp<T>>::iterator it = The.begin(); it != The.end(); it++)
-            MoNexus.AddTaskVal(function, (*it).Get(), std::ref(Args)...);
-        MoNexus.Enable();
-        return MoNexus.GetAllPtrs();
-    }
-    else
-    {
-        Nexus<N> LoNexus;
-        LoNexus.Disable();
-        for (typename xvector<xp<T>>::iterator it = The.begin(); it != The.end(); it++)
-            LoNexus.AddTaskVal(function, (*it).Get(), std::ref(Args)...);
-        LoNexus.Enable();
-        return LoNexus.GetAllPtrs();
-    }
+    Nexus<N> LoNexus;
+    LoNexus.Disable();
+    for (typename xvector<xp<T>>::iterator it = The.begin(); it != The.end(); it++)
+        LoNexus.AddTaskVal(function, (*it).Get(), std::ref(Args)...);
+    LoNexus.Enable();
+    return LoNexus.GetAll();
 }
 
 template<typename T>
 template<typename N, typename F, typename ...A>
-RIN xvector<xp<N>> SPtrXVector<xp<T>>::ForEachThread(F&& function, A&& ...Args) const
+RIN xvector<N> SPtrXVector<xp<T>>::ForEachThread(F&& function, A&& ...Args) const
 {
     Nexus<N> LoNexus;
     LoNexus.Disable();
     for (typename xvector<xp<T>>::const_iterator it = The.begin(); it != The.end(); it++)
         LoNexus.AddTaskVal(function, (*it).Get(), std::ref(Args)...);
     LoNexus.Enable();
-    return LoNexus.GetAllPtrs();
+    return LoNexus.GetAll();
 }
 
 template<typename T>

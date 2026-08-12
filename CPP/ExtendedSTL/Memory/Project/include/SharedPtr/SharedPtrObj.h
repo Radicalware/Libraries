@@ -25,6 +25,13 @@ namespace RA
 
         CIN SharedPtr(const std::shared_ptr<T>& Other)           : BaseSharedPtr<T>(Other) {}
         CIN SharedPtr(      std::shared_ptr<T>&& Other) noexcept : BaseSharedPtr<T>(std::move(Other)) {}
+
+        // -------------------------------------------------------------------------------------------------
+        template <typename T2> CIN SharedPtr(const SharedPtr<T2>&  Other)          : BaseSharedPtr<T>(Other) {}
+        template <typename T2> CIN SharedPtr(      SharedPtr<T2>&& Other) noexcept : BaseSharedPtr<T>(std::move(Other)) {}
+
+        template <typename T2> CIN SharedPtr(const std::shared_ptr<T2>&  Other)          : BaseSharedPtr<T>(Other) {}
+        template <typename T2> CIN SharedPtr(      std::shared_ptr<T2>&& Other) noexcept : BaseSharedPtr<T>(std::move(Other)) {}
         // -------------------------------------------------------------------------------------------------
         CIN SharedPtr& operator=(const SharedPtr<T>&  _Right) noexcept;
         CIN SharedPtr& operator=(      SharedPtr<T>&& _Right) noexcept;
@@ -68,6 +75,14 @@ namespace RA
 
         CIN void Clone(const T& Other);
         CIN void Clone(T&& Other);
+
+        template <typename... Args>
+        T& New(Args&&... FoArgs); // New object creation (clears any existing one)
+
+        template <typename... Args>
+        T& Ret(Args&&... FoArgs); // Returns the Existing Object or creates a new one
+
+        inline void Reset() noexcept { The.reset(); }
 
         _NODISCARD CIN       std::remove_extent_t<T>* Ptr()       noexcept { return The.get(); }
         _NODISCARD CIN const std::remove_extent_t<T>* Ptr() const noexcept { return The.get(); }
@@ -199,7 +214,8 @@ CIN void RA::SharedPtr<T>::Clone(const RA::SharedPtr<T>& Other)
 {
     if (!Other)
         return;
-    The = RA::SharedPtr<T>(Other.Get());
+    if (The)
+        *The = *Other;
 }
 
 template<typename T>
@@ -211,11 +227,40 @@ CIN void RA::SharedPtr<T>::Clone(RA::SharedPtr<T>&& Other)
 template<typename T>
 CIN void RA::SharedPtr<T>::Clone(const T& Other)
 {
-    The = RA::SharedPtr<T>(Other);
+    if (The)
+        *The = Other;
+    else
+        The = MakeShared<T>(Other);
 }
 
 template<typename T>
 CIN void RA::SharedPtr<T>::Clone(T&& Other)
 {
-    The = RA::SharedPtr<T>(std::move(Other));
+    if (The)
+        *The = std::move(Other);
+    else
+        The = MakeShared<T>(std::move(Other));
+}
+
+template<typename T>
+template<typename ...Args>
+inline T& RA::SharedPtr<T>::New(Args && ...FoArgs)
+{
+    Begin();
+    The = nullptr;
+    The = MakeShared<T>(std::forward<Args>(FoArgs)...);
+    return The.Get();
+    Rescue();
+}
+
+template<typename T>
+template<typename ...Args>
+inline T& RA::SharedPtr<T>::Ret(Args && ...FoArgs)
+{
+    Begin();
+    if (The)
+        return The.Get();
+    The = MakeShared<T>(std::forward<Args>(FoArgs)...);
+    return The.Get();
+    Rescue();
 }

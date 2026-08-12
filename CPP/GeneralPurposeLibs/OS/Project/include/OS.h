@@ -113,7 +113,7 @@ namespace RA
         xstring InstRead();
 
     public:
-        static xstring ReadFile(const xstring& FsFilename, bool FbRetry = false, bool FbUseBinaries = false);
+        static xstring ReadFileSlow(const xstring& FsFilename, bool FbRetry = false, bool FbUseBinaries = false);
         static xstring ReadStatMethod(const xstring& file_name);   // Good for text and binaries on Linux
         static xstring ReadStreamMethod(const xstring& file_name); // Good for text and binaries on Linux and Windows
         static xstring GetSTDIN();
@@ -123,12 +123,19 @@ namespace RA
         // ---------------------------------------------------------------------------------------------
         // Dir Parsing
 
-        static xvector<xstring> Dir(const xstring& folder_start, \
+        static xvector<xstring> GetDirectories(const xstring& folder_start, \
             const char mod1 = 'n', const char mod2 = 'n', const char mod3 = 'n');
         // dir(folder_to_start_search_from, mod can match for any of the following 3);
         // r = recursive = search dirs recursivly
         // f = files     = return files in search
         // d = directory = return dirs in search
+
+        // Dir to match console command "dir" for shorthand
+        inline static xvector<xstring> Dir(const xstring& folder_start, \
+            const char mod1 = 'n', const char mod2 = 'n', const char mod3 = 'n') 
+        {
+            return GetDirectories(folder_start, mod1, mod2, mod3);
+        }
 
         // ---------------------------------------------------------------------------------------------
         // Console Command and Return

@@ -37,12 +37,15 @@
 #include <codecvt>
 
 #include "re2/re2.h"
-
 #include "Memory.h"
+#include "RawMapping.h"
 #include "SharedPtr.h"
 #include "Color.h"
 #include "re2/re2.h"
 #include "xvector.h"
+
+class xstring;
+using xs = xstring;
 
 class xstring : public std::string
 {
@@ -101,6 +104,8 @@ public:
     xstring operator+(std::string&& FsTarget);
     xstring operator+(const std::wstring& FsTarget);
     xstring operator+(std::wstring&& FsTarget);
+
+    inline explicit operator bool() const noexcept { return The.size() > 0; }
 
     TTT RIN RetIfTrue(xstring&,  BxSameType(T, xstring)) operator<<(const   xp<T>& Other) { The += *Other; return The; }
     TTT RIN RetIfTrue(xstring&,  BxSameType(T, xstring)) operator<<(const      T&  Other) { The +=  Other; return The; }
@@ -178,8 +183,9 @@ public:
     bool ScanList(const xvector<re2::RE2>& FvRex) const;
     bool ScanList(const xvector<xp<re2::RE2>>& FvRex) const;
 
-    xvector<xstring> Findall(const re2::RE2& FsRex) const;
-    xvector<xstring> Findwalk(const re2::RE2& FsRex) const;
+    xstring FindOne(const re2::RE2& FsRex) const;
+    xvector<xstring> FindAll(const re2::RE2& FsRex) const;
+    xvector<xstring> FindWalk(const re2::RE2& FsRex) const;
 
     xstring  Sub(const RE2& FsRex, const std::string& FsReplacement) const;
     xstring  Sub(const RE2& FsRex, const re2::StringPiece& FsReplacement) const;
@@ -249,13 +255,17 @@ public:
 
     // =================================================================================================================================
 
-    xvector<xstring> Findall(const std::regex& FsRex) const;
-    xvector<xstring> Findall(const xstring& FsPattern, RXM::Type FeMod = RXM::ECMAScript) const;
-    xvector<xstring> Findall(const char* FsPattern, RXM::Type FeMod = RXM::ECMAScript) const;
+    xvector<xstring> FindAll(const std::regex& FsRex) const;
+    xvector<xstring> FindAll(const xstring& FsPattern, RXM::Type FeMod = RXM::ECMAScript) const;
+    xvector<xstring> FindAll(const char* FsPattern, RXM::Type FeMod = RXM::ECMAScript) const;
 
-    xvector<xstring> Findwalk(const std::regex& FsRex) const;
-    xvector<xstring> Findwalk(const xstring& FsPattern, RXM::Type FeMod = RXM::ECMAScript) const;
-    xvector<xstring> Findwalk(const char* FsPattern, RXM::Type FeMod = RXM::ECMAScript) const;
+    xstring FindOne(const std::regex& FsRex) const;
+    xstring FindOne(const xstring& FsPattern, RXM::Type FeMod = RXM::ECMAScript) const;
+    xstring FindOne(const char* FsPattern, RXM::Type FeMod = RXM::ECMAScript) const;
+
+    xvector<xstring> FindWalk(const std::regex& FsRex) const;
+    xvector<xstring> FindWalk(const xstring& FsPattern, RXM::Type FeMod = RXM::ECMAScript) const;
+    xvector<xstring> FindWalk(const char* FsPattern, RXM::Type FeMod = RXM::ECMAScript) const;
 
     xvector<xstring> Search(const std::regex& FsRex, int count = -1) const;
     xvector<xstring> Search(const xstring& FsPattern, RXM::Type FeMod = RXM::ECMAScript, int count = -1) const;
@@ -303,6 +313,7 @@ public:
     long      ToLong()     const;
     long long ToLongLong() const;
     xint      To64()       const;
+    double    ToDouble();
     double    ToDouble()   const;
     float     ToFloat()    const;
     bool      ToBool()     const;
@@ -519,7 +530,8 @@ namespace RA
         if (Out.Last() == '.')
         {
             auto LnValue = FnValue;
-            LnValue += 1;
+            if (RA::Round(LnValue) > LnValue)
+                LnValue += 1;
             SS.str(xstring::StaticClass);
             SS << static_cast<xint>(LnValue);
             return SS;
@@ -616,3 +628,4 @@ RIN RetIfTrue(xstring, !BxSameType(T, xstring)) xstring::operator<<(const xp<T>&
         throw "Error @ xstring& xstring::operator<<(const xp<T>& Other);";
     }
 }
+

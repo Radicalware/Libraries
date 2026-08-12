@@ -11,14 +11,13 @@ namespace RA
     {
     public:
         RIN constexpr MutexHandler() noexcept {}
-        void          CreateMTX(); // Warning: there is a windows macro "CreateMutex"
-        bool          UsingMTX() const;
-        RA::Mutex&    GetMTX() const;
-        RA::Mutex&    GetMTX();
-        RIN auto      CreateLock()       { return GetMTX().CreateLock(); }
-        RIN auto      CreateLock() const { return GetMTX().CreateLock(); }
-        RIN void      Unlock()           { return GetMTX().Unlock(); }
-        RIN void      Unlock()     const { return GetMTX().Unlock(); }
+        RA::Mutex&    ReadyMutex();
+        bool          UsingMutex() const;
+        RA::Mutex&    GetMutex()   const;
+        RIN auto      NewLock()       { return ReadyMutex().NewLock(); }
+        RIN auto      NewLock() const { return GetMutex().NewLock(); }
+        RIN void      Unlock()        { return ReadyMutex().Unlock(); }
+        RIN void      Unlock()  const { return GetMutex().Unlock(); }
 
     protected:
                 xint MnMutexID = 0;

@@ -41,3 +41,26 @@ template<typename T> class PtrPrimXVectorAPI;
 // Shared Pointers
 #define SPtrObjXVectorAPI xvector<xp<T>, typename std::enable_if_t<!BxFundamental(T)>>
 template<typename T> class SPtrObjXVectorAPI;
+
+// -----------------------------------------------------------------------------------------------------------------
+// Deduction Guides: allow CTAD like std::vector, e.g. xvector{ "a", "b", "c" } -> xvector<const char*>
+// These always deduce to the default second parameter (enabler_t = void), letting normal
+// template-argument substitution then pick the correct partial specialization (Val/Ptr/SPtr APIs) above.
+// -----------------------------------------------------------------------------------------------------------------
+template<typename T>
+xvector(std::initializer_list<T>) -> xvector<T>;
+
+template<typename InputIt>
+xvector(InputIt, InputIt) -> xvector<typename std::iterator_traits<InputIt>::value_type>;
+
+template<typename T>
+xvector(const std::vector<T>&) -> xvector<T>;
+
+template<typename T>
+xvector(std::vector<T>&&) -> xvector<T>;
+
+template<typename T, typename enabler_t2>
+xvector(const xvector<T, enabler_t2>&) -> xvector<T>;
+
+template<typename T, typename enabler_t2>
+xvector(xvector<T, enabler_t2>&&) -> xvector<T>;
